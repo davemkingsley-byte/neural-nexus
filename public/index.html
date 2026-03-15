@@ -486,8 +486,8 @@
 document.getElementById('subscribe-btn').addEventListener('click', () => {
   const email = document.getElementById('email-input').value.trim();
   window.open(email 
-    ? 'https://davidkingsley.substack.com/subscribe?email=' + encodeURIComponent(email) 
-    : 'https://davidkingsley.substack.com/subscribe', '_blank');
+    ? 'https://davidkingsley.substack.com/subscribe?simple=true&next=https://davidkingsley.substack.com/?email=' + encodeURIComponent(email) 
+    : 'https://davidkingsley.substack.com/subscribe?simple=true&next=https://davidkingsley.substack.com/', '_blank');
 });
 document.getElementById('email-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('subscribe-btn').click();
