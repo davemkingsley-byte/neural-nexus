@@ -66,7 +66,7 @@ app.post('/api/score', (req, res) => {
   try {
     const { nickname, score, words_found, time_remaining } = req.body;
     const dateStr = getTodayStr();
-    spellDB.saveScore(dateStr, nickname, score, words_found, time_remaining);
+    spellDB.submitScore(dateStr, nickname, score, words_found, time_remaining);
     res.json({ success: true });
   } catch (err) {
     console.error('Error saving score:', err);
@@ -77,7 +77,7 @@ app.post('/api/score', (req, res) => {
 app.get('/api/leaderboard', (req, res) => {
   try {
     const dateStr = getTodayStr();
-    const scores = spellDB.getScores(dateStr);
+    const scores = spellDB.getLeaderboard(dateStr);
     res.json({ entries: scores });
   } catch (err) {
     console.error('Error getting leaderboard:', err);
