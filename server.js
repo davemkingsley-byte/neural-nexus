@@ -1,9 +1,20 @@
 const express = require('express');
 const path = require('path');
 
-// Import spelling bee modules
-const spellDB = require('./src/database');
-const { generatePuzzle, validateWord } = require('./src/puzzle-generator');
+let spellDB, generatePuzzle, validateWord;
+let dbReady = false;
+
+try {
+  spellDB = require('./src/database');
+  const pg = require('./src/puzzle-generator');
+  generatePuzzle = pg.generatePuzzle;
+  validateWord = pg.validateWord;
+  dbReady = true;
+  console.log('Database and puzzle generator loaded successfully');
+} catch (err) {
+  console.error('Failed to load game modules:', err.message);
+  console.error(err.stack);
+}
 
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -11,12 +22,22 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Health check
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', dbReady, time: new Date().toISOString() });
+});
+
 // Serve the game page
 app.get('/play', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'play.html'));
 });
 
 // --- Spelling Bee API ---
+function checkDB(res) {
+  if (!dbReady) { res.status(503).json({ error: 'Game database not available' }); return false; }
+  return true;
+}
+
 function getTodayStr() {
   const now = new Date();
   return now.toISOString().split('T')[0];
@@ -33,6 +54,7 @@ function ensurePuzzle(dateStr) {
 }
 
 app.get('/api/puzzle', (req, res) => {
+  if (!checkDB(res)) return;
   try {
     const dateStr = getTodayStr();
     const puzzle = ensurePuzzle(dateStr);
@@ -50,6 +72,7 @@ app.get('/api/puzzle', (req, res) => {
 });
 
 app.post('/api/validate', (req, res) => {
+  if (!checkDB(res)) return;
   try {
     const { word } = req.body;
     const dateStr = getTodayStr();
@@ -63,6 +86,7 @@ app.post('/api/validate', (req, res) => {
 });
 
 app.post('/api/score', (req, res) => {
+  if (!checkDB(res)) return;
   try {
     const { nickname, score, words_found, time_remaining } = req.body;
     const dateStr = getTodayStr();
@@ -75,6 +99,7 @@ app.post('/api/score', (req, res) => {
 });
 
 app.get('/api/leaderboard', (req, res) => {
+  if (!checkDB(res)) return;
   try {
     const dateStr = getTodayStr();
     const scores = spellDB.getLeaderboard(dateStr);
