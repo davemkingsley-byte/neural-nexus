@@ -1,7 +1,12 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 
-const db = new Database(path.join(__dirname, '..', 'spelling-bee.db'));
+// Use persistent volume on Railway (/data), fallback to local
+const fs = require('fs');
+const dbDir = fs.existsSync('/data') ? '/data' : path.join(__dirname, '..');
+const dbPath = path.join(dbDir, 'spelling-bee.db');
+console.log('Database path:', dbPath);
+const db = new Database(dbPath);
 
 db.pragma('journal_mode = WAL');
 

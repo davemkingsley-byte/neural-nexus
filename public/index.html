@@ -184,11 +184,13 @@
     padding: 40px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); text-align: center;
   }
   .about-avatar {
-    width: 80px; height: 80px; border-radius: 50%;
+    width: 100px; height: 100px; border-radius: 50%;
     background: linear-gradient(135deg, var(--accent), var(--accent-2));
     display: flex; align-items: center; justify-content: center;
-    font-size: 2rem; margin: 0 auto 20px;
+    font-size: 2.5rem; margin: 0 auto 20px;
+    overflow: hidden; border: 2px solid var(--border-2);
   }
+  .about-avatar img { width: 100%; height: 100%; object-fit: cover; }
   .about-name { font-size: 1.2rem; font-weight: 800; margin-bottom: 4px; }
   .about-handle { font-size: 0.8rem; color: var(--accent); font-weight: 600; margin-bottom: 16px; }
   .about-handle a { color: var(--accent); text-decoration: none; }
@@ -398,7 +400,7 @@
   <div class="section-label">About the Author</div>
   <h2 class="section-title">Meet the mind behind the NeXus</h2>
   <div class="about-card">
-    <div class="about-avatar" style="background:none;"><img src="https://substack-post-media.s3.amazonaws.com/public/images/18bd4054-8b09-495b-93fd-fa3e7c78d67f_739x618.png" alt="Neural NeXus" style="width:100%;height:100%;border-radius:50%;object-fit:cover;"></div>
+    <div class="about-avatar" id="author-photo" style="font-size:2.5rem;background:linear-gradient(135deg, var(--accent), var(--accent-2));">DK</div>
     <div class="about-name">David Kingsley, PhD</div>
     <div class="about-handle"><a href="https://davidkingsley.substack.com" target="_blank">@davidkingsley on Substack</a></div>
     <p class="about-bio">
