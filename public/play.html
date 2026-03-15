@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Spelling Bee</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080f;
+    --surface: rgba(255,255,255,0.03);
+    --surface-2: rgba(255,255,255,0.06);
+    --surface-3: rgba(255,255,255,0.09);
+    --border: rgba(255,255,255,0.06);
+    --border-2: rgba(255,255,255,0.1);
+    --gold: #f0c040;
+    --gold-dim: rgba(240,192,64,0.15);
+    --gold-glow: rgba(240,192,64,0.4);
+    --text: #f0f0f5;
+    --text-dim: rgba(255,255,255,0.4);
+    --text-mid: rgba(255,255,255,0.6);
+    --green: #34d399;
+    --blue: #60a5fa;
+    --purple: #a78bfa;
+    --red: #f87171;
+    --hex-bg: rgba(255,255,255,0.04);
+    --hex-hover: rgba(255,255,255,0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background:
+      radial-gradient(ellipse at 30% 20%, rgba(240,192,64,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 80%, rgba(96,165,250,0.03) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(167,139,250,0.02) 0%, transparent 60%);
+    animation: ambientShift 20s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes ambientShift {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    100% { transform: translate(-2%, -1%) rotate(3deg); }
+  }
+
+  /* Noise texture overlay */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .game-container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 520px;
+    padding: 0 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Header */
+  header {
+    text-align: center;
+    padding: 24px 0 4px;
+    width: 100%;
+  }
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo-bee {
+    font-size: 1.6rem;
+    filter: drop-shadow(0 0 8px var(--gold-glow));
+  }
+  .logo-text {
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--gold) 0%, #fff8e0 50%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-size: 200% auto;
+    animation: shimmer 4s linear infinite;
+  }
+  @keyframes shimmer {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+  }
+
+  /* Timer */
+  .timer-wrap {
+    position: relative;
+    width: 110px;
+    height: 110px;
+    margin: 16px auto 12px;
+  }
+  .timer-ring {
+    transform: rotate(-90deg);
+    width: 110px;
+    height: 110px;
+    filter: drop-shadow(0 0 12px rgba(240,192,64,0.2));
+  }
+  .timer-ring-bg { stroke: var(--surface-2); stroke-width: 3; }
+  .timer-ring-fill {
+    stroke: var(--gold);
+    stroke-width: 3;
+    transition: stroke-dashoffset 1s linear, stroke 0.8s;
+    stroke-linecap: round;
+  }
+  .timer-ring-fill.warning { stroke: #fbbf24; }
+  .timer-ring-fill.urgent {
+    stroke: var(--red);
+    filter: drop-shadow(0 0 8px rgba(248,113,113,0.5));
+  }
+  #timer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--text);
+    transition: color 0.5s;
+  }
+  #timer.warning { color: #fbbf24; }
+  #timer.urgent { color: var(--red); animation: timerPulse 1s ease-in-out infinite; }
+  @keyframes timerPulse {
+    0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.6; transform: translate(-50%, -50%) scale(1.05); }
+  }
+
+  /* Score */
+  .score-section { text-align: center; margin-bottom: 2px; }
+  #score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text);
+    transition: transform 0.15s;
+  }
+  #score.bump { animation: scoreBump 0.3s ease; }
+  @keyframes scoreBump {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+
+  /* Milestone tracker */
+  .milestone-tracker {
+    width: 100%;
+    max-width: 420px;
+    margin: 8px auto 20px;
+    padding: 16px 20px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .milestone-bar-wrap {
+    position: relative;
+    height: 3px;
+    background: var(--surface-2);
+    border-radius: 2px;
+    margin: 0 6px;
+  }
+  #milestone-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(90deg, var(--text-dim), var(--green), var(--blue), var(--purple), var(--red));
+  }
+  .milestone-dots {
+    display: flex;
+    justify-content: space-between;
+    margin-top: -6px;
+    position: relative;
+  }
+  .milestone-dot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .milestone-dot .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid rgba(255,255,255,0.12);
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .milestone-dot.reached .dot {
+    border-color: transparent;
+    transform: scale(1.3);
+  }
+  .milestone-dot.reached { transform: translateY(-1px); }
+  .milestone-dot:nth-child(1).reached .dot { background: var(--text-dim); box-shadow: 0 0 8px var(--text-dim); }
+  .milestone-dot:nth-child(2).reached .dot { background: var(--green); box-shadow: 0 0 10px rgba(52,211,153,0.5); }
+  .milestone-dot:nth-child(3).reached .dot { background: var(--blue); box-shadow: 0 0 10px rgba(96,165,250,0.5); }
+  .milestone-dot:nth-child(4).reached .dot { background: var(--purple); box-shadow: 0 0 10px rgba(167,139,250,0.5); }
+  .milestone-dot:nth-child(5).reached .dot { background: var(--red); box-shadow: 0 0 10px rgba(248,113,113,0.5); }
+  .milestone-dot .dot-label {
+    font-size: 0.55rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-top: 6px;
+    color: rgba(255,255,255,0.15);
+    transition: all 0.4s;
+  }
+  .milestone-dot.reached .dot-label { color: var(--text-mid); }
+  .milestone-dot.current .dot-label { color: var(--text); font-weight: 800; }
+  .milestone-dot .dot-pts {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.5rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.1);
+    margin-top: 1px;
+  }
+  .milestone-dot.reached .dot-pts { color: var(--text-dim); }
+
+  /* Word input */
+  .word-bar {
+    width: 100%;
+    max-width: 380px;
+    margin: 0 auto 2px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px 20px;
+    min-height: 54px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    transition: border-color 0.3s;
+  }
+  .word-bar:focus-within { border-color: var(--gold-dim); }
+  #current-word {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 8px;
+    text-transform: uppercase;
+    color: var(--text);
+    min-height: 1.6rem;
+  }
+  #current-word::after {
+    content: '│';
+    animation: cursorBlink 1.2s step-end infinite;
+    color: var(--gold);
+    font-weight: 300;
+    margin-left: 1px;
+    opacity: 0.7;
+  }
+  @keyframes cursorBlink { 0%,44% { opacity: 0.7; } 45%,100% { opacity: 0; } }
+
+  #message {
+    text-align: center;
+    font-size: 0.8rem;
+    font-weight: 600;
+    min-height: 1.3rem;
+    transition: all 0.3s;
+    margin-bottom: 2px;
+  }
+  .msg-error { color: var(--red); }
+  .msg-success { color: var(--green); }
+  .msg-pangram { color: var(--gold); font-weight: 800; font-size: 0.95rem; text-shadow: 0 0 20px var(--gold-glow); }
+
+  /* Float points */
+  .float-points {
+    position: fixed;
+    pointer-events: none;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--green);
+    z-index: 200;
+    animation: floatUp 1.4s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    text-shadow: 0 0 20px currentColor;
+  }
+  .float-points.pangram { color: var(--gold); font-size: 2rem; }
+  @keyframes floatUp {
+    0% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+    60% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-80px) scale(0.8); }
+  }
+
+  /* Pangram flash */
+  .pangram-flash {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at 50% 40%, rgba(240,192,64,0.12) 0%, transparent 60%);
+    pointer-events: none;
+    animation: flashFade 1s ease-out forwards;
+    z-index: 150;
+  }
+  @keyframes flashFade { 0% { opacity: 1; } 100% { opacity: 0; } }
+
+  /* Honeycomb */
+  .honeycomb-wrap {
+    display: flex;
+    justify-content: center;
+    margin: 6px 0 8px;
+  }
+  .honeycomb {
+    position: relative;
+    width: 240px;
+    height: 260px;
+  }
+  .hex {
+    position: absolute;
+    width: 82px;
+    height: 82px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1);
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+  }
+  .hex:hover { transform: scale(1.06); }
+  .hex:active { transform: scale(0.92); }
+  .hex-inner {
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+    background: linear-gradient(165deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text);
+    transition: all 0.15s;
+    position: relative;
+  }
+  .hex-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+    background: linear-gradient(165deg, rgba(255,255,255,0.06) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  .hex:hover .hex-inner {
+    background: linear-gradient(165deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 100%);
+  }
+  .hex.center .hex-inner {
+    background: linear-gradient(165deg, #f5d56a 0%, #c8960a 100%);
+    color: #1a1000;
+  }
+  .hex.center .hex-inner::before {
+    background: linear-gradient(165deg, rgba(255,255,255,0.25) 0%, transparent 50%);
+  }
+  .hex.center {
+    filter: drop-shadow(0 2px 12px rgba(240,192,64,0.35));
+  }
+  .hex.center:hover .hex-inner {
+    background: linear-gradient(165deg, #ffe080 0%, #d4a020 100%);
+  }
+
+  .hex-0 { left: 79px; top: 0; }
+  .hex-1 { left: 147px; top: 42px; }
+  .hex-2 { left: 147px; top: 126px; }
+  .hex-3 { left: 79px; top: 168px; }
+  .hex-4 { left: 11px; top: 126px; }
+  .hex-5 { left: 11px; top: 42px; }
+  .hex-center { left: 79px; top: 84px; }
+
+  /* Buttons */
+  .btn-row {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 4px 0 18px;
+  }
+  .btn {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-mid);
+    padding: 10px 22px;
+    border-radius: 28px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+  .btn:hover { background: var(--surface-2); border-color: var(--border-2); color: var(--text); }
+  .btn:active { transform: scale(0.95); }
+  .btn-enter {
+    background: linear-gradient(135deg, var(--gold), #d4a020);
+    color: #1a1000;
+    border: none;
+    padding: 10px 30px;
+    box-shadow: 0 4px 20px rgba(240,192,64,0.2);
+  }
+  .btn-enter:hover {
+    background: linear-gradient(135deg, #ffe060, #e0b030);
+    box-shadow: 0 4px 25px rgba(240,192,64,0.35);
+    color: #1a1000;
+  }
+
+  /* Found words */
+  .found-section {
+    width: 100%;
+    max-width: 460px;
+  }
+  .found-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .found-header b { color: var(--text-mid); }
+  #found-list {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 10px;
+    max-height: 140px;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .found-word {
+    background: var(--surface-2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    animation: wordSlideIn 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid transparent;
+    color: var(--text-mid);
+  }
+  @keyframes wordSlideIn {
+    0% { opacity: 0; transform: translateY(-10px) scale(0.9); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .found-word .pts {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 0.7rem;
+  }
+  .found-word.pangram {
+    border: 1px solid rgba(240,192,64,0.3);
+    background: rgba(240,192,64,0.06);
+    color: var(--gold);
+    box-shadow: 0 0 15px rgba(240,192,64,0.08);
+  }
+
+  /* Leaderboard */
+  .leaderboard {
+    width: 100%;
+    max-width: 460px;
+    margin-top: 16px;
+    margin-bottom: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+  .leaderboard h3 {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--text-dim);
+    margin-bottom: 12px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+  }
+  .lb-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .lb-table th {
+    text-align: left;
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: rgba(255,255,255,0.2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 6px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  .lb-table td {
+    padding: 10px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-mid);
+  }
+  .lb-table tr:last-child td { border-bottom: none; }
+  .lb-table tr:first-child td { color: var(--gold); font-weight: 700; }
+
+  /* Game over */
+  .overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8,8,15,0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+  }
+  .overlay.active { display: flex; }
+  .overlay-card {
+    background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+    border: 1px solid var(--border-2);
+    border-radius: 24px;
+    padding: 40px 36px;
+    max-width: 400px;
+    width: 90%;
+    text-align: center;
+    animation: overlayReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    backdrop-filter: blur(30px);
+    -webkit-backdrop-filter: blur(30px);
+    box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  }
+  @keyframes overlayReveal {
+    0% { opacity: 0; transform: scale(0.85) translateY(30px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .overlay-card h2 {
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: var(--text-dim);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .overlay-card .final-score {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 4rem;
+    font-weight: 700;
+    margin: 8px 0;
+    background: linear-gradient(135deg, var(--gold) 0%, #ffe4a0 50%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .overlay-card .final-rank {
+    display: inline-block;
+    padding: 6px 24px;
+    border-radius: 24px;
+    font-weight: 800;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    margin-bottom: 20px;
+  }
+  .rank-Beginner { background: rgba(255,255,255,0.05); color: var(--text-dim); border: 1px solid rgba(255,255,255,0.1); }
+  .rank-Good { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.2); }
+  .rank-Great { background: rgba(96,165,250,0.1); color: var(--blue); border: 1px solid rgba(96,165,250,0.2); }
+  .rank-Amazing { background: rgba(167,139,250,0.1); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+  .rank-Genius { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.2); }
+  .overlay-stats {
+    color: var(--text-dim);
+    margin-bottom: 24px;
+    font-size: 0.85rem;
+    line-height: 1.8;
+  }
+  .overlay-input {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: 1px solid var(--border-2);
+    background: rgba(0,0,0,0.3);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 10px;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .overlay-input:focus { border-color: rgba(240,192,64,0.4); }
+  .overlay-input::placeholder { color: rgba(255,255,255,0.2); }
+  .overlay-submit {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, var(--gold), #c8960a);
+    color: #1a1000;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 20px rgba(240,192,64,0.2);
+  }
+  .overlay-submit:hover { box-shadow: 0 4px 30px rgba(240,192,64,0.4); transform: translateY(-1px); }
+  .overlay-submit:active { transform: translateY(0); }
+  .overlay-submit:disabled { opacity: 0.4; cursor: default; transform: none; box-shadow: none; }
+  .overlay-restart {
+    margin-top: 8px;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 12px;
+    border-radius: 14px;
+    width: 100%;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .overlay-restart:hover { border-color: var(--border-2); color: var(--text-mid); }
+
+  /* Rank toast */
+  .rank-up-toast {
+    position: fixed;
+    top: 18%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 14px 32px;
+    border-radius: 20px;
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    z-index: 200;
+    animation: rankReveal 2s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    pointer-events: none;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+  }
+  @keyframes rankReveal {
+    0% { opacity: 0; transform: translateX(-50%) scale(0.5) translateY(10px); }
+    12% { opacity: 1; transform: translateX(-50%) scale(1.1) translateY(0); }
+    25% { transform: translateX(-50%) scale(1) translateY(0); }
+    75% { opacity: 1; }
+    100% { opacity: 0; transform: translateX(-50%) scale(0.95) translateY(-15px); }
+  }
+
+  /* Confetti */
+  .confetti-piece {
+    position: fixed;
+    top: -10px;
+    z-index: 300;
+    pointer-events: none;
+    border-radius: 2px;
+    animation: confettiFall var(--fall-duration, 3s) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+  @keyframes confettiFall {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+    80% { opacity: 1; }
+    100% { opacity: 0; transform: translateY(100vh) rotate(var(--rotate, 720deg)) scale(0.5); }
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  /* Mobile */
+  @media (max-width: 480px) {
+    .logo-text { font-size: 0.75rem; letter-spacing: 6px; }
+    .timer-wrap { width: 90px; height: 90px; }
+    .timer-ring { width: 90px; height: 90px; }
+    #timer { font-size: 1.2rem; }
+    #score { font-size: 1.8rem; }
+    .honeycomb { transform: scale(0.82); margin: -8px 0; }
+    .word-bar { max-width: 300px; padding: 12px 16px; }
+    #current-word { font-size: 1.2rem; letter-spacing: 6px; }
+    .milestone-tracker { padding: 12px 14px 10px; }
+    .milestone-dot .dot-label { font-size: 0.5rem; }
+    .overlay-card { padding: 28px 24px; }
+    .overlay-card .final-score { font-size: 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="game-container">
+
+<header>
+  <div class="logo">
+    <span class="logo-bee">🐝</span>
+    <span class="logo-text">Spelling Bee</span>
+  </div>
+</header>
+
+<div class="timer-wrap">
+  <svg class="timer-ring" viewBox="0 0 110 110">
+    <circle class="timer-ring-bg" cx="55" cy="55" r="48" fill="none"/>
+    <circle class="timer-ring-fill" id="timer-ring" cx="55" cy="55" r="48" fill="none"
+      stroke-dasharray="301.59" stroke-dashoffset="0" stroke-linecap="round"/>
+  </svg>
+  <div id="timer">5:00</div>
+</div>
+
+<div class="score-section">
+  <span id="score">0</span>
+</div>
+
+<div class="milestone-tracker">
+  <div class="milestone-dots" id="milestone-dots">
+    <div class="milestone-dot reached"><div class="dot"></div><div class="dot-label">Beginner</div><div class="dot-pts" id="ms-0">0</div></div>
+    <div class="milestone-dot"><div class="dot"></div><div class="dot-label">Good</div><div class="dot-pts" id="ms-1">—</div></div>
+    <div class="milestone-dot"><div class="dot"></div><div class="dot-label">Great</div><div class="dot-pts" id="ms-2">—</div></div>
+    <div class="milestone-dot"><div class="dot"></div><div class="dot-label">Amazing</div><div class="dot-pts" id="ms-3">—</div></div>
+    <div class="milestone-dot"><div class="dot"></div><div class="dot-label">Genius</div><div class="dot-pts" id="ms-4">—</div></div>
+  </div>
+  <div class="milestone-bar-wrap"><div id="milestone-fill"></div></div>
+</div>
+
+<div class="word-bar">
+  <div id="current-word"></div>
+</div>
+<div id="message">&nbsp;</div>
+
+<div class="honeycomb-wrap">
+  <div class="honeycomb" id="honeycomb"></div>
+</div>
+
+<div class="btn-row">
+  <button class="btn" id="btn-delete">Delete</button>
+  <button class="btn btn-enter" id="btn-enter">Enter</button>
+  <button class="btn" id="btn-shuffle">Shuffle</button>
+</div>
+
+<div class="found-section">
+  <div class="found-header">
+    <span>Found <b id="found-count">0</b></span>
+    <span>Possible <b id="total-words">?</b></span>
+  </div>
+  <div id="found-list"></div>
+</div>
+
+<div class="leaderboard" id="leaderboard-section">
+  <h3>🏆 Leaderboard</h3>
+  <table class="lb-table">
+    <thead><tr><th>#</th><th>Player</th><th>Score</th><th>Words</th></tr></thead>
+    <tbody id="lb-body"><tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.15)">Loading...</td></tr></tbody>
+  </table>
+</div>
+
+</div>
+
+<!-- Game Over -->
+<div class="overlay" id="game-over">
+  <div class="overlay-card">
+    <h2>⏱️ Time's Up</h2>
+    <div class="final-score" id="final-score">0</div>
+    <div class="final-rank" id="final-rank">Beginner</div>
+    <div class="overlay-stats" id="final-stats"></div>
+    <input class="overlay-input" id="nickname-input" placeholder="Your nickname" maxlength="20" autocomplete="off">
+    <button class="overlay-submit" id="btn-submit-score">Submit Score</button>
+    <button class="overlay-restart" id="btn-play-again">View Leaderboard</button>
+  </div>
+</div>
+
+<script>
+(function() {
+  let puzzle = null;
+  let currentWord = '';
+  let foundWords = [];
+  let score = 0;
+  let maxScore = 0;
+  let totalWords = 0;
+  let timeLeft = 300;
+  let timerInterval = null;
+  let gameOver = false;
+  let currentRank = 'Beginner';
+  const CIRCUMFERENCE = 2 * Math.PI * 48;
+
+  const $ = id => document.getElementById(id);
+  const $timer = $('timer');
+  const $timerRing = $('timer-ring');
+  const $score = $('score');
+  const $milestoneFill = $('milestone-fill');
+  const $milestoneDots = $('milestone-dots');
+  const $currentWord = $('current-word');
+  const $message = $('message');
+  const $honeycomb = $('honeycomb');
+  const $foundList = $('found-list');
+  const $foundCount = $('found-count');
+  const $totalWords = $('total-words');
+  const $gameOver = $('game-over');
+  const $finalScore = $('final-score');
+  const $finalRank = $('final-rank');
+  const $finalStats = $('final-stats');
+  const $nicknameInput = $('nickname-input');
+  const $btnSubmit = $('btn-submit-score');
+  const $lbBody = $('lb-body');
+
+  const RANKS = ['Beginner','Good','Great','Amazing','Genius'];
+  const RANK_THRESHOLDS = [0, 0.2, 0.4, 0.6, 0.8];
+  const RANK_COLORS = { Beginner:'rgba(255,255,255,0.4)', Good:'#34d399', Great:'#60a5fa', Amazing:'#a78bfa', Genius:'#f87171' };
+
+  function getRank(pct) {
+    if (pct >= 0.8) return 'Genius';
+    if (pct >= 0.6) return 'Amazing';
+    if (pct >= 0.4) return 'Great';
+    if (pct >= 0.2) return 'Good';
+    return 'Beginner';
+  }
+
+  function updateMilestones() {
+    const pct = maxScore > 0 ? score / maxScore : 0;
+    $milestoneFill.style.width = Math.min(pct / 0.8 * 100, 100) + '%';
+    const dots = $milestoneDots.children;
+    const rank = getRank(pct);
+    for (let i = 0; i < RANKS.length; i++) {
+      const threshold = RANK_THRESHOLDS[i];
+      dots[i].classList.toggle('reached', pct >= threshold);
+      dots[i].classList.toggle('current', RANKS[i] === rank);
+    }
+  }
+
+  function setMilestoneLabels() {
+    $('ms-0').textContent = '0';
+    $('ms-1').textContent = Math.round(maxScore * 0.2);
+    $('ms-2').textContent = Math.round(maxScore * 0.4);
+    $('ms-3').textContent = Math.round(maxScore * 0.6);
+    $('ms-4').textContent = Math.round(maxScore * 0.8);
+  }
+
+  function showRankUp(rank) {
+    const toast = document.createElement('div');
+    toast.className = 'rank-up-toast';
+    toast.textContent = '✦ ' + rank;
+    const c = RANK_COLORS[rank];
+    toast.style.background = 'rgba(0,0,0,0.6)';
+    toast.style.color = c;
+    toast.style.border = '1px solid ' + c;
+    toast.style.boxShadow = '0 0 30px ' + c.replace(')', ',0.2)').replace('rgb','rgba');
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2200);
+    if (rank === 'Genius') spawnConfetti();
+  }
+
+  function spawnConfetti() {
+    const colors = ['#f0c040','#f87171','#60a5fa','#34d399','#a78bfa','#fbbf24','#fb923c'];
+    for (let i = 0; i < 60; i++) {
+      const p = document.createElement('div');
+      p.className = 'confetti-piece';
+      p.style.left = Math.random() * 100 + 'vw';
+      p.style.background = colors[Math.floor(Math.random() * colors.length)];
+      p.style.width = (3 + Math.random() * 8) + 'px';
+      p.style.height = (3 + Math.random() * 8) + 'px';
+      p.style.borderRadius = Math.random() > 0.5 ? '50%' : '1px';
+      p.style.setProperty('--fall-duration', (2 + Math.random() * 2) + 's');
+      p.style.setProperty('--rotate', (360 + Math.random() * 720) + 'deg');
+      p.style.animationDelay = Math.random() * 0.8 + 's';
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 5000);
+    }
+  }
+
+  function floatPoints(pts, isPangram) {
+    const el = document.createElement('div');
+    el.className = 'float-points' + (isPangram ? ' pangram' : '');
+    el.textContent = '+' + pts;
+    el.style.left = '50%';
+    el.style.top = '32%';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 1500);
+    if (isPangram) {
+      const flash = document.createElement('div');
+      flash.className = 'pangram-flash';
+      document.body.appendChild(flash);
+      setTimeout(() => flash.remove(), 1100);
+    }
+  }
+
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      if (gameOver) return;
+      timeLeft--;
+      updateTimerDisplay();
+      if (timeLeft <= 0) { clearInterval(timerInterval); endGame(); }
+    }, 1000);
+  }
+
+  function updateTimerDisplay() {
+    const m = Math.floor(timeLeft / 60);
+    const s = timeLeft % 60;
+    $timer.textContent = m + ':' + String(s).padStart(2, '0');
+    const progress = 1 - (timeLeft / 300);
+    $timerRing.style.strokeDashoffset = progress * CIRCUMFERENCE;
+    const urgent = timeLeft <= 30;
+    const warning = timeLeft <= 60 && !urgent;
+    $timer.className = urgent ? 'urgent' : warning ? 'warning' : '';
+    $timerRing.className = 'timer-ring-fill' + (urgent ? ' urgent' : warning ? ' warning' : '');
+  }
+
+  function updateScore() {
+    $score.textContent = score;
+    $score.classList.remove('bump');
+    void $score.offsetWidth;
+    $score.classList.add('bump');
+    const pct = maxScore > 0 ? score / maxScore : 0;
+    const newRank = getRank(pct);
+    if (newRank !== currentRank) { showRankUp(newRank); currentRank = newRank; }
+    updateMilestones();
+    $foundCount.textContent = foundWords.length;
+  }
+
+  function showMessage(text, cls) {
+    $message.textContent = text;
+    $message.className = cls || '';
+    if (text) {
+      clearTimeout(showMessage._t);
+      showMessage._t = setTimeout(() => { $message.textContent = '\u00a0'; $message.className = ''; }, 2000);
+    }
+  }
+
+  function updateCurrentWord() { $currentWord.textContent = currentWord || ''; }
+
+  function addFoundWordUI(word, pts, isPangram) {
+    const el = document.createElement('span');
+    el.className = 'found-word' + (isPangram ? ' pangram' : '');
+    el.innerHTML = word + ' <span class="pts">+' + pts + '</span>';
+    $foundList.prepend(el);
+  }
+
+  let outerLetters = [];
+  let centerLetter = '';
+
+  function renderHoneycomb() {
+    $honeycomb.innerHTML = '';
+    const positions = ['hex-0','hex-1','hex-2','hex-3','hex-4','hex-5'];
+    outerLetters.forEach((letter, i) => {
+      const hex = document.createElement('div');
+      hex.className = 'hex ' + positions[i];
+      hex.innerHTML = '<div class="hex-inner">' + letter + '</div>';
+      hex.addEventListener('click', () => typeLetter(letter));
+      $honeycomb.appendChild(hex);
+    });
+    const centerHex = document.createElement('div');
+    centerHex.className = 'hex center hex-center';
+    centerHex.innerHTML = '<div class="hex-inner">' + centerLetter + '</div>';
+    centerHex.addEventListener('click', () => typeLetter(centerLetter));
+    $honeycomb.appendChild(centerHex);
+  }
+
+  function shuffle() {
+    for (let i = outerLetters.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [outerLetters[i], outerLetters[j]] = [outerLetters[j], outerLetters[i]];
+    }
+    renderHoneycomb();
+  }
+
+  function typeLetter(l) { if (gameOver) return; currentWord += l; updateCurrentWord(); }
+  function deleteLetter() { if (gameOver) return; currentWord = currentWord.slice(0, -1); updateCurrentWord(); }
+
+  async function submitWord() {
+    if (gameOver || !currentWord) return;
+    const word = currentWord.toLowerCase();
+    currentWord = ''; updateCurrentWord();
+    if (foundWords.includes(word)) { showMessage('Already found', 'msg-error'); return; }
+    try {
+      const resp = await fetch('/api/validate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ word }) });
+      const data = await resp.json();
+      if (!data.valid) { showMessage(data.reason || 'Not valid', 'msg-error'); }
+      else {
+        foundWords.push(word);
+        score += data.score;
+        addFoundWordUI(word, data.score, data.isPangram);
+        floatPoints(data.score, data.isPangram);
+        updateScore();
+        if (data.isPangram) showMessage('🎉 PANGRAM! +' + data.score, 'msg-pangram');
+        else {
+          const t = data.tier === 3 ? '· rare' : data.tier === 2 ? '· uncommon' : '';
+          showMessage('+' + data.score + ' ' + t, 'msg-success');
+        }
+      }
+    } catch (e) { showMessage('Error', 'msg-error'); }
+  }
+
+  function endGame() {
+    gameOver = true;
+    const pct = maxScore > 0 ? score / maxScore : 0;
+    const rank = getRank(pct);
+    $finalScore.textContent = score;
+    $finalRank.textContent = rank;
+    $finalRank.className = 'final-rank rank-' + rank;
+    $finalStats.innerHTML = foundWords.length + ' of ' + totalWords + ' words<br>' + Math.round(pct * 100) + '% of max score';
+    $gameOver.classList.add('active');
+    $nicknameInput.focus();
+    if (rank === 'Genius') spawnConfetti();
+  }
+
+  async function submitScore() {
+    const nickname = $nicknameInput.value.trim();
+    if (!nickname) { $nicknameInput.style.borderColor = 'var(--red)'; return; }
+    $btnSubmit.disabled = true; $btnSubmit.textContent = 'Submitting...';
+    try {
+      await fetch('/api/score', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nickname, score, words_found: foundWords, time_remaining: Math.max(0, timeLeft) }) });
+      $btnSubmit.textContent = '✓ Submitted';
+      loadLeaderboard();
+    } catch (e) { $btnSubmit.textContent = 'Error — retry'; $btnSubmit.disabled = false; }
+  }
+
+  async function loadLeaderboard() {
+    try {
+      const resp = await fetch('/api/leaderboard');
+      const data = await resp.json();
+      if (!data.entries || !data.entries.length) {
+        $lbBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.15)">No scores yet</td></tr>';
+        return;
+      }
+      const medals = ['🥇','🥈','🥉'];
+      $lbBody.innerHTML = data.entries.map((e, i) => {
+        const wf = Array.isArray(e.words_found) ? e.words_found.length : 0;
+        return '<tr><td>' + (i < 3 ? medals[i] : i+1) + '</td><td>' + e.nickname + '</td><td>' + e.score + '</td><td>' + wf + '</td></tr>';
+      }).join('');
+    } catch (e) { $lbBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.15)">Could not load</td></tr>'; }
+  }
+
+  async function init() {
+    try {
+      const resp = await fetch('/api/puzzle');
+      puzzle = await resp.json();
+      centerLetter = puzzle.centerLetter;
+      outerLetters = puzzle.letters.filter(l => l !== centerLetter);
+      maxScore = puzzle.maxScore;
+      totalWords = puzzle.totalWords;
+      $totalWords.textContent = totalWords;
+      setMilestoneLabels();
+      renderHoneycomb();
+      updateScore();
+      updateTimerDisplay();
+      startTimer();
+      loadLeaderboard();
+    } catch (e) { showMessage('Failed to load puzzle', 'msg-error'); console.error(e); }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (gameOver && e.target !== $nicknameInput) return;
+    if (e.target === $nicknameInput) return;
+    if (e.key === 'Enter') { e.preventDefault(); submitWord(); }
+    else if (e.key === 'Backspace') { e.preventDefault(); deleteLetter(); }
+    else if (/^[a-zA-Z]$/.test(e.key)) {
+      const letter = e.key.toLowerCase();
+      if ([...outerLetters, centerLetter].includes(letter)) typeLetter(letter);
+    }
+  });
+
+  $('btn-delete').addEventListener('click', deleteLetter);
+  $('btn-enter').addEventListener('click', submitWord);
+  $('btn-shuffle').addEventListener('click', shuffle);
+  $btnSubmit.addEventListener('click', submitScore);
+  $nicknameInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitScore(); });
+  $('btn-play-again').addEventListener('click', () => $gameOver.classList.remove('active'));
+
+  init();
+})();
+</script>
+</body>
+</html>

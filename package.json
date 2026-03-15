@@ -1,0 +1,13 @@
+{
+  "name": "neural-nexus",
+  "version": "1.0.0",
+  "description": "Neural NeXus - Newsletter & Spelling Bee Game",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.0.0",
+    "express": "^4.21.0"
+  }
+}
