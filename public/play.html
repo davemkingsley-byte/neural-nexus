@@ -3,7 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Spelling Bee</title>
+<title>Spelling Bee — Neural NeXus</title>
+<meta name="description" content="Daily Spelling Bee puzzle from Neural NeXus. Seven letters, one center — how many words can you find in 5 minutes?">
+<meta property="og:title" content="Neural NeXus Spelling Bee">
+<meta property="og:description" content="A new puzzle every day. Seven letters, one center — compete on the daily leaderboard.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.neuralnexus.press/play">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐝</text></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
 <style>
@@ -73,6 +79,46 @@
     pointer-events: none;
     z-index: 0;
   }
+
+  /* Game nav */
+  .game-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(8,8,15,0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .game-nav-logo {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--text);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .game-nav-logo span { color: #60a5fa; }
+  .game-nav-link {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none;
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .game-nav-link:hover { color: var(--text); }
 
   .game-container {
     position: relative;
@@ -741,7 +787,12 @@
 </head>
 <body>
 
-<div class="game-container">
+<nav class="game-nav">
+  <a href="/" class="game-nav-logo">Neural<span>NeXus</span></a>
+  <a href="/" class="game-nav-link">← Back to Home</a>
+</nav>
+
+<div class="game-container" style="padding-top: 52px;">
 
 <header>
   <div class="logo">
