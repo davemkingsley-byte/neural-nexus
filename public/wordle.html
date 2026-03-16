@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Wordle — Neural NeXus</title>
+<title>Wordie — Neural NeXus</title>
 <meta name="description" content="Daily 5-letter word puzzle. Guess the word in 6 tries.">
 <link rel="icon" href="/img/neuron-logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -303,7 +303,7 @@ main {
   <div class="nav-left">
     <a href="/" class="nav-brand"><img src="/img/neuron-logo.jpg" alt="Neural NeXus"></a>
     <div class="nav-divider"></div>
-    <span class="nav-title">Wordle</span>
+    <span class="nav-title">Wordie</span>
   </div>
   <div class="nav-links">
     <a href="/">Home</a>
@@ -497,7 +497,7 @@ function showModal(won) {
   document.getElementById('share-grid').textContent = grid;
   document.getElementById('modal').classList.add('show');
   document.getElementById('btn-share').onclick = () => {
-    const text = `Neural NeXus Wordle · ${todayDate}\n\n${grid}\n\nneuralnexus.press/wordle`;
+    const text = `Neural NeXus Wordie · ${todayDate}\n\n${grid}\n\nneuralnexus.press/wordle`;
     if (navigator.share) navigator.share({ text }).catch(() => navigator.clipboard.writeText(text).then(() => showToast('Copied!')));
     else navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
   };
