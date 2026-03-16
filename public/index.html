@@ -265,6 +265,7 @@
   .footer-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 14px; flex-wrap: wrap; }
   .footer-links a { color: var(--text-dim); font-size: 0.75rem; text-decoration: none; transition: color 0.2s; }
   .footer-links a:hover { color: var(--text); }
+  .footer-links a.social-x:hover { color: #fff; }
   footer .copy { font-size: 0.68rem; color: rgba(255,255,255,0.2); }
 
   /* ── Mobile ── */
@@ -383,7 +384,10 @@
     <div class="about-text">
       <div class="about-name">David Kingsley, PhD</div>
       <div class="about-role">Scientist · Colossal Biosciences</div>
-      <div class="about-handle"><a href="https://davidkingsley.substack.com" target="_blank">@davidkingsley on Substack</a></div>
+      <div class="about-handle" style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;">
+        <a href="https://davidkingsley.substack.com" target="_blank">@davidkingsley on Substack</a>
+        <a href="https://x.com/DavidKingsleyPhD" target="_blank" style="display:inline-flex;align-items:center;gap:5px;color:var(--text-mid);font-size:0.75rem;font-weight:600;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-mid)'"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Follow on X</a>
+      </div>
       <p class="about-bio">
         PhD scientist working on de-extinction and artificial womb technology at Colossal Biosciences. 
         Neural NeXus is where I write about the technologies shaping our future — biotech, AI, health, 
@@ -487,6 +491,7 @@
       <a href="https://davidkingsley.substack.com/podcast" target="_blank">Podcast</a>
       <a href="https://davidkingsley.substack.com/archive" target="_blank">Archive</a>
       <a href="/play">Spelling Bee</a>
+      <a href="https://x.com/DavidKingsleyPhD" target="_blank" class="social-x" style="display:inline-flex;align-items:center;gap:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>X / Twitter</a>
     </div>
     <p class="copy">© 2026 Neural NeXus · David Kingsley, PhD</p>
   </div>
