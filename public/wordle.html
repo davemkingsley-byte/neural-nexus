@@ -4,30 +4,26 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Wordle — Neural NeXus</title>
-<meta name="description" content="Daily 5-letter word puzzle. Guess the word in 6 tries. A Neural NeXus game.">
+<meta name="description" content="Daily 5-letter word puzzle. Guess the word in 6 tries.">
 <link rel="icon" href="/img/neuron-logo.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Instrument+Serif&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0a0a0f;
-  --bg-card: rgba(255,255,255,0.025);
-  --border: rgba(255,255,255,0.08);
-  --border-active: rgba(255,255,255,0.3);
-  --text: #f0f0f5;
-  --text-dim: rgba(255,255,255,0.35);
-  --text-mid: rgba(255,255,255,0.55);
-  --accent: #60a5fa;
+  --bg: #0b0b12;
   --green: #22c55e;
-  --green-glow: rgba(34,197,94,0.15);
+  --green-dark: #16a34a;
   --yellow: #eab308;
-  --yellow-glow: rgba(234,179,8,0.12);
-  --absent: rgba(255,255,255,0.08);
-  --absent-text: rgba(255,255,255,0.3);
-  --key-bg: rgba(255,255,255,0.1);
-  --key-hover: rgba(255,255,255,0.15);
+  --yellow-dark: #ca8a04;
+  --absent: rgba(255,255,255,0.1);
+  --absent-text: rgba(255,255,255,0.35);
+  --tile-border: rgba(255,255,255,0.12);
+  --tile-filled: rgba(255,255,255,0.35);
+  --key-bg: rgba(255,255,255,0.12);
+  --text: #f0f0f5;
+  --text-dim: rgba(255,255,255,0.4);
+  --accent: #60a5fa;
 }
-
 * { margin:0; padding:0; box-sizing:border-box; }
 html, body { height: 100%; }
 body {
@@ -35,150 +31,126 @@ body {
   font-family: 'DM Sans', -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   display: flex; flex-direction: column;
-  overflow: hidden; /* prevent bounce scroll on mobile */
-  position: fixed; width: 100%; /* iOS fix */
+  overflow: hidden; position: fixed; width: 100%;
 }
 
-/* ── Ambient background ── */
-.ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-.ambient::before {
-  content: ''; position: absolute;
-  top: -20%; left: 50%; transform: translateX(-50%);
-  width: 800px; height: 800px;
-  background: radial-gradient(circle, rgba(34,197,94,0.04) 0%, transparent 60%);
-  animation: breathe 8s ease-in-out infinite alternate;
-}
-@keyframes breathe { 0%{opacity:0.6;transform:translateX(-50%) scale(1)} 100%{opacity:1;transform:translateX(-50%) scale(1.1)} }
-
-/* ── Subtle grid ── */
-.grid-bg {
-  position: fixed; inset: 0;
-  background-image:
-    linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px);
-  background-size: 48px 48px;
-  pointer-events: none; z-index: 0;
-  mask-image: radial-gradient(ellipse at 50% 30%, black 10%, transparent 60%);
-  -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 10%, transparent 60%);
+/* ── Rich background ── */
+.bg-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(34,197,94,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 100%, rgba(96,165,250,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(234,179,8,0.05) 0%, transparent 50%);
 }
 
 /* ── Nav ── */
 nav {
   position: relative; z-index: 10;
-  padding: 12px 20px;
+  padding: 10px 20px;
   display: flex; justify-content: space-between; align-items: center;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  background: rgba(16,16,22,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(14,14,22,0.95);
   backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   flex-shrink: 0;
 }
-.nav-left { display: flex; align-items: center; gap: 14px; }
+.nav-left { display: flex; align-items: center; gap: 12px; }
 .nav-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-.nav-brand img { height: 26px; border-radius: 5px; opacity: 1; transition: opacity 0.2s; }
-.nav-brand:hover img { opacity: 1; }
-.nav-divider { width: 1px; height: 16px; background: var(--border); }
+.nav-brand img { height: 24px; border-radius: 5px; }
+.nav-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
 .nav-title {
   font-family: 'Instrument Serif', Georgia, serif;
-  font-size: 1.15rem; font-weight: 400; color: #fff;
-  letter-spacing: 0.5px;
+  font-size: 1.1rem; color: #fff;
 }
-.nav-links { display: flex; gap: 16px; align-items: center; }
+.nav-links { display: flex; gap: 14px; align-items: center; }
 .nav-links a {
-  color: rgba(255,255,255,0.7); text-decoration: none;
-  font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px;
-  transition: color 0.2s; text-transform: uppercase;
+  color: rgba(255,255,255,0.6); text-decoration: none;
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px;
+  text-transform: uppercase; transition: color 0.2s;
 }
 .nav-links a:hover { color: #fff; }
-.nav-links .nav-game-link {
-  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
-  padding: 5px 12px; border-radius: 6px;
+.nav-pill {
+  background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.12);
+  padding: 5px 12px; border-radius: 6px; color: rgba(255,255,255,0.8) !important;
 }
-.nav-links .nav-game-link:hover { border-color: rgba(255,255,255,0.25); }
 
-/* ── Main layout ── */
+/* ── Game container ── */
 main {
   flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: flex-end;
-  gap: 16px;
-  padding: 16px 16px 12px; position: relative; z-index: 1;
-  min-height: 0;
+  align-items: center; justify-content: center;
+  padding: 8px 12px 6px; position: relative; z-index: 1;
+  min-height: 0; gap: 10px;
 }
 
 /* ── Header ── */
-.game-header { text-align: center; flex-shrink: 0; margin-bottom: 8px; }
+.game-header {
+  text-align: center; flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(234,179,8,0.06));
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px; padding: 10px 28px;
+}
 .game-header h1 {
   font-family: 'Instrument Serif', Georgia, serif;
-  font-size: 1.1rem; font-weight: 400; letter-spacing: 1px;
-  color: var(--text-mid); margin-bottom: 2px;
+  font-size: 1rem; font-weight: 400; color: #fff;
+  margin-bottom: 1px;
 }
 .game-subtitle {
-  font-size: 0.62rem; color: var(--text-dim);
-  text-transform: uppercase; letter-spacing: 2px; font-weight: 600;
+  font-size: 0.58rem; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700;
 }
 
 /* ── Board ── */
-.board-container {
-  display: flex; align-items: flex-end; justify-content: center;
-  flex: 1; min-height: 0;
-}
 #board {
   display: grid; grid-template-rows: repeat(6, 1fr);
-  gap: 5px; width: min(350px, 70vw);
-  max-height: min(420px, 55vh); aspect-ratio: 5/6;
+  gap: 5px;
+  width: min(340px, 75vw);
+  height: min(408px, 52vh);
+  flex-shrink: 1;
 }
 .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
 .tile {
-  aspect-ratio: 1;
   display: flex; align-items: center; justify-content: center;
   font-family: 'DM Sans', sans-serif;
-  font-size: clamp(1.2rem, 5vw, 1.7rem); font-weight: 800;
+  font-size: clamp(1.3rem, 5vw, 1.8rem); font-weight: 800;
   text-transform: uppercase;
-  border: 2px solid var(--border);
-  border-radius: 4px;
-  background: transparent;
+  border: 2px solid var(--tile-border);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.02);
   color: var(--text);
-  transition: border-color 0.15s;
+  transition: border-color 0.1s, background 0.1s;
 }
 .tile.filled {
-  border-color: var(--border-active);
+  border-color: var(--tile-filled);
+  background: rgba(255,255,255,0.04);
   animation: pop 0.08s ease;
 }
-@keyframes pop {
-  50% { transform: scale(1.05); }
-}
-.tile.flip {
-  animation: flipIn 0.3s ease forwards;
-}
+@keyframes pop { 50% { transform: scale(1.06); } }
+.tile.flip { animation: flipIn 0.3s ease forwards; }
 @keyframes flipIn {
   0% { transform: rotateX(0deg); }
   50% { transform: rotateX(-90deg); }
   100% { transform: rotateX(0deg); }
 }
 .tile.correct {
-  background: var(--green); border-color: var(--green);
-  color: #fff; box-shadow: 0 0 20px var(--green-glow);
+  background: linear-gradient(145deg, var(--green), var(--green-dark));
+  border-color: var(--green); color: #fff;
+  box-shadow: 0 0 24px rgba(34,197,94,0.2), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 .tile.present {
-  background: var(--yellow); border-color: var(--yellow);
-  color: #fff; box-shadow: 0 0 20px var(--yellow-glow);
+  background: linear-gradient(145deg, var(--yellow), var(--yellow-dark));
+  border-color: var(--yellow); color: #fff;
+  box-shadow: 0 0 24px rgba(234,179,8,0.15), inset 0 1px 0 rgba(255,255,255,0.15);
 }
 .tile.absent {
   background: var(--absent); border-color: transparent;
   color: var(--absent-text);
 }
-/* Win bounce */
-.tile.win {
-  animation: winBounce 0.5s ease;
-}
+.tile.win { animation: winBounce 0.5s ease; }
 @keyframes winBounce {
   0%, 100% { transform: translateY(0); }
-  40% { transform: translateY(-20px); }
-  60% { transform: translateY(-8px); }
+  40% { transform: translateY(-16px); }
+  60% { transform: translateY(-6px); }
 }
-/* Shake for invalid */
-.row.shake {
-  animation: shake 0.4s ease;
-}
+.row.shake { animation: shake 0.4s ease; }
 @keyframes shake {
   10%, 90% { transform: translateX(-2px); }
   20%, 80% { transform: translateX(4px); }
@@ -188,15 +160,12 @@ main {
 
 /* ── Keyboard ── */
 #keyboard {
-  width: 100%; max-width: 520px;
-  flex-shrink: 0; padding: 4px 0 8px;
+  width: 100%; max-width: 500px;
+  flex-shrink: 0; padding: 2px 0 4px;
 }
-.kb-row {
-  display: flex; gap: 4px; justify-content: center;
-  margin-bottom: 4px;
-}
+.kb-row { display: flex; gap: 4px; justify-content: center; margin-bottom: 4px; }
 .key {
-  height: 52px; min-width: 32px; flex: 1; max-width: 44px;
+  height: 50px; min-width: 30px; flex: 1; max-width: 42px;
   border-radius: 6px;
   background: var(--key-bg); border: none; color: var(--text);
   font-family: 'DM Sans', sans-serif;
@@ -206,55 +175,47 @@ main {
   display: flex; align-items: center; justify-content: center;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
-  position: relative; overflow: hidden;
 }
-.key::after {
-  content: ''; position: absolute; inset: 0;
-  background: rgba(255,255,255,0.08); opacity: 0;
-  transition: opacity 0.15s;
-}
-.key:active::after { opacity: 1; }
-.key:active { transform: scale(0.95); }
+.key:active { transform: scale(0.93); background: rgba(255,255,255,0.18); }
 .key.wide {
-  max-width: 66px; flex: 1.5;
-  font-size: 0.65rem; letter-spacing: 0.5px; font-weight: 800;
+  max-width: 64px; flex: 1.5;
+  font-size: 0.6rem; letter-spacing: 0.5px; font-weight: 800;
 }
 .key.correct {
-  background: var(--green); color: #fff;
-  box-shadow: 0 2px 12px var(--green-glow);
+  background: linear-gradient(145deg, var(--green), var(--green-dark)); color: #fff;
+  box-shadow: 0 2px 10px rgba(34,197,94,0.25);
 }
 .key.present {
-  background: var(--yellow); color: #fff;
-  box-shadow: 0 2px 12px var(--yellow-glow);
+  background: linear-gradient(145deg, var(--yellow), var(--yellow-dark)); color: #fff;
+  box-shadow: 0 2px 10px rgba(234,179,8,0.2);
 }
-.key.absent {
-  background: rgba(255,255,255,0.03); color: var(--text-dim);
-}
+.key.absent { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.25); }
 
 /* ── Toast ── */
 #toast {
-  position: fixed; top: 70px; left: 50%; transform: translateX(-50%);
-  background: var(--text); color: var(--bg); padding: 10px 20px;
-  border-radius: 6px; font-weight: 700; font-size: 0.8rem;
+  position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+  background: #fff; color: #111; padding: 10px 20px;
+  border-radius: 8px; font-weight: 700; font-size: 0.8rem;
   opacity: 0; pointer-events: none; z-index: 100;
-  transition: opacity 0.25s; box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+  transition: opacity 0.25s; box-shadow: 0 8px 30px rgba(0,0,0,0.5);
 }
 #toast.show { opacity: 1; }
 
 /* ── Modal ── */
 .modal-overlay {
   display: none; position: fixed; inset: 0; z-index: 200;
-  background: rgba(0,0,0,0.75); backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  align-items: center; justify-content: center;
-  padding: 20px;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  align-items: center; justify-content: center; padding: 20px;
 }
 .modal-overlay.show { display: flex; }
 .modal {
-  background: #13131a; border: 1px solid var(--border);
-  border-radius: 20px; padding: 36px 32px;
-  max-width: 380px; width: 100%; text-align: center;
+  background: linear-gradient(180deg, #181820, #111118);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px; padding: 32px 28px;
+  max-width: 360px; width: 100%; text-align: center;
   animation: modalIn 0.3s ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 }
 @keyframes modalIn {
   0% { opacity: 0; transform: scale(0.95) translateY(10px); }
@@ -262,83 +223,81 @@ main {
 }
 .modal h2 {
   font-family: 'Instrument Serif', Georgia, serif;
-  font-size: 1.6rem; font-weight: 400; margin-bottom: 6px;
+  font-size: 1.5rem; font-weight: 400; margin-bottom: 4px;
 }
-.modal .result-msg { color: var(--text-mid); font-size: 0.85rem; margin-bottom: 24px; }
-.modal .stats-grid {
+.modal .result-msg { color: var(--text-dim); font-size: 0.82rem; margin-bottom: 20px; }
+.stats-grid {
   display: grid; grid-template-columns: repeat(4, 1fr);
-  gap: 8px; margin-bottom: 24px;
+  gap: 6px; margin-bottom: 20px;
 }
-.modal .stat-item {
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 10px; padding: 12px 6px;
+.stat-item {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 10px 4px;
 }
-.modal .stat-val {
+.stat-val {
   font-family: 'JetBrains Mono', monospace;
-  font-size: 1.4rem; font-weight: 700; line-height: 1;
+  font-size: 1.3rem; font-weight: 700; line-height: 1;
 }
-.modal .stat-lbl {
-  font-size: 0.55rem; color: var(--text-dim);
-  text-transform: uppercase; letter-spacing: 0.8px; margin-top: 4px;
+.stat-lbl {
+  font-size: 0.5rem; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px;
 }
 .share-grid {
   font-family: monospace; font-size: 1.1rem; line-height: 1.4;
-  margin-bottom: 24px; letter-spacing: 3px;
-  background: var(--bg-card); border: 1px solid var(--border);
-  border-radius: 10px; padding: 16px; display: inline-block;
+  margin-bottom: 20px; letter-spacing: 3px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 14px; display: inline-block;
 }
 .modal-actions { display: flex; gap: 8px; justify-content: center; }
 .btn-modal {
-  padding: 12px 24px; border-radius: 10px; border: none;
-  font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 700;
+  padding: 11px 22px; border-radius: 10px; border: none;
+  font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 700;
   cursor: pointer; transition: all 0.15s;
-  display: flex; align-items: center; gap: 6px;
-  text-decoration: none;
+  display: flex; align-items: center; gap: 6px; text-decoration: none;
 }
 .btn-share {
-  background: var(--green); color: #fff;
-  box-shadow: 0 4px 16px var(--green-glow);
+  background: linear-gradient(135deg, var(--green), var(--green-dark)); color: #fff;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.25);
 }
-.btn-share:hover { transform: translateY(-1px); box-shadow: 0 6px 24px var(--green-glow); }
+.btn-share:hover { transform: translateY(-1px); }
 .btn-alt {
-  background: var(--bg-card); color: var(--text); border: 1px solid var(--border);
+  background: rgba(255,255,255,0.06); color: var(--text);
+  border: 1px solid rgba(255,255,255,0.1);
 }
-.btn-alt:hover { border-color: var(--border-active); }
 
-/* ── Mobile ── */
+/* ── Responsive ── */
 @media (max-width: 480px) {
-  nav { padding: 10px 14px; }
-  .nav-title { font-size: 1rem; }
-  .nav-links a { font-size: 0.6rem; }
-  .game-header h1 { font-size: 0.95rem; }
-  #board { width: min(300px, 72vw); }
-  .key { height: 48px; min-width: 26px; font-size: 0.75rem; border-radius: 5px; }
-  .key.wide { max-width: 56px; font-size: 0.58rem; }
-  #keyboard { max-width: 100%; }
+  nav { padding: 8px 14px; }
+  .nav-title { font-size: 0.95rem; }
+  .game-header { padding: 8px 20px; }
+  .game-header h1 { font-size: 0.9rem; }
+  #board { width: min(320px, 80vw); height: min(384px, 50vh); }
+  .key { height: 46px; min-width: 26px; font-size: 0.75rem; }
+  .key.wide { max-width: 54px; font-size: 0.55rem; }
   .kb-row { gap: 3px; margin-bottom: 3px; }
-  .modal { padding: 28px 24px; }
-  .modal h2 { font-size: 1.3rem; }
-  .share-grid { font-size: 1rem; letter-spacing: 2px; padding: 12px; }
+}
+@media (max-width: 360px) {
+  #board { width: 90vw; height: 48vh; }
+  .key { height: 42px; min-width: 22px; font-size: 0.7rem; }
+  .game-header { padding: 6px 16px; }
 }
 @media (max-height: 650px) {
-  .game-header { margin-bottom: 4px; }
+  .game-header { padding: 6px 20px; margin: 0; }
   .game-header h1 { font-size: 0.85rem; }
   .game-subtitle { display: none; }
-  #board { width: min(260px, 55vw); }
-  .key { height: 42px; }
-  nav { padding: 8px 14px; }
+  #board { height: 46vh; }
+  .key { height: 40px; }
 }
 @media (min-width: 768px) {
-  #board { width: 370px; }
-  .key { height: 56px; max-width: 48px; }
-  .key.wide { max-width: 72px; }
+  #board { width: 360px; height: 432px; }
+  .key { height: 54px; max-width: 46px; }
+  .key.wide { max-width: 70px; }
 }
 </style>
 </head>
 <body>
 
-<div class="ambient"></div>
-<div class="grid-bg"></div>
+<div class="bg-layer"></div>
 
 <nav>
   <div class="nav-left">
@@ -348,7 +307,7 @@ main {
   </div>
   <div class="nav-links">
     <a href="/">Home</a>
-    <a href="/play" class="nav-game-link">🐝 Bee</a>
+    <a href="/play" class="nav-pill">🐝 Bee</a>
   </div>
 </nav>
 
@@ -358,10 +317,7 @@ main {
     <p class="game-subtitle">6 tries · 5 letters · new word daily</p>
   </div>
 
-  <div class="board-container">
-    <div id="board"></div>
-  </div>
-
+  <div id="board"></div>
   <div id="keyboard"></div>
 </main>
 
@@ -388,49 +344,40 @@ main {
 <script>
 const ROWS = 6, COLS = 5;
 let currentRow = 0, currentCol = 0;
-let gameOver = false;
-let revealing = false;
-let todayWord = '';
-let todayDate = '';
+let gameOver = false, revealing = false;
+let todayWord = '', todayDate = '';
 let guesses = [];
 
-// Build board
 const board = document.getElementById('board');
 for (let r = 0; r < ROWS; r++) {
   const row = document.createElement('div');
-  row.className = 'row';
-  row.id = `row${r}`;
+  row.className = 'row'; row.id = `row${r}`;
   for (let c = 0; c < COLS; c++) {
     const tile = document.createElement('div');
-    tile.className = 'tile';
-    tile.id = `t${r}${c}`;
+    tile.className = 'tile'; tile.id = `t${r}${c}`;
     row.appendChild(tile);
   }
   board.appendChild(row);
 }
 
-// Build keyboard
-const KB_LAYOUT = [
+const KB = [
   ['Q','W','E','R','T','Y','U','I','O','P'],
   ['A','S','D','F','G','H','J','K','L'],
   ['ENTER','Z','X','C','V','B','N','M','⌫']
 ];
 const keyboard = document.getElementById('keyboard');
-KB_LAYOUT.forEach(row => {
-  const kr = document.createElement('div');
-  kr.className = 'kb-row';
+KB.forEach(row => {
+  const kr = document.createElement('div'); kr.className = 'kb-row';
   row.forEach(k => {
     const btn = document.createElement('button');
     btn.className = 'key' + (k.length > 1 ? ' wide' : '');
-    btn.textContent = k;
-    btn.id = 'k-' + k;
+    btn.textContent = k; btn.id = 'k-' + k;
     btn.addEventListener('click', () => handleKey(k));
     kr.appendChild(btn);
   });
   keyboard.appendChild(kr);
 });
 
-// Physical keyboard
 document.addEventListener('keydown', e => {
   if (gameOver || revealing) return;
   if (e.key === 'Enter') handleKey('ENTER');
@@ -443,72 +390,57 @@ function handleKey(key) {
   if (key === '⌫') {
     if (currentCol > 0) {
       currentCol--;
-      const tile = document.getElementById(`t${currentRow}${currentCol}`);
-      tile.textContent = '';
-      tile.classList.remove('filled');
+      const t = document.getElementById(`t${currentRow}${currentCol}`);
+      t.textContent = ''; t.classList.remove('filled');
     }
   } else if (key === 'ENTER') {
     if (currentCol === COLS) submitGuess();
   } else if (currentCol < COLS) {
-    const tile = document.getElementById(`t${currentRow}${currentCol}`);
-    tile.textContent = key;
-    tile.classList.add('filled');
+    const t = document.getElementById(`t${currentRow}${currentCol}`);
+    t.textContent = key; t.classList.add('filled');
     currentCol++;
   }
 }
 
 async function submitGuess() {
   const guess = [];
-  for (let c = 0; c < COLS; c++) {
-    guess.push(document.getElementById(`t${currentRow}${c}`).textContent.toLowerCase());
-  }
+  for (let c = 0; c < COLS; c++) guess.push(document.getElementById(`t${currentRow}${c}`).textContent.toLowerCase());
   const word = guess.join('');
 
   try {
     const res = await fetch('/api/wordle/guess', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ guess: word })
     });
     const data = await res.json();
 
     if (!data.valid) {
       showToast('Not in word list');
-      const rowEl = document.getElementById(`row${currentRow}`);
-      rowEl.classList.add('shake');
-      setTimeout(() => rowEl.classList.remove('shake'), 500);
+      document.getElementById(`row${currentRow}`).classList.add('shake');
+      setTimeout(() => document.getElementById(`row${currentRow}`).classList.remove('shake'), 500);
       return;
     }
 
     guesses.push({ word, result: data.result });
     revealing = true;
-
-    const flipDelay = 280;
-    const totalRevealTime = COLS * flipDelay + 350;
+    const delay = 280, total = COLS * delay + 350;
 
     for (let c = 0; c < COLS; c++) {
       const tile = document.getElementById(`t${currentRow}${c}`);
       const state = data.result[c];
       setTimeout(() => {
         tile.classList.add('flip');
-        setTimeout(() => {
-          tile.classList.add(state);
-          updateKey(guess[c].toUpperCase(), state);
-        }, 150);
-      }, c * flipDelay);
+        setTimeout(() => { tile.classList.add(state); updateKey(guess[c].toUpperCase(), state); }, 150);
+      }, c * delay);
     }
 
     setTimeout(() => {
       revealing = false;
       if (data.correct) {
         gameOver = true;
-        // Win bounce animation
-        for (let c = 0; c < COLS; c++) {
-          const tile = document.getElementById(`t${currentRow}${c}`);
-          setTimeout(() => tile.classList.add('win'), c * 80);
-        }
-        const msgs = ['Genius!','Magnificent!','Impressive!','Splendid!','Great!','Phew!'];
-        showToast(msgs[currentRow] || 'Nice!');
+        for (let c = 0; c < COLS; c++)
+          setTimeout(() => document.getElementById(`t${currentRow}${c}`).classList.add('win'), c * 80);
+        showToast(['Genius!','Magnificent!','Impressive!','Splendid!','Great!','Phew!'][currentRow] || 'Nice!');
         updateStats(true);
         setTimeout(() => showModal(true), 1800);
       } else if (currentRow === ROWS - 1) {
@@ -517,123 +449,84 @@ async function submitGuess() {
         updateStats(false);
         setTimeout(() => showModal(false), 1800);
       }
-      currentRow++;
-      currentCol = 0;
-    }, totalRevealTime);
-
-  } catch (e) {
-    showToast('Something went wrong');
-  }
+      currentRow++; currentCol = 0;
+    }, total);
+  } catch (e) { showToast('Something went wrong'); }
 }
 
 const keyStates = {};
 function updateKey(letter, state) {
-  const priority = { correct: 3, present: 2, absent: 1 };
-  const current = keyStates[letter] || 0;
-  if (priority[state] > current) {
-    keyStates[letter] = priority[state];
-    const key = document.getElementById('k-' + letter);
-    if (key) {
-      key.classList.remove('correct', 'present', 'absent');
-      key.classList.add(state);
-    }
+  const p = { correct: 3, present: 2, absent: 1 };
+  if (p[state] > (keyStates[letter] || 0)) {
+    keyStates[letter] = p[state];
+    const k = document.getElementById('k-' + letter);
+    if (k) { k.classList.remove('correct','present','absent'); k.classList.add(state); }
   }
 }
 
 function showToast(msg) {
-  const toast = document.getElementById('toast');
-  toast.textContent = msg;
-  toast.classList.add('show');
-  clearTimeout(toast._timer);
-  toast._timer = setTimeout(() => toast.classList.remove('show'), 2200);
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-// Stats
 function getStats() {
-  try {
-    return JSON.parse(localStorage.getItem('nn-wordle-stats')) || { played: 0, won: 0, streak: 0, maxStreak: 0, lastDate: '' };
-  } catch { return { played: 0, won: 0, streak: 0, maxStreak: 0, lastDate: '' }; }
+  try { return JSON.parse(localStorage.getItem('nn-wordle-stats')) || { played:0,won:0,streak:0,maxStreak:0,lastDate:'' }; }
+  catch { return { played:0,won:0,streak:0,maxStreak:0,lastDate:'' }; }
 }
 function updateStats(won) {
-  const s = getStats();
-  s.played++;
-  if (won) {
-    s.won++;
-    s.streak = (s.lastDate === getYesterday()) ? s.streak + 1 : 1;
-    s.maxStreak = Math.max(s.maxStreak, s.streak);
-  } else { s.streak = 0; }
+  const s = getStats(); s.played++;
+  if (won) { s.won++; s.streak = s.lastDate === getYesterday() ? s.streak+1 : 1; s.maxStreak = Math.max(s.maxStreak, s.streak); }
+  else s.streak = 0;
   s.lastDate = todayDate;
   localStorage.setItem('nn-wordle-stats', JSON.stringify(s));
   localStorage.setItem('nn-wordle-' + todayDate, JSON.stringify({ guesses, gameOver: true, won }));
 }
-function getYesterday() {
-  const d = new Date(); d.setDate(d.getDate() - 1);
-  return d.toISOString().slice(0, 10);
-}
+function getYesterday() { const d = new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); }
 
 function showModal(won) {
   const s = getStats();
   document.getElementById('modal-title').textContent = won ? 'Brilliant' : 'Next time';
-  document.getElementById('modal-msg').textContent = won
-    ? `Solved in ${guesses.length}/6`
-    : `The word was ${todayWord.toUpperCase()}`;
+  document.getElementById('modal-msg').textContent = won ? `Solved in ${guesses.length}/6` : `The word was ${todayWord.toUpperCase()}`;
   document.getElementById('stat-played').textContent = s.played;
-  document.getElementById('stat-win').textContent = s.played ? Math.round(s.won / s.played * 100) : 0;
+  document.getElementById('stat-win').textContent = s.played ? Math.round(s.won/s.played*100) : 0;
   document.getElementById('stat-streak').textContent = s.streak;
   document.getElementById('stat-max').textContent = s.maxStreak;
-
-  const emojiMap = { correct: '🟩', present: '🟨', absent: '⬛' };
-  const grid = guesses.map(g => g.result.map(r => emojiMap[r]).join('')).join('\n');
+  const em = { correct:'🟩', present:'🟨', absent:'⬛' };
+  const grid = guesses.map(g => g.result.map(r => em[r]).join('')).join('\n');
   document.getElementById('share-grid').textContent = grid;
   document.getElementById('modal').classList.add('show');
-
   document.getElementById('btn-share').onclick = () => {
     const text = `Neural NeXus Wordle · ${todayDate}\n\n${grid}\n\nneuralnexus.press/wordle`;
-    if (navigator.share) {
-      navigator.share({ text }).catch(() => {
-        navigator.clipboard.writeText(text).then(() => showToast('Copied!'));
-      });
-    } else {
-      navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
-    }
+    if (navigator.share) navigator.share({ text }).catch(() => navigator.clipboard.writeText(text).then(() => showToast('Copied!')));
+    else navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
   };
-
-  // Close modal on overlay click
   document.getElementById('modal').addEventListener('click', e => {
-    if (e.target === document.getElementById('modal')) {
-      document.getElementById('modal').classList.remove('show');
-    }
+    if (e.target === document.getElementById('modal')) document.getElementById('modal').classList.remove('show');
   });
 }
 
 function restoreGame(saved) {
-  saved.guesses.forEach((g, rowIdx) => {
+  saved.guesses.forEach((g, ri) => {
     for (let c = 0; c < COLS; c++) {
-      const tile = document.getElementById(`t${rowIdx}${c}`);
-      tile.textContent = g.word[c].toUpperCase();
-      tile.classList.add('filled', g.result[c]);
+      const t = document.getElementById(`t${ri}${c}`);
+      t.textContent = g.word[c].toUpperCase();
+      t.classList.add('filled', g.result[c]);
       updateKey(g.word[c].toUpperCase(), g.result[c]);
     }
   });
-  guesses = saved.guesses;
-  currentRow = saved.guesses.length;
-  if (saved.gameOver) {
-    gameOver = true;
-    setTimeout(() => showModal(saved.won), 600);
-  }
+  guesses = saved.guesses; currentRow = saved.guesses.length;
+  if (saved.gameOver) { gameOver = true; setTimeout(() => showModal(saved.won), 600); }
 }
 
 async function init() {
   try {
     const res = await fetch('/api/wordle/today');
     const data = await res.json();
-    todayDate = data.date;
-    todayWord = data.word || '';
+    todayDate = data.date; todayWord = data.word || '';
     const saved = localStorage.getItem('nn-wordle-' + todayDate);
     if (saved) restoreGame(JSON.parse(saved));
-  } catch (e) {
-    showToast('Failed to load puzzle');
-  }
+  } catch (e) { showToast('Failed to load puzzle'); }
 }
 init();
 </script>
