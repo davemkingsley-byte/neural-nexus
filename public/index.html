@@ -309,7 +309,8 @@
   <ul class="nav-links">
     <li><a href="#articles">Articles</a></li>
     <li><a href="#about">About</a></li>
-    <li><a href="/play">🐝 Play</a></li>
+    <li><a href="/play">🐝 Bee</a></li>
+    <li><a href="/wordle">🟩 Wordle</a></li>
     <li><a href="#subscribe" class="nav-cta">Subscribe</a></li>
   </ul>
 </nav>
@@ -430,12 +431,21 @@
   </div>
 </section>
 
-<!-- Game -->
-<section class="game-section">
-  <div class="game-card">
-    <h2>🐝 Daily Spelling Bee</h2>
-    <p>New puzzle every day. Seven letters, one center — find every word you can in 5 minutes. Compete on the leaderboard.</p>
-    <a href="/play" class="btn-game">Play Today's Puzzle →</a>
+<!-- Games -->
+<section class="section-wrap" style="max-width:740px; padding-bottom: 40px;">
+  <div class="section-label">Games</div>
+  <h2 class="section-title">Daily brain fuel</h2>
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 14px;">
+    <div class="game-card" style="text-align:center;">
+      <h2 style="font-size:1.4rem;">🐝 Spelling Bee</h2>
+      <p style="font-size:0.82rem;">Seven letters, one center. Find every word in 5 minutes.</p>
+      <a href="/play" class="btn-game" style="font-size:0.75rem; padding:11px 22px;">Play Bee →</a>
+    </div>
+    <div class="game-card" style="text-align:center; background: linear-gradient(135deg, rgba(34,197,94,0.05) 0%, rgba(34,197,94,0.02) 100%); border-color: rgba(34,197,94,0.15);">
+      <h2 style="font-size:1.4rem;">🟩 Wordle</h2>
+      <p style="font-size:0.82rem;">Guess the 5-letter word in 6 tries. New word daily.</p>
+      <a href="/wordle" class="btn-game" style="font-size:0.75rem; padding:11px 22px; background: linear-gradient(135deg, #22c55e, #16a34a);">Play Wordle →</a>
+    </div>
   </div>
 </section>
 

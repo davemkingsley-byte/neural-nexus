@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neural NeXus — Wordle</title>
+<link rel="icon" href="/img/neuron-logo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06060b;
+  --surface: rgba(255,255,255,0.03);
+  --surface-2: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.06);
+  --border-2: rgba(255,255,255,0.1);
+  --text: #f0f0f5;
+  --text-dim: rgba(255,255,255,0.4);
+  --text-mid: rgba(255,255,255,0.6);
+  --accent: #60a5fa;
+  --green: #22c55e;
+  --yellow: #eab308;
+  --gray: rgba(255,255,255,0.15);
+  --gray-key: rgba(255,255,255,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: flex; flex-direction: column; min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Ambient */
+.ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+.ambient::before {
+  content: ''; position: absolute; top: -30%; left: 10%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(34,197,94,0.06) 0%, transparent 70%);
+  animation: float1 15s ease-in-out infinite alternate;
+}
+.ambient::after {
+  content: ''; position: absolute; bottom: -20%; right: 10%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(234,179,8,0.04) 0%, transparent 70%);
+  animation: float2 18s ease-in-out infinite alternate;
+}
+@keyframes float1 { 0%{transform:translate(0,0)} 100%{transform:translate(40px,-30px)} }
+@keyframes float2 { 0%{transform:translate(0,0)} 100%{transform:translate(-30px,40px)} }
+
+/* Nav */
+nav {
+  position: relative; z-index: 50;
+  padding: 14px 24px;
+  display: flex; justify-content: space-between; align-items: center;
+  background: rgba(6,6,11,0.85);
+  backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-brand img { height: 30px; border-radius: 6px; }
+.nav-brand-text { font-size: 0.82rem; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text); }
+.nav-brand-text span { color: var(--accent); }
+.nav-links { display: flex; gap: 18px; align-items: center; list-style: none; }
+.nav-links a { color: var(--text-mid); text-decoration: none; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.5px; transition: color 0.2s; }
+.nav-links a:hover { color: var(--text); }
+
+/* Main */
+main {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 20px 16px 10px; position: relative; z-index: 1;
+}
+h1 {
+  font-size: 1.4rem; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: 4px; text-align: center;
+}
+.subtitle { font-size: 0.75rem; color: var(--text-dim); margin-bottom: 16px; text-align: center; }
+
+/* Board */
+#board {
+  display: grid; grid-template-rows: repeat(6, 1fr);
+  gap: 6px; margin-bottom: 16px;
+}
+.row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+.tile {
+  width: 58px; height: 58px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif; font-size: 1.6rem; font-weight: 800;
+  text-transform: uppercase;
+  border: 2px solid var(--border-2);
+  border-radius: 8px; background: transparent;
+  transition: transform 0.1s;
+}
+.tile.filled { border-color: rgba(255,255,255,0.25); animation: pop 0.1s; }
+@keyframes pop { 50% { transform: scale(1.08); } }
+.tile.flip {
+  animation: flip 0.5s ease forwards;
+}
+@keyframes flip {
+  0% { transform: rotateX(0deg); }
+  50% { transform: rotateX(90deg); }
+  100% { transform: rotateX(0deg); }
+}
+.tile.correct { background: var(--green); border-color: var(--green); color: #fff; }
+.tile.present { background: var(--yellow); border-color: var(--yellow); color: #fff; }
+.tile.absent { background: var(--gray); border-color: transparent; color: var(--text-dim); }
+
+/* Keyboard */
+#keyboard { width: 100%; max-width: 500px; }
+.kb-row { display: flex; gap: 5px; justify-content: center; margin-bottom: 6px; }
+.key {
+  padding: 14px 0; min-width: 34px; border-radius: 6px;
+  background: rgba(255,255,255,0.12); border: none; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; transition: all 0.15s; text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.key:active { transform: scale(0.95); }
+.key.wide { min-width: 56px; font-size: 0.7rem; letter-spacing: 0.5px; }
+.key.correct { background: var(--green); color: #fff; }
+.key.present { background: var(--yellow); color: #fff; }
+.key.absent { background: rgba(255,255,255,0.04); color: var(--text-dim); }
+
+/* Toast */
+#toast {
+  position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: var(--bg); padding: 12px 24px;
+  border-radius: 8px; font-weight: 700; font-size: 0.85rem;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s; z-index: 100;
+}
+#toast.show { opacity: 1; }
+
+/* Modal */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: #16161e; border: 1px solid var(--border-2); border-radius: 16px;
+  padding: 32px; max-width: 360px; width: 90%; text-align: center;
+}
+.modal h2 { font-size: 1.4rem; margin-bottom: 8px; }
+.modal .result-msg { color: var(--text-mid); font-size: 0.9rem; margin-bottom: 20px; }
+.modal .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.modal .stat-val { font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; font-weight: 700; }
+.modal .stat-lbl { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; }
+.share-grid { font-family: monospace; font-size: 1.2rem; line-height: 1.4; margin-bottom: 20px; letter-spacing: 2px; }
+.btn-share {
+  padding: 12px 28px; border-radius: 10px; border: none;
+  background: var(--green); color: #fff;
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; margin: 0 4px;
+}
+.btn-share:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(34,197,94,0.3); }
+.btn-play-again {
+  padding: 12px 28px; border-radius: 10px; border: 1px solid var(--border-2);
+  background: transparent; color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; margin: 0 4px;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .tile { width: 50px; height: 50px; font-size: 1.4rem; }
+  .key { padding: 12px 0; min-width: 28px; font-size: 0.75rem; }
+  .key.wide { min-width: 46px; }
+  main { padding: 12px 8px 8px; }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+
+<nav>
+  <a href="/" class="nav-brand">
+    <img src="/img/neuron-logo.jpg" alt="Neural NeXus">
+    <span class="nav-brand-text">Neural<span>NeXus</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/play">🐝 Bee</a></li>
+  </ul>
+</nav>
+
+<main>
+  <h1>Wordle</h1>
+  <p class="subtitle">Guess the 5-letter word in 6 tries</p>
+
+  <div id="board"></div>
+  <div id="keyboard"></div>
+</main>
+
+<div id="toast"></div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">🎉 Nice!</h2>
+    <p class="result-msg" id="modal-msg">You got it!</p>
+    <div class="stats-grid">
+      <div><div class="stat-val" id="stat-played">0</div><div class="stat-lbl">Played</div></div>
+      <div><div class="stat-val" id="stat-win">0</div><div class="stat-lbl">Win %</div></div>
+      <div><div class="stat-val" id="stat-streak">0</div><div class="stat-lbl">Streak</div></div>
+      <div><div class="stat-val" id="stat-max">0</div><div class="stat-lbl">Max</div></div>
+    </div>
+    <div class="share-grid" id="share-grid"></div>
+    <div>
+      <button class="btn-share" id="btn-share">Share 📋</button>
+      <a href="/play" class="btn-play-again">Play Bee 🐝</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const ROWS = 6, COLS = 5;
+let currentRow = 0, currentCol = 0;
+let gameOver = false;
+let todayWord = '';
+let todayDate = '';
+let guesses = [];
+
+// Build board
+const board = document.getElementById('board');
+for (let r = 0; r < ROWS; r++) {
+  const row = document.createElement('div');
+  row.className = 'row';
+  for (let c = 0; c < COLS; c++) {
+    const tile = document.createElement('div');
+    tile.className = 'tile';
+    tile.id = `t${r}${c}`;
+    row.appendChild(tile);
+  }
+  board.appendChild(row);
+}
+
+// Build keyboard
+const KB_LAYOUT = [
+  ['Q','W','E','R','T','Y','U','I','O','P'],
+  ['A','S','D','F','G','H','J','K','L'],
+  ['ENTER','Z','X','C','V','B','N','M','⌫']
+];
+const keyboard = document.getElementById('keyboard');
+KB_LAYOUT.forEach(row => {
+  const kr = document.createElement('div');
+  kr.className = 'kb-row';
+  row.forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'key' + (k.length > 1 ? ' wide' : '');
+    btn.textContent = k;
+    btn.id = 'k-' + k;
+    btn.addEventListener('click', () => handleKey(k));
+    kr.appendChild(btn);
+  });
+  keyboard.appendChild(kr);
+});
+
+// Keyboard input
+document.addEventListener('keydown', e => {
+  if (gameOver) return;
+  if (e.key === 'Enter') handleKey('ENTER');
+  else if (e.key === 'Backspace') handleKey('⌫');
+  else if (/^[a-zA-Z]$/.test(e.key)) handleKey(e.key.toUpperCase());
+});
+
+function handleKey(key) {
+  if (gameOver) return;
+  if (key === '⌫') {
+    if (currentCol > 0) {
+      currentCol--;
+      const tile = document.getElementById(`t${currentRow}${currentCol}`);
+      tile.textContent = '';
+      tile.classList.remove('filled');
+    }
+  } else if (key === 'ENTER') {
+    if (currentCol === COLS) submitGuess();
+  } else if (currentCol < COLS) {
+    const tile = document.getElementById(`t${currentRow}${currentCol}`);
+    tile.textContent = key;
+    tile.classList.add('filled');
+    currentCol++;
+  }
+}
+
+async function submitGuess() {
+  const guess = [];
+  for (let c = 0; c < COLS; c++) {
+    guess.push(document.getElementById(`t${currentRow}${c}`).textContent.toLowerCase());
+  }
+  const word = guess.join('');
+
+  try {
+    const res = await fetch('/api/wordle/guess', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guess: word })
+    });
+    const data = await res.json();
+
+    if (!data.valid) {
+      showToast('Not in word list');
+      shakeRow(currentRow);
+      return;
+    }
+
+    guesses.push({ word, result: data.result });
+
+    // Reveal tiles
+    for (let c = 0; c < COLS; c++) {
+      const tile = document.getElementById(`t${currentRow}${c}`);
+      const state = data.result[c];
+      setTimeout(() => {
+        tile.classList.add('flip');
+        setTimeout(() => {
+          tile.classList.add(state);
+          updateKey(guess[c].toUpperCase(), state);
+        }, 250);
+      }, c * 150);
+    }
+
+    setTimeout(() => {
+      if (data.correct) {
+        gameOver = true;
+        const msgs = ['Genius!','Magnificent!','Impressive!','Splendid!','Great!','Phew!'];
+        showToast(msgs[currentRow] || 'Nice!');
+        updateStats(true);
+        setTimeout(() => showModal(true), 1500);
+      } else if (currentRow === ROWS - 1) {
+        gameOver = true;
+        showToast(todayWord.toUpperCase());
+        updateStats(false);
+        setTimeout(() => showModal(false), 1500);
+      }
+      currentRow++;
+      currentCol = 0;
+    }, COLS * 150 + 400);
+
+  } catch (e) {
+    showToast('Error — try again');
+  }
+}
+
+function shakeRow(row) {
+  const tiles = document.querySelectorAll(`#board .row:nth-child(${row + 1})`);
+  tiles.forEach(r => {
+    r.style.animation = 'shake 0.3s';
+    setTimeout(() => r.style.animation = '', 300);
+  });
+}
+
+const keyStates = {};
+function updateKey(letter, state) {
+  const priority = { correct: 3, present: 2, absent: 1 };
+  const current = keyStates[letter] || 0;
+  if (priority[state] > current) {
+    keyStates[letter] = priority[state];
+    const key = document.getElementById('k-' + letter);
+    if (key) {
+      key.classList.remove('correct', 'present', 'absent');
+      key.classList.add(state);
+    }
+  }
+}
+
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2000);
+}
+
+// Stats (localStorage)
+function getStats() {
+  try {
+    return JSON.parse(localStorage.getItem('wordle-stats')) || { played: 0, won: 0, streak: 0, maxStreak: 0, lastDate: '' };
+  } catch { return { played: 0, won: 0, streak: 0, maxStreak: 0, lastDate: '' }; }
+}
+function updateStats(won) {
+  const s = getStats();
+  s.played++;
+  if (won) {
+    s.won++;
+    s.streak = (s.lastDate === getYesterday()) ? s.streak + 1 : 1;
+    s.maxStreak = Math.max(s.maxStreak, s.streak);
+  } else {
+    s.streak = 0;
+  }
+  s.lastDate = todayDate;
+  localStorage.setItem('wordle-stats', JSON.stringify(s));
+  // Save game state
+  localStorage.setItem('wordle-state-' + todayDate, JSON.stringify({ guesses, gameOver: true, won }));
+}
+function getYesterday() {
+  const d = new Date(); d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+function showModal(won) {
+  const s = getStats();
+  document.getElementById('modal-title').textContent = won ? '🎉 Nice!' : '😔 Better luck tomorrow';
+  document.getElementById('modal-msg').textContent = won
+    ? `You got it in ${guesses.length}/6!`
+    : `The word was ${todayWord.toUpperCase()}`;
+  document.getElementById('stat-played').textContent = s.played;
+  document.getElementById('stat-win').textContent = s.played ? Math.round(s.won / s.played * 100) : 0;
+  document.getElementById('stat-streak').textContent = s.streak;
+  document.getElementById('stat-max').textContent = s.maxStreak;
+
+  // Build share grid
+  const emojiMap = { correct: '🟩', present: '🟨', absent: '⬛' };
+  const grid = guesses.map(g => g.result.map(r => emojiMap[r]).join('')).join('\n');
+  document.getElementById('share-grid').textContent = grid;
+
+  document.getElementById('modal').classList.add('show');
+
+  document.getElementById('btn-share').onclick = () => {
+    const text = `Neural NeXus Wordle ${todayDate}\n\n${grid}\n\nhttps://www.neuralnexus.press/wordle`;
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
+  };
+}
+
+// Restore saved game
+function restoreGame(saved) {
+  saved.guesses.forEach((g, rowIdx) => {
+    for (let c = 0; c < COLS; c++) {
+      const tile = document.getElementById(`t${rowIdx}${c}`);
+      tile.textContent = g.word[c].toUpperCase();
+      tile.classList.add('filled', g.result[c]);
+      updateKey(g.word[c].toUpperCase(), g.result[c]);
+    }
+  });
+  guesses = saved.guesses;
+  currentRow = saved.guesses.length;
+  if (saved.gameOver) {
+    gameOver = true;
+    setTimeout(() => showModal(saved.won), 500);
+  }
+}
+
+// Init
+async function init() {
+  try {
+    const res = await fetch('/api/wordle/today');
+    const data = await res.json();
+    todayDate = data.date;
+    todayWord = data.word || '';
+
+    // Check for saved state
+    const saved = localStorage.getItem('wordle-state-' + todayDate);
+    if (saved) {
+      restoreGame(JSON.parse(saved));
+    }
+  } catch (e) {
+    showToast('Failed to load puzzle');
+  }
+}
+init();
+</script>
+</body>
+</html>

@@ -16,6 +16,15 @@ try {
   console.error(err.stack);
 }
 
+// Wordle module
+let wordleWords;
+try {
+  wordleWords = require('./src/wordle-words');
+  console.log('Wordle module loaded successfully');
+} catch (err) {
+  console.error('Failed to load Wordle module:', err.message);
+}
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 
@@ -27,9 +36,59 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', dbReady, time: new Date().toISOString() });
 });
 
-// Serve the game page
+// Serve game pages
 app.get('/play', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'play.html'));
+});
+app.get('/wordle', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'wordle.html'));
+});
+
+// --- Wordle API ---
+app.get('/api/wordle/today', (req, res) => {
+  if (!wordleWords) return res.status(503).json({ error: 'Wordle not available' });
+  const { word, date } = wordleWords.getTodayWord();
+  // Don't send the word to the client — only the date and word length
+  res.json({ date, length: word.length });
+});
+
+app.post('/api/wordle/guess', (req, res) => {
+  if (!wordleWords) return res.status(503).json({ error: 'Wordle not available' });
+  const { guess } = req.body;
+  if (!guess || guess.length !== 5) return res.json({ valid: false });
+  
+  const g = guess.toLowerCase();
+  if (!wordleWords.isValidGuess(g)) return res.json({ valid: false });
+  
+  const { word } = wordleWords.getTodayWord();
+  const result = [];
+  const wordArr = word.split('');
+  const guessArr = g.split('');
+  const used = Array(5).fill(false);
+  
+  // First pass: correct positions
+  for (let i = 0; i < 5; i++) {
+    if (guessArr[i] === wordArr[i]) {
+      result[i] = 'correct';
+      used[i] = true;
+    }
+  }
+  // Second pass: wrong position
+  for (let i = 0; i < 5; i++) {
+    if (result[i]) continue;
+    let found = false;
+    for (let j = 0; j < 5; j++) {
+      if (!used[j] && guessArr[i] === wordArr[j]) {
+        result[i] = 'present';
+        used[j] = true;
+        found = true;
+        break;
+      }
+    }
+    if (!found) result[i] = 'absent';
+  }
+  
+  res.json({ valid: true, result, correct: g === word });
 });
 
 // --- Spelling Bee API ---
