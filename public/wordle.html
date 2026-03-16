@@ -220,6 +220,7 @@ h1 {
 const ROWS = 6, COLS = 5;
 let currentRow = 0, currentCol = 0;
 let gameOver = false;
+let revealing = false; // lock during tile reveal animation
 let todayWord = '';
 let todayDate = '';
 let guesses = [];
@@ -268,7 +269,7 @@ document.addEventListener('keydown', e => {
 });
 
 function handleKey(key) {
-  if (gameOver) return;
+  if (gameOver || revealing) return;
   if (key === '⌫') {
     if (currentCol > 0) {
       currentCol--;
@@ -308,8 +309,10 @@ async function submitGuess() {
     }
 
     guesses.push({ word, result: data.result });
+    revealing = true; // lock input during animation
 
     // Reveal tiles
+    const revealTime = COLS * 300 + 300;
     for (let c = 0; c < COLS; c++) {
       const tile = document.getElementById(`t${currentRow}${c}`);
       const state = data.result[c];
@@ -319,10 +322,11 @@ async function submitGuess() {
           tile.classList.add(state);
           updateKey(guess[c].toUpperCase(), state);
         }, 250);
-      }, c * 150);
+      }, c * 300);
     }
 
     setTimeout(() => {
+      revealing = false; // unlock input
       if (data.correct) {
         gameOver = true;
         const msgs = ['Genius!','Magnificent!','Impressive!','Splendid!','Great!','Phew!'];
@@ -337,7 +341,7 @@ async function submitGuess() {
       }
       currentRow++;
       currentCol = 0;
-    }, COLS * 150 + 400);
+    }, revealTime);
 
   } catch (e) {
     showToast('Error — try again');
