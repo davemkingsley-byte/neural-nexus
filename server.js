@@ -98,8 +98,7 @@ function checkDB(res) {
 }
 
 function getTodayStr() {
-  const now = new Date();
-  return now.toISOString().split('T')[0];
+  return new Date().toLocaleString('en-CA', { timeZone: 'America/New_York' }).split(',')[0];
 }
 
 function ensurePuzzle(dateStr) {

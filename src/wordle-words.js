@@ -94,7 +94,7 @@ try {
 } catch(e) { console.error('Dict load error:', e.message); }
 
 function getTodayWord() {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = new Date().toLocaleString('en-CA', { timeZone: 'America/New_York' }).split(',')[0];
   let hash = 0;
   for (let i = 0; i < today.length; i++) {
     hash = ((hash << 5) - hash) + today.charCodeAt(i);
