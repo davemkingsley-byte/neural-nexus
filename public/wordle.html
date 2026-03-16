@@ -74,7 +74,7 @@ nav {
 }
 .nav-left { display: flex; align-items: center; gap: 14px; }
 .nav-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
-.nav-brand img { height: 24px; border-radius: 5px; opacity: 0.7; transition: opacity 0.2s; }
+.nav-brand img { height: 24px; border-radius: 5px; opacity: 0.85; transition: opacity 0.2s; }
 .nav-brand:hover img { opacity: 1; }
 .nav-divider { width: 1px; height: 16px; background: var(--border); }
 .nav-title {
@@ -84,7 +84,7 @@ nav {
 }
 .nav-links { display: flex; gap: 16px; align-items: center; }
 .nav-links a {
-  color: var(--text-dim); text-decoration: none;
+  color: var(--text-mid); text-decoration: none;
   font-size: 0.72rem; font-weight: 600; letter-spacing: 0.5px;
   transition: color 0.2s; text-transform: uppercase;
 }
@@ -98,9 +98,10 @@ nav {
 /* ── Main layout ── */
 main {
   flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: space-between;
+  align-items: center; justify-content: center;
+  gap: 12px;
   padding: 12px 16px 8px; position: relative; z-index: 1;
-  min-height: 0; /* flex child shrink */
+  min-height: 0;
 }
 
 /* ── Header ── */
@@ -122,7 +123,7 @@ main {
 }
 #board {
   display: grid; grid-template-rows: repeat(6, 1fr);
-  gap: 5px; width: min(330px, 62vw); aspect-ratio: 5/6;
+  gap: 5px; width: min(360px, 70vw); aspect-ratio: 5/6;
 }
 .row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
 .tile {
@@ -327,7 +328,7 @@ main {
   nav { padding: 8px 14px; }
 }
 @media (min-width: 768px) {
-  #board { width: 350px; }
+  #board { width: 370px; }
   .key { height: 56px; max-width: 48px; }
   .key.wide { max-width: 72px; }
 }
