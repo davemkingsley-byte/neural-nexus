@@ -44,6 +44,10 @@ app.get('/wordle', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'wordle.html'));
 });
 
+app.get('/crossword', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'crossword.html'));
+});
+
 // --- Wordle API ---
 app.get('/api/wordle/today', (req, res) => {
   if (!wordleWords) return res.status(503).json({ error: 'Wordle not available' });
