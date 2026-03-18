@@ -3,9 +3,14 @@ const path = require('path');
 
 // Use persistent volume on Railway (/data), fallback to local
 const fs = require('fs');
-const dbDir = fs.existsSync('/data') ? '/data' : path.join(__dirname, '..');
+const dataExists = fs.existsSync('/data');
+const dbDir = dataExists ? '/data' : path.join(__dirname, '..');
 const dbPath = path.join(dbDir, 'spelling-bee.db');
-console.log('Database path:', dbPath);
+console.log(`Database path: ${dbPath}`);
+console.log(`/data volume mounted: ${dataExists}`);
+if (!dataExists) {
+  console.warn('WARNING: /data volume not found! Database will be EPHEMERAL and reset on deploy.');
+}
 const db = new Database(dbPath);
 
 db.pragma('journal_mode = WAL');

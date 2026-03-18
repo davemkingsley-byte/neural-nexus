@@ -33,7 +33,13 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Health check
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', dbReady, time: new Date().toISOString() });
+  const fs = require('fs');
+  res.json({ 
+    status: 'ok', 
+    dbReady, 
+    volumeMounted: fs.existsSync('/data'),
+    time: new Date().toISOString() 
+  });
 });
 
 // Serve game pages
