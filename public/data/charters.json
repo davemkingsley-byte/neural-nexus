@@ -1,7 +1,7 @@
 {
   "programs": [
     {
-      "name": "Neural Nexus",
+      "name": "Neural NeXus",
       "slug": "neural-nexus",
       "charters": [
         {
@@ -948,6 +948,101 @@
       ]
     },
     {
+      "name": "Treat Biosciences",
+      "slug": "treat-biosciences",
+      "charters": [
+        {
+          "id": "501",
+          "title": "Treat Biosciences Restart & Pivot",
+          "status": "\ud83d\udfe1 In Progress",
+          "statusClean": "In Progress",
+          "phase": "\ud83d\udccb Requirements \u2014 Research complete, awaiting team alignment",
+          "phaseIndex": 0,
+          "liveUrl": null,
+          "dateInitiated": "2026-03-19",
+          "targetDate": "2026-06-19",
+          "dateCompleted": null,
+          "daysActive": 0,
+          "daysUntilTarget": 92,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "David Kingsley / Morpheus",
+          "priority": "Critical",
+          "program": "Treat Biosciences",
+          "budget": "$500K (full to conditional approval; Phase 0 = $500)",
+          "actualSpend": "$0",
+          "dependencies": [
+            "None"
+          ],
+          "enables": [
+            "502 (future: Clinical Trials)"
+          ],
+          "progress": 0,
+          "objective": "Restart Treat Biosciences with a pivot from monoclonal antibodies to AI-designed peptide therapeutics targeting canine obesity (GLP-1 + ActRII combination). Validate the thesis computationally, confirm in vitro binding, and position for accelerator/SBIR funding.",
+          "successCriteria": "- [x] Competitive landscape analysis complete",
+          "blockers": [
+            "David: Call Frank to discuss pivot and restart",
+            "David: Confirm company legal status",
+            "David: Review overnight documents (especially combo thesis and critical path)"
+          ],
+          "outstanding": [
+            {
+              "done": false,
+              "text": "David: Call Frank to discuss pivot and restart"
+            },
+            {
+              "done": false,
+              "text": "David: Confirm company legal status"
+            },
+            {
+              "done": false,
+              "text": "David: Review overnight documents (especially combo thesis and critical path)"
+            }
+          ],
+          "decisions": [],
+          "risks": [
+            {
+              "risk": "------",
+              "likelihood": "------------",
+              "impact": "--------",
+              "mitigation": "-----------"
+            },
+            {
+              "risk": "Peptide doesn't bind target",
+              "likelihood": "20%",
+              "impact": "Fatal",
+              "mitigation": "Design diverse candidates; use proven scaffolds"
+            },
+            {
+              "risk": "Co-founders unavailable",
+              "likelihood": "30%",
+              "impact": "High",
+              "mitigation": "David can do Phase 0 solo; recruit new team if needed"
+            },
+            {
+              "risk": "Fundraising fails",
+              "likelihood": "25%",
+              "impact": "High",
+              "mitigation": "Multiple paths (accelerator + SBIR + angels + bootstrap)"
+            },
+            {
+              "risk": "Competitor enters space",
+              "likelihood": "15%",
+              "impact": "Moderate",
+              "mitigation": "Speed to patent + conditional approval"
+            },
+            {
+              "risk": "Company legal status lapsed",
+              "likelihood": "20%",
+              "impact": "Moderate",
+              "mitigation": "Re-file incorporation if needed ($500)"
+            }
+          ],
+          "milestones": []
+        }
+      ]
+    },
+    {
       "name": "Project Management",
       "slug": "project-management",
       "charters": [
@@ -1143,6 +1238,5 @@
         }
       ]
     }
-  ],
-  "generated": "2026-03-19T03:44:47.000Z"
+  ]
 }
