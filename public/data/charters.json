@@ -978,8 +978,8 @@
             "502 (future: Clinical Trials)"
           ],
           "progress": 0,
-          "objective": "Restart Treat Biosciences with a pivot from monoclonal antibodies to AI-designed peptide therapeutics targeting canine obesity (GLP-1 + ActRII combination). Validate the thesis computationally, confirm in vitro binding, and position for accelerator/SBIR funding.",
-          "successCriteria": "- [x] Competitive landscape analysis complete",
+          "objective": "Restart Treat Biosciences with a pivot from monoclonal antibodies to AI-designed **canine-optimized triple incretin agonist (GLP-1R/GIPR/GCGR)** targeting canine obesity. Lead compound: TRT-001. Pipeline v2: activin receptor blockade for muscle preservation. Validate computationally, confirm in vitro binding, and position for accelerator/SBIR funding.",
+          "successCriteria": "- [x] Competitive landscape analysis complete (updated 2026-03-19 with Okava, Teva generic, APOP)",
           "blockers": [
             "David: Call Frank to discuss pivot and restart",
             "David: Confirm company legal status",
@@ -1049,10 +1049,10 @@
         {
           "id": "401",
           "title": "Molluscum Contagiosum Treatment",
-          "status": "\ud83d\udfe1 In Progress",
-          "statusClean": "In Progress",
-          "phase": "\ud83d\udd27 Implementation \u2014 Active treatment",
-          "phaseIndex": 2,
+          "status": "\ud83d\udfe2 Maintenance",
+          "statusClean": "Maintenance",
+          "phase": "\ud83d\udd27 Maintenance \u2014 Treatment in progress",
+          "phaseIndex": 5,
           "liveUrl": null,
           "dateInitiated": "2026-03-19",
           "targetDate": "2026-05-19",
