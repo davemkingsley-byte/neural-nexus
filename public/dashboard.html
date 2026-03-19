@@ -7,17 +7,19 @@
 <meta name="google-site-verification" content="kW4a01m15KuJy1nc9RStj2h4bXvGCTIBrMhCHTxUiSs" />
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-B0X6HBHKH3"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-B0X6HBHKH3');</script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#06060b;--surface:rgba(255,255,255,0.03);--surface-2:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.08);--text:#f0f0f5;--text-dim:rgba(255,255,255,0.4);--text-mid:rgba(255,255,255,0.65);--gold:#f0c040;--green:#34d399;--red:#f87171;--yellow:#fbbf24;--blue:#60a5fa;--purple:#a78bfa}
+:root{--bg:#06060b;--surface:rgba(255,255,255,0.03);--surface-2:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.08);--border-2:rgba(255,255,255,0.14);--text:#f0f0f5;--text-dim:rgba(255,255,255,0.4);--text-mid:rgba(255,255,255,0.65);--gold:#f0c040;--green:#34d399;--red:#f87171;--yellow:#fbbf24;--blue:#60a5fa;--purple:#a78bfa}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+
 .ambient{position:fixed;inset:0;pointer-events:none;z-index:0}
 .ambient::before{content:'';position:absolute;top:-15%;left:10%;width:500px;height:500px;background:radial-gradient(circle,rgba(96,165,250,0.05) 0%,transparent 70%);animation:f1 15s ease-in-out infinite alternate}
 .ambient::after{content:'';position:absolute;bottom:-10%;right:5%;width:400px;height:400px;background:radial-gradient(circle,rgba(167,139,250,0.04) 0%,transparent 70%);animation:f2 18s ease-in-out infinite alternate}
 @keyframes f1{0%{transform:translate(0,0)}100%{transform:translate(30px,-20px)}}
 @keyframes f2{0%{transform:translate(0,0)}100%{transform:translate(-20px,30px)}}
 
-nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(6,6,11,0.85);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:2rem}
+nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(6,6,11,0.85);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
 nav a{color:var(--text-mid);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
 nav a:hover{color:var(--text)}
 nav .brand{font-family:'Instrument Serif',Georgia,serif;font-size:1.3rem;color:var(--gold);text-decoration:none}
@@ -26,39 +28,55 @@ nav .brand{font-family:'Instrument Serif',Georgia,serif;font-size:1.3rem;color:v
 h1{font-family:'Instrument Serif',Georgia,serif;font-size:2.2rem;margin-bottom:0.3rem}
 .subtitle{color:var(--text-dim);margin-bottom:2rem;font-size:0.95rem}
 
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2.5rem}
+/* Stats row */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-bottom:2.5rem}
 .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;text-align:center}
 .stat-card .number{font-size:2rem;font-weight:700;line-height:1}
-.stat-card .label{color:var(--text-dim);font-size:0.8rem;margin-top:0.3rem;text-transform:uppercase;letter-spacing:0.05em}
+.stat-card .label{color:var(--text-dim);font-size:0.75rem;margin-top:0.3rem;text-transform:uppercase;letter-spacing:0.05em}
 
-.charter-grid{display:grid;gap:1rem}
-.charter-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;transition:border-color 0.2s,transform 0.2s}
-.charter-card:hover{border-color:rgba(255,255,255,0.15);transform:translateY(-1px)}
-.charter-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.8rem;gap:1rem}
-.charter-id{color:var(--text-dim);font-size:0.8rem;font-family:monospace}
-.charter-title{font-size:1.1rem;font-weight:600;flex:1}
-.badge{display:inline-block;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:600;white-space:nowrap}
-.badge-live{background:rgba(52,211,153,0.15);color:var(--green);border:1px solid rgba(52,211,153,0.25)}
-.badge-progress{background:rgba(251,191,36,0.15);color:var(--yellow);border:1px solid rgba(251,191,36,0.25)}
-.badge-unknown{background:rgba(255,255,255,0.05);color:var(--text-dim);border:1px solid var(--border)}
-.charter-meta{color:var(--text-dim);font-size:0.85rem;margin-bottom:0.6rem}
-.charter-objective{color:var(--text-mid);font-size:0.9rem;line-height:1.5;margin-bottom:0.8rem}
-.charter-tasks{display:flex;gap:1rem;font-size:0.8rem;color:var(--text-dim)}
-.charter-tasks .done{color:var(--green)}
-.charter-tasks .pending{color:var(--yellow)}
-.live-link{display:inline-block;margin-top:0.5rem;color:var(--blue);font-size:0.85rem;text-decoration:none}
+/* Program sections */
+.program{margin-bottom:2.5rem}
+.program-header{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;cursor:pointer;user-select:none}
+.program-header h2{font-family:'Instrument Serif',Georgia,serif;font-size:1.5rem;flex:1}
+.program-count{background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:0.2rem 0.8rem;font-size:0.8rem;color:var(--text-mid)}
+.program-toggle{color:var(--text-dim);font-size:1.2rem;transition:transform 0.2s}
+.program.collapsed .program-toggle{transform:rotate(-90deg)}
+.program.collapsed .charter-grid{display:none}
+.program-empty{color:var(--text-dim);font-size:0.9rem;font-style:italic;padding:0.5rem 0}
+
+/* Charter cards */
+.charter-grid{display:grid;gap:0.8rem}
+.charter-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.3rem 1.5rem;transition:border-color 0.2s,transform 0.15s}
+.charter-card:hover{border-color:var(--border-2);transform:translateY(-1px)}
+.charter-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:0.5rem}
+.charter-left{flex:1}
+.charter-id{color:var(--text-dim);font-size:0.75rem;font-family:'DM Sans',monospace;letter-spacing:0.05em}
+.charter-title{font-size:1.05rem;font-weight:600;margin-top:0.15rem}
+.badge{display:inline-block;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:600;white-space:nowrap}
+.badge-live{background:rgba(52,211,153,0.12);color:var(--green);border:1px solid rgba(52,211,153,0.2)}
+.badge-progress{background:rgba(251,191,36,0.12);color:var(--yellow);border:1px solid rgba(251,191,36,0.2)}
+.badge-unknown{background:rgba(255,255,255,0.04);color:var(--text-dim);border:1px solid var(--border)}
+.charter-objective{color:var(--text-mid);font-size:0.85rem;line-height:1.5;margin-bottom:0.6rem}
+.charter-meta{color:var(--text-dim);font-size:0.8rem}
+.charter-footer{display:flex;justify-content:space-between;align-items:center;margin-top:0.6rem}
+.task-bar{display:flex;align-items:center;gap:0.6rem;font-size:0.78rem}
+.task-bar .done{color:var(--green)}
+.task-bar .pending{color:var(--yellow)}
+.progress-track{width:80px;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width 0.3s}
+.live-link{color:var(--blue);font-size:0.8rem;text-decoration:none}
 .live-link:hover{text-decoration:underline}
 
-.generated{text-align:center;color:var(--text-dim);font-size:0.8rem;margin-top:3rem;padding-bottom:2rem}
+.generated{text-align:center;color:var(--text-dim);font-size:0.78rem;margin-top:3rem;padding-bottom:2rem}
 
 @media(max-width:600px){
-  nav{padding:0.8rem 1rem;gap:1rem}
+  nav{padding:0.8rem 1rem;gap:0.8rem}
   .container{padding:1rem}
   h1{font-size:1.6rem}
   .stats{grid-template-columns:repeat(2,1fr)}
+  .program-header h2{font-size:1.2rem}
 }
 </style>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
 </head>
 <body>
 <div class="ambient"></div>
@@ -72,58 +90,83 @@ h1{font-family:'Instrument Serif',Georgia,serif;font-size:2.2rem;margin-bottom:0
 </nav>
 <div class="container">
   <h1>Project Dashboard</h1>
-  <p class="subtitle">All active charters and their current status</p>
+  <p class="subtitle">Programs and charters — organized by initiative</p>
   <div class="stats" id="stats"></div>
-  <div class="charter-grid" id="charters"></div>
+  <div id="programs"></div>
   <p class="generated" id="generated"></p>
 </div>
 <script>
 fetch('/data/charters.json')
   .then(r => r.json())
   .then(data => {
-    const charters = data.charters;
-    const live = charters.filter(c => c.status.includes('Live')).length;
-    const progress = charters.filter(c => c.status.includes('Progress') || c.status.includes('Data Collection')).length;
-    const total = charters.length;
-    const tasks = charters.reduce((acc, c) => {
+    const programs = data.programs;
+    const allCharters = programs.flatMap(p => p.charters);
+    const live = allCharters.filter(c => c.status.includes('Live')).length;
+    const progress = allCharters.filter(c => c.status.includes('Progress') || c.status.includes('Data Collection')).length;
+    const total = allCharters.length;
+    const programCount = programs.filter(p => p.charters.length > 0).length;
+    const tasks = allCharters.reduce((acc, c) => {
       const done = c.outstanding.filter(t => t.done).length;
       const pending = c.outstanding.filter(t => !t.done).length;
       return { done: acc.done + done, pending: acc.pending + pending };
     }, { done: 0, pending: 0 });
 
     document.getElementById('stats').innerHTML = `
-      <div class="stat-card"><div class="number" style="color:var(--gold)">${total}</div><div class="label">Total Projects</div></div>
+      <div class="stat-card"><div class="number" style="color:var(--purple)">${programCount}</div><div class="label">Programs</div></div>
+      <div class="stat-card"><div class="number" style="color:var(--gold)">${total}</div><div class="label">Charters</div></div>
       <div class="stat-card"><div class="number" style="color:var(--green)">${live}</div><div class="label">Live</div></div>
       <div class="stat-card"><div class="number" style="color:var(--yellow)">${progress}</div><div class="label">In Progress</div></div>
       <div class="stat-card"><div class="number" style="color:var(--blue)">${tasks.done}</div><div class="label">Tasks Done</div></div>
-      <div class="stat-card"><div class="number" style="color:var(--red)">${tasks.pending}</div><div class="label">Tasks Pending</div></div>
+      <div class="stat-card"><div class="number" style="color:var(--red)">${tasks.pending}</div><div class="label">Pending</div></div>
     `;
 
-    document.getElementById('charters').innerHTML = charters.map(c => {
-      const badgeClass = c.status.includes('Live') ? 'badge-live' : c.status.includes('Progress') || c.status.includes('Data') ? 'badge-progress' : 'badge-unknown';
-      const done = c.outstanding.filter(t => t.done).length;
-      const pending = c.outstanding.filter(t => !t.done).length;
-      const totalTasks = done + pending;
+    document.getElementById('programs').innerHTML = programs.map(prog => {
+      const isEmpty = prog.charters.length === 0;
       return `
-        <div class="charter-card">
-          <div class="charter-header">
-            <div>
-              <div class="charter-id">#${c.id}</div>
-              <div class="charter-title">${c.title}</div>
-            </div>
-            <span class="badge ${badgeClass}">${c.statusClean || c.status}</span>
+        <div class="program${isEmpty ? ' collapsed' : ''}" data-program="${prog.slug}">
+          <div class="program-header" onclick="this.parentElement.classList.toggle('collapsed')">
+            <h2>${prog.name}</h2>
+            <span class="program-count">${prog.charters.length} charter${prog.charters.length !== 1 ? 's' : ''}</span>
+            <span class="program-toggle">▼</span>
           </div>
-          ${c.objective ? `<div class="charter-objective">${c.objective}</div>` : ''}
-          <div class="charter-meta">Owner: ${c.owner} ${c.dateInitiated ? '· Started: ' + c.dateInitiated : ''}</div>
-          ${totalTasks > 0 ? `<div class="charter-tasks"><span class="done">✓ ${done} done</span><span class="pending">○ ${pending} pending</span></div>` : ''}
-          ${c.liveUrl ? `<a href="${c.liveUrl}" class="live-link" target="_blank">→ ${c.liveUrl}</a>` : ''}
+          ${isEmpty ? '<p class="program-empty">No charters yet</p>' : `
+          <div class="charter-grid">
+            ${prog.charters.map(c => {
+              const badgeClass = c.status.includes('Live') ? 'badge-live' : c.status.includes('Progress') || c.status.includes('Data') ? 'badge-progress' : 'badge-unknown';
+              const done = c.outstanding.filter(t => t.done).length;
+              const pending = c.outstanding.filter(t => !t.done).length;
+              const totalTasks = done + pending;
+              const pct = totalTasks > 0 ? Math.round((done / totalTasks) * 100) : 0;
+              return `
+                <div class="charter-card">
+                  <div class="charter-header">
+                    <div class="charter-left">
+                      <div class="charter-id">CHARTER ${c.id}</div>
+                      <div class="charter-title">${c.title}</div>
+                    </div>
+                    <span class="badge ${badgeClass}">${c.statusClean || c.status}</span>
+                  </div>
+                  ${c.objective ? `<div class="charter-objective">${c.objective}</div>` : ''}
+                  <div class="charter-meta">Owner: ${c.owner}${c.dateInitiated ? ' · Started ' + c.dateInitiated : ''}</div>
+                  <div class="charter-footer">
+                    ${totalTasks > 0 ? `
+                      <div class="task-bar">
+                        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+                        <span class="done">✓ ${done}</span>
+                        <span class="pending">○ ${pending}</span>
+                      </div>` : '<div></div>'}
+                    ${c.liveUrl ? `<a href="${c.liveUrl}" class="live-link" target="_blank">Visit →</a>` : ''}
+                  </div>
+                </div>`;
+            }).join('')}
+          </div>`}
         </div>`;
     }).join('');
 
     document.getElementById('generated').textContent = 'Last updated: ' + new Date(data.generated).toLocaleString();
   })
   .catch(err => {
-    document.getElementById('charters').innerHTML = '<p style="color:var(--red)">Failed to load charter data: ' + err.message + '</p>';
+    document.getElementById('programs').innerHTML = '<p style="color:var(--red);padding:2rem">Failed to load data: ' + err.message + '</p>';
   });
 </script>
 </body>
