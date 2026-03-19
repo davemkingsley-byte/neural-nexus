@@ -62,6 +62,11 @@ app.get('/crossword', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'crossword.html'));
 });
 
+// Dashboard
+app.get('/dashboard', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+
 // Topic pages
 app.get('/topics/de-extinction', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'topics', 'de-extinction.html'));

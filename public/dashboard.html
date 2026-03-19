@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Dashboard | Neural NeXus</title>
+<meta name="google-site-verification" content="kW4a01m15KuJy1nc9RStj2h4bXvGCTIBrMhCHTxUiSs" />
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-B0X6HBHKH3"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-B0X6HBHKH3');</script>
+<style>
+:root{--bg:#06060b;--surface:rgba(255,255,255,0.03);--surface-2:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.08);--text:#f0f0f5;--text-dim:rgba(255,255,255,0.4);--text-mid:rgba(255,255,255,0.65);--gold:#f0c040;--green:#34d399;--red:#f87171;--yellow:#fbbf24;--blue:#60a5fa;--purple:#a78bfa}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0}
+.ambient::before{content:'';position:absolute;top:-15%;left:10%;width:500px;height:500px;background:radial-gradient(circle,rgba(96,165,250,0.05) 0%,transparent 70%);animation:f1 15s ease-in-out infinite alternate}
+.ambient::after{content:'';position:absolute;bottom:-10%;right:5%;width:400px;height:400px;background:radial-gradient(circle,rgba(167,139,250,0.04) 0%,transparent 70%);animation:f2 18s ease-in-out infinite alternate}
+@keyframes f1{0%{transform:translate(0,0)}100%{transform:translate(30px,-20px)}}
+@keyframes f2{0%{transform:translate(0,0)}100%{transform:translate(-20px,30px)}}
+
+nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(6,6,11,0.85);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:2rem}
+nav a{color:var(--text-mid);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
+nav a:hover{color:var(--text)}
+nav .brand{font-family:'Instrument Serif',Georgia,serif;font-size:1.3rem;color:var(--gold);text-decoration:none}
+
+.container{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:2rem}
+h1{font-family:'Instrument Serif',Georgia,serif;font-size:2.2rem;margin-bottom:0.3rem}
+.subtitle{color:var(--text-dim);margin-bottom:2rem;font-size:0.95rem}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2.5rem}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;text-align:center}
+.stat-card .number{font-size:2rem;font-weight:700;line-height:1}
+.stat-card .label{color:var(--text-dim);font-size:0.8rem;margin-top:0.3rem;text-transform:uppercase;letter-spacing:0.05em}
+
+.charter-grid{display:grid;gap:1rem}
+.charter-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.5rem;transition:border-color 0.2s,transform 0.2s}
+.charter-card:hover{border-color:rgba(255,255,255,0.15);transform:translateY(-1px)}
+.charter-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.8rem;gap:1rem}
+.charter-id{color:var(--text-dim);font-size:0.8rem;font-family:monospace}
+.charter-title{font-size:1.1rem;font-weight:600;flex:1}
+.badge{display:inline-block;padding:0.25rem 0.75rem;border-radius:20px;font-size:0.75rem;font-weight:600;white-space:nowrap}
+.badge-live{background:rgba(52,211,153,0.15);color:var(--green);border:1px solid rgba(52,211,153,0.25)}
+.badge-progress{background:rgba(251,191,36,0.15);color:var(--yellow);border:1px solid rgba(251,191,36,0.25)}
+.badge-unknown{background:rgba(255,255,255,0.05);color:var(--text-dim);border:1px solid var(--border)}
+.charter-meta{color:var(--text-dim);font-size:0.85rem;margin-bottom:0.6rem}
+.charter-objective{color:var(--text-mid);font-size:0.9rem;line-height:1.5;margin-bottom:0.8rem}
+.charter-tasks{display:flex;gap:1rem;font-size:0.8rem;color:var(--text-dim)}
+.charter-tasks .done{color:var(--green)}
+.charter-tasks .pending{color:var(--yellow)}
+.live-link{display:inline-block;margin-top:0.5rem;color:var(--blue);font-size:0.85rem;text-decoration:none}
+.live-link:hover{text-decoration:underline}
+
+.generated{text-align:center;color:var(--text-dim);font-size:0.8rem;margin-top:3rem;padding-bottom:2rem}
+
+@media(max-width:600px){
+  nav{padding:0.8rem 1rem;gap:1rem}
+  .container{padding:1rem}
+  h1{font-size:1.6rem}
+  .stats{grid-template-columns:repeat(2,1fr)}
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="ambient"></div>
+<nav>
+  <a href="/" class="brand">Neural NeXus</a>
+  <a href="/play">Spelling Bee</a>
+  <a href="/wordle">Wordie</a>
+  <a href="/crossword">Crossword</a>
+  <a href="/archive">Archive</a>
+  <a href="/dashboard" style="color:var(--gold)">Dashboard</a>
+</nav>
+<div class="container">
+  <h1>Project Dashboard</h1>
+  <p class="subtitle">All active charters and their current status</p>
+  <div class="stats" id="stats"></div>
+  <div class="charter-grid" id="charters"></div>
+  <p class="generated" id="generated"></p>
+</div>
+<script>
+fetch('/data/charters.json')
+  .then(r => r.json())
+  .then(data => {
+    const charters = data.charters;
+    const live = charters.filter(c => c.status.includes('Live')).length;
+    const progress = charters.filter(c => c.status.includes('Progress') || c.status.includes('Data Collection')).length;
+    const total = charters.length;
+    const tasks = charters.reduce((acc, c) => {
+      const done = c.outstanding.filter(t => t.done).length;
+      const pending = c.outstanding.filter(t => !t.done).length;
+      return { done: acc.done + done, pending: acc.pending + pending };
+    }, { done: 0, pending: 0 });
+
+    document.getElementById('stats').innerHTML = `
+      <div class="stat-card"><div class="number" style="color:var(--gold)">${total}</div><div class="label">Total Projects</div></div>
+      <div class="stat-card"><div class="number" style="color:var(--green)">${live}</div><div class="label">Live</div></div>
+      <div class="stat-card"><div class="number" style="color:var(--yellow)">${progress}</div><div class="label">In Progress</div></div>
+      <div class="stat-card"><div class="number" style="color:var(--blue)">${tasks.done}</div><div class="label">Tasks Done</div></div>
+      <div class="stat-card"><div class="number" style="color:var(--red)">${tasks.pending}</div><div class="label">Tasks Pending</div></div>
+    `;
+
+    document.getElementById('charters').innerHTML = charters.map(c => {
+      const badgeClass = c.status.includes('Live') ? 'badge-live' : c.status.includes('Progress') || c.status.includes('Data') ? 'badge-progress' : 'badge-unknown';
+      const done = c.outstanding.filter(t => t.done).length;
+      const pending = c.outstanding.filter(t => !t.done).length;
+      const totalTasks = done + pending;
+      return `
+        <div class="charter-card">
+          <div class="charter-header">
+            <div>
+              <div class="charter-id">#${c.id}</div>
+              <div class="charter-title">${c.title}</div>
+            </div>
+            <span class="badge ${badgeClass}">${c.statusClean || c.status}</span>
+          </div>
+          ${c.objective ? `<div class="charter-objective">${c.objective}</div>` : ''}
+          <div class="charter-meta">Owner: ${c.owner} ${c.dateInitiated ? '· Started: ' + c.dateInitiated : ''}</div>
+          ${totalTasks > 0 ? `<div class="charter-tasks"><span class="done">✓ ${done} done</span><span class="pending">○ ${pending} pending</span></div>` : ''}
+          ${c.liveUrl ? `<a href="${c.liveUrl}" class="live-link" target="_blank">→ ${c.liveUrl}</a>` : ''}
+        </div>`;
+    }).join('');
+
+    document.getElementById('generated').textContent = 'Last updated: ' + new Date(data.generated).toLocaleString();
+  })
+  .catch(err => {
+    document.getElementById('charters').innerHTML = '<p style="color:var(--red)">Failed to load charter data: ' + err.message + '</p>';
+  });
+</script>
+</body>
+</html>
