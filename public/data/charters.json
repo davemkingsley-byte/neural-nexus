@@ -6,7 +6,7 @@
       "charters": [
         {
           "id": "101",
-          "title": "001: Spelling Bee Game",
+          "title": "Spelling Bee Game",
           "status": "🟢 Live",
           "statusClean": "Live",
           "phase": "✅ Deployed — Live at www.neuralnexus.press/play",
@@ -51,7 +51,7 @@
         },
         {
           "id": "102",
-          "title": "002: Neural NeXus Website",
+          "title": "Neural NeXus Website",
           "status": "🟢 Live",
           "statusClean": "Live",
           "phase": "✅ Deployed — Live at www.neuralnexus.press",
@@ -113,7 +113,7 @@
         },
         {
           "id": "107",
-          "title": "Charter 107: Mini Crossword",
+          "title": "Mini Crossword",
           "status": "🟢 Live",
           "statusClean": "Live",
           "phase": "Requirements",
@@ -346,5 +346,5 @@
       "charters": []
     }
   ],
-  "generated": "2026-03-19T02:18:06.021Z"
+  "generated": "2026-03-19T02:36:54.761Z"
 }
