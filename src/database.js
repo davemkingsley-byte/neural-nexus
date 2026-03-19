@@ -36,6 +36,27 @@ db.exec(`
 
   CREATE INDEX IF NOT EXISTS idx_scores_date ON scores(date);
   CREATE INDEX IF NOT EXISTS idx_scores_date_score ON scores(date, score DESC);
+
+  CREATE TABLE IF NOT EXISTS wordle_scores (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,
+    nickname TEXT NOT NULL,
+    guesses INTEGER NOT NULL,
+    won INTEGER NOT NULL,
+    guess_details TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_wordle_scores_date ON wordle_scores(date);
+
+  CREATE TABLE IF NOT EXISTS crossword_scores (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,
+    nickname TEXT NOT NULL,
+    time_seconds INTEGER NOT NULL,
+    completed INTEGER NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_crossword_scores_date ON crossword_scores(date);
 `);
 
 const stmts = {
@@ -43,6 +64,19 @@ const stmts = {
   insertPuzzle: db.prepare('INSERT OR REPLACE INTO puzzles (date, letters, center_letter, word_list, max_score) VALUES (?, ?, ?, ?, ?)'),
   insertScore: db.prepare('INSERT INTO scores (date, nickname, score, words_found, time_remaining) VALUES (?, ?, ?, ?, ?)'),
   getLeaderboard: db.prepare('SELECT nickname, score, words_found, time_remaining FROM scores WHERE date = ? ORDER BY score DESC, time_remaining DESC LIMIT 50'),
+  getPastPuzzles: db.prepare('SELECT date, letters, center_letter, max_score, (SELECT COUNT(*) FROM scores s WHERE s.date = p.date) as entry_count FROM puzzles p ORDER BY date DESC LIMIT 60'),
+  getPuzzleByDate: db.prepare('SELECT * FROM puzzles WHERE date = ?'),
+  getSpellingBeeScoresByDate: db.prepare('SELECT nickname, score, words_found, time_remaining FROM scores WHERE date = ? ORDER BY score DESC, time_remaining DESC LIMIT 50'),
+
+  insertWordleScore: db.prepare('INSERT INTO wordle_scores (date, nickname, guesses, won, guess_details) VALUES (?, ?, ?, ?, ?)'),
+  getWordleLeaderboard: db.prepare('SELECT nickname, guesses, won, guess_details FROM wordle_scores WHERE date = ? AND won = 1 ORDER BY guesses ASC, created_at ASC LIMIT 50'),
+  getWordleAllByDate: db.prepare('SELECT nickname, guesses, won, guess_details FROM wordle_scores WHERE date = ? ORDER BY guesses ASC, created_at ASC LIMIT 50'),
+  getPastWordleDates: db.prepare('SELECT DISTINCT date FROM wordle_scores ORDER BY date DESC LIMIT 60'),
+
+  insertCrosswordScore: db.prepare('INSERT INTO crossword_scores (date, nickname, time_seconds, completed) VALUES (?, ?, ?, ?)'),
+  getCrosswordLeaderboard: db.prepare('SELECT nickname, time_seconds, completed FROM crossword_scores WHERE date = ? AND completed = 1 ORDER BY time_seconds ASC, created_at ASC LIMIT 50'),
+  getCrosswordAllByDate: db.prepare('SELECT nickname, time_seconds, completed FROM crossword_scores WHERE date = ? ORDER BY time_seconds ASC, created_at ASC LIMIT 50'),
+  getPastCrosswordDates: db.prepare('SELECT DISTINCT date FROM crossword_scores ORDER BY date DESC LIMIT 60'),
 };
 
 module.exports = {
@@ -68,6 +102,60 @@ module.exports = {
       ...row,
       words_found: JSON.parse(row.words_found),
     }));
+  },
+
+  getPastPuzzles() {
+    return stmts.getPastPuzzles.all();
+  },
+
+  getSpellingBeeByDate(date) {
+    const puzzle = stmts.getPuzzleByDate.get(date);
+    if (!puzzle) return null;
+    const scores = stmts.getSpellingBeeScoresByDate.all(date).map(row => ({
+      ...row,
+      words_found: JSON.parse(row.words_found),
+    }));
+    return { puzzle, scores };
+  },
+
+  // Wordle
+  submitWordleScore(date, nickname, guesses, won, guessDetails) {
+    stmts.insertWordleScore.run(date, nickname, guesses, won ? 1 : 0, JSON.stringify(guessDetails));
+  },
+
+  getWordleLeaderboard(date) {
+    return stmts.getWordleLeaderboard.all(date).map(row => ({
+      ...row,
+      guess_details: JSON.parse(row.guess_details),
+    }));
+  },
+
+  getWordleAllByDate(date) {
+    return stmts.getWordleAllByDate.all(date).map(row => ({
+      ...row,
+      guess_details: JSON.parse(row.guess_details),
+    }));
+  },
+
+  getPastWordleDates() {
+    return stmts.getPastWordleDates.all().map(r => r.date);
+  },
+
+  // Crossword
+  submitCrosswordScore(date, nickname, timeSeconds, completed) {
+    stmts.insertCrosswordScore.run(date, nickname, timeSeconds, completed ? 1 : 0);
+  },
+
+  getCrosswordLeaderboard(date) {
+    return stmts.getCrosswordLeaderboard.all(date);
+  },
+
+  getCrosswordAllByDate(date) {
+    return stmts.getCrosswordAllByDate.all(date);
+  },
+
+  getPastCrosswordDates() {
+    return stmts.getPastCrosswordDates.all().map(r => r.date);
   },
 
   close() {

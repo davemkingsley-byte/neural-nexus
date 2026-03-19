@@ -275,11 +275,11 @@ main {
 }
 .share-grid {
   font-family: monospace; font-size: 1.1rem; line-height: 1.4;
-  margin-bottom: 20px; letter-spacing: 3px;
+  margin-bottom: 16px; letter-spacing: 3px;
   background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
   border-radius: 10px; padding: 14px; display: inline-block;
 }
-.modal-actions { display: flex; gap: 8px; justify-content: center; }
+.modal-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
 .btn-modal {
   padding: 11px 22px; border-radius: 10px; border: none;
   font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 700;
@@ -295,6 +295,32 @@ main {
   background: rgba(255,255,255,0.06); color: var(--text);
   border: 1px solid rgba(255,255,255,0.1);
 }
+/* Nickname + leaderboard in modal */
+.nickname-section {
+  margin-bottom: 16px; display: flex; gap: 8px;
+}
+.nickname-input {
+  flex: 1; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; outline: none;
+  transition: border-color 0.2s;
+}
+.nickname-input:focus { border-color: rgba(34,197,94,0.4); }
+.nickname-input::placeholder { color: rgba(255,255,255,0.2); }
+.btn-submit-lb {
+  padding: 10px 16px; border-radius: 10px; border: none;
+  background: linear-gradient(135deg, var(--green), var(--green-dark)); color: #fff;
+  font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 700;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.btn-submit-lb:disabled { opacity: 0.4; cursor: default; }
+.lb-section { margin-top: 12px; text-align: left; }
+.lb-title { font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 8px; text-align: center; }
+.lb-list { display: flex; flex-direction: column; gap: 4px; max-height: 150px; overflow-y: auto; }
+.lb-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,0.03); font-size: 0.78rem; }
+.lb-row:first-child { background: rgba(34,197,94,0.08); color: var(--green); font-weight: 700; }
+.lb-row-name { color: var(--text-mid); }
+.lb-row-score { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.5); }
 
 /* ── Responsive ── */
 @media (max-width: 480px) {
@@ -347,6 +373,7 @@ main {
   </div>
   <div class="nav-links">
     <a href="/">Home</a>
+    <a href="/wordle/archive">Archive</a>
     <a href="/play" class="nav-pill">🐝 Bee</a>
     <a href="/crossword" class="nav-pill">✏️ Cross</a>
   </div>
@@ -375,9 +402,18 @@ main {
       <div class="stat-item"><div class="stat-val" id="stat-max">0</div><div class="stat-lbl">Best</div></div>
     </div>
     <div class="share-grid" id="share-grid"></div>
+    <div class="nickname-section" id="nickname-section">
+      <input class="nickname-input" id="nickname-input" placeholder="Your nickname" maxlength="20" autocomplete="off">
+      <button class="btn-submit-lb" id="btn-submit-lb">Submit →</button>
+    </div>
+    <div class="lb-section" id="lb-section" style="display:none">
+      <div class="lb-title">🏆 Today's Leaderboard</div>
+      <div class="lb-list" id="lb-list"></div>
+    </div>
     <div class="modal-actions">
       <button class="btn-modal btn-share" id="btn-share">Share 📋</button>
-      <a href="/play" class="btn-modal btn-alt">Play Bee 🐝</a>
+      <a href="/wordle/archive" class="btn-modal btn-alt">Archive 📅</a>
+      <a href="/play" class="btn-modal btn-alt">Bee 🐝</a>
     </div>
   </div>
 </div>
@@ -537,6 +573,36 @@ function showModal(won) {
   const grid = guesses.map(g => g.result.map(r => em[r]).join('')).join('\n');
   document.getElementById('share-grid').textContent = grid;
   document.getElementById('modal').classList.add('show');
+
+  // Show nickname section only if not already submitted
+  const alreadySubmitted = localStorage.getItem('nn-wordle-submitted-' + todayDate);
+  if (alreadySubmitted) {
+    document.getElementById('nickname-section').style.display = 'none';
+    loadLeaderboard();
+  } else {
+    document.getElementById('nickname-section').style.display = 'flex';
+  }
+
+  document.getElementById('btn-submit-lb').onclick = async () => {
+    const nickname = document.getElementById('nickname-input').value.trim();
+    if (!nickname) { document.getElementById('nickname-input').style.borderColor = 'rgba(239,68,68,0.5)'; return; }
+    const btn = document.getElementById('btn-submit-lb');
+    btn.disabled = true; btn.textContent = '...';
+    try {
+      await fetch('/api/wordle/score', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: todayDate, nickname, guesses: guesses.length, won, guessDetails: guesses.map(g => g.result) })
+      });
+      localStorage.setItem('nn-wordle-submitted-' + todayDate, '1');
+      document.getElementById('nickname-section').style.display = 'none';
+      btn.textContent = '✓';
+      loadLeaderboard();
+    } catch(e) { btn.disabled = false; btn.textContent = 'Retry'; }
+  };
+  document.getElementById('nickname-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('btn-submit-lb').click();
+  });
+
   document.getElementById('btn-share').onclick = () => {
     const text = `Neural NeXus Wordie · ${todayDate}\n\n${grid}\n\nneuralnexus.press/wordle`;
     if (navigator.share) navigator.share({ text }).catch(() => navigator.clipboard.writeText(text).then(() => showToast('Copied!')));
@@ -545,6 +611,26 @@ function showModal(won) {
   document.getElementById('modal').addEventListener('click', e => {
     if (e.target === document.getElementById('modal')) document.getElementById('modal').classList.remove('show');
   });
+}
+
+async function loadLeaderboard() {
+  try {
+    const res = await fetch(`/api/wordle/leaderboard?date=${todayDate}`);
+    const data = await res.json();
+    const entries = data.entries || [];
+    const medals = ['🥇','🥈','🥉'];
+    const lbSection = document.getElementById('lb-section');
+    const lbList = document.getElementById('lb-list');
+    if (entries.length) {
+      lbList.innerHTML = entries.map((e, i) => `
+        <div class="lb-row">
+          <span>${i < 3 ? medals[i] : i+1} <span class="lb-row-name">${e.nickname.replace(/</g,'&lt;')}</span></span>
+          <span class="lb-row-score">${e.guesses}/6</span>
+        </div>
+      `).join('');
+      lbSection.style.display = 'block';
+    }
+  } catch(e) {}
 }
 
 function restoreGame(saved) {

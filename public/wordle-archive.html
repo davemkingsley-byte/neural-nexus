@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wordie Archive — Neural NeXus</title>
+<meta name="description" content="Browse past Wordie daily words with guess distributions and top solver leaderboards.">
+<meta property="og:title" content="Wordie Archive — Neural NeXus">
+<meta property="og:url" content="https://www.neuralnexus.press/wordle/archive">
+<link rel="canonical" href="https://www.neuralnexus.press/wordle/archive">
+<link rel="icon" href="/img/neuron-logo.jpg">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-B0X6HBHKH3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-B0X6HBHKH3');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0b12;
+    --surface: rgba(255,255,255,0.03);
+    --surface-2: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.06);
+    --border-2: rgba(255,255,255,0.1);
+    --text: #f0f0f5;
+    --text-dim: rgba(255,255,255,0.4);
+    --text-mid: rgba(255,255,255,0.6);
+    --green: #22c55e;
+    --green-dark: #16a34a;
+    --yellow: #eab308;
+    --accent: #60a5fa;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(34,197,94,0.07) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(234,179,8,0.04) 0%, transparent 50%);
+  }
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    padding: 10px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(14,14,22,0.95);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+  }
+  .nav-left { display: flex; align-items: center; gap: 10px; }
+  .nav-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .nav-brand img { height: 26px; border-radius: 5px; }
+  .nav-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+  .nav-title { font-family: 'Instrument Serif', serif; font-size: 1rem; color: #fff; }
+  .nav-links { display: flex; gap: 12px; align-items: center; }
+  .nav-links a { color: rgba(255,255,255,0.5); text-decoration: none; font-size: 0.7rem; font-weight: 600; transition: color 0.2s; }
+  .nav-links a:hover { color: #fff; }
+  .nav-pill { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; }
+
+  main {
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 0 auto; padding: 48px 24px 100px;
+    display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start;
+  }
+  .sidebar { position: sticky; top: 68px; }
+  .sidebar-title {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--green); margin-bottom: 12px;
+  }
+  .date-list { display: flex; flex-direction: column; gap: 4px; max-height: 70vh; overflow-y: auto; }
+  .date-item {
+    padding: 10px 14px; border-radius: 10px; cursor: pointer;
+    border: 1px solid transparent; transition: all 0.2s;
+    background: var(--surface);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .date-item:hover { background: var(--surface-2); border-color: var(--border); }
+  .date-item.active { background: rgba(34,197,94,0.08); border-color: rgba(34,197,94,0.2); }
+  .date-label { font-size: 0.82rem; font-weight: 600; }
+  .date-word { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: var(--green); font-weight: 700; letter-spacing: 2px; }
+  .date-today { font-size: 0.62rem; color: var(--text-dim); }
+  .score-badge { font-size: 0.62rem; font-weight: 700; color: var(--green); background: rgba(34,197,94,0.1); padding: 2px 7px; border-radius: 4px; }
+
+  .detail-panel { min-height: 400px; }
+  .empty-state { text-align: center; padding: 80px 20px; color: var(--text-dim); font-size: 0.9rem; }
+  .empty-icon { font-size: 3rem; display: block; margin-bottom: 14px; }
+
+  .puzzle-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 28px; margin-bottom: 16px;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .puzzle-date-label {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--green); margin-bottom: 14px;
+  }
+  .word-reveal {
+    font-family: 'JetBrains Mono', monospace; font-size: 2.2rem; font-weight: 700;
+    letter-spacing: 12px; text-transform: uppercase; margin-bottom: 16px;
+    color: var(--text);
+  }
+  .word-tiles {
+    display: flex; gap: 5px; margin-bottom: 20px;
+  }
+  .word-tile {
+    width: 48px; height: 48px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif; font-size: 1.3rem; font-weight: 800;
+    border: 2px solid rgba(34,197,94,0.4);
+    border-radius: 6px; text-transform: uppercase;
+    background: rgba(34,197,94,0.15); color: #fff;
+  }
+  .puzzle-stats { display: flex; gap: 24px; flex-wrap: wrap; }
+  .puzzle-stat { text-align: center; }
+  .puzzle-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; }
+  .puzzle-stat-lbl { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+
+  .section-head {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 12px; margin-top: 20px;
+  }
+  .lb-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 1px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 14px; font-size: 0.82rem; color: var(--text-mid); border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr:first-child td { color: var(--green); font-weight: 700; }
+  .empty-lb { text-align: center; color: var(--text-dim); font-size: 0.8rem; padding: 24px; }
+
+  .guess-dist { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; }
+  .dist-row { display: flex; align-items: center; gap: 8px; }
+  .dist-num { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700; width: 16px; color: var(--text-dim); }
+  .dist-bar-wrap { flex: 1; height: 20px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden; }
+  .dist-bar { height: 100%; background: linear-gradient(90deg, var(--green-dark), var(--green)); border-radius: 4px; min-width: 2px; transition: width 0.6s cubic-bezier(0.4,0,0.2,1); display: flex; align-items: center; justify-content: flex-end; padding-right: 6px; }
+  .dist-bar-count { font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.8); }
+
+  .loading { text-align: center; padding: 60px; color: var(--text-dim); font-size: 0.85rem; }
+  .spinner { display: inline-block; width: 22px; height: 22px; border: 2px solid var(--border); border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 10px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; padding: 24px 16px 80px; }
+    .sidebar { position: static; }
+    .date-list { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; gap: 8px; max-height: none; }
+    .date-item { flex-shrink: 0; min-width: 120px; }
+    .word-tile { width: 40px; height: 40px; font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="/" class="nav-brand"><img src="/img/neuron-logo.jpg" alt="Neural NeXus"></a>
+    <div class="nav-divider"></div>
+    <span class="nav-title">🟩 Wordie Archive</span>
+  </div>
+  <div class="nav-links">
+    <a href="/wordle">Today's Wordie</a>
+    <a href="/archive" class="nav-pill">All Archives</a>
+    <a href="/">Home</a>
+  </div>
+</nav>
+
+<main>
+  <aside class="sidebar">
+    <div class="sidebar-title">Past Words</div>
+    <div class="date-list" id="dateList">
+      <div class="loading"><span class="spinner"></span>Loading...</div>
+    </div>
+  </aside>
+
+  <div class="detail-panel" id="detailPanel">
+    <div class="empty-state">
+      <span class="empty-icon">🟩</span>
+      Select a date to reveal the word and see the leaderboard
+    </div>
+  </div>
+</main>
+
+<script>
+let archiveDates = [];
+
+async function loadArchive() {
+  try {
+    const res = await fetch('/api/wordle/archive');
+    const data = await res.json();
+    archiveDates = data.dates || [];
+    renderDateList();
+    if (archiveDates.length) {
+      // default to first past date (not today)
+      const firstPast = archiveDates.find(d => !d.isToday) || archiveDates[0];
+      if (firstPast) loadDate(firstPast.date);
+    }
+  } catch(e) {
+    document.getElementById('dateList').innerHTML = '<div style="color:rgba(255,255,255,0.3);padding:16px;font-size:0.8rem;">Could not load archive</div>';
+  }
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function renderDateList() {
+  const list = document.getElementById('dateList');
+  if (!archiveDates.length) {
+    list.innerHTML = '<div style="color:rgba(255,255,255,0.3);padding:16px;font-size:0.8rem;">No past puzzles yet</div>';
+    return;
+  }
+  list.innerHTML = archiveDates.map(d => `
+    <div class="date-item" data-date="${d.date}" onclick="loadDate('${d.date}')">
+      <div>
+        <div class="date-label">${d.isToday ? '⭐ Today' : formatDate(d.date)}</div>
+        ${d.word && !d.isToday ? `<div class="date-word">${d.word.toUpperCase()}</div>` : '<div class="date-today">Hidden</div>'}
+      </div>
+      ${d.hasScores ? '<div class="score-badge">LB</div>' : ''}
+    </div>
+  `).join('');
+}
+
+async function loadDate(dateStr) {
+  document.querySelectorAll('.date-item').forEach(el => el.classList.toggle('active', el.dataset.date === dateStr));
+  const panel = document.getElementById('detailPanel');
+  panel.innerHTML = '<div class="loading"><span class="spinner"></span>Loading...</div>';
+
+  try {
+    const res = await fetch(`/api/wordle/archive/${dateStr}`);
+    const data = await res.json();
+    renderDetail(dateStr, data);
+  } catch(e) {
+    panel.innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span>Could not load data</div>';
+  }
+}
+
+function renderDetail(dateStr, data) {
+  const isToday = dateStr === new Date().toISOString().slice(0, 10);
+  const word = data.word;
+  const entries = data.entries || [];
+
+  // Guess distribution
+  const dist = { 1:0, 2:0, 3:0, 4:0, 5:0, 6:0 };
+  entries.forEach(e => { if (e.guesses >= 1 && e.guesses <= 6) dist[e.guesses]++; });
+  const maxDist = Math.max(...Object.values(dist), 1);
+  const totalSolvers = entries.length;
+  const avgGuesses = totalSolvers ? (entries.reduce((s, e) => s + e.guesses, 0) / totalSolvers).toFixed(1) : '—';
+
+  const medals = ['🥇','🥈','🥉'];
+  const lbRows = entries.length
+    ? entries.map((e, i) => `<tr>
+        <td>${i < 3 ? medals[i] : i+1}</td>
+        <td>${escHtml(e.nickname)}</td>
+        <td>${e.guesses}/6</td>
+      </tr>`).join('')
+    : '<tr><td colspan="3" class="empty-lb">No scores yet</td></tr>';
+
+  const wordHtml = word
+    ? `<div class="word-tiles">${word.split('').map(l => `<div class="word-tile">${l}</div>`).join('')}</div>`
+    : '<div style="color:var(--text-dim);font-size:0.85rem;margin-bottom:20px;">Today\'s word is hidden until tomorrow</div>';
+
+  const distHtml = `
+    <div class="section-head">📊 Guess Distribution</div>
+    <div class="puzzle-card">
+      <div class="guess-dist">
+        ${[1,2,3,4,5,6].map(n => `
+          <div class="dist-row">
+            <div class="dist-num">${n}</div>
+            <div class="dist-bar-wrap">
+              <div class="dist-bar" style="width:${dist[n] ? Math.max(8, dist[n]/maxDist*100) : 0}%">
+                ${dist[n] ? `<span class="dist-bar-count">${dist[n]}</span>` : ''}
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  document.getElementById('detailPanel').innerHTML = `
+    <div class="puzzle-card">
+      <div class="puzzle-date-label">${isToday ? '⭐ Today · ' : ''}${formatDate(dateStr)}</div>
+      ${wordHtml}
+      <div class="puzzle-stats">
+        <div class="puzzle-stat"><div class="puzzle-stat-val" style="color:var(--green)">${totalSolvers}</div><div class="puzzle-stat-lbl">Solvers</div></div>
+        <div class="puzzle-stat"><div class="puzzle-stat-val">${avgGuesses}</div><div class="puzzle-stat-lbl">Avg Guesses</div></div>
+      </div>
+    </div>
+
+    ${distHtml}
+
+    <div class="section-head">🏆 Fewest Guesses</div>
+    <div class="lb-card">
+      <table>
+        <thead><tr><th>#</th><th>Player</th><th>Guesses</th></tr></thead>
+        <tbody>${lbRows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+loadArchive();
+</script>
+</body>
+</html>

@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spelling Bee Archive — Neural NeXus</title>
+<meta name="description" content="Browse past Spelling Bee puzzles and leaderboards from Neural NeXus. See the letters, top scores, and word lists.">
+<meta property="og:title" content="Spelling Bee Archive — Neural NeXus">
+<meta property="og:url" content="https://www.neuralnexus.press/play/archive">
+<link rel="canonical" href="https://www.neuralnexus.press/play/archive">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🐝</text></svg>">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-B0X6HBHKH3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-B0X6HBHKH3');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080f;
+    --surface: rgba(255,255,255,0.03);
+    --surface-2: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.06);
+    --border-2: rgba(255,255,255,0.1);
+    --text: #f0f0f5;
+    --text-dim: rgba(255,255,255,0.4);
+    --text-mid: rgba(255,255,255,0.6);
+    --gold: #f0c040;
+    --gold-dim: rgba(240,192,64,0.15);
+    --green: #34d399;
+    --blue: #60a5fa;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(240,192,64,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 80%, rgba(96,165,250,0.03) 0%, transparent 50%);
+  }
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    padding: 12px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(8,8,15,0.9);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-left { display: flex; align-items: center; gap: 10px; }
+  .nav-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .nav-brand img { height: 26px; border-radius: 5px; }
+  .nav-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+  .nav-title {
+    font-family: 'Instrument Serif', serif; font-size: 1rem;
+    background: linear-gradient(135deg, var(--gold), #ffe4a0);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .nav-links { display: flex; gap: 12px; align-items: center; }
+  .nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.7rem; font-weight: 600; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-pill { background: rgba(255,255,255,0.06); border: 1px solid var(--border); padding: 4px 10px; border-radius: 6px; }
+
+  main {
+    position: relative; z-index: 1;
+    max-width: 900px; margin: 0 auto; padding: 48px 24px 100px;
+    display: grid; grid-template-columns: 280px 1fr; gap: 24px; align-items: start;
+  }
+  .sidebar { position: sticky; top: 80px; }
+  .sidebar-title {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--gold); margin-bottom: 12px;
+  }
+  .date-list { display: flex; flex-direction: column; gap: 4px; max-height: 70vh; overflow-y: auto; }
+  .date-item {
+    padding: 10px 14px; border-radius: 10px; cursor: pointer;
+    border: 1px solid transparent; transition: all 0.2s;
+    display: flex; justify-content: space-between; align-items: center;
+    background: var(--surface);
+  }
+  .date-item:hover { background: var(--surface-2); border-color: var(--border); }
+  .date-item.active { background: var(--gold-dim); border-color: rgba(240,192,64,0.25); }
+  .date-item .date-label { font-size: 0.82rem; font-weight: 600; }
+  .date-item .date-sub { font-size: 0.65rem; color: var(--text-dim); }
+  .date-item .score-badge {
+    font-size: 0.62rem; font-weight: 700; color: var(--gold);
+    background: rgba(240,192,64,0.1); padding: 2px 7px; border-radius: 4px;
+  }
+
+  .detail-panel { min-height: 400px; }
+  .empty-state {
+    text-align: center; padding: 80px 20px;
+    color: var(--text-dim); font-size: 0.9rem;
+  }
+  .empty-icon { font-size: 3rem; display: block; margin-bottom: 14px; }
+
+  .puzzle-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 28px; margin-bottom: 16px;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .puzzle-date-label {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--gold); margin-bottom: 14px;
+  }
+  .hex-display {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+  }
+  .hex-letter {
+    width: 44px; height: 44px;
+    display: flex; align-items: center; justify-content: center;
+    clip-path: polygon(50% 0%, 93% 25%, 93% 75%, 50% 100%, 7% 75%, 7% 25%);
+    font-size: 1rem; font-weight: 800; text-transform: uppercase;
+    background: rgba(255,255,255,0.05);
+  }
+  .hex-letter.center {
+    background: linear-gradient(135deg, #f5d56a, #c8960a);
+    color: #1a1000;
+  }
+  .puzzle-stats { display: flex; gap: 20px; flex-wrap: wrap; }
+  .puzzle-stat { text-align: center; }
+  .puzzle-stat-val {
+    font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; color: var(--text);
+  }
+  .puzzle-stat-lbl { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+
+  .section-head {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 12px; margin-top: 20px;
+  }
+  .lb-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th {
+    text-align: left; font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.25);
+    text-transform: uppercase; letter-spacing: 1px; padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  td { padding: 10px 14px; font-size: 0.82rem; color: var(--text-mid); border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr:first-child td { color: var(--gold); font-weight: 700; }
+  .empty-lb { text-align: center; color: var(--text-dim); font-size: 0.8rem; padding: 24px; }
+
+  .loading { text-align: center; padding: 60px; color: var(--text-dim); font-size: 0.85rem; }
+  .spinner {
+    display: inline-block; width: 22px; height: 22px; border: 2px solid var(--border);
+    border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite;
+    margin-right: 10px; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; padding: 24px 16px 80px; }
+    .sidebar { position: static; }
+    .date-list { max-height: 200px; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; gap: 8px; }
+    .date-item { flex-shrink: 0; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="/" class="nav-brand"><img src="/img/neuron-logo.jpg" alt="Neural NeXus"></a>
+    <div class="nav-divider"></div>
+    <span class="nav-title">🐝 Spelling Bee Archive</span>
+  </div>
+  <div class="nav-links">
+    <a href="/play">Today's Bee</a>
+    <a href="/archive" class="nav-pill">All Archives</a>
+    <a href="/">Home</a>
+  </div>
+</nav>
+
+<main>
+  <aside class="sidebar">
+    <div class="sidebar-title">Past Puzzles</div>
+    <div class="date-list" id="dateList">
+      <div class="loading"><span class="spinner"></span>Loading...</div>
+    </div>
+  </aside>
+
+  <div class="detail-panel" id="detailPanel">
+    <div class="empty-state">
+      <span class="empty-icon">🐝</span>
+      Select a date to see that day's puzzle and leaderboard
+    </div>
+  </div>
+</main>
+
+<script>
+let archiveData = [];
+
+async function loadArchive() {
+  try {
+    const res = await fetch('/api/spelling-bee/archive');
+    const data = await res.json();
+    archiveData = data.puzzles || [];
+    renderDateList();
+    if (archiveData.length) loadDate(archiveData[0].date);
+  } catch(e) {
+    document.getElementById('dateList').innerHTML = '<div style="color:rgba(255,255,255,0.3);padding:16px;font-size:0.8rem;">Could not load archive</div>';
+  }
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function renderDateList() {
+  const today = new Date().toISOString().slice(0, 10);
+  const list = document.getElementById('dateList');
+  if (!archiveData.length) {
+    list.innerHTML = '<div style="color:rgba(255,255,255,0.3);padding:16px;font-size:0.8rem;">No past puzzles yet</div>';
+    return;
+  }
+  list.innerHTML = archiveData.map(p => `
+    <div class="date-item" data-date="${p.date}" onclick="loadDate('${p.date}')">
+      <div>
+        <div class="date-label">${p.date === today ? '⭐ Today' : formatDate(p.date)}</div>
+        <div class="date-sub">${p.letters || ''}</div>
+      </div>
+      ${p.entry_count > 0 ? `<div class="score-badge">${p.entry_count}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+async function loadDate(dateStr) {
+  // Mark active
+  document.querySelectorAll('.date-item').forEach(el => el.classList.toggle('active', el.dataset.date === dateStr));
+
+  const panel = document.getElementById('detailPanel');
+  panel.innerHTML = '<div class="loading"><span class="spinner"></span>Loading...</div>';
+
+  try {
+    const res = await fetch(`/api/spelling-bee/archive/${dateStr}`);
+    const data = await res.json();
+    renderDetail(dateStr, data);
+  } catch(e) {
+    panel.innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span>Could not load puzzle data</div>';
+  }
+}
+
+function renderDetail(dateStr, data) {
+  const today = new Date().toISOString().slice(0, 10);
+  const puzzle = data.puzzle;
+  const scores = data.scores || [];
+  const letters = puzzle.letters ? puzzle.letters.split('') : [];
+  const center = puzzle.center_letter;
+
+  const hexHtml = letters.map(l => `<div class="hex-letter${l === center ? ' center' : ''}">${l}</div>`).join('');
+  const medals = ['🥇','🥈','🥉'];
+
+  const lbRows = scores.length
+    ? scores.map((s, i) => `<tr>
+        <td>${i < 3 ? medals[i] : i+1}</td>
+        <td>${escHtml(s.nickname)}</td>
+        <td>${s.score}</td>
+        <td>${Array.isArray(s.words_found) ? s.words_found.length : 0}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" class="empty-lb">No scores submitted yet</td></tr>';
+
+  const wordList = puzzle.word_list ? JSON.parse(puzzle.word_list) : [];
+
+  document.getElementById('detailPanel').innerHTML = `
+    <div class="puzzle-card">
+      <div class="puzzle-date-label">${dateStr === today ? '⭐ Today · ' : ''}${formatDate(dateStr)}</div>
+      <div class="hex-display">${hexHtml}</div>
+      <div class="puzzle-stats">
+        <div class="puzzle-stat"><div class="puzzle-stat-val">${puzzle.max_score}</div><div class="puzzle-stat-lbl">Max Score</div></div>
+        <div class="puzzle-stat"><div class="puzzle-stat-val">${wordList.length || '—'}</div><div class="puzzle-stat-lbl">Words</div></div>
+        <div class="puzzle-stat"><div class="puzzle-stat-val">${scores.length}</div><div class="puzzle-stat-lbl">Players</div></div>
+      </div>
+    </div>
+
+    <div class="section-head">🏆 Leaderboard</div>
+    <div class="lb-card">
+      <table>
+        <thead><tr><th>#</th><th>Player</th><th>Score</th><th>Words</th></tr></thead>
+        <tbody>${lbRows}</tbody>
+      </table>
+    </div>
+
+    ${dateStr === today ? '' : `
+    <div class="section-head" style="margin-top:24px;">📝 Word List</div>
+    <div class="puzzle-card">
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${wordList.map(w => `<span style="background:rgba(255,255,255,0.05);padding:4px 10px;border-radius:20px;font-size:0.75rem;color:var(--text-mid)">${w}</span>`).join('')}
+      </div>
+    </div>
+    `}
+  `;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+loadArchive();
+</script>
+</body>
+</html>

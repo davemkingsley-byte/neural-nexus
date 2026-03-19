@@ -25,6 +25,15 @@ try {
   console.error('Failed to load Wordle module:', err.message);
 }
 
+// Crossword puzzles module
+let crosswordPuzzles;
+try {
+  crosswordPuzzles = require('./src/crossword-puzzles');
+  console.log('Crossword puzzles module loaded successfully');
+} catch (err) {
+  console.error('Failed to load crossword puzzles module:', err.message);
+}
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 
@@ -49,9 +58,33 @@ app.get('/play', (req, res) => {
 app.get('/wordle', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'wordle.html'));
 });
-
 app.get('/crossword', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'crossword.html'));
+});
+
+// Topic pages
+app.get('/topics/de-extinction', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'topics', 'de-extinction.html'));
+});
+app.get('/topics/artificial-womb', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'topics', 'artificial-womb.html'));
+});
+app.get('/topics/ai-agents', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'topics', 'ai-agents.html'));
+});
+
+// Archive pages
+app.get('/archive', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'archive.html'));
+});
+app.get('/play/archive', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'spelling-bee-archive.html'));
+});
+app.get('/wordle/archive', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'wordle-archive.html'));
+});
+app.get('/crossword/archive', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'crossword-archive.html'));
 });
 
 // --- Wordle API ---
@@ -99,6 +132,78 @@ app.post('/api/wordle/guess', (req, res) => {
   }
   
   res.json({ valid: true, result, correct: g === word });
+});
+
+// Wordle score submission
+app.post('/api/wordle/score', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const { date, nickname, guesses, won, guessDetails } = req.body;
+    if (!date || !nickname || guesses === undefined || won === undefined) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    spellDB.submitWordleScore(date, nickname.trim().slice(0, 20), guesses, won, guessDetails || []);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error saving wordle score:', err);
+    res.status(500).json({ error: 'Failed to save score' });
+  }
+});
+
+// Wordle leaderboard for a date
+app.get('/api/wordle/leaderboard', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const date = req.query.date || getTodayStr();
+    const entries = spellDB.getWordleLeaderboard(date);
+    res.json({ entries });
+  } catch (err) {
+    console.error('Error getting wordle leaderboard:', err);
+    res.status(500).json({ error: 'Failed to get leaderboard' });
+  }
+});
+
+// Wordle archive list
+app.get('/api/wordle/archive', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    // Get dates with scores plus last 30 days
+    const datesWithScores = new Set(spellDB.getPastWordleDates());
+    const today = getTodayStr();
+    const dates = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      const word = wordleWords ? wordleWords.getWordForDate(dateStr) : null;
+      dates.push({
+        date: dateStr,
+        word: i === 0 ? null : word, // don't reveal today's word
+        hasScores: datesWithScores.has(dateStr),
+        isToday: i === 0
+      });
+    }
+    res.json({ dates });
+  } catch (err) {
+    console.error('Error getting wordle archive:', err);
+    res.status(500).json({ error: 'Failed to get archive' });
+  }
+});
+
+// Wordle archive for specific date
+app.get('/api/wordle/archive/:date', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const { date } = req.params;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date format' });
+    const today = getTodayStr();
+    const word = (wordleWords && date !== today) ? wordleWords.getWordForDate(date) : null;
+    const entries = spellDB.getWordleLeaderboard(date);
+    res.json({ date, word, entries });
+  } catch (err) {
+    console.error('Error getting wordle archive date:', err);
+    res.status(500).json({ error: 'Failed to get data' });
+  }
 });
 
 // --- Spelling Bee API ---
@@ -175,6 +280,115 @@ app.get('/api/leaderboard', (req, res) => {
   } catch (err) {
     console.error('Error getting leaderboard:', err);
     res.status(500).json({ error: 'Failed to get leaderboard' });
+  }
+});
+
+// Spelling Bee archive list
+app.get('/api/spelling-bee/archive', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    // Ensure we have puzzles for last 30 days
+    const today = getTodayStr();
+    const dates = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      dates.push(dateStr);
+    }
+    // Ensure puzzles exist
+    dates.forEach(dateStr => {
+      try { ensurePuzzle(dateStr); } catch(e) {}
+    });
+    const puzzles = spellDB.getPastPuzzles();
+    res.json({ puzzles });
+  } catch (err) {
+    console.error('Error getting spelling bee archive:', err);
+    res.status(500).json({ error: 'Failed to get archive' });
+  }
+});
+
+// Spelling Bee archive for specific date
+app.get('/api/spelling-bee/archive/:date', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const { date } = req.params;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date format' });
+    ensurePuzzle(date);
+    const data = spellDB.getSpellingBeeByDate(date);
+    if (!data) return res.status(404).json({ error: 'Puzzle not found' });
+    res.json(data);
+  } catch (err) {
+    console.error('Error getting spelling bee archive date:', err);
+    res.status(500).json({ error: 'Failed to get data' });
+  }
+});
+
+// --- Crossword API ---
+app.post('/api/crossword/score', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const { date, nickname, timeSeconds, completed } = req.body;
+    if (!date || !nickname || timeSeconds === undefined || completed === undefined) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    spellDB.submitCrosswordScore(date, nickname.trim().slice(0, 20), timeSeconds, completed);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error saving crossword score:', err);
+    res.status(500).json({ error: 'Failed to save score' });
+  }
+});
+
+app.get('/api/crossword/leaderboard', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const date = req.query.date || getTodayStr();
+    const entries = spellDB.getCrosswordLeaderboard(date);
+    res.json({ entries });
+  } catch (err) {
+    console.error('Error getting crossword leaderboard:', err);
+    res.status(500).json({ error: 'Failed to get leaderboard' });
+  }
+});
+
+app.get('/api/crossword/archive', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const datesWithScores = new Set(spellDB.getPastCrosswordDates());
+    const today = getTodayStr();
+    const dates = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      const puzzle = crosswordPuzzles ? crosswordPuzzles.getPuzzleForDate(dateStr) : null;
+      const topWord = puzzle ? puzzle.grid[0].join('') : null;
+      dates.push({
+        date: dateStr,
+        topWord,
+        hasScores: datesWithScores.has(dateStr),
+        isToday: i === 0
+      });
+    }
+    res.json({ dates });
+  } catch (err) {
+    console.error('Error getting crossword archive:', err);
+    res.status(500).json({ error: 'Failed to get archive' });
+  }
+});
+
+app.get('/api/crossword/archive/:date', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const { date } = req.params;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date format' });
+    const puzzle = crosswordPuzzles ? crosswordPuzzles.getPuzzleForDate(date) : null;
+    const entries = spellDB.getCrosswordLeaderboard(date);
+    res.json({ date, puzzle, entries });
+  } catch (err) {
+    console.error('Error getting crossword archive date:', err);
+    res.status(500).json({ error: 'Failed to get data' });
   }
 });
 

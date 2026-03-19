@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mini Crossword Archive — Neural NeXus</title>
+<meta name="description" content="Browse past Mini Crossword puzzles with solutions, clues, and fastest-time leaderboards.">
+<meta property="og:title" content="Mini Crossword Archive — Neural NeXus">
+<meta property="og:url" content="https://www.neuralnexus.press/crossword/archive">
+<link rel="canonical" href="https://www.neuralnexus.press/crossword/archive">
+<link rel="icon" href="/img/neuron-logo.jpg">
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-B0X6HBHKH3"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-B0X6HBHKH3');
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0b0b12;
+    --surface: rgba(255,255,255,0.03);
+    --surface-2: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.06);
+    --border-2: rgba(255,255,255,0.1);
+    --text: #f0f0f5;
+    --text-dim: rgba(255,255,255,0.4);
+    --text-mid: rgba(255,255,255,0.6);
+    --accent: #7c6aff;
+    --accent-dim: rgba(124,106,255,0.15);
+    --green: #22c55e;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(124,106,255,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(34,197,94,0.04) 0%, transparent 50%),
+      var(--bg);
+  }
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    padding: 10px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(14,14,22,0.95);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .nav-left { display: flex; align-items: center; gap: 10px; }
+  .nav-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .nav-brand img { height: 26px; border-radius: 5px; }
+  .nav-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+  .nav-title { font-family: 'Instrument Serif', serif; font-size: 1rem; color: #fff; }
+  .nav-links { display: flex; gap: 12px; align-items: center; }
+  .nav-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.7rem; font-weight: 600; transition: color 0.2s; }
+  .nav-links a:hover { color: #fff; }
+  .nav-pill { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; }
+
+  main {
+    max-width: 940px; margin: 0 auto; padding: 48px 24px 100px;
+    display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start;
+  }
+  .sidebar { position: sticky; top: 68px; }
+  .sidebar-title {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .date-list { display: flex; flex-direction: column; gap: 4px; max-height: 70vh; overflow-y: auto; }
+  .date-item {
+    padding: 10px 14px; border-radius: 10px; cursor: pointer;
+    border: 1px solid transparent; transition: all 0.2s;
+    background: var(--surface);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .date-item:hover { background: var(--surface-2); border-color: var(--border); }
+  .date-item.active { background: var(--accent-dim); border-color: rgba(124,106,255,0.25); }
+  .date-label { font-size: 0.82rem; font-weight: 600; }
+  .date-word { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; color: var(--accent); font-weight: 700; }
+  .score-badge { font-size: 0.62rem; font-weight: 700; color: var(--accent); background: var(--accent-dim); padding: 2px 7px; border-radius: 4px; }
+
+  .detail-panel { min-height: 400px; }
+  .empty-state { text-align: center; padding: 80px 20px; color: var(--text-dim); font-size: 0.9rem; }
+  .empty-icon { font-size: 3rem; display: block; margin-bottom: 14px; }
+
+  .puzzle-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 28px; margin-bottom: 16px;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .puzzle-date-label {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 18px;
+  }
+
+  .archive-game-area {
+    display: flex; gap: 24px; flex-wrap: wrap; align-items: flex-start;
+  }
+
+  /* Mini grid */
+  .mini-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 2px; background: rgba(255,255,255,0.08); padding: 2px;
+    border-radius: 6px; flex-shrink: 0;
+  }
+  .mini-cell {
+    width: 48px; height: 48px; position: relative;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Sans', sans-serif; font-size: 1rem; font-weight: 700;
+    color: var(--text); text-transform: uppercase;
+  }
+  .mini-cell.black { background: rgba(0,0,0,0.5); border-color: transparent; }
+  .mini-cell-num {
+    position: absolute; top: 2px; left: 3px;
+    font-size: 0.45rem; font-weight: 600; color: rgba(255,255,255,0.4); line-height: 1;
+  }
+
+  /* Clues */
+  .archive-clues { flex: 1; min-width: 180px; }
+  .clue-section-title { font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .clue-row { display: flex; gap: 8px; font-size: 0.78rem; margin-bottom: 5px; color: var(--text-mid); }
+  .clue-num { font-family: 'JetBrains Mono', monospace; font-size: 0.68rem; font-weight: 700; color: var(--accent); min-width: 16px; }
+  .clue-dir-label { margin-top: 14px; }
+
+  .puzzle-stats { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 20px; }
+  .puzzle-stat { text-align: center; }
+  .puzzle-stat-val { font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; font-weight: 700; }
+  .puzzle-stat-lbl { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; margin-top: 2px; }
+
+  .section-head {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--text-dim); margin-bottom: 12px; margin-top: 20px;
+  }
+  .lb-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: hidden;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  table { width: 100%; border-collapse: collapse; }
+  th { text-align: left; font-size: 0.58rem; font-weight: 700; color: rgba(255,255,255,0.25); text-transform: uppercase; letter-spacing: 1px; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  td { padding: 10px 14px; font-size: 0.82rem; color: var(--text-mid); border-bottom: 1px solid var(--border); }
+  tr:last-child td { border-bottom: none; }
+  tr:first-child td { color: var(--accent); font-weight: 700; }
+  .empty-lb { text-align: center; color: var(--text-dim); font-size: 0.8rem; padding: 24px; }
+
+  .loading { text-align: center; padding: 60px; color: var(--text-dim); font-size: 0.85rem; }
+  .spinner { display: inline-block; width: 22px; height: 22px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin-right: 10px; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  ::-webkit-scrollbar { width: 3px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; padding: 24px 16px 80px; }
+    .sidebar { position: static; }
+    .date-list { flex-direction: row; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; gap: 8px; max-height: none; }
+    .date-item { flex-shrink: 0; min-width: 120px; }
+    .archive-game-area { flex-direction: column; }
+    .mini-cell { width: 40px; height: 40px; font-size: 0.9rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left">
+    <a href="/" class="nav-brand"><img src="/img/neuron-logo.jpg" alt="Neural NeXus"></a>
+    <div class="nav-divider"></div>
+    <span class="nav-title">✏️ Crossword Archive</span>
+  </div>
+  <div class="nav-links">
+    <a href="/crossword">Today's Crossword</a>
+    <a href="/archive" class="nav-pill">All Archives</a>
+    <a href="/">Home</a>
+  </div>
+</nav>
+
+<main>
+  <aside class="sidebar">
+    <div class="sidebar-title">Past Puzzles</div>
+    <div class="date-list" id="dateList">
+      <div class="loading"><span class="spinner"></span>Loading...</div>
+    </div>
+  </aside>
+
+  <div class="detail-panel" id="detailPanel">
+    <div class="empty-state">
+      <span class="empty-icon">✏️</span>
+      Select a date to see the grid, solution, and leaderboard
+    </div>
+  </div>
+</main>
+
+<script>
+let archiveDates = [];
+
+async function loadArchive() {
+  try {
+    const res = await fetch('/api/crossword/archive');
+    const data = await res.json();
+    archiveDates = data.dates || [];
+    renderDateList();
+    const firstPast = archiveDates.find(d => !d.isToday) || archiveDates[0];
+    if (firstPast) loadDate(firstPast.date);
+  } catch(e) {
+    document.getElementById('dateList').innerHTML = '<div style="color:rgba(255,255,255,0.3);padding:16px;font-size:0.8rem;">Could not load archive</div>';
+  }
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m}:${String(s).padStart(2,'0')}`;
+}
+
+function renderDateList() {
+  const list = document.getElementById('dateList');
+  if (!archiveDates.length) {
+    list.innerHTML = '<div style="color:rgba(255,255,255,0.3);padding:16px;font-size:0.8rem;">No past puzzles yet</div>';
+    return;
+  }
+  list.innerHTML = archiveDates.map(d => `
+    <div class="date-item" data-date="${d.date}" onclick="loadDate('${d.date}')">
+      <div>
+        <div class="date-label">${d.isToday ? '⭐ Today' : formatDate(d.date)}</div>
+        ${d.topWord ? `<div class="date-word">${d.topWord}…</div>` : ''}
+      </div>
+      ${d.hasScores ? '<div class="score-badge">LB</div>' : ''}
+    </div>
+  `).join('');
+}
+
+async function loadDate(dateStr) {
+  document.querySelectorAll('.date-item').forEach(el => el.classList.toggle('active', el.dataset.date === dateStr));
+  const panel = document.getElementById('detailPanel');
+  panel.innerHTML = '<div class="loading"><span class="spinner"></span>Loading...</div>';
+  try {
+    const res = await fetch(`/api/crossword/archive/${dateStr}`);
+    const data = await res.json();
+    renderDetail(dateStr, data);
+  } catch(e) {
+    panel.innerHTML = '<div class="empty-state"><span class="empty-icon">⚠️</span>Could not load data</div>';
+  }
+}
+
+function renderDetail(dateStr, data) {
+  const isToday = dateStr === new Date().toISOString().slice(0, 10);
+  const puzzle = data.puzzle;
+  const entries = data.entries || [];
+
+  // Build mini grid with cell numbers
+  let cellNumbers = {};
+  let num = 1;
+  if (puzzle && puzzle.grid) {
+    for (let r = 0; r < 5; r++) {
+      for (let c = 0; c < 5; c++) {
+        if (puzzle.grid[r][c] === '#') continue;
+        const needsAcross = (c === 0 || puzzle.grid[r][c-1] === '#') && c < 4 && puzzle.grid[r][c+1] !== '#';
+        const needsDown = (r === 0 || puzzle.grid[r-1] && puzzle.grid[r-1][c] === '#') && r < 4 && puzzle.grid[r+1] && puzzle.grid[r+1][c] !== '#';
+        const atTop = r === 0 || (puzzle.grid[r-1] && puzzle.grid[r-1][c] === '#');
+        const atLeft = c === 0 || puzzle.grid[r][c-1] === '#';
+        if ((atLeft && c < 4 && puzzle.grid[r][c+1] !== '#') || (atTop && r < 4 && puzzle.grid[r+1] && puzzle.grid[r+1][c] !== '#')) {
+          cellNumbers[`${r},${c}`] = num++;
+        }
+      }
+    }
+  }
+
+  // Grid HTML
+  const gridHtml = puzzle && puzzle.grid ? `
+    <div class="mini-grid">
+      ${puzzle.grid.flat().map((cell, idx) => {
+        const r = Math.floor(idx/5), c = idx%5;
+        const cellNum = cellNumbers[`${r},${c}`];
+        const showSolution = !isToday;
+        return `<div class="mini-cell${cell === '#' ? ' black' : ''}">
+          ${cellNum ? `<span class="mini-cell-num">${cellNum}</span>` : ''}
+          ${cell !== '#' && showSolution ? cell : ''}
+        </div>`;
+      }).join('')}
+    </div>
+  ` : '';
+
+  // Clues HTML
+  const cluesHtml = puzzle && puzzle.clues && !isToday ? `
+    <div class="archive-clues">
+      <div class="clue-section-title">Across</div>
+      ${Object.entries(puzzle.clues.across || {}).map(([n,t]) => `
+        <div class="clue-row"><span class="clue-num">${n}</span><span>${escHtml(t)}</span></div>
+      `).join('')}
+      <div class="clue-section-title clue-dir-label">Down</div>
+      ${Object.entries(puzzle.clues.down || {}).map(([n,t]) => `
+        <div class="clue-row"><span class="clue-num">${n}</span><span>${escHtml(t)}</span></div>
+      `).join('')}
+    </div>
+  ` : (isToday ? '<div style="color:var(--text-dim);font-size:0.82rem;">Solution revealed tomorrow</div>' : '');
+
+  // Stats
+  const totalSolvers = entries.length;
+  const avgTime = totalSolvers ? Math.round(entries.reduce((s,e) => s + e.time_seconds, 0) / totalSolvers) : null;
+
+  const medals = ['🥇','🥈','🥉'];
+  const lbRows = entries.length
+    ? entries.map((e, i) => `<tr>
+        <td>${i < 3 ? medals[i] : i+1}</td>
+        <td>${escHtml(e.nickname)}</td>
+        <td>${formatTime(e.time_seconds)}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="3" class="empty-lb">No scores yet</td></tr>';
+
+  document.getElementById('detailPanel').innerHTML = `
+    <div class="puzzle-card">
+      <div class="puzzle-date-label">${isToday ? '⭐ Today · ' : ''}${formatDate(dateStr)}</div>
+      <div class="archive-game-area">
+        ${gridHtml}
+        ${cluesHtml}
+      </div>
+      <div class="puzzle-stats">
+        <div class="puzzle-stat">
+          <div class="puzzle-stat-val" style="color:var(--accent)">${totalSolvers}</div>
+          <div class="puzzle-stat-lbl">Solvers</div>
+        </div>
+        ${avgTime !== null ? `<div class="puzzle-stat">
+          <div class="puzzle-stat-val">${formatTime(avgTime)}</div>
+          <div class="puzzle-stat-lbl">Avg Time</div>
+        </div>` : ''}
+      </div>
+    </div>
+
+    <div class="section-head">🏆 Fastest Solvers</div>
+    <div class="lb-card">
+      <table>
+        <thead><tr><th>#</th><th>Player</th><th>Time</th></tr></thead>
+        <tbody>${lbRows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+loadArchive();
+</script>
+</body>
+</html>

@@ -227,6 +227,40 @@ main {
 }
 .share-btn:hover { filter: brightness(1.15); }
 .share-btn.copied { background: var(--green); }
+/* Leaderboard in overlay */
+.nickname-row {
+  display: flex; gap: 8px; margin-top: 14px;
+}
+.nickname-in {
+  flex: 1; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);
+  color: #fff; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; outline: none;
+  transition: border-color 0.2s;
+}
+.nickname-in:focus { border-color: rgba(124,106,255,0.4); }
+.nickname-in::placeholder { color: rgba(255,255,255,0.2); }
+.submit-lb-btn {
+  padding: 10px 16px; border-radius: 10px; border: none;
+  background: var(--accent); color: #fff;
+  font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.submit-lb-btn:disabled { opacity: 0.4; cursor: default; }
+.cw-lb-section { margin-top: 14px; text-align: left; }
+.cw-lb-title { font-size: 0.58rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 8px; text-align: center; }
+.cw-lb-list { display: flex; flex-direction: column; gap: 4px; max-height: 150px; overflow-y: auto; }
+.cw-lb-row { display: flex; justify-content: space-between; padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,0.03); font-size: 0.78rem; }
+.cw-lb-row:first-child { background: rgba(124,106,255,0.1); color: var(--accent); font-weight: 700; }
+.cw-lb-name { color: rgba(255,255,255,0.6); }
+.cw-lb-time { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.4); }
+.overlay-links { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+.overlay-link {
+  padding: 8px 16px; border-radius: 8px; text-decoration: none;
+  font-size: 0.72rem; font-weight: 700; transition: all 0.2s;
+  border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.04);
+}
+.overlay-link:hover { color: #fff; background: rgba(255,255,255,0.08); }
 
 /* Confetti */
 .confetti-piece {
@@ -277,6 +311,7 @@ main {
   </div>
   <div class="nav-links">
     <a href="/">Home</a>
+    <a href="/crossword/archive">Archive</a>
     <a href="/play" class="nav-pill">🐝 Bee</a>
     <a href="/wordle" class="nav-pill">🟩 Wordie</a>
   </div>
@@ -322,6 +357,19 @@ main {
       <div class="stat-item"><div class="stat-value" id="statBest">—</div><div class="stat-label">Best</div></div>
     </div>
     <button class="share-btn" id="shareBtn">Share 📋</button>
+    <div class="nickname-row" id="nicknameRow">
+      <input class="nickname-in" id="nicknameInput" placeholder="Your nickname" maxlength="20" autocomplete="off">
+      <button class="submit-lb-btn" id="submitLbBtn">Submit →</button>
+    </div>
+    <div class="cw-lb-section" id="cwLbSection" style="display:none">
+      <div class="cw-lb-title">🏆 Today's Fastest</div>
+      <div class="cw-lb-list" id="cwLbList"></div>
+    </div>
+    <div class="overlay-links">
+      <a href="/crossword/archive" class="overlay-link">📅 Archive</a>
+      <a href="/play" class="overlay-link">🐝 Spelling Bee</a>
+      <a href="/wordle" class="overlay-link">🟩 Wordie</a>
+    </div>
   </div>
 </div>
 
@@ -2281,6 +2329,8 @@ function showCompletion() {
   if (!stats.best || seconds < stats.best) stats.best = seconds;
   saveStats(stats);
 
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }).split(',')[0];
+
   document.getElementById('finalTime').textContent = formatTime(seconds);
   document.getElementById('statPlayed').textContent = stats.played;
   document.getElementById('statStreak').textContent = stats.streak;
@@ -2289,9 +2339,56 @@ function showCompletion() {
   // Mark all cells correct
   document.querySelectorAll('.cell:not(.black)').forEach(el => el.classList.add('correct'));
 
+  // Hide nickname row if already submitted today
+  const alreadySubmitted = localStorage.getItem('nn-crossword-submitted-' + todayStr);
+  if (alreadySubmitted) {
+    document.getElementById('nicknameRow').style.display = 'none';
+    loadCrosswordLeaderboard(todayStr);
+  }
+
+  // Submit score handler
+  document.getElementById('submitLbBtn').onclick = async () => {
+    const nickname = document.getElementById('nicknameInput').value.trim();
+    if (!nickname) { document.getElementById('nicknameInput').style.borderColor = 'rgba(239,68,68,0.5)'; return; }
+    const btn = document.getElementById('submitLbBtn');
+    btn.disabled = true; btn.textContent = '...';
+    try {
+      await fetch('/api/crossword/score', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: todayStr, nickname, timeSeconds: seconds, completed: true })
+      });
+      localStorage.setItem('nn-crossword-submitted-' + todayStr, '1');
+      document.getElementById('nicknameRow').style.display = 'none';
+      loadCrosswordLeaderboard(todayStr);
+    } catch(e) { btn.disabled = false; btn.textContent = 'Retry'; }
+  };
+  document.getElementById('nicknameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('submitLbBtn').click();
+  });
+
   setTimeout(() => {
     document.getElementById('overlay').classList.add('show');
+    if (alreadySubmitted) loadCrosswordLeaderboard(todayStr);
   }, 800);
+}
+
+async function loadCrosswordLeaderboard(dateStr) {
+  try {
+    const res = await fetch(`/api/crossword/leaderboard?date=${dateStr}`);
+    const data = await res.json();
+    const entries = data.entries || [];
+    if (!entries.length) return;
+    const medals = ['🥇','🥈','🥉'];
+    const lbSection = document.getElementById('cwLbSection');
+    const lbList = document.getElementById('cwLbList');
+    lbList.innerHTML = entries.map((e, i) => `
+      <div class="cw-lb-row">
+        <span>${i < 3 ? medals[i] : i+1} <span class="cw-lb-name">${e.nickname.replace(/</g,'&lt;')}</span></span>
+        <span class="cw-lb-time">${formatTime(e.time_seconds)}</span>
+      </div>
+    `).join('');
+    lbSection.style.display = 'block';
+  } catch(e) {}
 }
 
 document.getElementById('overlay').addEventListener('click', (e) => {

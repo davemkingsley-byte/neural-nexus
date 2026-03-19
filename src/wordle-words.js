@@ -104,8 +104,19 @@ function getTodayWord() {
   return { word: ANSWERS[idx], date: today };
 }
 
+function getWordForDate(dateStr) {
+  // dateStr in YYYY-MM-DD format (same as en-CA locale output)
+  let hash = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    hash = ((hash << 5) - hash) + dateStr.charCodeAt(i);
+    hash |= 0;
+  }
+  const idx = Math.abs(hash) % ANSWERS.length;
+  return ANSWERS[idx];
+}
+
 function isValidGuess(word) {
   return VALID_GUESSES.has(word.toLowerCase());
 }
 
-module.exports = { getTodayWord, isValidGuess, ANSWERS, VALID_GUESSES };
+module.exports = { getTodayWord, getWordForDate, isValidGuess, ANSWERS, VALID_GUESSES };
