@@ -1043,6 +1043,111 @@
       ]
     },
     {
+      "name": "Physical Health",
+      "slug": "physical-health",
+      "charters": [
+        {
+          "id": "401",
+          "title": "Molluscum Contagiosum Treatment",
+          "status": "\ud83d\udfe1 In Progress",
+          "statusClean": "In Progress",
+          "phase": "\ud83d\udd27 Implementation \u2014 Active treatment",
+          "phaseIndex": 2,
+          "liveUrl": null,
+          "dateInitiated": "2026-03-19",
+          "targetDate": "2026-05-19",
+          "dateCompleted": "\u2014",
+          "daysActive": 0,
+          "daysUntilTarget": 61,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "David Kingsley",
+          "priority": "High",
+          "program": "Physical Health",
+          "budget": "~$200-400 (copays + prescription)",
+          "actualSpend": "TBD (today's visit + imiquimod)",
+          "dependencies": [
+            "None"
+          ],
+          "enables": [
+            "None"
+          ],
+          "progress": 13,
+          "objective": "Fully resolve molluscum contagiosum infection with combination of in-office cryotherapy and at-home imiquimod. Track treatment progress and clearance timeline.",
+          "successCriteria": "- [ ] All visible lesions resolved",
+          "blockers": [],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "Cryotherapy (liquid nitrogen) applied to visible lesions"
+            },
+            {
+              "done": false,
+              "text": "**Imiquimod 5% cream (Aldara)** \u2014 apply 3x/week at bedtime to any lesions. Wash off after 6-10 hours. Continue for up to 16 weeks or until cleared."
+            },
+            {
+              "done": false,
+              "text": "Return visit in 3-4 weeks for reassessment"
+            },
+            {
+              "done": false,
+              "text": "Treat any new lesions that appear (normal \u2014 incubation period of existing subclinical lesions)"
+            },
+            {
+              "done": false,
+              "text": "Consider Gardasil 9 vaccine (separate from molluscum \u2014 general HPV protection, via PCP)"
+            },
+            {
+              "done": false,
+              "text": "Avoid shaving over or near active lesions (prevents autoinoculation)"
+            },
+            {
+              "done": false,
+              "text": "Use separate towels for affected area"
+            },
+            {
+              "done": false,
+              "text": "Avoid sexual contact with active visible lesions present"
+            }
+          ],
+          "decisions": [],
+          "risks": [
+            {
+              "risk": "------",
+              "likelihood": "------------",
+              "impact": "--------",
+              "mitigation": "-----------"
+            },
+            {
+              "risk": "New lesions appear after cryo",
+              "likelihood": "40%",
+              "impact": "Low",
+              "mitigation": "Imiquimod catches subclinical lesions"
+            },
+            {
+              "risk": "Imiquimod irritation",
+              "likelihood": "30%",
+              "impact": "Low",
+              "mitigation": "Reduce frequency if needed; mild redness = working"
+            },
+            {
+              "risk": "Slow clearance (>3 months)",
+              "likelihood": "20%",
+              "impact": "Low",
+              "mitigation": "Additional cryo sessions at follow-up"
+            },
+            {
+              "risk": "Recurrence after clearance",
+              "likelihood": "10%",
+              "impact": "Low",
+              "mitigation": "Immune system typically prevents reinfection"
+            }
+          ],
+          "milestones": []
+        }
+      ]
+    },
+    {
       "name": "Project Management",
       "slug": "project-management",
       "charters": [
