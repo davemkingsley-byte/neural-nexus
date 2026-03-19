@@ -339,14 +339,13 @@ select.field-select {
     <span class="logo">📊</span>
     <div class="brand-text">Neural<span>NeXus</span><br>PM</div>
   </div>
-  <div class="sidebar-section">Views</div>
+  <div class="sidebar-section">System</div>
   <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">🏠</span> Dashboard</div>
-  <div class="nav-item" onclick="showPage('projects')"><span class="icon">📁</span> Projects</div>
   <div class="nav-item" onclick="showPage('programs')"><span class="icon">📜</span> Programs</div>
+  <div class="nav-item" onclick="showPage('projects')"><span class="icon">📁</span> Projects</div>
+  <div class="sidebar-section">Monitoring</div>
   <div class="nav-item" onclick="showPage('weekly')"><span class="icon">📊</span> Weekly Report</div>
   <div class="nav-item" onclick="showPage('timeline')"><span class="icon">📅</span> Timeline</div>
-  <div class="nav-section-label"></div>
-  <div class="sidebar-section">Monitor</div>
   <div class="nav-item" onclick="showPage('health')"><span class="icon">💚</span> Health Check</div>
   <div class="nav-item" onclick="showPage('activity')"><span class="icon">⚡</span> Activity</div>
 </nav>
@@ -359,10 +358,12 @@ select.field-select {
     <div class="page-header">
       <div>
         <h1>Dashboard</h1>
-        <p>Overview of all Neural NeXus projects</p>
+        <p>What needs your attention right now</p>
       </div>
       <button class="btn-primary" onclick="openNewCharter()">+ New Charter</button>
     </div>
+
+    <!-- Row 1: Stat Cards -->
     <div class="summary-grid" id="summary-grid">
       <div class="summary-card">
         <div class="s-label">Total Projects</div>
@@ -391,15 +392,24 @@ select.field-select {
       </div>
     </div>
 
-    <!-- Blockers Panel -->
-    <div id="blockers-panel" style="margin-bottom:20px; display:none;">
-      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:10px;">⚠ Open Blockers</div>
-      <div id="blockers-list"></div>
+    <!-- Row 2: Needs Attention Now -->
+    <div id="attention-section" style="margin-bottom:28px;">
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:12px;">🔴 Needs Attention</div>
+      <div id="attention-list"></div>
+      <div id="attention-empty" style="display:none;padding:16px 20px;border-radius:10px;background:rgba(52,211,153,0.06);border:1px solid rgba(52,211,153,0.15);color:var(--green);font-size:0.88rem;font-weight:600;">✅ All clear — no blockers, nothing overdue, no deadlines this week.</div>
     </div>
 
-    <!-- Recent Projects -->
-    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:12px;">Projects</div>
-    <div class="project-list" id="dashboard-project-list"></div>
+    <!-- Row 3: Recent Activity -->
+    <div style="margin-bottom:28px;">
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:12px;">⚡ Recent Activity</div>
+      <div id="dashboard-activity" class="activity-list"></div>
+    </div>
+
+    <!-- Row 4: Portfolio by Risk -->
+    <div>
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:12px;">📊 Portfolio — Sorted by Priority</div>
+      <div id="dashboard-portfolio"></div>
+    </div>
   </div>
 
   <!-- Programs Page -->
@@ -631,37 +641,109 @@ function updateDashboard() {
   const total = allCharters.length;
   const live = allCharters.filter(c => /live/i.test(c.statusClean)).length;
   const progress = allCharters.filter(c => /progress|in progress/i.test(c.statusClean)).length;
-  const blockers = allCharters.reduce((acc, c) => acc + (c.blockers?.length || 0), 0);
-
+  const blockerCount = allCharters.reduce((acc, c) => acc + (c.blockers?.length || 0), 0);
   const overdueCount = allCharters.filter(c => c.overdue).length;
 
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-live').textContent = live;
   document.getElementById('stat-progress').textContent = progress;
-  document.getElementById('stat-blockers').textContent = blockers;
+  document.getElementById('stat-blockers').textContent = blockerCount;
   document.getElementById('stat-overdue').textContent = overdueCount;
 
-  // Blockers panel
-  const allBlockers = allCharters.flatMap(c => (c.blockers || []).map(b => ({ id: c.id, title: c.title, text: b })));
-  const bp = document.getElementById('blockers-panel');
-  const bl = document.getElementById('blockers-list');
-  if (allBlockers.length) {
-    bp.style.display = 'block';
-    bl.innerHTML = allBlockers.map(b => `
-      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.15);margin-bottom:6px;">
-        <span style="font-size:0.72rem;color:var(--red);font-weight:700;font-family:monospace;white-space:nowrap;">#${b.id}</span>
-        <span style="font-size:0.85rem;color:var(--text);flex:1;">${escHtml(b.text)}</span>
-        <span style="font-size:0.72rem;color:var(--text-dim);white-space:nowrap;">${escHtml(b.title)}</span>
-      </div>
-    `).join('');
+  // ── Row 2: Needs Attention ──
+  const attList = document.getElementById('attention-list');
+  const attEmpty = document.getElementById('attention-empty');
+  const items = [];
+
+  // Blockers
+  allCharters.forEach(c => (c.blockers || []).forEach(b => {
+    items.push({ type: 'blocker', id: c.id, title: c.title, text: b });
+  }));
+
+  // Overdue (exclude completed/live charters)
+  allCharters.filter(c => c.overdue).forEach(c => {
+    items.push({ type: 'overdue', id: c.id, title: c.title, text: `Overdue — target was ${c.targetDate}` });
+  });
+
+  // Due within 7 days (not completed)
+  allCharters.filter(c => !c.overdue && c.daysUntilTarget !== null && c.daysUntilTarget >= 0 && c.daysUntilTarget <= 7 && !/live|completed|archived/i.test(c.statusClean)).forEach(c => {
+    items.push({ type: 'due-soon', id: c.id, title: c.title, text: `Due in ${c.daysUntilTarget} day${c.daysUntilTarget !== 1 ? 's' : ''}` });
+  });
+
+  if (items.length) {
+    attEmpty.style.display = 'none';
+    attList.innerHTML = items.map(it => {
+      const colors = { blocker: 'var(--red)', overdue: 'var(--red)', 'due-soon': 'var(--yellow)' };
+      const icons = { blocker: '🔴', overdue: '⏰', 'due-soon': '⚠️' };
+      const bgColors = { blocker: 'rgba(248,113,113,0.06)', overdue: 'rgba(248,113,113,0.06)', 'due-soon': 'rgba(251,191,36,0.06)' };
+      const borderColors = { blocker: 'rgba(248,113,113,0.15)', overdue: 'rgba(248,113,113,0.15)', 'due-soon': 'rgba(251,191,36,0.15)' };
+      return `<div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:${bgColors[it.type]};border:1px solid ${borderColors[it.type]};margin-bottom:6px;cursor:pointer;" onclick="scrollToCard('${it.id}')">
+        <span style="font-size:0.9rem;">${icons[it.type]}</span>
+        <span style="font-size:0.72rem;color:${colors[it.type]};font-weight:700;font-family:monospace;white-space:nowrap;">#${it.id}</span>
+        <span style="font-size:0.85rem;color:var(--text);flex:1;">${escHtml(it.text)}</span>
+        <span style="font-size:0.72rem;color:var(--text-dim);white-space:nowrap;">${escHtml(it.title)}</span>
+      </div>`;
+    }).join('');
   } else {
-    bp.style.display = 'none';
+    attList.innerHTML = '';
+    attEmpty.style.display = 'block';
   }
 
-  // Dashboard project list (compact)
-  const list = document.getElementById('dashboard-project-list');
-  list.innerHTML = allCharters.map(c => renderProjectCard(c, true)).join('');
-  attachCardHandlers();
+  // ── Row 3: Recent Activity ──
+  const actDiv = document.getElementById('dashboard-activity');
+  fetch('/api/activity').then(r => r.json()).then(data => {
+    const events = (data.events || []).slice(0, 5);
+    if (events.length) {
+      actDiv.innerHTML = events.map(e => `
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 14px;border-radius:8px;background:var(--surface);border:1px solid var(--border);margin-bottom:4px;">
+          <span style="font-size:0.72rem;color:var(--text-dim);white-space:nowrap;min-width:70px;">${new Date(e.timestamp).toLocaleDateString()}</span>
+          <span style="font-size:0.72rem;color:var(--accent);font-weight:700;font-family:monospace;white-space:nowrap;">#${e.charterId || '—'}</span>
+          <span style="font-size:0.84rem;color:var(--text);flex:1;">${escHtml(e.message || e.type || 'Update')}</span>
+        </div>
+      `).join('');
+    } else {
+      actDiv.innerHTML = '<div style="padding:14px 20px;border-radius:10px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-size:0.84rem;">No recent activity logged yet.</div>';
+    }
+  }).catch(() => {
+    actDiv.innerHTML = '<div style="padding:14px 20px;border-radius:10px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-size:0.84rem;">No recent activity logged yet.</div>';
+  });
+
+  // ── Row 4: Portfolio by Priority ──
+  const portfolio = document.getElementById('dashboard-portfolio');
+  const priOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+  const sorted = [...allCharters].sort((a, b) => {
+    const pa = priOrder[(a.priority || 'medium').toLowerCase()] ?? 2;
+    const pb = priOrder[(b.priority || 'medium').toLowerCase()] ?? 2;
+    if (pa !== pb) return pa - pb;
+    return (a.progress || 0) - (b.progress || 0);
+  });
+
+  portfolio.innerHTML = sorted.map(c => {
+    const priCls = 'priority-' + (c.priority || 'medium').toLowerCase();
+    const dotCls = statusDotClass(c.statusClean);
+    const progColor = c.progress >= 75 ? 'var(--green)' : c.progress >= 40 ? 'var(--yellow)' : 'var(--accent)';
+    // Don't show due badge for completed/live charters with a completed date
+    let dueTag = '';
+    if (c.dateCompleted || /live|completed|archived/i.test(c.statusClean)) {
+      if (c.dateCompleted) dueTag = `<span style="font-size:0.68rem;color:var(--green);margin-left:8px;">✅ ${c.dateCompleted}</span>`;
+    } else if (c.overdue) {
+      dueTag = '<span class="due-badge due-overdue" style="margin-left:8px;">⚠ OVERDUE</span>';
+    } else if (c.daysUntilTarget !== null && c.daysUntilTarget <= 14 && c.daysUntilTarget >= 0) {
+      dueTag = `<span class="due-badge due-soon" style="margin-left:8px;">⏰ ${c.daysUntilTarget}d</span>`;
+    }
+    return `<div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:8px;background:var(--surface);border:1px solid var(--border);margin-bottom:4px;cursor:pointer;" onclick="showPage('projects');setTimeout(()=>scrollToCard('${c.id}'),100)">
+      <span style="font-family:monospace;font-size:0.7rem;color:var(--text-dim);min-width:28px;">#${c.id}</span>
+      <span class="priority-badge ${priCls}" style="font-size:0.55rem;">${escHtml(c.priority || 'Med')}</span>
+      <span style="flex:1;font-size:0.85rem;font-weight:600;">${escHtml(c.title)}</span>
+      ${dueTag}
+      <div class="status-dot ${dotCls}"></div>
+      <span style="font-size:0.72rem;color:var(--text-dim);min-width:55px;">${escHtml(c.statusClean)}</span>
+      <div style="width:80px;height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden;">
+        <div style="width:${c.progress}%;height:100%;background:${progColor};border-radius:3px;"></div>
+      </div>
+      <span style="font-size:0.72rem;font-weight:700;color:${progColor};min-width:32px;text-align:right;">${c.progress}%</span>
+    </div>`;
+  }).join('');
 }
 
 // ── Projects Page ─────────────────────────────────────────────────────────────
