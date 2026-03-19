@@ -93,7 +93,7 @@ body {
 .page-header p { color:var(--text-dim); font-size:0.82rem; }
 
 /* Summary Cards */
-.summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px; }
+.summary-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:28px; }
 .summary-card {
   padding:20px; border-radius:14px;
   background:var(--surface); border:1px solid var(--border);
@@ -283,6 +283,40 @@ select.field-select {
   background:transparent; color:var(--text-mid); font-size:0.82rem; cursor:pointer;
 }
 .empty-state { padding:40px; text-align:center; color:var(--text-dim); font-size:0.9rem; }
+
+/* Priority badges */
+.priority-badge { font-size:0.62rem; font-weight:700; padding:3px 8px; border-radius:6px; text-transform:uppercase; letter-spacing:0.5px; }
+.priority-critical { background:rgba(248,113,113,0.15); color:var(--red); border:1px solid rgba(248,113,113,0.3); }
+.priority-high { background:rgba(251,191,36,0.12); color:var(--yellow); border:1px solid rgba(251,191,36,0.25); }
+.priority-medium { background:rgba(96,165,250,0.1); color:var(--accent); border:1px solid rgba(96,165,250,0.2); }
+.priority-low { background:rgba(255,255,255,0.04); color:var(--text-dim); border:1px solid var(--border); }
+
+/* Due date / overdue */
+.due-badge { font-size:0.68rem; font-weight:600; padding:2px 8px; border-radius:6px; }
+.due-overdue { background:rgba(248,113,113,0.12); color:var(--red); border:1px solid rgba(248,113,113,0.25); animation:pulse-red 2s infinite; }
+.due-soon { background:rgba(251,191,36,0.1); color:var(--yellow); border:1px solid rgba(251,191,36,0.2); }
+.due-ok { background:rgba(52,211,153,0.08); color:var(--green); border:1px solid rgba(52,211,153,0.15); }
+@keyframes pulse-red { 0%,100%{opacity:1} 50%{opacity:0.7} }
+
+/* Progress bar */
+.progress-wrap { display:flex; align-items:center; gap:8px; }
+.progress-bar-bg { flex:1; height:6px; border-radius:3px; background:var(--surface-3); overflow:hidden; }
+.progress-bar-fill { height:100%; border-radius:3px; transition:width 0.3s; }
+.progress-pct { font-size:0.72rem; font-weight:700; min-width:32px; text-align:right; }
+
+/* Assignee */
+.assignee-tag { font-size:0.68rem; padding:2px 8px; border-radius:6px; background:var(--surface-2); color:var(--text-mid); border:1px solid var(--border); }
+
+/* Dependencies */
+.dep-link { font-size:0.72rem; color:var(--accent-2); text-decoration:none; padding:2px 6px; border-radius:4px; background:rgba(167,139,250,0.08); }
+.dep-link:hover { background:rgba(167,139,250,0.15); }
+
+/* Cost */
+.cost-row { display:flex; gap:16px; align-items:center; }
+.cost-item { font-size:0.82rem; }
+.cost-label { font-size:0.65rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.5px; }
+.cost-over { color:var(--red); }
+.cost-under { color:var(--green); }
 .toast {
   position:fixed; bottom:24px; right:24px; z-index:200;
   padding:12px 20px; border-radius:10px; border:1px solid rgba(52,211,153,0.3);
@@ -349,6 +383,11 @@ select.field-select {
         <div class="s-value" style="color:var(--red)" id="stat-blockers">—</div>
         <div class="s-sub">across all projects</div>
       </div>
+      <div class="summary-card">
+        <div class="s-label">Overdue</div>
+        <div class="s-value" style="color:var(--red)" id="stat-overdue">—</div>
+        <div class="s-sub">past target date</div>
+      </div>
     </div>
 
     <!-- Blockers Panel -->
@@ -408,6 +447,8 @@ select.field-select {
               </div>
             </td>
             <td style="padding:8px 12px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);">Since</td>
+            <td style="padding:8px 12px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);">Target</td>
+            <td style="padding:8px 12px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);">Done</td>
           </tr>
         </thead>
         <tbody id="gantt-body"></tbody>
@@ -496,10 +537,13 @@ function updateDashboard() {
   const progress = allCharters.filter(c => /progress|in progress/i.test(c.statusClean)).length;
   const blockers = allCharters.reduce((acc, c) => acc + (c.blockers?.length || 0), 0);
 
+  const overdueCount = allCharters.filter(c => c.overdue).length;
+
   document.getElementById('stat-total').textContent = total;
   document.getElementById('stat-live').textContent = live;
   document.getElementById('stat-progress').textContent = progress;
   document.getElementById('stat-blockers').textContent = blockers;
+  document.getElementById('stat-overdue').textContent = overdueCount;
 
   // Blockers panel
   const allBlockers = allCharters.flatMap(c => (c.blockers || []).map(b => ({ id: c.id, title: c.title, text: b })));
@@ -578,6 +622,8 @@ function renderProjectCard(c, compact) {
   const txtCls = statusTextClass(c.statusClean);
   const blockerCount = c.blockers?.length || 0;
   const phaseLabel = PHASES[c.phaseIndex] || c.phase;
+  const totalItems = (c.outstanding || []).length;
+  const doneItems = (c.outstanding || []).filter(i => i.done).length;
 
   const phasePips = PHASES.map((p, i) => {
     let cls = 'future';
@@ -604,27 +650,77 @@ function renderProjectCard(c, compact) {
   const liveUrlHtml = c.liveUrl ? `<a href="${escAttr(c.liveUrl)}" target="_blank" style="color:var(--accent);font-size:0.78rem;text-decoration:none;">🔗 ${escHtml(c.liveUrl)} →</a>` : '';
   const charterPageHtml = `<a href="/pm-charters/${c.id}.html" style="color:var(--accent-2);font-size:0.78rem;text-decoration:none;margin-left:8px;">📜 View Charter →</a>`;
 
+  // Priority badge
+  const priCls = c.priority ? 'priority-' + c.priority.toLowerCase() : 'priority-medium';
+  const priorityHtml = `<span class="priority-badge ${priCls}">${escHtml(c.priority || 'Medium')}</span>`;
+
+  // Due date badge
+  let dueHtml = '';
+  if (c.targetDate) {
+    if (c.overdue) {
+      dueHtml = `<span class="due-badge due-overdue">⚠ ${Math.abs(c.daysUntilTarget)}d overdue</span>`;
+    } else if (c.daysUntilTarget !== null && c.daysUntilTarget <= 7) {
+      dueHtml = `<span class="due-badge due-soon">⏰ ${c.daysUntilTarget}d left</span>`;
+    } else if (c.daysUntilTarget !== null) {
+      dueHtml = `<span class="due-badge due-ok">📅 ${c.daysUntilTarget}d left</span>`;
+    }
+  }
+
+  // Progress bar
+  const prog = c.progress || 0;
+  const progColor = prog >= 75 ? 'var(--green)' : prog >= 40 ? 'var(--yellow)' : 'var(--accent)';
+  const progressHtml = `
+    <div class="progress-wrap" style="margin-top:12px;">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${prog}%;background:${progColor}"></div></div>
+      <span class="progress-pct" style="color:${progColor}">${prog}%</span>
+    </div>`;
+
+  // Assignee
+  const assigneeHtml = c.assignee ? `<span class="assignee-tag">👤 ${escHtml(c.assignee)}</span>` : '';
+
+  // Dependencies
+  let depsHtml = '';
+  if (c.dependencies?.length) {
+    depsHtml = `<div style="margin-top:6px;"><span style="font-size:0.65rem;color:var(--text-dim);">BLOCKED BY:</span> ${c.dependencies.map(d => `<a class="dep-link" href="#" onclick="scrollToCard('${d}');return false;">#${d}</a>`).join(' ')}</div>`;
+  }
+  if (c.enables?.length) {
+    depsHtml += `<div style="margin-top:4px;"><span style="font-size:0.65rem;color:var(--text-dim);">ENABLES:</span> ${c.enables.map(d => `<a class="dep-link" href="#" onclick="scrollToCard('${d}');return false;">#${d}</a>`).join(' ')}</div>`;
+  }
+
+  // Cost
+  let costHtml = '';
+  if (c.budget || c.actualSpend) {
+    costHtml = `<div class="cost-row" style="margin-top:12px;">`;
+    if (c.budget) costHtml += `<div class="cost-item"><div class="cost-label">Budget</div>${escHtml(c.budget)}</div>`;
+    if (c.actualSpend) costHtml += `<div class="cost-item"><div class="cost-label">Spent</div>${escHtml(c.actualSpend)}</div>`;
+    costHtml += `</div>`;
+  }
+
   return `
-    <div class="project-card" data-id="${c.id}">
+    <div class="project-card ${c.overdue ? 'overdue-card' : ''}" data-id="${c.id}">
       <div class="project-card-header" onclick="toggleCard('${c.id}')">
         <span class="project-id">#${c.id}</span>
+        ${priorityHtml}
         <span class="project-title">${escHtml(c.title)}</span>
         ${liveUrlHtml}
         ${charterPageHtml}
+        ${dueHtml}
         ${blockerCount ? `<span class="blocker-badge">⚠ ${blockerCount} blocker${blockerCount > 1 ? 's' : ''}</span>` : ''}
         <div class="project-status">
           <div class="status-dot ${dotCls}"></div>
           <span class="status-text ${txtCls}">${escHtml(c.statusClean)}</span>
         </div>
         <span class="phase-mini">${escHtml(phaseLabel)}</span>
+        ${assigneeHtml}
         <span class="expand-icon" id="expand-${c.id}">▾</span>
       </div>
       <div class="project-detail" id="detail-${c.id}">
         <div class="phase-bar-wrap">
           <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:8px;">Phase Progress</div>
-          <div class="gantt-phases" style="margin-bottom:20px;">${phasePips}</div>
+          <div class="gantt-phases" style="margin-bottom:8px;">${phasePips}</div>
+          ${progressHtml}
         </div>
-        <div class="detail-grid">
+        <div class="detail-grid" style="margin-top:16px;">
           <div class="detail-section">
             <div class="detail-label">Objective</div>
             <div class="detail-text">${escHtml(c.objective || '—')}</div>
@@ -633,9 +729,26 @@ function renderProjectCard(c, compact) {
             <div class="detail-label">Success Criteria</div>
             <div class="detail-text">${escHtml(c.successCriteria || '—')}</div>
           </div>
+          <div class="detail-section">
+            <div class="detail-label">Dates</div>
+            <div class="detail-text">
+              Started: ${c.dateInitiated} (${c.daysActive}d ago)<br>
+              ${c.targetDate ? `Target: ${c.targetDate}` : 'No target date set'}<br>
+              ${c.dateCompleted ? `Completed: ${c.dateCompleted}` : ''}
+            </div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Resources</div>
+            <div class="detail-text">
+              Owner: ${escHtml(c.owner)}<br>
+              Assignee: ${escHtml(c.assignee || '—')}
+              ${costHtml}
+            </div>
+          </div>
         </div>
-        <div style="margin-bottom:20px;">
-          <div class="detail-label" style="margin-bottom:8px;">Outstanding Items</div>
+        ${depsHtml}
+        <div style="margin:20px 0;">
+          <div class="detail-label" style="margin-bottom:8px;">Outstanding Items (${doneItems}/${totalItems})</div>
           ${checklistHtml}
         </div>
         <div style="margin-bottom:20px;">
@@ -674,6 +787,18 @@ function toggleCard(id) {
   if (detail) {
     const isOpen = detail.classList.toggle('open');
     icon?.classList.toggle('open', isOpen);
+  }
+}
+
+function scrollToCard(id) {
+  const card = document.querySelector(`.project-card[data-id="${id}"]`);
+  if (card) {
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    card.style.borderColor = 'var(--accent)';
+    setTimeout(() => { card.style.borderColor = ''; }, 2000);
+    // Open it
+    const detail = document.getElementById('detail-' + id);
+    if (detail && !detail.classList.contains('open')) toggleCard(id);
   }
 }
 
@@ -718,11 +843,15 @@ function renderGantt() {
       else if (i === c.phaseIndex) cls = 'active';
       return `<div class="gantt-phase ${cls}" title="${p}">${p.substring(0,3)}</div>`;
     }).join('');
+    const priCls = c.priority ? 'priority-' + c.priority.toLowerCase() : 'priority-medium';
+    const targetCol = c.targetDate ? (c.overdue ? `<span style="color:var(--red)">${c.targetDate} ⚠</span>` : c.targetDate) : '<span style="color:var(--text-dim)">—</span>';
     return `
       <tr class="gantt-row">
-        <td><strong>#${c.id}</strong><br><span style="color:var(--text-dim);font-size:0.74rem">${escHtml(c.title)}</span></td>
+        <td><strong>#${c.id}</strong> <span class="priority-badge ${priCls}" style="font-size:0.55rem">${escHtml(c.priority||'Med')}</span><br><span style="color:var(--text-dim);font-size:0.74rem">${escHtml(c.title)}</span></td>
         <td><div class="gantt-phases">${phases}</div></td>
         <td style="color:var(--text-dim);font-size:0.75rem">${c.dateInitiated}</td>
+        <td style="font-size:0.75rem">${targetCol}</td>
+        <td style="font-size:0.75rem;color:var(--text-dim)">${c.progress}%</td>
       </tr>
     `;
   }).join('');

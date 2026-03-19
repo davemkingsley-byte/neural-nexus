@@ -10,10 +10,30 @@
           "status": "🟢 Live",
           "statusClean": "Live",
           "phase": "✅ Deployed — Live at www.neuralnexus.press/play",
+          "phaseIndex": 5,
           "liveUrl": "https://www.neuralnexus.press/play",
-          "owner": "David Kingsley",
           "dateInitiated": "2026-03-14",
+          "targetDate": "2026-03-15",
+          "dateCompleted": "2026-03-14",
+          "daysActive": 5,
+          "daysUntilTarget": -4,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Morpheus",
+          "priority": "Medium",
+          "budget": "$0 (Railway free tier)",
+          "actualSpend": "$0",
+          "dependencies": [
+            "102"
+          ],
+          "enables": [
+            "107",
+            "105"
+          ],
+          "progress": 100,
           "objective": "Build a custom web-based Spelling Bee game with a 5-minute timer and daily scoreboard, shareable via link.",
+          "successCriteria": "Playable game with daily puzzles, enforced 5-min timer, nickname-based leaderboard, scoring by word length + obscurity.",
+          "blockers": [],
           "outstanding": [
             {
               "done": true,
@@ -47,6 +67,40 @@
               "done": true,
               "text": "Optional: custom domain/subdomain for the game"
             }
+          ],
+          "decisions": [
+            {
+              "date": "------",
+              "text": "----------"
+            },
+            {
+              "date": "2026-03-14",
+              "text": "Project initiated"
+            },
+            {
+              "date": "2026-03-14",
+              "text": "5-minute timer (vs NYT untimed)"
+            },
+            {
+              "date": "2026-03-14",
+              "text": "Web app format for max shareability"
+            },
+            {
+              "date": "2026-03-14",
+              "text": "Nicknames for scoreboard identity"
+            },
+            {
+              "date": "2026-03-14",
+              "text": "Scoring = length + obscurity"
+            },
+            {
+              "date": "2026-03-14",
+              "text": "Hosting TBD — prototype first"
+            },
+            {
+              "date": "2026-03-14",
+              "text": "Design approved: Vanilla JS + Express + SQLite"
+            }
           ]
         },
         {
@@ -55,14 +109,56 @@
           "status": "🟢 Live",
           "statusClean": "Live",
           "phase": "✅ Deployed — Live at www.neuralnexus.press",
+          "phaseIndex": 5,
           "liveUrl": null,
-          "owner": "David Kingsley",
           "dateInitiated": "2026-03-15",
+          "targetDate": "2026-03-15",
+          "dateCompleted": "2026-03-15",
+          "daysActive": 4,
+          "daysUntilTarget": -4,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Morpheus",
+          "priority": "High",
+          "budget": "$20/yr (Squarespace domain)",
+          "actualSpend": "$20",
+          "dependencies": [],
+          "enables": [
+            "101",
+            "105",
+            "107",
+            "108"
+          ],
+          "progress": 100,
           "objective": "Build a professional website for the Neural NeXus newsletter brand — landing page, about, newsletter signup, and Spelling Bee game integration.",
+          "successCriteria": "Fully externalized website on neuralnexus.press with newsletter signup, brand presence, and playable Spelling Bee game accessible to the public.",
+          "blockers": [],
           "outstanding": [
             {
               "done": true,
               "text": "Charter approved by David Kingsley — 2026-03-15 (fast-tracked for launch)"
+            }
+          ],
+          "decisions": [
+            {
+              "date": "------",
+              "text": "----------"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "Project initiated"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "Domain purchased through Squarespace"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "Website will integrate Spelling Bee game"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "Target: live for newsletter readers ASAP"
             }
           ]
         },
@@ -72,22 +168,81 @@
           "status": "🟢 Live",
           "statusClean": "Live",
           "phase": "✅ Deployed — Live at www.neuralnexus.press/wordle",
+          "phaseIndex": 5,
           "liveUrl": "https://www.neuralnexus.press/wordle",
-          "owner": "David Kingsley",
           "dateInitiated": "2026-03-15",
+          "targetDate": "2026-03-15",
+          "dateCompleted": "2026-03-15",
+          "daysActive": 4,
+          "daysUntilTarget": -4,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Morpheus",
+          "priority": "Medium",
+          "budget": "$0",
+          "actualSpend": "$0",
+          "dependencies": [
+            "102"
+          ],
+          "enables": [],
+          "progress": 0,
           "objective": "Build a daily Wordle word-guessing game for the Neural NeXus website. Same premium dark UI as Spelling Bee. New word every day, 6 guesses, color-coded feedback, shareable results.",
-          "outstanding": []
+          "successCriteria": "Playable at www.neuralnexus.press/wordle, daily word rotation, keyboard with color hints, share-friendly emoji grid, leaderboard integration.",
+          "blockers": [],
+          "outstanding": [],
+          "decisions": [
+            {
+              "date": "------",
+              "text": "----------"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "Project initiated"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "Client-side game logic"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "Server-side daily word"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "localStorage for stats"
+            }
+          ]
         },
         {
           "id": "106",
           "title": "Substack to TikTok Converter",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
-          "phase": "📝 Requirements",
+          "phase": "⚙️ Implementation (M3 renderer complete)",
+          "phaseIndex": 2,
           "liveUrl": null,
-          "owner": "David Kingsley",
           "dateInitiated": "2026-03-16",
+          "targetDate": "2026-04-15",
+          "dateCompleted": null,
+          "daysActive": 3,
+          "daysUntilTarget": 27,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Morpheus",
+          "priority": "Medium",
+          "budget": "$0 (ElevenLabs TBD)",
+          "actualSpend": "$0",
+          "dependencies": [
+            "108"
+          ],
+          "enables": [],
+          "progress": 60,
           "objective": "Automated pipeline that converts Neural NeXus Substack posts into TikTok-ready short-form video content, designed to drive traffic back to Substack for subscriber growth.",
+          "successCriteria": "One Substack post → multiple TikTok-ready clips (30-90s), with hooks, captions, CTA overlay pointing to Substack. Minimal manual effort per post.",
+          "blockers": [
+            "Budget for TTS API (ElevenLabs ~$5-22/mo)?",
+            "David's TikTok handle (for backlog item)"
+          ],
           "outstanding": [
             {
               "done": true,
@@ -109,18 +264,77 @@
               "done": false,
               "text": "David's TikTok handle (for backlog item)"
             }
+          ],
+          "decisions": [
+            {
+              "date": "------",
+              "text": "----------"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "Project initiated"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "Short-form only (30-90s)"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "CTA drives to Substack, not website"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "Clone David's voice via ElevenLabs"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "David reviews scripts before rendering"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "Node.js ESM + Python (Pillow) + ffmpeg stack"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "macOS Samantha TTS as interim voice"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "Blur-behind layout for landscape→portrait footage"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "Caption font: 72px bold, 6px outline stroke"
+            }
           ]
         },
         {
           "id": "107",
-          "title": "Mini Crossword",
+          "title": "Charter 107: Mini Crossword",
           "status": "🟢 Live",
           "statusClean": "Live",
-          "phase": "Requirements",
-          "liveUrl": null,
+          "phase": "✅ Deployed — Live at www.neuralnexus.press/crossword",
+          "phaseIndex": 5,
+          "liveUrl": "https://www.neuralnexus.press/crossword",
+          "dateInitiated": "2026-03-16",
+          "targetDate": "2026-03-16",
+          "dateCompleted": "2026-03-16",
+          "daysActive": 3,
+          "daysUntilTarget": -3,
+          "overdue": false,
           "owner": "Morpheus",
-          "dateInitiated": "",
+          "assignee": "Morpheus",
+          "priority": "Medium",
+          "budget": "$0",
+          "actualSpend": "$0",
+          "dependencies": [
+            "102"
+          ],
+          "enables": [],
+          "progress": 100,
           "objective": "",
+          "successCriteria": "",
+          "blockers": [],
           "outstanding": [
             {
               "done": true,
@@ -138,6 +352,32 @@
               "done": true,
               "text": "Revalidate all crossword grids against clues before redeploying"
             }
+          ],
+          "decisions": [
+            {
+              "date": "------",
+              "text": "----------"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "5×5 grid (not 7×7 or larger)"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "Pre-authored puzzles, no auto-generation"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "Client-side only, no server API"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "Science/tech vocabulary focus"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "Words don't need to be science-themed"
+            }
           ]
         },
         {
@@ -145,11 +385,32 @@
           "title": "SEO & Analytics Strategy for neuralnexus.press",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
-          "phase": "Requirements",
+          "phase": "⚙️ Implementation",
+          "phaseIndex": 2,
           "liveUrl": null,
+          "dateInitiated": "2026-03-18",
+          "targetDate": "2026-06-17",
+          "dateCompleted": null,
+          "daysActive": 1,
+          "daysUntilTarget": 90,
+          "overdue": false,
           "owner": "David Kingsley",
-          "dateInitiated": "",
+          "assignee": "Morpheus",
+          "priority": "High",
+          "budget": "$50 (Substack custom domain)",
+          "actualSpend": "$0",
+          "dependencies": [
+            "102"
+          ],
+          "enables": [
+            "106"
+          ],
+          "progress": 92,
           "objective": "",
+          "successCriteria": "",
+          "blockers": [
+            "David: Move DNS to Cloudflare (fixes bare domain SSL)"
+          ],
           "outstanding": [
             {
               "done": true,
@@ -203,6 +464,28 @@
               "done": true,
               "text": "Morpheus: Submit sitemap to Search Console + Bing Webmaster Tools"
             }
+          ],
+          "decisions": [
+            {
+              "date": "--------",
+              "text": ":---:"
+            },
+            {
+              "date": "------",
+              "text": "----------"
+            },
+            {
+              "date": "2026-03-18",
+              "text": "Charter created"
+            },
+            {
+              "date": "2026-03-18",
+              "text": "Option A approved"
+            },
+            {
+              "date": "2026-03-18",
+              "text": "Platform architecture decided"
+            }
           ]
         }
       ]
@@ -216,11 +499,37 @@
           "title": "Oral Supplementation for Cognitive Enhancement",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
-          "phase": "Requirements",
+          "phase": "⚙️ Implementation (Phase 1 order placed)",
+          "phaseIndex": 2,
           "liveUrl": null,
+          "dateInitiated": "2026-03-17",
+          "targetDate": "2026-06-17",
+          "dateCompleted": null,
+          "daysActive": 2,
+          "daysUntilTarget": 90,
+          "overdue": false,
           "owner": "David Kingsley",
-          "dateInitiated": "",
+          "assignee": "Morpheus",
+          "priority": "High",
+          "budget": "$125 (Phase 1 supplements)",
+          "actualSpend": "$95",
+          "dependencies": [],
+          "enables": [
+            "202"
+          ],
+          "progress": 0,
           "objective": "",
+          "successCriteria": "",
+          "blockers": [
+            "Literature review of top-tier nootropic compounds completed",
+            "Tier ranking of supplements by evidence strength (A/B/C)",
+            "Personalized daily stack designed for David",
+            "Interaction/contraindication check completed",
+            "Dosing schedule with timing and cycling protocols",
+            "Sourcing: specific brands/products recommended (purity, third-party tested)",
+            "Tracking plan: metrics and cadence to evaluate effectiveness",
+            "90-day review checkpoint scheduled"
+          ],
           "outstanding": [
             {
               "done": false,
@@ -254,6 +563,44 @@
               "done": false,
               "text": "90-day review checkpoint scheduled"
             }
+          ],
+          "decisions": [
+            {
+              "date": "---",
+              "text": "---"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "Charter created"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "Scope expanded to include off-label pharma + injectables + novel pathways"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "Compound review completed"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "Shopping list produced"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "Novel pathways research completed"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "Off-label pharmaceuticals assessed"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "Peptide de-risking playbook created"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "David's top 3 potent compounds selected"
+            }
           ]
         },
         {
@@ -261,11 +608,35 @@
           "title": "Cognitive Performance Tracker",
           "status": "🟡 Data Collection (baseline prep)",
           "statusClean": "Data Collection (baseline prep)",
-          "phase": "Requirements",
+          "phase": "📝 Requirements",
+          "phaseIndex": 0,
           "liveUrl": null,
+          "dateInitiated": "2026-03-17",
+          "targetDate": "2026-04-30",
+          "dateCompleted": null,
+          "daysActive": 2,
+          "daysUntilTarget": 42,
+          "overdue": false,
           "owner": "David Kingsley",
-          "dateInitiated": "",
+          "assignee": "Morpheus",
+          "priority": "High",
+          "budget": "$0",
+          "actualSpend": "$0",
+          "dependencies": [
+            "201"
+          ],
+          "enables": [],
+          "progress": 0,
           "objective": "",
+          "successCriteria": "",
+          "blockers": [
+            "Standardized cognitive battery built and deployed on neuralnexus.press",
+            "Chess.com or Lichess API integration pulling ELO data automatically",
+            "Neural NeXus game scores logging server-side with timestamps",
+            "Dashboard showing trends across all metrics with phase markers",
+            "2-week baseline data collected before any new intervention",
+            "Statistical framework for detecting meaningful change vs. noise"
+          ],
           "outstanding": [
             {
               "done": false,
@@ -291,6 +662,32 @@
               "done": false,
               "text": "Statistical framework for detecting meaningful change vs. noise"
             }
+          ],
+          "decisions": [
+            {
+              "date": "---",
+              "text": "---"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "Three-track measurement system adopted"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "Chess ELO as primary passive metric"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "Neural NeXus games as supplementary only"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "Standardized battery: dual n-back + PVT + DSST"
+            },
+            {
+              "date": "2026-03-17",
+              "text": "2-week baseline required before any new intervention"
+            }
           ]
         }
       ]
@@ -304,30 +701,113 @@
           "title": "Project Management System",
           "status": "🟢 Live",
           "statusClean": "Live",
-          "phase": "✅ Built — Preview at http://localhost:8082 (pending David review)",
-          "liveUrl": "http://localhost:8082",
-          "owner": "David Kingsley",
+          "phase": "✅ Deployed — Live at neuralnexus.press/dashboard",
+          "phaseIndex": 5,
+          "liveUrl": null,
           "dateInitiated": "2026-03-15",
+          "targetDate": "2026-03-18",
+          "dateCompleted": "2026-03-18",
+          "daysActive": 4,
+          "daysUntilTarget": -1,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Morpheus",
+          "priority": "Critical",
+          "budget": "$0",
+          "actualSpend": "$0",
+          "dependencies": [],
+          "enables": [
+            "702"
+          ],
+          "progress": 0,
           "objective": "Build a full-featured, browser-based project management dashboard that reads/writes charter files, tracks status, monitors deployed projects, and surfaces blockers — all from a single UI.",
-          "outstanding": []
+          "successCriteria": "Replaces the static charter index with a dynamic system that can filter, edit, search, and monitor all projects without touching markdown files manually.",
+          "blockers": [],
+          "outstanding": [],
+          "decisions": [
+            {
+              "date": "------",
+              "text": "----------"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "Project initiated"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "Filesystem as data store"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "Same dark theme as Neural NeXus"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "Built overnight by Morpheus"
+            },
+            {
+              "date": "2026-03-16",
+              "text": "Preview port: 8082"
+            }
+          ]
         },
         {
           "id": "702",
           "title": "Charter Dashboard",
           "status": "🟢 Live",
           "statusClean": "Live",
-          "phase": "✅ Deployed",
+          "phase": "✅ Deployed — Live at neuralnexus.press/dashboard",
+          "phaseIndex": 5,
           "liveUrl": null,
-          "owner": "David Kingsley",
           "dateInitiated": "2026-03-15",
+          "targetDate": "2026-03-18",
+          "dateCompleted": "2026-03-18",
+          "daysActive": 4,
+          "daysUntilTarget": -1,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Morpheus",
+          "priority": "Critical",
+          "budget": "$0",
+          "actualSpend": "$0",
+          "dependencies": [
+            "701"
+          ],
+          "enables": [],
+          "progress": 0,
           "objective": "Persistent, browser-accessible dashboard to view and manage all project charters from any device on the local network.",
-          "outstanding": []
+          "successCriteria": "Dashboard accessible at a stable URL, survives reboots, displays all charters with live status, requires zero maintenance.",
+          "blockers": [],
+          "outstanding": [],
+          "decisions": [
+            {
+              "date": "------",
+              "text": "----------"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "Python http.server over Node/nginx"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "launchd over cron/Docker"
+            },
+            {
+              "date": "2026-03-15",
+              "text": "Port 8081"
+            }
+          ]
         }
       ]
     },
     {
       "name": "Colossal Biosciences",
       "slug": "colossal-biosciences",
+      "charters": []
+    },
+    {
+      "name": "Miscellaneous",
+      "slug": "miscellaneous",
       "charters": []
     },
     {
@@ -339,12 +819,7 @@
       "name": "Treat Biosciences",
       "slug": "treat-biosciences",
       "charters": []
-    },
-    {
-      "name": "Miscellaneous",
-      "slug": "miscellaneous",
-      "charters": []
     }
   ],
-  "generated": "2026-03-19T02:36:54.761Z"
+  "generated": "2026-03-19T03:25:45.726Z"
 }
