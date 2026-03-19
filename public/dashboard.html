@@ -50,7 +50,7 @@ body {
 @keyframes float2{0%{transform:translate(0,0)}100%{transform:translate(-20px,30px)}}
 
 /* Layout */
-.layout { display:grid; grid-template-columns:220px 1fr; min-height:100vh; position:relative; z-index:1; }
+.layout { display:flex; min-height:100vh; position:relative; z-index:1; }
 
 /* Sidebar */
 .sidebar {
@@ -83,7 +83,7 @@ body {
 .sidebar-section { font-size:0.6rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); padding:12px 24px 4px; }
 
 /* Main */
-.main { margin-left:220px; padding:28px; }
+.main { margin-left:220px; padding:28px; flex:1; min-width:0; }
 .page { display:none; }
 .page.active { display:block; }
 
