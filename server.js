@@ -126,6 +126,99 @@ app.get('/api/activity', dashboardAuth, (req, res) => {
   res.json({ activity: [] });
 });
 
+// ── Weekly Report API ────────────────────────────────────────────────────────
+const weeklyPath = path.join(__dirname, 'data', 'weekly-reports.json');
+
+app.get('/api/weekly', dashboardAuth, (req, res) => {
+  try {
+    const data = loadCharterData();
+    const charters = data.programs ? data.programs.flatMap(p => p.charters) : [];
+    let activity = [];
+    try { if (fs.existsSync(activityPath)) activity = JSON.parse(fs.readFileSync(activityPath, 'utf8')); } catch {}
+
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+    const weekActivity = activity.filter(a => new Date(a.ts) >= weekStart);
+
+    let reports = [];
+    try { if (fs.existsSync(weeklyPath)) reports = JSON.parse(fs.readFileSync(weeklyPath, 'utf8')); } catch {}
+
+    const live = charters.filter(c => /live/i.test(c.statusClean)).length;
+    const inProgress = charters.filter(c => /progress/i.test(c.statusClean)).length;
+    const overdue = charters.filter(c => c.overdue).length;
+    const totalBlockers = charters.reduce((acc, c) => acc + (c.blockers?.length || 0), 0);
+    const totalBudget = charters.reduce((acc, c) => acc + (c.budget ? parseFloat(c.budget.replace(/[^0-9.]/g, '')) || 0 : 0), 0);
+    const totalSpend = charters.reduce((acc, c) => acc + (c.actualSpend ? parseFloat(c.actualSpend.replace(/[^0-9.]/g, '')) || 0 : 0), 0);
+
+    res.json({
+      currentWeek: {
+        weekOf: weekStart.toISOString().split('T')[0],
+        generated: now.toISOString(),
+        stats: { total: charters.length, live, inProgress, overdue, totalBlockers, totalBudget, totalSpend },
+        activity: {
+          statusChanges: weekActivity.filter(a => a.type === 'status').length,
+          phaseChanges: weekActivity.filter(a => a.type === 'phase').length,
+          itemsCompleted: weekActivity.filter(a => a.type === 'checkbox' && a.done).length,
+          chartersCreated: weekActivity.filter(a => a.type === 'create').length
+        },
+        details: weekActivity.slice(0, 50)
+      },
+      pastReports: reports.slice(0, 12)
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post('/api/weekly/snapshot', dashboardAuth, (req, res) => {
+  try {
+    const data = loadCharterData();
+    const charters = data.programs ? data.programs.flatMap(p => p.charters) : [];
+    const { accomplishments, notes } = req.body || {};
+
+    const now = new Date();
+    const weekStart = new Date(now);
+    weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+    weekStart.setHours(0, 0, 0, 0);
+
+    let activity = [];
+    try { if (fs.existsSync(activityPath)) activity = JSON.parse(fs.readFileSync(activityPath, 'utf8')); } catch {}
+    const weekActivity = activity.filter(a => new Date(a.ts) >= weekStart);
+
+    const report = {
+      weekOf: weekStart.toISOString().split('T')[0],
+      savedAt: now.toISOString(),
+      stats: {
+        total: charters.length,
+        live: charters.filter(c => /live/i.test(c.statusClean)).length,
+        inProgress: charters.filter(c => /progress/i.test(c.statusClean)).length,
+        overdue: charters.filter(c => c.overdue).length,
+        totalBlockers: charters.reduce((acc, c) => acc + (c.blockers?.length || 0), 0)
+      },
+      activityCount: weekActivity.length,
+      accomplishments: accomplishments || '',
+      notes: notes || '',
+      charters: charters.map(c => ({ id: c.id, title: c.title, status: c.statusClean, priority: c.priority, progress: c.progress }))
+    };
+
+    let reports = [];
+    try { if (fs.existsSync(weeklyPath)) reports = JSON.parse(fs.readFileSync(weeklyPath, 'utf8')); } catch {}
+    reports = reports.filter(r => r.weekOf !== report.weekOf);
+    reports.unshift(report);
+    if (reports.length > 52) reports = reports.slice(0, 52);
+
+    const dataDir = path.dirname(weeklyPath);
+    if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+    fs.writeFileSync(weeklyPath, JSON.stringify(reports, null, 2));
+
+    res.json({ ok: true, report });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // PUT/POST stubs (read-only in production — changes made via git)
 app.put('/api/charters/:id', dashboardAuth, (req, res) => {
   res.json({ ok: true, message: 'Changes are made via git push in production' });
