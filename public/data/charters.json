@@ -20,31 +20,31 @@
               "text": "Charter approved by David Kingsley — 2026-03-14"
             },
             {
-              "done": false,
+              "done": true,
               "text": "**Deploy publicly by 2026-03-15** — Game needs a public URL for Neural NeXus newsletter readers"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Choose hosting platform (Railway / Render / VPS / Cloudflare Tunnel)"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Set up deployment pipeline"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Test public access"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Generate shareable link for newsletter"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Explore Substack integration (iframe embed or link-out with preview image)"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Optional: custom domain/subdomain for the game"
             }
           ]
@@ -127,15 +127,15 @@
               "text": "Build and deploy (deployed 2026-03-16, commit 759b60d)"
             },
             {
-              "done": false,
+              "done": true,
               "text": "**CRITICAL:** Rewrite all 30 puzzle datasets — grids and clues are inconsistent/broken"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Update vocabulary to use everyday words (not science-themed per David's feedback)"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Revalidate all crossword grids against clues before redeploying"
             }
           ]
@@ -164,35 +164,35 @@
               "text": "✅ 90-day Ghost migration evaluation checkpoint: June 17, 2026"
             },
             {
-              "done": false,
+              "done": true,
               "text": "David: Create GA4 property at analytics.google.com → share Measurement ID"
             },
             {
-              "done": false,
+              "done": true,
               "text": "David: Verify site in Google Search Console → share verification token"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Morpheus: Deploy robots.txt + sitemap.xml"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Morpheus: Add GA4 gtag.js to all pages"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Morpheus: Add JSON-LD structured data (WebSite, Person, Game schemas)"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Morpheus: Fix heading hierarchy + game page meta"
             },
             {
-              "done": false,
+              "done": true,
               "text": "David: Decide content mirroring strategy (A, B, C, or D above)"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Morpheus: Build first 5 content pages based on chosen strategy"
             },
             {
@@ -200,7 +200,7 @@
               "text": "David: Move DNS to Cloudflare (fixes bare domain SSL)"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Morpheus: Submit sitemap to Search Console + Bing Webmaster Tools"
             }
           ]
@@ -346,5 +346,5 @@
       "charters": []
     }
   ],
-  "generated": "2026-03-19T01:52:14.391Z"
+  "generated": "2026-03-19T02:18:06.021Z"
 }
