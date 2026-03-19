@@ -342,7 +342,7 @@ select.field-select {
   <div class="sidebar-section">Views</div>
   <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">🏠</span> Dashboard</div>
   <div class="nav-item" onclick="showPage('projects')"><span class="icon">📁</span> Projects</div>
-  <a href="/pm-charters/" class="nav-item" style="text-decoration:none;color:inherit"><span class="icon">📜</span> Programs</a>
+  <div class="nav-item" onclick="showPage('programs')"><span class="icon">📜</span> Programs</div>
   <div class="nav-item" onclick="showPage('weekly')"><span class="icon">📊</span> Weekly Report</div>
   <div class="nav-item" onclick="showPage('timeline')"><span class="icon">📅</span> Timeline</div>
   <div class="nav-section-label"></div>
@@ -400,6 +400,30 @@ select.field-select {
     <!-- Recent Projects -->
     <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:12px;">Projects</div>
     <div class="project-list" id="dashboard-project-list"></div>
+  </div>
+
+  <!-- Programs Page -->
+  <div id="page-programs" class="page">
+    <div class="page-header">
+      <div>
+        <h1>Programs</h1>
+        <p>All programs — click to view charters</p>
+      </div>
+    </div>
+    <div id="programs-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px;"></div>
+  </div>
+
+  <!-- Program Detail Page (shows charters for one program) -->
+  <div id="page-program-detail" class="page">
+    <div class="page-header">
+      <div>
+        <h1 id="program-detail-title">Program</h1>
+        <p id="program-detail-subtitle">Charters</p>
+      </div>
+      <button class="filter-btn" onclick="showPage('programs')" style="cursor:pointer">← Back to Programs</button>
+    </div>
+    <div class="summary-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;" id="program-detail-stats"></div>
+    <div class="project-list" id="program-detail-charters"></div>
   </div>
 
   <!-- Projects Page -->
@@ -584,6 +608,7 @@ async function loadCharters() {
     const data = await res.json();
     allCharters = data.charters || [];
     updateDashboard();
+    renderPrograms();
     renderProjects();
     renderGantt();
   } catch(e) {
@@ -1035,6 +1060,74 @@ function showToast(msg, isErr) {
   t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Programs View ─────────────────────────────────────────────────────────────
+const PROGRAM_DEFS = [
+  { slug: 'neural-nexus', name: 'Neural NeXus', icon: '🧠', series: '100-series', desc: 'Website, games, newsletter, content pipeline, SEO, and social media.', ids: ['101','102','105','106','107','108'] },
+  { slug: 'cognitive-enhancements', name: 'Cognitive Enhancements', icon: '🧬', series: '200-series', desc: 'Nootropic supplementation, cognitive performance tracking, and optimization.', ids: ['201','202'] },
+  { slug: 'colossal-biosciences', name: 'Colossal Biosciences', icon: '🦣', series: '300-series', desc: 'De-extinction and synthetic biology projects.', ids: [] },
+  { slug: 'physical-health', name: 'Physical Health', icon: '💪', series: '400-series', desc: 'Fitness, nutrition, and physical optimization.', ids: [] },
+  { slug: 'treat-biosciences', name: 'Treat Biosciences', icon: '🔬', series: '500-series', desc: 'Biotech research and development projects.', ids: [] },
+  { slug: 'miscellaneous', name: 'Miscellaneous', icon: '📁', series: '600-series', desc: 'Uncategorized projects and experiments.', ids: [] },
+  { slug: 'project-management', name: 'Project Management', icon: '📊', series: '700-series', desc: 'Charter templates, PMO dashboard, agent onboarding.', ids: ['701','702'] }
+];
+
+function renderPrograms() {
+  const grid = document.getElementById('programs-grid');
+  grid.innerHTML = PROGRAM_DEFS.map(p => {
+    const charters = allCharters.filter(c => p.ids.includes(c.id));
+    const live = charters.filter(c => /live/i.test(c.statusClean)).length;
+    const progress = charters.filter(c => /progress/i.test(c.statusClean)).length;
+    const isEmpty = charters.length === 0;
+    const avgProg = charters.length ? Math.round(charters.reduce((a, c) => a + (c.progress || 0), 0) / charters.length) : 0;
+    const overdue = charters.filter(c => c.overdue).length;
+
+    return `
+      <div class="project-card ${isEmpty ? '' : ''}" style="padding:28px;${isEmpty ? 'opacity:0.5;cursor:default;' : 'cursor:pointer;'}" ${isEmpty ? '' : `onclick="showProgramDetail('${p.slug}')"`}>
+        <div style="font-size:2rem;margin-bottom:12px;">${p.icon}</div>
+        <div style="font-size:1.3rem;font-weight:700;color:var(--text);margin-bottom:6px;">${escHtml(p.name)}</div>
+        <span class="priority-badge priority-medium" style="margin-bottom:12px;display:inline-block;">${p.series}</span>
+        <div style="font-size:0.88rem;color:var(--text-mid);line-height:1.5;margin-bottom:16px;">${escHtml(p.desc)}</div>
+        <div style="display:flex;gap:16px;font-size:0.8rem;">
+          ${charters.length ? `
+            ${live ? `<span style="display:flex;align-items:center;gap:4px;"><span class="status-dot dot-live"></span>${live} Live</span>` : ''}
+            ${progress ? `<span style="display:flex;align-items:center;gap:4px;"><span class="status-dot dot-progress"></span>${progress} In Progress</span>` : ''}
+            ${overdue ? `<span style="color:var(--red)">⚠ ${overdue} Overdue</span>` : ''}
+            <span style="color:var(--text-dim)">${charters.length} charter${charters.length > 1 ? 's' : ''}</span>
+            <span style="color:var(--text-dim)">${avgProg}% avg</span>
+          ` : '<span style="color:var(--text-dim)">No charters yet</span>'}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function showProgramDetail(slug) {
+  const prog = PROGRAM_DEFS.find(p => p.slug === slug);
+  if (!prog) return;
+
+  const charters = allCharters.filter(c => prog.ids.includes(c.id));
+  const live = charters.filter(c => /live/i.test(c.statusClean)).length;
+  const inProg = charters.filter(c => /progress/i.test(c.statusClean)).length;
+  const avgProgress = charters.length ? Math.round(charters.reduce((a, c) => a + (c.progress || 0), 0) / charters.length) : 0;
+
+  document.getElementById('program-detail-title').textContent = prog.icon + ' ' + prog.name;
+  document.getElementById('program-detail-subtitle').textContent = prog.series + ' — ' + prog.desc;
+
+  document.getElementById('program-detail-stats').innerHTML = `
+    <div class="summary-card"><div class="s-label">Charters</div><div class="s-value">${charters.length}</div></div>
+    <div class="summary-card"><div class="s-label">Live</div><div class="s-value" style="color:var(--green)">${live}</div></div>
+    <div class="summary-card"><div class="s-label">In Progress</div><div class="s-value" style="color:var(--yellow)">${inProg}</div></div>
+  `;
+
+  const list = document.getElementById('program-detail-charters');
+  list.innerHTML = charters.map(c => renderProjectCard(c, false)).join('');
+  attachCardHandlers();
+
+  // Show the page
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-program-detail').classList.add('active');
 }
 
 // ── Weekly Report ─────────────────────────────────────────────────────────────
