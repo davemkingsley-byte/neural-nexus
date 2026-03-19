@@ -5,7 +5,7 @@
       "slug": "neural-nexus",
       "charters": [
         {
-          "id": "001",
+          "id": "101",
           "title": "001: Spelling Bee Game",
           "status": "🟢 Live",
           "statusClean": "Live",
@@ -50,7 +50,7 @@
           ]
         },
         {
-          "id": "002",
+          "id": "102",
           "title": "002: Neural NeXus Website",
           "status": "🟢 Live",
           "statusClean": "Live",
@@ -67,7 +67,7 @@
           ]
         },
         {
-          "id": "003",
+          "id": "103",
           "title": "Charter Dashboard",
           "status": "🟢 Live",
           "statusClean": "Live",
@@ -79,7 +79,7 @@
           "outstanding": []
         },
         {
-          "id": "004",
+          "id": "104",
           "title": "Project Management System",
           "status": "🟢 Live",
           "statusClean": "Live",
@@ -91,7 +91,7 @@
           "outstanding": []
         },
         {
-          "id": "005",
+          "id": "105",
           "title": "Wordle Game",
           "status": "🟢 Live",
           "statusClean": "Live",
@@ -103,7 +103,7 @@
           "outstanding": []
         },
         {
-          "id": "006",
+          "id": "106",
           "title": "Substack to TikTok Converter",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
@@ -136,8 +136,8 @@
           ]
         },
         {
-          "id": "007",
-          "title": "Charter 007: Mini Crossword",
+          "id": "107",
+          "title": "Charter 107: Mini Crossword",
           "status": "🟢 Live",
           "statusClean": "Live",
           "phase": "Requirements",
@@ -165,7 +165,7 @@
           ]
         },
         {
-          "id": "010",
+          "id": "108",
           "title": "SEO & Analytics Strategy for neuralnexus.press",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
@@ -236,7 +236,7 @@
       "slug": "cognitive-enhancements",
       "charters": [
         {
-          "id": "008",
+          "id": "201",
           "title": "Oral Supplementation for Cognitive Enhancement",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
@@ -281,7 +281,7 @@
           ]
         },
         {
-          "id": "009",
+          "id": "202",
           "title": "Cognitive Performance Tracker",
           "status": "🟡 Data Collection (baseline prep)",
           "statusClean": "Data Collection (baseline prep)",
@@ -340,5 +340,5 @@
       "charters": []
     }
   ],
-  "generated": "2026-03-19T01:47:32.127Z"
+  "generated": "2026-03-19T01:50:43.826Z"
 }
