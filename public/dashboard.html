@@ -83,7 +83,7 @@ body {
 .sidebar-section { font-size:0.6rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); padding:12px 24px 4px; }
 
 /* Main */
-.main { margin-left:220px; padding:28px; max-width:1200px; }
+.main { margin-left:220px; padding:28px; }
 .page { display:none; }
 .page.active { display:block; }
 
@@ -648,10 +648,10 @@ function updateDashboard() {
   if (allBlockers.length) {
     bp.style.display = 'block';
     bl.innerHTML = allBlockers.map(b => `
-      <div class="checklist-item" style="margin-bottom:5px;">
-        <span style="font-size:0.7rem;color:var(--text-dim);min-width:28px;font-family:monospace">#${b.id}</span>
-        <span style="flex:1">${escHtml(b.text)}</span>
-        <span style="font-size:0.68rem;color:var(--text-dim)">${escHtml(b.title)}</span>
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:8px;background:rgba(248,113,113,0.06);border:1px solid rgba(248,113,113,0.15);margin-bottom:6px;">
+        <span style="font-size:0.72rem;color:var(--red);font-weight:700;font-family:monospace;white-space:nowrap;">#${b.id}</span>
+        <span style="font-size:0.85rem;color:var(--text);flex:1;">${escHtml(b.text)}</span>
+        <span style="font-size:0.72rem;color:var(--text-dim);white-space:nowrap;">${escHtml(b.title)}</span>
       </div>
     `).join('');
   } else {
