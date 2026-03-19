@@ -185,7 +185,7 @@
             "102"
           ],
           "enables": [],
-          "progress": 0,
+          "progress": 100,
           "objective": "Build a daily Wordle word-guessing game for the Neural NeXus website. Same premium dark UI as Spelling Bee. New word every day, 6 guesses, color-coded feedback, shareable results.",
           "successCriteria": "Playable at www.neuralnexus.press/wordle, daily word rotation, keyboard with color hints, share-friendly emoji grid, leaderboard integration.",
           "blockers": [],
@@ -310,7 +310,7 @@
         },
         {
           "id": "107",
-          "title": "Charter 107: Mini Crossword",
+          "title": "Mini Crossword",
           "status": "🟢 Live",
           "statusClean": "Live",
           "phase": "✅ Deployed — Live at www.neuralnexus.press/crossword",
@@ -332,8 +332,8 @@
           ],
           "enables": [],
           "progress": 100,
-          "objective": "",
-          "successCriteria": "",
+          "objective": "Build a daily mini crossword game for www.neuralnexus.press/crossword — a 5×5 grid with science/tech-themed clues, inspired by the NYT Mini. Quick to play (2-5 min), shareable results, daily rotation.",
+          "successCriteria": "- 5×5 crossword grid with across/down clues",
           "blockers": [],
           "outstanding": [
             {
@@ -406,7 +406,7 @@
             "106"
           ],
           "progress": 92,
-          "objective": "",
+          "objective": "Transform neuralnexus.press from a static hub into a search-discoverable, traffic-generating asset that complements Substack — driving organic visitors to the newsletter, games, and David's brand.",
           "successCriteria": "",
           "blockers": [
             "David: Move DNS to Cloudflare (fixes bare domain SSL)"
@@ -518,8 +518,8 @@
             "202"
           ],
           "progress": 0,
-          "objective": "",
-          "successCriteria": "",
+          "objective": "Design a personalized, evidence-based oral supplementation protocol targeting cognitive performance — memory, focus, processing speed, neuroprotection, and long-term brain health.",
+          "successCriteria": "- [ ] Literature review of top-tier nootropic compounds completed",
           "blockers": [
             "Literature review of top-tier nootropic compounds completed",
             "Tier ranking of supplements by evidence strength (A/B/C)",
@@ -627,8 +627,8 @@
           ],
           "enables": [],
           "progress": 0,
-          "objective": "",
-          "successCriteria": "",
+          "objective": "Build a longitudinal cognitive performance measurement system that combines standardized testing, chess ELO tracking, and Neural NeXus game analytics — with supplement/intervention phase markers — to objectively evaluate whether cognitive enhancement strategies are working.",
+          "successCriteria": "- [ ] Standardized cognitive battery built and deployed on neuralnexus.press",
           "blockers": [
             "Standardized cognitive battery built and deployed on neuralnexus.press",
             "Chess.com or Lichess API integration pulling ELO data automatically",
@@ -719,7 +719,7 @@
           "enables": [
             "702"
           ],
-          "progress": 0,
+          "progress": 100,
           "objective": "Build a full-featured, browser-based project management dashboard that reads/writes charter files, tracks status, monitors deployed projects, and surfaces blockers — all from a single UI.",
           "successCriteria": "Replaces the static charter index with a dynamic system that can filter, edit, search, and monitor all projects without touching markdown files manually.",
           "blockers": [],
@@ -774,7 +774,7 @@
             "701"
           ],
           "enables": [],
-          "progress": 0,
+          "progress": 100,
           "objective": "Persistent, browser-accessible dashboard to view and manage all project charters from any device on the local network.",
           "successCriteria": "Dashboard accessible at a stable URL, survives reboots, displays all charters with live status, requires zero maintenance.",
           "blockers": [],
@@ -821,5 +821,5 @@
       "charters": []
     }
   ],
-  "generated": "2026-03-19T03:25:45.726Z"
+  "generated": "2026-03-19T03:38:40.575Z"
 }
