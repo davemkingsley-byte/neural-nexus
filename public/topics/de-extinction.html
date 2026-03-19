@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>What is De-Extinction? The Science of Bringing Species Back | Neural NeXus</title>
+<meta name="description" content="De-extinction uses CRISPR, cloning, and selective breeding to resurrect lost species. Explore the science, key companies like Colossal Biosciences, target species, and the ethics of playing god with extinction.">
+<meta property="og:title" content="What is De-Extinction? The Science of Bringing Species Back">
+<meta property="og:description" content="De-extinction uses CRISPR, cloning, and selective breeding to resurrect lost species. Explore the science, key companies, and the ethics.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.neuralnexus.press/topics/de-extinction">
+<meta property="og:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What is De-Extinction? The Science of Bringing Species Back">
+<meta name="twitter:description" content="De-extinction uses CRISPR, cloning, and selective breeding to resurrect lost species.">
+<meta name="twitter:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
+<link rel="icon" href="/img/neuron-logo.jpg">
+<link rel="canonical" href="https://www.neuralnexus.press/topics/de-extinction">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "What is De-Extinction? The Science of Bringing Species Back",
+  "description": "A deep dive into de-extinction technology: how CRISPR, cloning, and selective breeding are being used to resurrect woolly mammoths, thylacines, and dodos.",
+  "url": "https://www.neuralnexus.press/topics/de-extinction",
+  "image": "https://www.neuralnexus.press/img/neuron-logo.jpg",
+  "datePublished": "2026-03-18",
+  "dateModified": "2026-03-18",
+  "author": {
+    "@type": "Person",
+    "name": "David Kingsley",
+    "jobTitle": "PhD Scientist",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Colossal Biosciences",
+      "url": "https://colossalbiosciences.com"
+    },
+    "url": "https://www.neuralnexus.press"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Neural NeXus",
+    "url": "https://www.neuralnexus.press",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.neuralnexus.press/img/neuron-logo.jpg"
+    }
+  },
+  "keywords": ["de-extinction technology", "de-extinction companies", "de-extinction science", "CRISPR", "woolly mammoth", "thylacine", "Colossal Biosciences"],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.neuralnexus.press/topics/de-extinction"
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06060b;
+    --surface: rgba(255,255,255,0.03);
+    --surface-2: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.06);
+    --border-2: rgba(255,255,255,0.1);
+    --text: #f0f0f5;
+    --text-dim: rgba(255,255,255,0.4);
+    --text-mid: rgba(255,255,255,0.6);
+    --accent: #60a5fa;
+    --accent-2: #a78bfa;
+    --gold: #f0c040;
+    --green: #34d399;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .ambient::before {
+    content: ''; position: absolute; top: -30%; left: 10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(96,165,250,0.07) 0%, transparent 70%);
+    animation: float1 15s ease-in-out infinite alternate;
+  }
+  .ambient::after {
+    content: ''; position: absolute; bottom: -20%; right: 10%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(167,139,250,0.05) 0%, transparent 70%);
+    animation: float2 18s ease-in-out infinite alternate;
+  }
+  @keyframes float1 { 0%{transform:translate(0,0)} 100%{transform:translate(40px,-30px)} }
+  @keyframes float2 { 0%{transform:translate(0,0)} 100%{transform:translate(-30px,40px)} }
+
+  .grid-bg {
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none; z-index: 0;
+    mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+  }
+
+  section { position: relative; z-index: 1; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    padding: 14px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(6,6,11,0.85);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-brand img { height: 30px; border-radius: 6px; }
+  .nav-brand-text { font-size: 0.82rem; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text); }
+  .nav-brand-text span { color: var(--accent); }
+  .nav-links { display: flex; gap: 22px; align-items: center; list-style: none; }
+  .nav-links a { color: var(--text-mid); text-decoration: none; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.5px; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { background: var(--accent) !important; color: var(--bg) !important; padding: 7px 16px; border-radius: 8px; font-weight: 700 !important; }
+
+  /* Article layout */
+  .article-hero {
+    padding: 140px 24px 60px;
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+  .article-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 14px; border-radius: 20px;
+    background: var(--surface-2); border: 1px solid var(--border-2);
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 24px;
+  }
+  .article-hero h1 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 400; line-height: 1.1; margin-bottom: 20px;
+  }
+  .article-hero h1 .highlight {
+    background: linear-gradient(135deg, var(--accent), var(--accent-2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .article-meta-row {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .article-author { display: flex; align-items: center; gap: 10px; }
+  .article-author img { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border-2); }
+  .article-author-name { font-size: 0.82rem; font-weight: 700; }
+  .article-author-role { font-size: 0.7rem; color: var(--text-dim); }
+  .article-date-tag { font-size: 0.72rem; color: var(--text-dim); margin-left: auto; }
+
+  /* Article content */
+  .article-body {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative; z-index: 1;
+  }
+  .article-body h2 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 1.7rem; font-weight: 400;
+    margin: 48px 0 16px; color: var(--text);
+    line-height: 1.2;
+  }
+  .article-body h3 {
+    font-size: 1.05rem; font-weight: 700;
+    margin: 32px 0 12px; color: var(--text);
+  }
+  .article-body p {
+    font-size: 1rem; line-height: 1.85;
+    color: var(--text-mid); margin-bottom: 20px;
+  }
+  .article-body strong { color: var(--text); font-weight: 700; }
+  .article-body a { color: var(--accent); text-decoration: none; }
+  .article-body a:hover { text-decoration: underline; }
+
+  .callout {
+    background: var(--surface); border: 1px solid var(--border-2); border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0; padding: 20px 24px; margin: 32px 0;
+  }
+  .callout p { margin: 0; font-size: 0.95rem; color: var(--text-mid); }
+  .callout strong { color: var(--accent); }
+
+  .species-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 28px 0; }
+  .species-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px; transition: all 0.3s;
+  }
+  .species-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
+  .species-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+  .species-card h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+  .species-card p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.6; margin: 0; }
+
+  .timeline { margin: 32px 0; }
+  .timeline-item { display: flex; gap: 20px; margin-bottom: 24px; }
+  .timeline-year {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700;
+    color: var(--accent); min-width: 52px; padding-top: 2px;
+  }
+  .timeline-content { flex: 1; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .timeline-item:last-child .timeline-content { border-bottom: none; }
+  .timeline-content h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+  .timeline-content p { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; margin: 0; }
+
+  /* Related topics */
+  .related-topics {
+    max-width: 800px; margin: 0 auto; padding: 0 24px 60px;
+    position: relative; z-index: 1;
+  }
+  .related-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: var(--accent); margin-bottom: 16px; }
+  .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .related-card {
+    padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    text-decoration: none; color: inherit; transition: all 0.3s;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .related-card:hover { border-color: var(--border-2); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .related-card-icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+  .related-card h3 { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+  .related-card p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+  /* Subscribe CTA */
+  .subscribe-cta {
+    max-width: 800px; margin: 0 auto; padding: 0 24px 80px;
+    position: relative; z-index: 1;
+  }
+  .subscribe-box {
+    background: linear-gradient(135deg, rgba(96,165,250,0.06) 0%, rgba(167,139,250,0.04) 100%);
+    border: 1px solid var(--border-2); border-radius: 20px;
+    padding: 44px 40px; text-align: center;
+  }
+  .subscribe-box h2 { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.8rem; margin-bottom: 10px; }
+  .subscribe-box p { color: var(--text-mid); font-size: 0.92rem; margin-bottom: 24px; line-height: 1.6; }
+  .subscribe-form { display: flex; gap: 10px; max-width: 440px; margin: 0 auto; }
+  .subscribe-input {
+    flex: 1; padding: 14px 18px; border-radius: 12px;
+    border: 1px solid var(--border-2); background: var(--surface); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none;
+    backdrop-filter: blur(10px); transition: border-color 0.2s;
+  }
+  .subscribe-input:focus { border-color: var(--accent); }
+  .subscribe-input::placeholder { color: var(--text-dim); }
+  .subscribe-btn {
+    padding: 14px 24px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, var(--accent), #4f8fef); color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .subscribe-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(96,165,250,0.3); }
+  .subscribe-note { margin-top: 14px; font-size: 0.68rem; color: var(--text-dim); }
+
+  footer { padding: 36px 24px; text-align: center; border-top: 1px solid var(--border); position: relative; z-index: 1; }
+  .footer-inner { max-width: 600px; margin: 0 auto; }
+  .footer-brand { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; }
+  .footer-brand img { height: 22px; border-radius: 4px; opacity: 0.5; }
+  .footer-brand span { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); letter-spacing: 1.5px; text-transform: uppercase; }
+  .footer-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 14px; flex-wrap: wrap; }
+  .footer-links a { color: var(--text-dim); font-size: 0.75rem; text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text); }
+  footer .copy { font-size: 0.68rem; color: rgba(255,255,255,0.2); }
+
+  @media (max-width: 640px) {
+    nav { padding: 10px 16px; }
+    .nav-links { gap: 10px; }
+    .nav-links a { font-size: 0.65rem; }
+    .nav-cta { padding: 6px 12px; font-size: 0.65rem !important; }
+    .article-hero { padding: 110px 20px 40px; }
+    .article-body { padding: 0 20px 60px; }
+    .subscribe-box { padding: 28px 20px; }
+    .subscribe-form { flex-direction: column; }
+    .subscribe-btn { width: 100%; }
+    .related-topics { padding: 0 20px 40px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="grid-bg"></div>
+
+<nav>
+  <a href="/" class="nav-brand">
+    <img src="/img/neuron-logo.jpg" alt="Neural NeXus">
+    <span class="nav-brand-text">Neural<span>NeXus</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/#articles">Articles</a></li>
+    <li><a href="/#about">About</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/play">🐝 Bee</a></li>
+    <li><a href="#subscribe" class="nav-cta">Subscribe</a></li>
+  </ul>
+</nav>
+
+<!-- Article Hero -->
+<section class="article-hero">
+  <div class="article-tag">🧬 De-Extinction Science</div>
+  <h1>What is <span class="highlight">De-Extinction</span>?<br>The Science of Bringing Species Back</h1>
+  <div class="article-meta-row">
+    <div class="article-author">
+      <img src="/img/david.jpg" alt="David Kingsley, PhD">
+      <div>
+        <div class="article-author-name">David Kingsley, PhD</div>
+        <div class="article-author-role">Scientist · Colossal Biosciences</div>
+      </div>
+    </div>
+    <div class="article-date-tag">March 2026 · 8 min read</div>
+  </div>
+</section>
+
+<!-- Article Body -->
+<article class="article-body">
+
+  <p>Extinction is supposed to be permanent. Once a species is gone — its last individual dead, its unique evolutionary lineage severed — that's supposed to be the end. But a new field called <strong>de-extinction</strong> is challenging that assumption with serious science and serious money. Using tools that didn't exist a decade ago, researchers are now working to bring back the woolly mammoth, the Tasmanian tiger, and even the dodo.</p>
+
+  <p>This isn't science fiction. As a PhD scientist working at <strong>Colossal Biosciences</strong> — one of the leading de-extinction companies in the world — I can tell you that the work happening right now is real, rigorous, and moving faster than most people realize. The question is no longer <em>whether</em> we can do this. It's <em>how</em> we should.</p>
+
+  <h2>What Is De-Extinction?</h2>
+
+  <p>De-extinction is the process of using biotechnology to revive extinct species or create functional proxies that fill the ecological roles those species once occupied. It operates along a spectrum — from <strong>genetic rescue</strong> (bolstering endangered species with ancient DNA variants) to <strong>full resurrection</strong> (creating an animal that is functionally indistinguishable from its extinct ancestor).</p>
+
+  <p>The concept gained mainstream attention with the 2003 cloning of a Pyrenean ibex (bucardo) — the first extinct animal ever brought back, albeit only for a few minutes before the clone died of a lung defect. That experiment was crude by today's standards, but it proved the concept was not absurd. Since then, advances in ancient DNA sequencing, CRISPR gene editing, and reproductive biology have transformed the field from a thought experiment into an engineering challenge.</p>
+
+  <div class="callout">
+    <p><strong>Key insight:</strong> De-extinction isn't about making perfect genetic copies of extinct animals. It's about engineering animals that can fulfill the same ecological function — grazing, seed dispersal, predation — that the extinct species once provided.</p>
+  </div>
+
+  <h2>How Does De-Extinction Technology Work?</h2>
+
+  <p>There are three primary approaches to de-extinction science, and the right tool depends heavily on how recently the species went extinct and what living relatives exist.</p>
+
+  <h3>1. CRISPR Gene Editing</h3>
+
+  <p>CRISPR-Cas9 is the workhorse of modern de-extinction. The approach starts with sequencing the genome of the extinct species from preserved specimens — mammoth DNA from permafrost samples, for example — then comparing it to the genome of its closest living relative. Scientists identify the key genetic differences that gave the extinct species its distinctive traits (cold-adapted hemoglobin, thick underfur, subcutaneous fat layers for the mammoth), and then edit the living relative's genome to include those traits.</p>
+
+  <p>This is what Colossal Biosciences is doing with the woolly mammoth. They're not trying to clone a perfect mammoth — they're engineering an Asian elephant with mammoth cold-tolerance traits that can survive and thrive in Arctic ecosystems. The result is a <strong>mammophant</strong>: functionally a mammoth, ecologically a mammoth, but genomically a hybrid.</p>
+
+  <p>The same approach applies to the thylacine (Tasmanian tiger), where Colossal's team is editing the genome of the fat-tailed dunnart — the thylacine's closest living marsupial relative — to express key thylacine characteristics.</p>
+
+  <h3>2. Cloning (Somatic Cell Nuclear Transfer)</h3>
+
+  <p>Cloning, or somatic cell nuclear transfer (SCNT), involves taking the nucleus from a cell of the animal you want to clone and inserting it into an enucleated egg cell of a closely related species. This was the technique used for Dolly the sheep and for the 2003 bucardo attempt.</p>
+
+  <p>Cloning is most viable for very recently extinct animals where intact cells might still be preserved in frozen tissue. The <strong>northern white rhinoceros</strong> — technically "functionally extinct" with only two females remaining — is a primary candidate for this approach combined with stem cell technology. Japanese researchers at BioRescue have created viable northern white rhino embryos from frozen sperm and egg cells, with plans to implant them in southern white rhino surrogates.</p>
+
+  <p>For species that went extinct hundreds or thousands of years ago, cloning becomes essentially impossible — degraded DNA cannot be reliably used to reconstruct a complete nuclear genome for SCNT.</p>
+
+  <h3>3. Selective Breeding (Back-Breeding)</h3>
+
+  <p>The most low-tech approach to de-extinction is back-breeding: selectively breeding living animals that carry genetic variants reminiscent of their extinct relatives. This is how the <strong>Heck cattle</strong> project attempted to recreate the aurochs — the wild cattle domesticated into modern breeds — by crossing ancient-looking cattle breeds to amplify ancestral traits.</p>
+
+  <p>More sophisticated modern versions use genomic sequencing to guide breeding decisions, selecting for specific ancient variants rather than just phenotypic appearance. The <strong>Tauros Programme</strong> in Europe and the <strong>Aurochs Foundation</strong> are pursuing this approach for aurochs rewilding in European landscapes.</p>
+
+  <p>Back-breeding can't truly recreate extinct species at the genetic level, but it can produce animals that fill similar ecological niches — which is often the practical goal.</p>
+
+  <h2>Key De-Extinction Companies</h2>
+
+  <p>De-extinction has attracted significant venture capital and philanthropic funding. A few organizations are leading the charge.</p>
+
+  <h3>Colossal Biosciences</h3>
+
+  <p>Founded in 2021 by entrepreneur Ben Lamm and geneticist George Church of Harvard, <strong>Colossal Biosciences</strong> is the best-funded de-extinction company in the world, having raised over $225 million. Colossal has three flagship projects: the woolly mammoth, the thylacine (Tasmanian tiger), and the dodo. The company takes a pragmatic, engineering-first approach — using CRISPR to create functional proxies rather than genomic facsimiles.</p>
+
+  <p>The mammoth project is the furthest along. Colossal's scientists have already edited multiple cold-tolerance genes into Asian elephant stem cells and are working on the reproductive biology to produce viable calves. The target: woolly mammoth-like elephants roaming Siberian steppe by the early 2030s.</p>
+
+  <h3>Revive &amp; Restore</h3>
+
+  <p>Where Colossal focuses on charismatic megafauna, <strong>Revive &amp; Restore</strong> emphasizes conservation impact. Founded in 2012, the San Francisco-based nonprofit pioneered de-extinction as a conservation tool. Their successful projects include the <strong>black-footed ferret</strong> genetic rescue program, where ancient DNA was used to introduce genetic diversity into an inbred captive population, and the <strong>passenger pigeon</strong> project, which aims to use band-tailed pigeon genomics to revive the species that once darkened North American skies.</p>
+
+  <p>Revive &amp; Restore's model is closer to ecosystem-first thinking — they ask "what species do we need to restore ecological function?" before choosing targets.</p>
+
+  <h3>The Thylacine Integrated Genomic Restoration Research (TIGRR) Lab</h3>
+
+  <p>Based at the University of Melbourne and partnered with Colossal, the TIGRR Lab is the scientific lead on thylacine de-extinction. In 2022, the lab published the first complete thylacine genome — a critical milestone. They have since developed viable dunnart stem cells and are working through the gene editing required to introduce thylacine characteristics.</p>
+
+  <h2>Target Species: Who's Coming Back?</h2>
+
+  <div class="species-grid">
+    <div class="species-card">
+      <span class="species-icon">🦣</span>
+      <h4>Woolly Mammoth</h4>
+      <p>Extinct ~4,000 years ago. Colossal is engineering cold-adapted mammoths to restore Siberian steppe grasslands and potentially slow permafrost thaw.</p>
+    </div>
+    <div class="species-card">
+      <span class="species-icon">🐯</span>
+      <h4>Thylacine (Tasmanian Tiger)</h4>
+      <p>Declared extinct 1936. Colossal/TIGRR are using the fat-tailed dunnart as a genomic scaffold to rebuild this apex marsupial predator.</p>
+    </div>
+    <div class="species-card">
+      <span class="species-icon">🦤</span>
+      <h4>Dodo</h4>
+      <p>Extinct ~1680. Colossal is sequencing dodo DNA and working with Nicobar pigeon — its closest living relative — to understand what traits to restore.</p>
+    </div>
+    <div class="species-card">
+      <span class="species-icon">🕊️</span>
+      <h4>Passenger Pigeon</h4>
+      <p>Extinct 1914. Revive &amp; Restore's Great Passenger Pigeon Comeback uses band-tailed pigeon genomics to recreate North America's once-most-abundant bird.</p>
+    </div>
+    <div class="species-card">
+      <span class="species-icon">🦏</span>
+      <h4>Northern White Rhino</h4>
+      <p>Functionally extinct (2 females remain). IVF and SCNT programs are creating embryos from stored genetic material, with plans for surrogate births.</p>
+    </div>
+    <div class="species-card">
+      <span class="species-icon">🐦</span>
+      <h4>Great Auk</h4>
+      <p>Extinct 1844. Colossal has announced research into reviving this flightless seabird, using razorbill as the closest living relative.</p>
+    </div>
+  </div>
+
+  <h2>The Ecological Case for De-Extinction</h2>
+
+  <p>The strongest scientific argument for de-extinction isn't about nostalgia — it's about ecosystem function. Many extinct species were <strong>keystone species</strong>: animals whose disproportionate impact on their environment shaped entire ecosystems. When they disappeared, those ecosystems changed, sometimes catastrophically.</p>
+
+  <p>The woolly mammoth is the clearest example. Mammoths were <strong>ecosystem engineers</strong>: they knocked down trees, grazed grasslands into productivity, and through their movement and defecation, maintained the cold Pleistocene steppe — a grassland ecosystem that covered much of the northern hemisphere. When mammoths disappeared, forests and shrubs encroached on what had been productive grassland, and the permafrost that underlies much of Siberia became more vulnerable to thaw.</p>
+
+  <p>Sergey Zimov's Pleistocene Park project in Siberia has been demonstrating for decades that reintroducing large grazing animals to the Siberian steppe compresses snow and reduces permafrost warming. Bringing back mammoths — or mammoth proxies — could potentially slow permafrost thaw at scale, with significant implications for global carbon release and climate feedback loops.</p>
+
+  <h2>Ethical Considerations</h2>
+
+  <p>De-extinction is not without its critics, and the ethical debates are serious ones that the field is still working through.</p>
+
+  <h3>Welfare of De-Extinct Animals</h3>
+
+  <p>What is the welfare of an animal born into a world radically different from the one its species evolved for? A de-extinct thylacine would have no parents to learn from, no conspecifics to socialize with, and would be raised in captivity for years before any potential rewilding. These are genuine welfare concerns that responsible programs are attempting to address through enriched captive environments and careful socialization protocols.</p>
+
+  <h3>Ecological Risk</h3>
+
+  <p>Reintroducing any animal into an ecosystem carries risk. The world has changed significantly since these species went extinct — prey populations have shifted, habitats have fragmented, and new species have filled the ecological roles they once occupied. Ecologists debate whether de-extinct animals can successfully reintegrate, or whether they would cause unforeseen disruption.</p>
+
+  <h3>Conservation Priority</h3>
+
+  <p>Perhaps the most pointed critique: de-extinction is expensive and technologically demanding. Should those resources go toward saving the species we still have, rather than reviving ones we've lost? The counterargument is that de-extinction technology has direct conservation applications — the genetic rescue tools developed for de-extinction are already being used to save critically endangered living species.</p>
+
+  <h3>The "Playing God" Problem</h3>
+
+  <p>There's a deeper philosophical question about human responsibility. Many of these extinctions were caused by humans — through hunting, habitat destruction, or introduced species. Does that create an obligation to attempt restoration? Or does attempting resurrection simply give us permission to continue extracting and destroying, confident that biotechnology can undo the damage?</p>
+
+  <div class="callout">
+    <p><strong>My take:</strong> The ethical debate is real, but it shouldn't be an excuse for inaction. We caused most of these extinctions. The technology to partially undo that harm exists. The question is whether we have the wisdom to use it well — and the honesty to pursue it alongside, not instead of, genuine conservation effort.</p>
+  </div>
+
+  <h2>Timeline: Where De-Extinction Science Is Headed</h2>
+
+  <div class="timeline">
+    <div class="timeline-item">
+      <div class="timeline-year">2022</div>
+      <div class="timeline-content">
+        <h4>First Complete Thylacine Genome</h4>
+        <p>TIGRR Lab publishes the first complete thylacine reference genome, enabling systematic comparison with living marsupials.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2023</div>
+      <div class="timeline-content">
+        <h4>Colossal Mammoth Stem Cells</h4>
+        <p>Colossal reports successful creation of elephant induced pluripotent stem cells (iPSCs) — a critical platform for mammoth gene editing and reproductive work.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2024</div>
+      <div class="timeline-content">
+        <h4>Dunnart Stem Cells &amp; Thylacine Editing</h4>
+        <p>Colossal/TIGRR create the world's first dunnart iPSCs and demonstrate targeted gene editing in marsupial cells — milestones on the path to thylacine de-extinction.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2026</div>
+      <div class="timeline-content">
+        <h4>Mammoth Cold-Tolerance Validation</h4>
+        <p>Colossal is targeting validation of functional cold-tolerance gene edits in elephant cells, moving toward the first elephant embryos carrying mammoth traits.</p>
+      </div>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-year">2028–2030</div>
+      <div class="timeline-content">
+        <h4>First De-Extinct Animal Births?</h4>
+        <p>Colossal's stated goal is mammoth proxy births by the late 2020s. Thylacine and dodo timelines extend into the 2030s given the complexity of marsupial and avian reproductive biology.</p>
+      </div>
+    </div>
+  </div>
+
+  <h2>The Bottom Line</h2>
+
+  <p>De-extinction technology is no longer speculative. The scientific tools — ancient DNA sequencing, CRISPR editing, stem cell biology, and reproductive technologies — are real and advancing rapidly. The companies pursuing this work are staffed by serious scientists and backed by serious capital. The ecological justifications for specific projects, particularly the mammoth, are grounded in legitimate science.</p>
+
+  <p>What remains genuinely uncertain is the timeline, the welfare details of how these animals will be raised, and whether the broader conservation commitments that should accompany this work will actually materialize. The science is ahead of the policy, as it almost always is.</p>
+
+  <p>What I can say from where I sit: the mammoth project is the most ambitious and most scientifically credible of the current de-extinction efforts. The path from where we are today to a living mammoth proxy in the Siberian steppe is long, but it's a path with a visible route. The field is moving. Watch it closely.</p>
+
+</article>
+
+<!-- Related Topics -->
+<section class="related-topics">
+  <div class="related-label">Explore More</div>
+  <div class="related-grid">
+    <a href="/topics/artificial-womb" class="related-card">
+      <span class="related-card-icon">🍼</span>
+      <h3>Artificial Womb Technology</h3>
+      <p>How ectogenesis could transform birth, neonatal medicine, and reproductive biology.</p>
+    </a>
+    <a href="/topics/ai-agents" class="related-card">
+      <span class="related-card-icon">🤖</span>
+      <h3>AI Agents Explained</h3>
+      <p>What AI agents are, how they differ from chatbots, and why they matter.</p>
+    </a>
+    <a href="/topics" class="related-card">
+      <span class="related-card-icon">📚</span>
+      <h3>All Topic Guides</h3>
+      <p>Browse all evergreen explainers on biotech, AI, and the future.</p>
+    </a>
+  </div>
+</section>
+
+<!-- Subscribe CTA -->
+<section class="subscribe-cta" id="subscribe">
+  <div class="subscribe-box">
+    <h2>Get the inside view on de-extinction</h2>
+    <p>David writes weekly about the breakthroughs happening at the frontier of biotech and AI. Read by 1,000+ scientists, engineers, and investors. Free forever.</p>
+    <div class="subscribe-form">
+      <input type="email" class="subscribe-input" placeholder="you@email.com" id="email-input" autocomplete="email">
+      <button class="subscribe-btn" id="subscribe-btn">Subscribe →</button>
+    </div>
+    <div class="subscribe-note">Delivered via Substack · Unsubscribe anytime</div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="/img/neuron-logo.jpg" alt="Neural NeXus">
+      <span>Neural NeXus</span>
+    </div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/topics">Topics</a>
+      <a href="https://davidkingsley.substack.com" target="_blank">Substack</a>
+      <a href="https://davidkingsley.substack.com/archive" target="_blank">Archive</a>
+      <a href="/play">Spelling Bee</a>
+    </div>
+    <p class="copy">© 2026 Neural NeXus · David Kingsley, PhD</p>
+  </div>
+</footer>
+
+<script>
+document.getElementById('subscribe-btn').addEventListener('click', () => {
+  const email = document.getElementById('email-input').value.trim();
+  window.open(email
+    ? 'https://davidkingsley.substack.com/subscribe?simple=true&next=https://davidkingsley.substack.com/?email=' + encodeURIComponent(email)
+    : 'https://davidkingsley.substack.com/subscribe?simple=true&next=https://davidkingsley.substack.com/', '_blank');
+});
+document.getElementById('email-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('subscribe-btn').click();
+});
+</script>
+</body>
+</html>
