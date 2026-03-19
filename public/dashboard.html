@@ -3,171 +3,842 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project Dashboard | Neural NeXus</title>
+<title>Neural NeXus — Project Management</title>
+<style>
+:root {
+  --bg: #06060b;
+  --surface: rgba(255,255,255,0.03);
+  --surface-2: rgba(255,255,255,0.06);
+  --surface-3: rgba(255,255,255,0.09);
+  --border: rgba(255,255,255,0.06);
+  --border-2: rgba(255,255,255,0.12);
+  --text: #f0f0f5;
+  --text-dim: rgba(255,255,255,0.35);
+  --text-mid: rgba(255,255,255,0.6);
+  --accent: #60a5fa;
+  --accent-2: #a78bfa;
+  --gold: #f0c040;
+  --green: #34d399;
+  --red: #f87171;
+  --yellow: #fbbf24;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'system-ui', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Ambient */
+.ambient { position:fixed; inset:0; pointer-events:none; z-index:0; }
+.ambient::before {
+  content:''; position:absolute; top:-20%; left:5%;
+  width:500px; height:500px;
+  background:radial-gradient(circle,rgba(96,165,250,0.06) 0%,transparent 70%);
+  animation:float1 15s ease-in-out infinite alternate;
+}
+.ambient::after {
+  content:''; position:absolute; bottom:-10%; right:5%;
+  width:400px; height:400px;
+  background:radial-gradient(circle,rgba(167,139,250,0.04) 0%,transparent 70%);
+  animation:float2 18s ease-in-out infinite alternate;
+}
+@keyframes float1{0%{transform:translate(0,0)}100%{transform:translate(30px,-20px)}}
+@keyframes float2{0%{transform:translate(0,0)}100%{transform:translate(-20px,30px)}}
+
+/* Layout */
+.layout { display:grid; grid-template-columns:220px 1fr; min-height:100vh; position:relative; z-index:1; }
+
+/* Sidebar */
+.sidebar {
+  background:rgba(6,6,11,0.95);
+  border-right:1px solid var(--border);
+  padding:24px 0;
+  position:fixed; top:0; left:0; bottom:0; width:220px;
+  display:flex; flex-direction:column; gap:4px;
+  z-index:20;
+  backdrop-filter:blur(20px);
+}
+.sidebar-brand {
+  display:flex; align-items:center; gap:10px;
+  padding:0 16px 20px;
+  border-bottom:1px solid var(--border);
+  margin-bottom:8px;
+}
+.sidebar-brand .logo { font-size:1.4rem; }
+.sidebar-brand .brand-text { font-size:0.78rem; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; }
+.sidebar-brand .brand-text span { color:var(--accent); }
+.nav-item {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 16px; margin:0 8px; border-radius:8px;
+  font-size:0.82rem; font-weight:600; cursor:pointer; transition:all 0.15s;
+  color:var(--text-mid);
+}
+.nav-item:hover { background:var(--surface-2); color:var(--text); }
+.nav-item.active { background:var(--surface-3); color:var(--text); }
+.nav-item .icon { width:16px; text-align:center; font-size:0.9rem; }
+.sidebar-section { font-size:0.6rem; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); padding:12px 24px 4px; }
+
+/* Main */
+.main { margin-left:220px; padding:28px; max-width:1200px; }
+.page { display:none; }
+.page.active { display:block; }
+
+/* Header */
+.page-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:28px; }
+.page-header h1 { font-size:1.4rem; font-weight:800; margin-bottom:4px; }
+.page-header p { color:var(--text-dim); font-size:0.82rem; }
+
+/* Summary Cards */
+.summary-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px; }
+.summary-card {
+  padding:20px; border-radius:14px;
+  background:var(--surface); border:1px solid var(--border);
+  backdrop-filter:blur(20px);
+}
+.summary-card .s-label { font-size:0.65rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:var(--text-dim); margin-bottom:8px; }
+.summary-card .s-value { font-size:1.8rem; font-weight:800; line-height:1; margin-bottom:4px; }
+.summary-card .s-sub { font-size:0.72rem; color:var(--text-dim); }
+
+/* Toolbar */
+.toolbar { display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; align-items:center; }
+.search-box {
+  flex:1; min-width:200px; max-width:340px;
+  padding:9px 14px; border-radius:10px;
+  border:1px solid var(--border-2); background:var(--surface);
+  color:var(--text); font-size:0.84rem; outline:none; transition:border-color 0.2s;
+}
+.search-box:focus { border-color:var(--accent); }
+.search-box::placeholder { color:var(--text-dim); }
+.filter-btn {
+  padding:8px 14px; border-radius:8px; border:1px solid var(--border-2);
+  background:var(--surface); color:var(--text-mid); font-size:0.78rem; font-weight:600;
+  cursor:pointer; transition:all 0.15s;
+}
+.filter-btn:hover, .filter-btn.active { background:var(--surface-3); color:var(--text); border-color:rgba(255,255,255,0.15); }
+.filter-btn.f-live.active { background:rgba(52,211,153,0.1); color:var(--green); border-color:rgba(52,211,153,0.3); }
+.filter-btn.f-progress.active { background:rgba(251,191,36,0.1); color:var(--yellow); border-color:rgba(251,191,36,0.3); }
+.sort-select {
+  padding:8px 12px; border-radius:8px; border:1px solid var(--border-2);
+  background:var(--surface); color:var(--text-mid); font-size:0.78rem; outline:none; cursor:pointer;
+}
+.btn-primary {
+  padding:9px 18px; border-radius:8px; border:none;
+  background:linear-gradient(135deg,var(--accent),#4f8fef); color:#fff;
+  font-size:0.82rem; font-weight:700; cursor:pointer; transition:all 0.2s;
+}
+.btn-primary:hover { transform:translateY(-1px); box-shadow:0 4px 16px rgba(96,165,250,0.3); }
+
+/* Project Cards */
+.project-list { display:flex; flex-direction:column; gap:10px; }
+.project-card {
+  border-radius:14px; border:1px solid var(--border);
+  background:var(--surface); backdrop-filter:blur(20px);
+  overflow:hidden; transition:all 0.2s;
+}
+.project-card:hover { border-color:var(--border-2); }
+.project-card-header {
+  display:flex; align-items:center; gap:14px; padding:16px 20px;
+  cursor:pointer; user-select:none;
+}
+.project-card-header:hover .expand-icon { color:var(--text); }
+.project-id { font-family:monospace; font-size:0.68rem; color:var(--text-dim); min-width:28px; }
+.project-title { flex:1; font-size:0.95rem; font-weight:700; }
+.project-status { display:flex; align-items:center; gap:6px; }
+.status-dot { width:7px; height:7px; border-radius:50%; }
+.dot-live { background:var(--green); box-shadow:0 0 6px var(--green); }
+.dot-progress { background:var(--yellow); }
+.dot-planned { background:var(--accent-2); }
+.dot-unknown { background:var(--text-dim); }
+.status-text { font-size:0.72rem; font-weight:600; }
+.text-live { color:var(--green); }
+.text-progress { color:var(--yellow); }
+.text-planned { color:var(--accent-2); }
+.phase-mini {
+  font-size:0.68rem; color:var(--text-dim); font-weight:600;
+  padding:3px 10px; border-radius:6px; background:var(--surface-2);
+}
+.blocker-badge {
+  font-size:0.65rem; font-weight:700; padding:3px 8px; border-radius:6px;
+  background:rgba(248,113,113,0.1); color:var(--red); border:1px solid rgba(248,113,113,0.2);
+}
+.expand-icon { color:var(--text-dim); font-size:0.75rem; transition:transform 0.2s; }
+.expand-icon.open { transform:rotate(180deg); }
+
+/* Expanded Detail */
+.project-detail { border-top:1px solid var(--border); padding:20px; display:none; }
+.project-detail.open { display:block; }
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+.detail-section { }
+.detail-label { font-size:0.62rem; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); margin-bottom:8px; }
+.detail-text { font-size:0.84rem; color:var(--text-mid); line-height:1.6; }
+.phase-bar { display:flex; gap:3px; margin-bottom:16px; }
+.phase-step {
+  flex:1; height:6px; border-radius:3px; background:var(--surface-3);
+  position:relative; cursor:pointer;
+}
+.phase-step.done { background:var(--green); opacity:0.7; }
+.phase-step.active { background:var(--accent); box-shadow:0 0 8px rgba(96,165,250,0.4); }
+.phase-step::after {
+  content:attr(data-label);
+  position:absolute; top:10px; left:50%; transform:translateX(-50%);
+  font-size:0.58rem; white-space:nowrap; color:var(--text-dim); font-weight:600;
+}
+.phase-bar-wrap { padding-bottom:24px; }
+.checklist-item {
+  display:flex; align-items:flex-start; gap:10px; padding:7px 12px;
+  background:var(--surface); border-radius:7px; margin-bottom:5px;
+  font-size:0.83rem;
+}
+.checklist-item input[type=checkbox] { margin-top:2px; cursor:pointer; accent-color:var(--green); }
+.checklist-item.done { opacity:0.45; }
+.checklist-item.done span { text-decoration:line-through; }
+.decision-row { display:flex; gap:12px; padding:7px 12px; background:var(--surface); border-radius:7px; margin-bottom:5px; font-size:0.82rem; }
+.decision-date { color:var(--text-dim); min-width:80px; font-size:0.75rem; }
+.edit-row { display:flex; gap:8px; margin-top:12px; }
+select.field-select {
+  padding:7px 10px; border-radius:8px; border:1px solid var(--border-2);
+  background:var(--surface-2); color:var(--text); font-size:0.78rem; outline:none; cursor:pointer;
+}
+.btn-save {
+  padding:7px 14px; border-radius:8px; border:none;
+  background:linear-gradient(135deg,var(--green),#16a34a); color:#fff;
+  font-size:0.78rem; font-weight:700; cursor:pointer;
+}
+.btn-save:hover { opacity:0.9; }
+
+/* Health Monitor */
+.health-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:12px; }
+.health-card {
+  padding:16px 18px; border-radius:12px;
+  background:var(--surface); border:1px solid var(--border);
+}
+.health-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+.health-title { font-size:0.88rem; font-weight:700; }
+.health-status { font-size:0.72rem; font-weight:700; padding:3px 10px; border-radius:6px; }
+.health-up { background:rgba(52,211,153,0.1); color:var(--green); border:1px solid rgba(52,211,153,0.25); }
+.health-down { background:rgba(248,113,113,0.1); color:var(--red); border:1px solid rgba(248,113,113,0.25); }
+.health-checking { background:rgba(251,191,36,0.1); color:var(--yellow); border:1px solid rgba(251,191,36,0.25); }
+.health-url { font-size:0.72rem; color:var(--text-dim); margin-top:4px; word-break:break-all; }
+.health-code { font-size:0.7rem; color:var(--text-dim); margin-top:2px; }
+.health-btn {
+  padding:7px 14px; border-radius:8px; border:1px solid var(--border-2);
+  background:var(--surface); color:var(--text-mid); font-size:0.78rem; font-weight:600;
+  cursor:pointer; margin-bottom:16px;
+}
+.health-btn:hover { background:var(--surface-2); }
+
+/* Timeline / Gantt */
+.gantt-wrap { overflow-x:auto; }
+.gantt-table { width:100%; border-collapse:collapse; }
+.gantt-row td { padding:10px 12px; border-bottom:1px solid var(--border); font-size:0.82rem; }
+.gantt-row td:first-child { font-weight:700; min-width:160px; }
+.gantt-phases { display:flex; gap:3px; }
+.gantt-phase {
+  flex:1; height:22px; border-radius:4px; background:var(--surface-3);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.55rem; font-weight:700; text-transform:uppercase; letter-spacing:0.3px;
+  transition:all 0.2s;
+}
+.gantt-phase.done { background:rgba(52,211,153,0.2); color:var(--green); }
+.gantt-phase.active { background:rgba(96,165,250,0.25); color:var(--accent); box-shadow:0 0 8px rgba(96,165,250,0.2); }
+.gantt-phase.future { background:var(--surface-2); color:var(--text-dim); }
+
+/* Activity Feed */
+.activity-list { display:flex; flex-direction:column; gap:6px; }
+.activity-item {
+  display:flex; align-items:flex-start; gap:12px;
+  padding:10px 14px; border-radius:10px; background:var(--surface);
+  border:1px solid var(--border); font-size:0.82rem;
+}
+.activity-icon { font-size:1rem; min-width:20px; }
+.activity-body { flex:1; }
+.activity-meta { font-size:0.68rem; color:var(--text-dim); margin-top:3px; }
+
+/* New Charter Modal */
+.modal-overlay {
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7);
+  z-index:100; align-items:center; justify-content:center;
+}
+.modal-overlay.open { display:flex; }
+.modal {
+  background:#0d0d18; border:1px solid var(--border-2); border-radius:16px;
+  padding:28px; width:100%; max-width:480px;
+}
+.modal h2 { margin-bottom:20px; font-size:1.1rem; }
+.modal-field { margin-bottom:14px; }
+.modal-field label { display:block; font-size:0.72rem; color:var(--text-dim); font-weight:700; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px; }
+.modal-field input, .modal-field textarea {
+  width:100%; padding:10px 14px; border-radius:8px;
+  border:1px solid var(--border-2); background:var(--surface);
+  color:var(--text); font-size:0.88rem; outline:none;
+}
+.modal-field textarea { min-height:80px; resize:vertical; }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+.btn-cancel {
+  padding:9px 18px; border-radius:8px; border:1px solid var(--border-2);
+  background:transparent; color:var(--text-mid); font-size:0.82rem; cursor:pointer;
+}
+.empty-state { padding:40px; text-align:center; color:var(--text-dim); font-size:0.9rem; }
+.toast {
+  position:fixed; bottom:24px; right:24px; z-index:200;
+  padding:12px 20px; border-radius:10px; border:1px solid rgba(52,211,153,0.3);
+  background:rgba(52,211,153,0.1); color:var(--green);
+  font-size:0.85rem; font-weight:600;
+  opacity:0; transform:translateY(8px); transition:all 0.25s;
+}
+.toast.show { opacity:1; transform:translateY(0); }
+</style>
 <meta name="google-site-verification" content="kW4a01m15KuJy1nc9RStj2h4bXvGCTIBrMhCHTxUiSs" />
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-B0X6HBHKH3"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-B0X6HBHKH3');</script>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
-<style>
-:root{--bg:#06060b;--surface:rgba(255,255,255,0.03);--surface-2:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.08);--border-2:rgba(255,255,255,0.14);--text:#f0f0f5;--text-dim:rgba(255,255,255,0.4);--text-mid:rgba(255,255,255,0.65);--gold:#f0c040;--green:#34d399;--red:#f87171;--yellow:#fbbf24;--blue:#60a5fa;--purple:#a78bfa}
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,-apple-system,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
-
-.ambient{position:fixed;inset:0;pointer-events:none;z-index:0}
-.ambient::before{content:'';position:absolute;top:-15%;left:10%;width:500px;height:500px;background:radial-gradient(circle,rgba(96,165,250,0.05) 0%,transparent 70%);animation:f1 15s ease-in-out infinite alternate}
-.ambient::after{content:'';position:absolute;bottom:-10%;right:5%;width:400px;height:400px;background:radial-gradient(circle,rgba(167,139,250,0.04) 0%,transparent 70%);animation:f2 18s ease-in-out infinite alternate}
-@keyframes f1{0%{transform:translate(0,0)}100%{transform:translate(30px,-20px)}}
-@keyframes f2{0%{transform:translate(0,0)}100%{transform:translate(-20px,30px)}}
-
-nav{position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);background:rgba(6,6,11,0.85);border-bottom:1px solid var(--border);padding:1rem 2rem;display:flex;align-items:center;gap:2rem;flex-wrap:wrap}
-nav a{color:var(--text-mid);text-decoration:none;font-size:0.9rem;transition:color 0.2s}
-nav a:hover{color:var(--text)}
-nav .brand{font-family:'Instrument Serif',Georgia,serif;font-size:1.3rem;color:var(--gold);text-decoration:none}
-
-.container{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:2rem}
-h1{font-family:'Instrument Serif',Georgia,serif;font-size:2.2rem;margin-bottom:0.3rem}
-.subtitle{color:var(--text-dim);margin-bottom:2rem;font-size:0.95rem}
-
-/* Stats row */
-.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:1rem;margin-bottom:2.5rem}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.2rem;text-align:center}
-.stat-card .number{font-size:2rem;font-weight:700;line-height:1}
-.stat-card .label{color:var(--text-dim);font-size:0.75rem;margin-top:0.3rem;text-transform:uppercase;letter-spacing:0.05em}
-
-/* Program sections */
-.program{margin-bottom:2.5rem}
-.program-header{display:flex;align-items:center;gap:1rem;margin-bottom:1rem;cursor:pointer;user-select:none}
-.program-header h2{font-family:'Instrument Serif',Georgia,serif;font-size:1.5rem;flex:1}
-.program-count{background:var(--surface-2);border:1px solid var(--border);border-radius:20px;padding:0.2rem 0.8rem;font-size:0.8rem;color:var(--text-mid)}
-.program-toggle{color:var(--text-dim);font-size:1.2rem;transition:transform 0.2s}
-.program.collapsed .program-toggle{transform:rotate(-90deg)}
-.program.collapsed .charter-grid{display:none}
-.program-empty{color:var(--text-dim);font-size:0.9rem;font-style:italic;padding:0.5rem 0}
-
-/* Charter cards */
-.charter-grid{display:grid;gap:0.8rem}
-.charter-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:1.3rem 1.5rem;transition:border-color 0.2s,transform 0.15s}
-.charter-card:hover{border-color:var(--border-2);transform:translateY(-1px)}
-.charter-header{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:0.5rem}
-.charter-left{flex:1}
-.charter-id{color:var(--text-dim);font-size:0.75rem;font-family:'DM Sans',monospace;letter-spacing:0.05em}
-.charter-title{font-size:1.05rem;font-weight:600;margin-top:0.15rem}
-.badge{display:inline-block;padding:0.2rem 0.7rem;border-radius:20px;font-size:0.72rem;font-weight:600;white-space:nowrap}
-.badge-live{background:rgba(52,211,153,0.12);color:var(--green);border:1px solid rgba(52,211,153,0.2)}
-.badge-progress{background:rgba(251,191,36,0.12);color:var(--yellow);border:1px solid rgba(251,191,36,0.2)}
-.badge-unknown{background:rgba(255,255,255,0.04);color:var(--text-dim);border:1px solid var(--border)}
-.charter-objective{color:var(--text-mid);font-size:0.85rem;line-height:1.5;margin-bottom:0.6rem}
-.charter-meta{color:var(--text-dim);font-size:0.8rem}
-.charter-footer{display:flex;justify-content:space-between;align-items:center;margin-top:0.6rem}
-.task-bar{display:flex;align-items:center;gap:0.6rem;font-size:0.78rem}
-.task-bar .done{color:var(--green)}
-.task-bar .pending{color:var(--yellow)}
-.progress-track{width:80px;height:4px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden}
-.progress-fill{height:100%;background:var(--green);border-radius:2px;transition:width 0.3s}
-.live-link{color:var(--blue);font-size:0.8rem;text-decoration:none}
-.live-link:hover{text-decoration:underline}
-
-.generated{text-align:center;color:var(--text-dim);font-size:0.78rem;margin-top:3rem;padding-bottom:2rem}
-
-@media(max-width:600px){
-  nav{padding:0.8rem 1rem;gap:0.8rem}
-  .container{padding:1rem}
-  h1{font-size:1.6rem}
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .program-header h2{font-size:1.2rem}
-}
-</style>
 </head>
 <body>
+
 <div class="ambient"></div>
-<nav>
-  <a href="/" class="brand">Neural NeXus</a>
-  <a href="/play">Spelling Bee</a>
-  <a href="/wordle">Wordie</a>
-  <a href="/crossword">Crossword</a>
-  <a href="/archive">Archive</a>
-  <a href="/dashboard" style="color:var(--gold)">Dashboard</a>
+
+<div class="layout">
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-brand">
+    <span class="logo">📊</span>
+    <div class="brand-text">Neural<span>NeXus</span><br>PM</div>
+  </div>
+  <div class="sidebar-section">Views</div>
+  <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">🏠</span> Dashboard</div>
+  <div class="nav-item" onclick="showPage('projects')"><span class="icon">📁</span> Projects</div>
+  <div class="nav-item" onclick="showPage('timeline')"><span class="icon">📅</span> Timeline</div>
+  <div class="nav-section-label"></div>
+  <div class="sidebar-section">Monitor</div>
+  <div class="nav-item" onclick="showPage('health')"><span class="icon">💚</span> Health Check</div>
+  <div class="nav-item" onclick="showPage('activity')"><span class="icon">⚡</span> Activity</div>
 </nav>
-<div class="container">
-  <h1>Project Dashboard</h1>
-  <p class="subtitle">Programs and charters — organized by initiative</p>
-  <div class="stats" id="stats"></div>
-  <div id="programs"></div>
-  <p class="generated" id="generated"></p>
+
+<!-- Main Content -->
+<main class="main">
+
+  <!-- Dashboard Page -->
+  <div id="page-dashboard" class="page active">
+    <div class="page-header">
+      <div>
+        <h1>Dashboard</h1>
+        <p>Overview of all Neural NeXus projects</p>
+      </div>
+      <button class="btn-primary" onclick="openNewCharter()">+ New Charter</button>
+    </div>
+    <div class="summary-grid" id="summary-grid">
+      <div class="summary-card">
+        <div class="s-label">Total Projects</div>
+        <div class="s-value" id="stat-total">—</div>
+        <div class="s-sub">all charters</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Live</div>
+        <div class="s-value" style="color:var(--green)" id="stat-live">—</div>
+        <div class="s-sub">deployed & running</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">In Progress</div>
+        <div class="s-value" style="color:var(--yellow)" id="stat-progress">—</div>
+        <div class="s-sub">active builds</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Open Blockers</div>
+        <div class="s-value" style="color:var(--red)" id="stat-blockers">—</div>
+        <div class="s-sub">across all projects</div>
+      </div>
+    </div>
+
+    <!-- Blockers Panel -->
+    <div id="blockers-panel" style="margin-bottom:20px; display:none;">
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--red);margin-bottom:10px;">⚠ Open Blockers</div>
+      <div id="blockers-list"></div>
+    </div>
+
+    <!-- Recent Projects -->
+    <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:12px;">Projects</div>
+    <div class="project-list" id="dashboard-project-list"></div>
+  </div>
+
+  <!-- Projects Page -->
+  <div id="page-projects" class="page">
+    <div class="page-header">
+      <div>
+        <h1>Projects</h1>
+        <p>Filter, sort and manage all charters</p>
+      </div>
+      <button class="btn-primary" onclick="openNewCharter()">+ New Charter</button>
+    </div>
+    <div class="toolbar">
+      <input type="text" class="search-box" id="search-input" placeholder="Search charters…" oninput="renderProjects()">
+      <button class="filter-btn f-all active" onclick="setFilter('all',this)">All</button>
+      <button class="filter-btn f-live" onclick="setFilter('live',this)">🟢 Live</button>
+      <button class="filter-btn f-progress" onclick="setFilter('progress',this)">🟡 In Progress</button>
+      <button class="filter-btn" onclick="setFilter('planned',this)">🔵 Planned</button>
+      <select class="sort-select" id="sort-select" onchange="renderProjects()">
+        <option value="id">Sort: ID</option>
+        <option value="date">Sort: Date</option>
+        <option value="status">Sort: Status</option>
+        <option value="blockers">Sort: Blockers</option>
+      </select>
+    </div>
+    <div class="project-list" id="projects-list"></div>
+  </div>
+
+  <!-- Timeline Page -->
+  <div id="page-timeline" class="page">
+    <div class="page-header">
+      <div><h1>Timeline</h1><p>Gantt view of all project phases</p></div>
+    </div>
+    <div class="gantt-wrap">
+      <table class="gantt-table" id="gantt-table">
+        <thead>
+          <tr style="border-bottom:1px solid var(--border)">
+            <td style="padding:8px 12px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);min-width:160px;">Project</td>
+            <td style="padding:8px 12px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);">
+              <div style="display:flex;gap:3px;font-size:0.6rem;">
+                <div style="flex:1;text-align:center">Req</div>
+                <div style="flex:1;text-align:center">Design</div>
+                <div style="flex:1;text-align:center">Build</div>
+                <div style="flex:1;text-align:center">Test</div>
+                <div style="flex:1;text-align:center">Deploy</div>
+                <div style="flex:1;text-align:center">Maint</div>
+              </div>
+            </td>
+            <td style="padding:8px 12px;font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);">Since</td>
+          </tr>
+        </thead>
+        <tbody id="gantt-body"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Health Page -->
+  <div id="page-health" class="page">
+    <div class="page-header">
+      <div><h1>Health Check</h1><p>Live status of deployed projects</p></div>
+    </div>
+    <button class="health-btn" onclick="runHealthCheck()">▶ Run Health Check</button>
+    <div class="health-grid" id="health-grid">
+      <div class="empty-state">Click "Run Health Check" to ping all live project URLs.</div>
+    </div>
+  </div>
+
+  <!-- Activity Page -->
+  <div id="page-activity" class="page">
+    <div class="page-header">
+      <div><h1>Activity</h1><p>Recent changes across all projects</p></div>
+    </div>
+    <div class="activity-list" id="activity-list">
+      <div class="empty-state">No activity recorded yet.</div>
+    </div>
+  </div>
+
+</main>
 </div>
+
+<!-- New Charter Modal -->
+<div class="modal-overlay" id="new-charter-modal">
+  <div class="modal">
+    <h2>📝 New Charter</h2>
+    <div class="modal-field">
+      <label>Project Name</label>
+      <input type="text" id="nc-name" placeholder="e.g. API Dashboard">
+    </div>
+    <div class="modal-field">
+      <label>Objective</label>
+      <textarea id="nc-objective" placeholder="What does this project accomplish?"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeNewCharter()">Cancel</button>
+      <button class="btn-primary" onclick="createCharter()">Create Charter</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-fetch('/data/charters.json')
-  .then(r => r.json())
-  .then(data => {
-    const programs = data.programs;
-    const allCharters = programs.flatMap(p => p.charters);
-    const live = allCharters.filter(c => c.status.includes('Live')).length;
-    const progress = allCharters.filter(c => c.status.includes('Progress') || c.status.includes('Data Collection')).length;
-    const total = allCharters.length;
-    const programCount = programs.filter(p => p.charters.length > 0).length;
-    const tasks = allCharters.reduce((acc, c) => {
-      const done = c.outstanding.filter(t => t.done).length;
-      const pending = c.outstanding.filter(t => !t.done).length;
-      return { done: acc.done + done, pending: acc.pending + pending };
-    }, { done: 0, pending: 0 });
+const PHASES = ['Requirements','Design','Implementation','Testing','Deployment','Maintenance'];
+const PHASE_ICONS = ['📝','🎨','⚙️','🧪','🚀','🔧'];
+let allCharters = [];
+let activeFilter = 'all';
 
-    document.getElementById('stats').innerHTML = `
-      <div class="stat-card"><div class="number" style="color:var(--purple)">${programCount}</div><div class="label">Programs</div></div>
-      <div class="stat-card"><div class="number" style="color:var(--gold)">${total}</div><div class="label">Charters</div></div>
-      <div class="stat-card"><div class="number" style="color:var(--green)">${live}</div><div class="label">Live</div></div>
-      <div class="stat-card"><div class="number" style="color:var(--yellow)">${progress}</div><div class="label">In Progress</div></div>
-      <div class="stat-card"><div class="number" style="color:var(--blue)">${tasks.done}</div><div class="label">Tasks Done</div></div>
-      <div class="stat-card"><div class="number" style="color:var(--red)">${tasks.pending}</div><div class="label">Pending</div></div>
-    `;
+// ── Data Loading ──────────────────────────────────────────────────────────────
+async function loadCharters() {
+  try {
+    const res = await fetch('/api/charters');
+    const data = await res.json();
+    allCharters = data.charters || [];
+    updateDashboard();
+    renderProjects();
+    renderGantt();
+  } catch(e) {
+    showToast('Error loading charters: ' + e.message, true);
+  }
+}
 
-    document.getElementById('programs').innerHTML = programs.map(prog => {
-      const isEmpty = prog.charters.length === 0;
-      return `
-        <div class="program${isEmpty ? ' collapsed' : ''}" data-program="${prog.slug}">
-          <div class="program-header" onclick="this.parentElement.classList.toggle('collapsed')">
-            <h2>${prog.name}</h2>
-            <span class="program-count">${prog.charters.length} charter${prog.charters.length !== 1 ? 's' : ''}</span>
-            <span class="program-toggle">▼</span>
-          </div>
-          ${isEmpty ? '<p class="program-empty">No charters yet</p>' : `
-          <div class="charter-grid">
-            ${prog.charters.map(c => {
-              const badgeClass = c.status.includes('Live') ? 'badge-live' : c.status.includes('Progress') || c.status.includes('Data') ? 'badge-progress' : 'badge-unknown';
-              const done = c.outstanding.filter(t => t.done).length;
-              const pending = c.outstanding.filter(t => !t.done).length;
-              const totalTasks = done + pending;
-              const pct = totalTasks > 0 ? Math.round((done / totalTasks) * 100) : 0;
-              return `
-                <div class="charter-card">
-                  <div class="charter-header">
-                    <div class="charter-left">
-                      <div class="charter-id">CHARTER ${c.id}</div>
-                      <div class="charter-title">${c.title}</div>
-                    </div>
-                    <span class="badge ${badgeClass}">${c.statusClean || c.status}</span>
-                  </div>
-                  ${c.objective ? `<div class="charter-objective">${c.objective}</div>` : ''}
-                  <div class="charter-meta">Owner: ${c.owner}${c.dateInitiated ? ' · Started ' + c.dateInitiated : ''}</div>
-                  <div class="charter-footer">
-                    ${totalTasks > 0 ? `
-                      <div class="task-bar">
-                        <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
-                        <span class="done">✓ ${done}</span>
-                        <span class="pending">○ ${pending}</span>
-                      </div>` : '<div></div>'}
-                    ${c.liveUrl ? `<a href="${c.liveUrl}" class="live-link" target="_blank">Visit →</a>` : ''}
-                  </div>
-                </div>`;
-            }).join('')}
-          </div>`}
-        </div>`;
-    }).join('');
+// ── Navigation ────────────────────────────────────────────────────────────────
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id)?.classList.add('active');
+  event.currentTarget?.classList.add('active');
+  if (id === 'activity') loadActivity();
+}
 
-    document.getElementById('generated').textContent = 'Last updated: ' + new Date(data.generated).toLocaleString();
-  })
-  .catch(err => {
-    document.getElementById('programs').innerHTML = '<p style="color:var(--red);padding:2rem">Failed to load data: ' + err.message + '</p>';
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+function updateDashboard() {
+  const total = allCharters.length;
+  const live = allCharters.filter(c => /live/i.test(c.statusClean)).length;
+  const progress = allCharters.filter(c => /progress|in progress/i.test(c.statusClean)).length;
+  const blockers = allCharters.reduce((acc, c) => acc + (c.blockers?.length || 0), 0);
+
+  document.getElementById('stat-total').textContent = total;
+  document.getElementById('stat-live').textContent = live;
+  document.getElementById('stat-progress').textContent = progress;
+  document.getElementById('stat-blockers').textContent = blockers;
+
+  // Blockers panel
+  const allBlockers = allCharters.flatMap(c => (c.blockers || []).map(b => ({ id: c.id, title: c.title, text: b })));
+  const bp = document.getElementById('blockers-panel');
+  const bl = document.getElementById('blockers-list');
+  if (allBlockers.length) {
+    bp.style.display = 'block';
+    bl.innerHTML = allBlockers.map(b => `
+      <div class="checklist-item" style="margin-bottom:5px;">
+        <span style="font-size:0.7rem;color:var(--text-dim);min-width:28px;font-family:monospace">#${b.id}</span>
+        <span style="flex:1">${escHtml(b.text)}</span>
+        <span style="font-size:0.68rem;color:var(--text-dim)">${escHtml(b.title)}</span>
+      </div>
+    `).join('');
+  } else {
+    bp.style.display = 'none';
+  }
+
+  // Dashboard project list (compact)
+  const list = document.getElementById('dashboard-project-list');
+  list.innerHTML = allCharters.map(c => renderProjectCard(c, true)).join('');
+  attachCardHandlers();
+}
+
+// ── Projects Page ─────────────────────────────────────────────────────────────
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderProjects();
+}
+
+function renderProjects() {
+  const q = (document.getElementById('search-input')?.value || '').toLowerCase();
+  const sort = document.getElementById('sort-select')?.value || 'id';
+
+  let filtered = allCharters.filter(c => {
+    if (activeFilter === 'live' && !/live/i.test(c.statusClean)) return false;
+    if (activeFilter === 'progress' && !/progress/i.test(c.statusClean)) return false;
+    if (activeFilter === 'planned' && !/planned/i.test(c.statusClean)) return false;
+    if (q && !(c.title.toLowerCase().includes(q) || c.objective?.toLowerCase().includes(q) || c.id.includes(q))) return false;
+    return true;
   });
+
+  filtered.sort((a, b) => {
+    if (sort === 'date') return new Date(b.dateInitiated) - new Date(a.dateInitiated);
+    if (sort === 'status') return a.statusClean.localeCompare(b.statusClean);
+    if (sort === 'blockers') return (b.blockers?.length || 0) - (a.blockers?.length || 0);
+    return a.id.localeCompare(b.id);
+  });
+
+  const list = document.getElementById('projects-list');
+  if (!filtered.length) {
+    list.innerHTML = '<div class="empty-state">No projects match your filters.</div>';
+    return;
+  }
+  list.innerHTML = filtered.map(c => renderProjectCard(c, false)).join('');
+  attachCardHandlers();
+}
+
+// ── Card Rendering ─────────────────────────────────────────────────────────────
+function statusDotClass(s) {
+  if (/live/i.test(s)) return 'dot-live';
+  if (/progress/i.test(s)) return 'dot-progress';
+  if (/planned/i.test(s)) return 'dot-planned';
+  return 'dot-unknown';
+}
+function statusTextClass(s) {
+  if (/live/i.test(s)) return 'text-live';
+  if (/progress/i.test(s)) return 'text-progress';
+  return '';
+}
+
+function renderProjectCard(c, compact) {
+  const dotCls = statusDotClass(c.statusClean);
+  const txtCls = statusTextClass(c.statusClean);
+  const blockerCount = c.blockers?.length || 0;
+  const phaseLabel = PHASES[c.phaseIndex] || c.phase;
+
+  const phasePips = PHASES.map((p, i) => {
+    let cls = 'future';
+    if (i < c.phaseIndex) cls = 'done';
+    else if (i === c.phaseIndex) cls = 'active';
+    return `<div class="gantt-phase ${cls}" title="${p}">${p.substring(0,3)}</div>`;
+  }).join('');
+
+  const outstanding = (c.outstanding || []);
+  const checklistHtml = outstanding.length ? outstanding.map((item, idx) => `
+    <div class="checklist-item${item.done ? ' done' : ''}">
+      <input type="checkbox" ${item.done ? 'checked' : ''} onchange="toggleItem('${c.id}','${escAttr(item.text)}',this.checked)">
+      <span>${escHtml(item.text)}</span>
+    </div>
+  `).join('') : '<div style="color:var(--text-dim);font-size:0.82rem">No outstanding items</div>';
+
+  const decisionsHtml = (c.decisions || []).slice(0,6).map(d => `
+    <div class="decision-row">
+      <span class="decision-date">${d.date}</span>
+      <span>${escHtml(d.text)}</span>
+    </div>
+  `).join('') || '<div style="color:var(--text-dim);font-size:0.82rem">No decisions logged</div>';
+
+  const liveUrlHtml = c.liveUrl ? `<a href="${escAttr(c.liveUrl)}" target="_blank" style="color:var(--accent);font-size:0.78rem;text-decoration:none;">🔗 ${escHtml(c.liveUrl)} →</a>` : '';
+
+  return `
+    <div class="project-card" data-id="${c.id}">
+      <div class="project-card-header" onclick="toggleCard('${c.id}')">
+        <span class="project-id">#${c.id}</span>
+        <span class="project-title">${escHtml(c.title)}</span>
+        ${liveUrlHtml}
+        ${blockerCount ? `<span class="blocker-badge">⚠ ${blockerCount} blocker${blockerCount > 1 ? 's' : ''}</span>` : ''}
+        <div class="project-status">
+          <div class="status-dot ${dotCls}"></div>
+          <span class="status-text ${txtCls}">${escHtml(c.statusClean)}</span>
+        </div>
+        <span class="phase-mini">${escHtml(phaseLabel)}</span>
+        <span class="expand-icon" id="expand-${c.id}">▾</span>
+      </div>
+      <div class="project-detail" id="detail-${c.id}">
+        <div class="phase-bar-wrap">
+          <div style="font-size:0.62rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:8px;">Phase Progress</div>
+          <div class="gantt-phases" style="margin-bottom:20px;">${phasePips}</div>
+        </div>
+        <div class="detail-grid">
+          <div class="detail-section">
+            <div class="detail-label">Objective</div>
+            <div class="detail-text">${escHtml(c.objective || '—')}</div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">Success Criteria</div>
+            <div class="detail-text">${escHtml(c.successCriteria || '—')}</div>
+          </div>
+        </div>
+        <div style="margin-bottom:20px;">
+          <div class="detail-label" style="margin-bottom:8px;">Outstanding Items</div>
+          ${checklistHtml}
+        </div>
+        <div style="margin-bottom:20px;">
+          <div class="detail-label" style="margin-bottom:8px;">Decision Log</div>
+          ${decisionsHtml}
+        </div>
+        <div>
+          <div class="detail-label" style="margin-bottom:8px;">Edit Status</div>
+          <div class="edit-row">
+            <select class="field-select" id="status-select-${c.id}">
+              <option value="🟢 Live" ${/live/i.test(c.statusClean)?'selected':''}>🟢 Live</option>
+              <option value="🟡 In Progress" ${/progress/i.test(c.statusClean)?'selected':''}>🟡 In Progress</option>
+              <option value="🔵 Planned" ${/planned/i.test(c.statusClean)?'selected':''}>🔵 Planned</option>
+              <option value="🔴 Blocked" ${/blocked/i.test(c.statusClean)?'selected':''}>🔴 Blocked</option>
+              <option value="⬜ Archived">⬜ Archived</option>
+            </select>
+            <select class="field-select" id="phase-select-${c.id}">
+              ${PHASES.map((p,i) => `<option value="${p}" ${i===c.phaseIndex?'selected':''}>${PHASE_ICONS[i]} ${p}</option>`).join('')}
+              <option value="✅ Deployed — Live" ${/live|deployed/i.test(c.phase)?'selected':''}>✅ Deployed — Live</option>
+            </select>
+            <button class="btn-save" onclick="saveCharter('${c.id}')">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function attachCardHandlers() {
+  // Cards are rendered with onclick attributes; nothing extra needed
+}
+
+function toggleCard(id) {
+  const detail = document.getElementById('detail-' + id);
+  const icon = document.getElementById('expand-' + id);
+  if (detail) {
+    const isOpen = detail.classList.toggle('open');
+    icon?.classList.toggle('open', isOpen);
+  }
+}
+
+// ── Charter Mutations ─────────────────────────────────────────────────────────
+async function saveCharter(id) {
+  const status = document.getElementById('status-select-' + id)?.value;
+  const phase = document.getElementById('phase-select-' + id)?.value;
+  try {
+    await fetch('/api/charters/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status, phase })
+    });
+    showToast('Charter updated ✓');
+    await loadCharters();
+  } catch(e) {
+    showToast('Save failed: ' + e.message, true);
+  }
+}
+
+async function toggleItem(id, text, done) {
+  try {
+    await fetch('/api/charters/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ checkItem: { text, done } })
+    });
+    showToast(done ? 'Item marked complete ✓' : 'Item reopened');
+    await loadCharters();
+  } catch(e) {
+    showToast('Update failed', true);
+  }
+}
+
+// ── Gantt / Timeline ──────────────────────────────────────────────────────────
+function renderGantt() {
+  const tbody = document.getElementById('gantt-body');
+  tbody.innerHTML = allCharters.map(c => {
+    const phases = PHASES.map((p, i) => {
+      let cls = 'future';
+      if (i < c.phaseIndex) cls = 'done';
+      else if (i === c.phaseIndex) cls = 'active';
+      return `<div class="gantt-phase ${cls}" title="${p}">${p.substring(0,3)}</div>`;
+    }).join('');
+    return `
+      <tr class="gantt-row">
+        <td><strong>#${c.id}</strong><br><span style="color:var(--text-dim);font-size:0.74rem">${escHtml(c.title)}</span></td>
+        <td><div class="gantt-phases">${phases}</div></td>
+        <td style="color:var(--text-dim);font-size:0.75rem">${c.dateInitiated}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ── Health Check ──────────────────────────────────────────────────────────────
+async function runHealthCheck() {
+  const grid = document.getElementById('health-grid');
+  grid.innerHTML = '<div class="empty-state">Checking…</div>';
+  try {
+    const res = await fetch('/api/health');
+    const data = await res.json();
+    if (!data.results?.length) {
+      grid.innerHTML = '<div class="empty-state">No live URLs found in charters.</div>';
+      return;
+    }
+    grid.innerHTML = data.results.map(r => `
+      <div class="health-card">
+        <div class="health-header">
+          <div class="health-title">${escHtml(r.title)}</div>
+          <span class="health-status ${r.up ? 'health-up' : 'health-down'}">${r.up ? '✓ UP' : '✗ DOWN'}</span>
+        </div>
+        <div class="health-url">${escHtml(r.url)}</div>
+        ${r.status ? `<div class="health-code">HTTP ${r.status}</div>` : ''}
+      </div>
+    `).join('');
+  } catch(e) {
+    grid.innerHTML = `<div class="empty-state">Error: ${e.message}</div>`;
+  }
+}
+
+// ── Activity Feed ─────────────────────────────────────────────────────────────
+async function loadActivity() {
+  try {
+    const res = await fetch('/api/activity');
+    const data = await res.json();
+    const list = document.getElementById('activity-list');
+    if (!data.activity?.length) {
+      list.innerHTML = '<div class="empty-state">No activity recorded yet.</div>';
+      return;
+    }
+    const icons = { status: '🔄', phase: '📍', checkbox: '✅', create: '✨' };
+    list.innerHTML = data.activity.map(a => {
+      const icon = icons[a.type] || '📝';
+      const when = new Date(a.ts).toLocaleString();
+      let desc = '';
+      if (a.type === 'status') desc = `Charter #${a.charterID} status → ${a.value}`;
+      else if (a.type === 'phase') desc = `Charter #${a.charterID} phase → ${a.value}`;
+      else if (a.type === 'checkbox') desc = `Charter #${a.charterID}: ${a.done ? 'completed' : 'reopened'} "${a.text}"`;
+      else if (a.type === 'create') desc = `Created charter #${a.charterID}: ${a.name}`;
+      return `
+        <div class="activity-item">
+          <span class="activity-icon">${icon}</span>
+          <div class="activity-body">
+            <div>${escHtml(desc)}</div>
+            <div class="activity-meta">${when}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch(e) {
+    document.getElementById('activity-list').innerHTML = `<div class="empty-state">Error: ${e.message}</div>`;
+  }
+}
+
+// ── New Charter Modal ─────────────────────────────────────────────────────────
+function openNewCharter() {
+  document.getElementById('new-charter-modal').classList.add('open');
+}
+function closeNewCharter() {
+  document.getElementById('new-charter-modal').classList.remove('open');
+}
+async function createCharter() {
+  const name = document.getElementById('nc-name').value.trim();
+  const objective = document.getElementById('nc-objective').value.trim();
+  if (!name) { showToast('Name is required', true); return; }
+  try {
+    const res = await fetch('/api/charters', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, objective })
+    });
+    const data = await res.json();
+    closeNewCharter();
+    showToast(`Charter #${data.id} created ✓`);
+    document.getElementById('nc-name').value = '';
+    document.getElementById('nc-objective').value = '';
+    await loadCharters();
+  } catch(e) {
+    showToast('Error: ' + e.message, true);
+  }
+}
+
+// ── Utils ─────────────────────────────────────────────────────────────────────
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(s) {
+  if (!s) return '';
+  return String(s).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+let toastTimer;
+function showToast(msg, isErr) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isErr ? 'rgba(248,113,113,0.12)' : 'rgba(52,211,153,0.1)';
+  t.style.color = isErr ? 'var(--red)' : 'var(--green)';
+  t.style.borderColor = isErr ? 'rgba(248,113,113,0.3)' : 'rgba(52,211,153,0.3)';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadCharters();
 </script>
 </body>
 </html>

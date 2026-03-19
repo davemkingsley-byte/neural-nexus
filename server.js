@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 
 let spellDB, generatePuzzle, validateWord;
 let dbReady = false;
@@ -64,6 +65,63 @@ app.get('/health', (req, res) => {
     volumeMounted: fs.existsSync('/data'),
     time: new Date().toISOString() 
   });
+});
+
+// ── PM Dashboard API (reads from static data/charters.json) ──────────────────
+const charterDataPath = path.join(__dirname, 'public', 'data', 'charters.json');
+const activityPath = path.join(__dirname, 'data', 'activity.json');
+
+function loadCharterData() {
+  try {
+    return JSON.parse(fs.readFileSync(charterDataPath, 'utf8'));
+  } catch { return { programs: [], generated: null }; }
+}
+
+app.get('/api/charters', dashboardAuth, (req, res) => {
+  const data = loadCharterData();
+  const charters = data.programs ? data.programs.flatMap(p => p.charters) : [];
+  res.json({ charters });
+});
+
+app.get('/api/charters/:id', dashboardAuth, (req, res) => {
+  const data = loadCharterData();
+  const charters = data.programs ? data.programs.flatMap(p => p.charters) : [];
+  const charter = charters.find(c => c.id === req.params.id);
+  if (!charter) return res.status(404).json({ error: 'Not found' });
+  res.json(charter);
+});
+
+app.get('/api/health', dashboardAuth, async (req, res) => {
+  const data = loadCharterData();
+  const charters = data.programs ? data.programs.flatMap(p => p.charters) : [];
+  const targets = charters.filter(c => c.liveUrl).map(c => ({ id: c.id, title: c.title, url: c.liveUrl }));
+  const http = require('http');
+  const https = require('https');
+  const results = await Promise.all(targets.map(t => new Promise(resolve => {
+    const mod = t.url.startsWith('https') ? https : http;
+    const req = mod.get(t.url, { timeout: 5000 }, r => { resolve({ ...t, status: r.statusCode, up: r.statusCode < 500 }); r.resume(); });
+    req.on('error', () => resolve({ ...t, status: 0, up: false }));
+    req.on('timeout', () => { req.destroy(); resolve({ ...t, status: 0, up: false }); });
+  })));
+  res.json({ results });
+});
+
+app.get('/api/activity', dashboardAuth, (req, res) => {
+  try {
+    if (fs.existsSync(activityPath)) {
+      const log = JSON.parse(fs.readFileSync(activityPath, 'utf8'));
+      return res.json({ activity: log.slice(0, 50) });
+    }
+  } catch {}
+  res.json({ activity: [] });
+});
+
+// PUT/POST stubs (read-only in production — changes made via git)
+app.put('/api/charters/:id', dashboardAuth, (req, res) => {
+  res.json({ ok: true, message: 'Changes are made via git push in production' });
+});
+app.post('/api/charters', dashboardAuth, (req, res) => {
+  res.json({ ok: true, message: 'New charters are created via git push in production' });
 });
 
 // Serve game pages
