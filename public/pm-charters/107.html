@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charter 107 — Mini Crossword</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#111;color:#e0e0e0;padding:24px}
+a{color:#3b82f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:0.9rem;margin-bottom:24px;color:#888}
+.back:hover{color:#fff}
+h1{font-size:1.6rem;margin-bottom:6px;color:#fff}
+.subtitle{color:#888;margin-bottom:28px;font-size:0.9rem}
+.card{background:#1a1a2e;border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid #333}
+.card-title{font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #333}
+.charter-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.charter-item{padding:12px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a}
+.charter-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:3px}
+.charter-value{font-size:0.92rem;color:#fff}
+.objective{padding:14px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a;margin-top:12px;line-height:1.6;font-size:0.92rem}
+.obj-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:6px}
+.status-badge{display:inline-block;padding:4px 14px;border-radius:16px;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;background:#10b98122;color:#10b981;border:1px solid #10b98144}
+.phase-tracker{display:flex;gap:4px;margin-bottom:8px}
+.phase{flex:1;padding:12px 6px;border-radius:8px;text-align:center;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.phase.done{background:#10b98122;color:#10b981;border:1px solid #10b98144}
+.phase.active{background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644;box-shadow:0 0 12px #3b82f615}
+.phase.upcoming{background:#ffffff08;color:#555;border:1px solid #ffffff0a}
+.scope-list{list-style:none;padding:0}
+.scope-list li{padding:8px 12px;margin-bottom:6px;background:#ffffff06;border-radius:6px;font-size:0.88rem;display:flex;align-items:center;gap:8px}
+.scope-list li::before{content:"✓";color:#10b981;font-weight:700;font-size:0.8rem}
+.scope-out li::before{content:"✕";color:#ef4444}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.decision-item{display:flex;gap:12px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.decision-date{color:#666;font-size:0.78rem;min-width:85px}
+.decision-text{font-size:0.85rem}
+.risk-item{display:flex;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;align-items:center}
+.risk-badge{font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:600;min-width:45px;text-align:center}
+.risk-med{background:#f59e0b22;color:#f59e0b}
+.risk-low{background:#10b98122;color:#10b981}
+.risk-high{background:#ef444422;color:#ef4444}
+.risk-text{flex:1;font-size:0.85rem}
+.risk-impact{font-size:0.75rem;color:#666}
+.sign-off-box{padding:16px;border-radius:10px;display:flex;align-items:center;gap:12px;font-size:0.95rem}
+.sign-off-box.approved{background:#10b9810d;border:1px solid #10b98133;color:#10b981}
+.outstanding-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;font-size:0.88rem}
+.outstanding-item input[type=checkbox]{width:16px;height:16px;accent-color:#10b981;flex-shrink:0}
+.milestone-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.milestone-status{font-size:0.85rem;min-width:20px}
+.milestone-name{font-weight:600;font-size:0.88rem;color:#fff;min-width:140px}
+.milestone-tasks{font-size:0.82rem;color:#999;flex:1}
+</style>
+</head>
+<body>
+
+<a href="/pm-charters/neural-nexus.html" class="back">← Neural NeXus</a>
+
+<h1>✏️ Mini Crossword</h1>
+<p class="subtitle">Charter 107 · Initiated 2026-03-16</p>
+
+<!-- Status & Phase -->
+<div class="card">
+<div class="card-title">Current Status</div>
+<div style="margin-bottom:16px"><span class="status-badge">🟢 Live</span></div>
+<div class="phase-tracker">
+<div class="phase done">📝 Requirements ✓</div>
+<div class="phase done">🎨 Design ✓</div>
+<div class="phase done">⚙️ Implementation ✓</div>
+<div class="phase done">🧪 Testing ✓</div>
+<div class="phase done">🚀 Deployment ✓</div>
+<div class="phase active">🔧 Maintenance</div>
+</div>
+</div>
+
+<!-- Charter Details -->
+<div class="card">
+<div class="card-title">Project Charter</div>
+<div class="charter-grid">
+<div class="charter-item"><div class="charter-label">Project ID</div><div class="charter-value">107</div></div>
+<div class="charter-item"><div class="charter-label">Owner</div><div class="charter-value">Morpheus</div></div>
+<div class="charter-item"><div class="charter-label">Program</div><div class="charter-value">Neural NeXus</div></div>
+<div class="charter-item"><div class="charter-label">Date Initiated</div><div class="charter-value">2026-03-16</div></div>
+<div class="charter-item"><div class="charter-label">Status</div><div class="charter-value">🟢 Live</div></div>
+<div class="charter-item"><div class="charter-label">URL</div><div class="charter-value">neuralnexus.press/crossword</div></div>
+</div>
+<div class="objective">
+<div class="obj-label">Objective</div>
+Build a daily mini crossword game for www.neuralnexus.press/crossword — a 5×5 grid with science/tech-themed clues, inspired by the NYT Mini. Quick to play (2-5 min), shareable results, daily rotation.
+</div>
+<div class="objective" style="margin-top:8px">
+<div class="obj-label">Success Criteria</div>
+5×5 crossword grid with across/down clues, daily puzzle rotation, timer, shareable emoji grid, mobile-first responsive design, matches existing site dark theme (glassmorphism, Instrument Serif + DM Sans).
+</div>
+</div>
+
+<!-- Sign-off -->
+<div class="card">
+<div class="card-title">Sign-Off</div>
+<div class="sign-off-box approved">✅ Deployed — Morpheus · 2026-03-16 (commit 759b60d)</div>
+</div>
+
+<!-- Scope -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">✅ In Scope</div>
+<ul class="scope-list">
+<li>5×5 crossword grid with numbered cells</li>
+<li>Across and Down clue panels</li>
+<li>Click cell or clue to select/highlight word</li>
+<li>Keyboard input (physical + on-screen)</li>
+<li>Auto-advance to next cell on letter entry</li>
+<li>Check/reveal individual cells or full puzzle</li>
+<li>Daily puzzle — deterministic from date</li>
+<li>Timer (counts up, stops on completion)</li>
+<li>Completion celebration (confetti/animation)</li>
+<li>Share results — emoji grid + time</li>
+<li>30+ pre-built puzzles with everyday vocabulary</li>
+<li>Streak tracking (localStorage)</li>
+</ul>
+</div>
+<div class="card">
+<div class="card-title">🚫 Out of Scope</div>
+<ul class="scope-list scope-out">
+<li>Auto-generated crossword puzzles</li>
+<li>Multiplayer / collaborative solving</li>
+<li>Puzzles larger than 5×5</li>
+</ul>
+</div>
+</div>
+
+<!-- Milestones -->
+<div class="card">
+<div class="card-title">Implementation Milestones</div>
+<div class="milestone-item"><span class="milestone-status">⚠️</span><span class="milestone-name">M1: Puzzle Data</span><span class="milestone-tasks">30 puzzles authored — deployed but grids don't match clues</span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M2: Game Engine</span><span class="milestone-tasks">Grid, input, validation — complete</span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M3: UI/UX</span><span class="milestone-tasks">Dark theme, animations, mobile — complete</span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M4: Daily Rotation</span><span class="milestone-tasks">Stats + sharing — complete</span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M5: Deploy</span><span class="milestone-tasks">Production — commit 759b60d</span></div>
+</div>
+
+<!-- Outstanding Items -->
+<div class="card">
+<div class="card-title">Outstanding Items</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Build and deploy (deployed 2026-03-16, commit 759b60d)</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> CRITICAL: Rewrite all 30 puzzle datasets — grids and clues were inconsistent/broken</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Update vocabulary to use everyday words (not science-themed per David's feedback)</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Revalidate all crossword grids against clues before redeploying</div>
+</div>
+
+<!-- Risk & Decisions -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">Risk Register</div>
+<div class="risk-item"><span class="risk-badge risk-low">Low</span><span class="risk-text">Crossword generation complexity</span><span class="risk-impact">Med</span></div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Mobile keyboard conflicts</span><span class="risk-impact">Med</span></div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Puzzle quality variance</span><span class="risk-impact">Low</span></div>
+</div>
+<div class="card">
+<div class="card-title">Decision Log</div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">5×5 grid — mini = fast, casual, daily habit-forming</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">Pre-authored puzzles, no auto-generation — quality control</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">Client-side only, no server API — simple, fast, no DB needed</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">Words don't need to be science-themed — David: keep it approachable</span></div>
+</div>
+</div>
+
+</body>
+</html>

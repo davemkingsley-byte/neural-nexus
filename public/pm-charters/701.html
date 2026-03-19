@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charter 701 — Project Management System</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#111;color:#e0e0e0;padding:24px}
+a{color:#3b82f6;text-decoration:none}a:hover{text-decoration:underline}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:0.9rem;margin-bottom:24px;color:#888}.back:hover{color:#fff}
+h1{font-size:1.6rem;margin-bottom:6px;color:#fff}
+.subtitle{color:#888;margin-bottom:28px;font-size:0.9rem}
+.card{background:#1a1a2e;border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid #333}
+.card-title{font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #333}
+.charter-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.charter-item{padding:12px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a}
+.charter-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:3px}
+.charter-value{font-size:0.92rem;color:#fff}
+.objective{padding:14px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a;margin-top:12px;line-height:1.6;font-size:0.92rem}
+.obj-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:6px}
+.status-badge{display:inline-block;padding:4px 14px;border-radius:16px;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.status-planned{background:#8b5cf622;color:#8b5cf6;border:1px solid #8b5cf644}
+.phase-tracker{display:flex;gap:4px;margin-bottom:8px}
+.phase{flex:1;padding:12px 6px;border-radius:8px;text-align:center;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.phase.done{background:#10b98122;color:#10b981;border:1px solid #10b98144}
+.phase.active{background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644;box-shadow:0 0 12px #3b82f615}
+.phase.upcoming{background:#ffffff08;color:#555;border:1px solid #ffffff0a}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.scope-list{list-style:none;padding:0}
+.scope-list li{padding:8px 12px;margin-bottom:6px;background:#ffffff06;border-radius:6px;font-size:0.88rem;display:flex;align-items:center;gap:8px}
+.scope-list li::before{content:"✓";color:#10b981;font-weight:700;font-size:0.8rem}
+.scope-out li::before{content:"✕";color:#ef4444}
+.req-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.req-priority{font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:600;text-transform:uppercase;min-width:55px;text-align:center}
+.priority-must{background:#ef444422;color:#ef4444}
+.priority-should{background:#f59e0b22;color:#f59e0b}
+.priority-nice{background:#10b98122;color:#10b981}
+.req-text{flex:1;font-size:0.85rem}
+.req-status{font-size:0.8rem}
+.tech-table{width:100%;border-collapse:collapse;font-size:0.88rem}
+.tech-table th{text-align:left;padding:8px 12px;color:#888;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #333}
+.tech-table td{padding:8px 12px;border-bottom:1px solid #ffffff0a}
+.tech-table td:first-child{color:#fff;font-weight:600}
+.arch-box{background:#0a0a1a;border:1px solid #333;border-radius:8px;padding:16px;font-family:'SF Mono',Monaco,monospace;font-size:0.82rem;line-height:1.8;color:#8b9dc3;white-space:pre}
+.sign-off-box{padding:16px;border-radius:10px;display:flex;align-items:center;gap:12px;font-size:0.95rem}
+.sign-off-box.approved{background:#10b9810d;border:1px solid #10b98133;color:#10b981}
+.milestone-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.milestone-status{font-size:0.85rem}
+.milestone-name{font-weight:600;font-size:0.88rem;color:#fff;min-width:140px}
+.milestone-tasks{font-size:0.82rem;color:#999;flex:1}
+.decision-item{display:flex;gap:12px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.decision-date{color:#666;font-size:0.78rem;min-width:85px}
+.decision-text{font-size:0.85rem}
+.risk-item{display:flex;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;align-items:center}
+.risk-badge{font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:600;min-width:45px;text-align:center}
+.risk-med{background:#f59e0b22;color:#f59e0b}
+.risk-low{background:#10b98122;color:#10b981}
+.risk-high{background:#ef444422;color:#ef4444}
+.risk-text{flex:1;font-size:0.85rem}
+.risk-impact{font-size:0.75rem;color:#666}
+</style>
+</head>
+<body>
+
+<a href="/pm-charters/project-management.html" class="back">← Project Management</a>
+
+<h1>📊 Project Management System</h1>
+<p class="subtitle">Project 701 · Initiated 2026-03-15</p>
+
+<!-- Status & Phase -->
+<div class="card">
+<div class="card-title">Current Status</div>
+<div style="margin-bottom:16px"><span class="status-badge status-planned">🟡 Built — Pending David Review</span></div>
+<div class="phase-tracker">
+<div class="phase done">📝 Requirements</div>
+<div class="phase done">🎨 Design</div>
+<div class="phase active">⚙️ Implementation</div>
+<div class="phase upcoming">🧪 Testing</div>
+<div class="phase upcoming">🚀 Deployment</div>
+<div class="phase upcoming">🔧 Maintenance</div>
+</div>
+<div style="margin-top:12px;padding:10px 14px;background:rgba(96,165,250,0.08);border-left:3px solid var(--accent,#3b82f6);border-radius:0 8px 8px 0;font-size:0.88rem;">
+  ✅ Built overnight (2026-03-16) — running at <a href="http://localhost:8082" target="_blank" style="color:#3b82f6">http://localhost:8082</a>. Review before swapping port 8081.
+</div>
+</div>
+
+<!-- Charter Details -->
+<div class="card">
+<div class="card-title">Project Charter</div>
+<div class="charter-grid">
+<div class="charter-item"><div class="charter-label">Project ID</div><div class="charter-value">701</div></div>
+<div class="charter-item"><div class="charter-label">Owner</div><div class="charter-value">David Kingsley</div></div>
+<div class="charter-item"><div class="charter-label">Format</div><div class="charter-value">Local Web Application</div></div>
+<div class="charter-item"><div class="charter-label">Date Initiated</div><div class="charter-value">2026-03-15</div></div>
+</div>
+<div class="objective">
+<div class="obj-label">Objective</div>
+Build a full-featured, browser-based project management dashboard that reads/writes charter files, tracks status, monitors deployed projects, and surfaces blockers — all from a single UI.
+</div>
+<div class="objective" style="margin-top:8px">
+<div class="obj-label">Success Criteria</div>
+Replaces the static charter index with a dynamic system that can filter, edit, search, and monitor all projects without touching markdown files manually.
+</div>
+</div>
+
+<!-- Sign-off -->
+<div class="card">
+<div class="card-title">Sign-Off</div>
+<div class="sign-off-box approved">✅ Charter approved — David Kingsley · 2026-03-15</div>
+</div>
+
+<!-- Scope -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">✅ In Scope</div>
+<ul class="scope-list">
+<li>Filter projects by status, date, priority</li>
+<li>Sort and search across all charters</li>
+<li>Timeline / Gantt view of project phases</li>
+<li>Expandable charter detail view</li>
+<li>Edit charter status from the browser</li>
+<li>Add new charter from template</li>
+<li>Mark items complete with checkboxes</li>
+<li>Activity feed — changes across all projects</li>
+<li>Dashboard summary with health indicators</li>
+<li>Ping live project URLs (up/down status)</li>
+<li>Flag overdue milestones and stale blockers</li>
+</ul>
+</div>
+<div class="card">
+<div class="card-title">🚫 Out of Scope</div>
+<ul class="scope-list scope-out">
+<li>Multi-user / team collaboration</li>
+<li>Kanban board / sprint management</li>
+<li>Time tracking</li>
+<li>External integrations (Jira, GitHub Issues)</li>
+<li>Public internet access</li>
+</ul>
+</div>
+</div>
+
+<!-- Requirements -->
+<div class="card">
+<div class="card-title">Requirements — Views & Navigation</div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Filter projects by status (live, in progress, planned, archived)</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Sort by date initiated, last updated, or priority</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-should">Should</span><span class="req-text">Timeline / Gantt view showing project phases over time</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Search across all charters (full text)</span><span class="req-status">⬜</span></div>
+</div>
+
+<div class="card">
+<div class="card-title">Requirements — Project Detail</div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Expandable charter detail view (inline, no page switch)</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-should">Should</span><span class="req-text">Clickable phase progress bar — drill into per-phase status</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-should">Should</span><span class="req-text">Decision log viewer — all decisions in one feed</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Outstanding items / blockers highlighted at top</span><span class="req-status">⬜</span></div>
+</div>
+
+<div class="card">
+<div class="card-title">Requirements — Management</div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Edit charter status and phase from the browser (writes to .md)</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-should">Should</span><span class="req-text">Add new charter from template via UI</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Mark items complete with checkboxes (persists to files)</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-should">Should</span><span class="req-text">Activity feed — what changed and when</span><span class="req-status">⬜</span></div>
+</div>
+
+<div class="card">
+<div class="card-title">Requirements — Monitoring</div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Dashboard summary: total projects, velocity, items blocked</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Health indicators — ping live project URLs, show up/down</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-nice">Nice</span><span class="req-text">Cost tracking per project (domain, hosting, services)</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-should">Should</span><span class="req-text">Flag overdue milestones</span><span class="req-status">⬜</span></div>
+<div class="req-item"><span class="req-priority priority-should">Should</span><span class="req-text">Surface blockers unaddressed for X days</span><span class="req-status">⬜</span></div>
+</div>
+
+<!-- Tech Stack -->
+<div class="card">
+<div class="card-title">Design — Tech Stack</div>
+<table class="tech-table">
+<tr><th>Layer</th><th>Choice</th><th>Rationale</th></tr>
+<tr><td>Backend</td><td>Node.js + Express</td><td>Same stack as existing projects</td></tr>
+<tr><td>Frontend</td><td>Vanilla HTML/CSS/JS</td><td>No framework overhead, consistent</td></tr>
+<tr><td>Data Store</td><td>Filesystem (.md files)</td><td>Charters are the source of truth — no DB duplication</td></tr>
+<tr><td>Markdown</td><td>gray-matter + marked</td><td>Parse frontmatter + render markdown</td></tr>
+<tr><td>Hosting</td><td>Local (port 8081)</td><td>Replaces current static file server</td></tr>
+</table>
+</div>
+
+<!-- Architecture -->
+<div class="card">
+<div class="card-title">Design — Architecture</div>
+<div class="arch-box">Browser (any device on LAN)
+  ↕ http://192.168.1.124:8081
+Express API Server
+  ├── GET  /api/charters          → list all charters (parsed .md)
+  ├── GET  /api/charters/:id      → single charter detail
+  ├── PUT  /api/charters/:id      → update status/phase/items
+  ├── POST /api/charters          → create from template
+  ├── GET  /api/health            → ping all live project URLs
+  └── GET  /api/activity          → recent changes feed
+  ↕
+Filesystem
+  └── charters/*.md (source of truth)</div>
+</div>
+
+<!-- Implementation -->
+<div class="card">
+<div class="card-title">Implementation Milestones</div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M1: Backend API</span><span class="milestone-tasks">Markdown parser, REST endpoints, file read/write — <strong>done 2026-03-16</strong></span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M2: Dashboard UI</span><span class="milestone-tasks">Summary cards, filter/sort, search — <strong>done 2026-03-16</strong></span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M3: Detail View</span><span class="milestone-tasks">Expandable cards, phase drill-down, blockers, decision log — <strong>done 2026-03-16</strong></span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M4: Edit Mode</span><span class="milestone-tasks">In-browser status/phase editing, checkbox persistence — <strong>done 2026-03-16</strong></span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M5: Monitoring</span><span class="milestone-tasks">URL health checks, activity feed — <strong>done 2026-03-16</strong></span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M6: Timeline</span><span class="milestone-tasks">Gantt/timeline view of all project phases — <strong>done 2026-03-16</strong></span></div>
+</div>
+
+<!-- Risks & Decisions -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">Risk Register</div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Markdown parsing breaks on edge cases</span><span class="risk-impact">Med</span></div>
+<div class="risk-item"><span class="risk-badge risk-low">Low</span><span class="risk-text">File write conflicts</span><span class="risk-impact">High</span></div>
+<div class="risk-item"><span class="risk-badge risk-high">High</span><span class="risk-text">Scope creep into full PM tool</span><span class="risk-impact">Med</span></div>
+</div>
+<div class="card">
+<div class="card-title">Decision Log</div>
+<div class="decision-item"><span class="decision-date">2026-03-15</span><span class="decision-text">Project initiated — need dynamic UI</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-15</span><span class="decision-text">Filesystem as data store (no DB)</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-15</span><span class="decision-text">Dark theme consistent with Neural NeXus</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">Built overnight by Morpheus — all M1–M6 complete</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">Preview on port 8082 — swap to 8081 when David approves</span></div>
+</div>
+</div>
+
+<!-- Open Questions -->
+<div class="card">
+<div class="card-title">Open Questions</div>
+<div style="padding:10px 14px;background:#3b82f60d;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;font-size:0.9rem;margin-bottom:8px">Should this replace the static dashboard (port 8081) or run alongside it?</div>
+<div style="padding:10px 14px;background:#3b82f60d;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;font-size:0.9rem">How granular should the activity feed be? (per-field changes vs status-only)</div>
+</div>
+
+</body>
+</html>

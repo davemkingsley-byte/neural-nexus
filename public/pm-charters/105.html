@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charter 105 — Wordle Game</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#111;color:#e0e0e0;padding:24px}
+a{color:#3b82f6;text-decoration:none}a:hover{text-decoration:underline}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:0.9rem;margin-bottom:24px;color:#888}.back:hover{color:#fff}
+h1{font-size:1.6rem;margin-bottom:6px;color:#fff}
+.subtitle{color:#888;margin-bottom:28px;font-size:0.9rem}
+.card{background:#1a1a2e;border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid #333}
+.card-title{font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #333}
+.charter-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.charter-item{padding:12px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a}
+.charter-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:3px}
+.charter-value{font-size:0.92rem;color:#fff}
+.objective{padding:14px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a;margin-top:12px;line-height:1.6;font-size:0.92rem}
+.obj-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:6px}
+.status-badge{display:inline-block;padding:4px 14px;border-radius:16px;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+.status-deploy{background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44}
+.phase-tracker{display:flex;gap:4px;margin-bottom:8px}
+.phase{flex:1;padding:12px 6px;border-radius:8px;text-align:center;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.phase.done{background:#10b98122;color:#10b981;border:1px solid #10b98144}
+.phase.active{background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644;box-shadow:0 0 12px #3b82f615}
+.phase.upcoming{background:#ffffff08;color:#555;border:1px solid #ffffff0a}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.scope-list{list-style:none;padding:0}
+.scope-list li{padding:8px 12px;margin-bottom:6px;background:#ffffff06;border-radius:6px;font-size:0.88rem;display:flex;align-items:center;gap:8px}
+.scope-list li::before{content:"✓";color:#10b981;font-weight:700;font-size:0.8rem}
+.scope-out li::before{content:"✕";color:#ef4444}
+.req-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.req-priority{font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:600;text-transform:uppercase;min-width:55px;text-align:center}
+.priority-must{background:#ef444422;color:#ef4444}
+.priority-should{background:#f59e0b22;color:#f59e0b}
+.req-text{flex:1;font-size:0.85rem}
+.req-status{font-size:0.8rem}
+.tech-table{width:100%;border-collapse:collapse;font-size:0.88rem}
+.tech-table th{text-align:left;padding:8px 12px;color:#888;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #333}
+.tech-table td{padding:8px 12px;border-bottom:1px solid #ffffff0a}
+.tech-table td:first-child{color:#fff;font-weight:600}
+.arch-box{background:#0a0a1a;border:1px solid #333;border-radius:8px;padding:16px;font-family:'SF Mono',Monaco,monospace;font-size:0.82rem;line-height:1.8;color:#8b9dc3;white-space:pre}
+.sign-off-box{padding:16px;border-radius:10px;display:flex;align-items:center;gap:12px;font-size:0.95rem}
+.sign-off-box.approved{background:#10b9810d;border:1px solid #10b98133;color:#10b981}
+.scoring-item{padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;font-size:0.88rem;display:flex;align-items:center;gap:8px}
+.scoring-item .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-green{background:#22c55e}
+.dot-yellow{background:#eab308}
+.dot-gray{background:#666}
+.dot-blue{background:#3b82f6}
+.milestone-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.milestone-status{font-size:0.85rem}
+.milestone-name{font-weight:600;font-size:0.88rem;color:#fff;min-width:120px}
+.milestone-tasks{font-size:0.82rem;color:#999;flex:1}
+.test-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;font-size:0.85rem}
+.decision-item{display:flex;gap:12px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.decision-date{color:#666;font-size:0.78rem;min-width:85px}
+.decision-text{font-size:0.85rem}
+.risk-item{display:flex;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;align-items:center}
+.risk-badge{font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:600;min-width:45px;text-align:center}
+.risk-med{background:#f59e0b22;color:#f59e0b}
+.risk-low{background:#10b98122;color:#10b981}
+.risk-text{flex:1;font-size:0.85rem}
+.risk-impact{font-size:0.75rem;color:#666}
+</style>
+</head>
+<body>
+
+<a href="/pm-charters/neural-nexus.html" class="back">← Neural NeXus</a>
+
+<h1>🟩 Wordle Game</h1>
+<p class="subtitle">Project 105 · Initiated 2026-03-15</p>
+
+<!-- Status & Phase -->
+<div class="card">
+<div class="card-title">Current Status</div>
+<div style="margin-bottom:16px"><span class="status-badge" style="background:#10b98122;color:#10b981;border:1px solid #10b98144;">🟢 Live</span></div>
+<div class="phase-tracker">
+<div class="phase done">📝 Requirements ✓</div>
+<div class="phase done">🎨 Design ✓</div>
+<div class="phase done">⚙️ Implementation ✓</div>
+<div class="phase done">🧪 Testing ✓</div>
+<div class="phase done">🚀 Deployment ✓</div>
+<div class="phase active">🔧 Maintenance</div>
+</div>
+</div>
+
+<!-- Charter Details -->
+<div class="card">
+<div class="card-title">Project Charter</div>
+<div class="charter-grid">
+<div class="charter-item"><div class="charter-label">Project ID</div><div class="charter-value">105</div></div>
+<div class="charter-item"><div class="charter-label">Owner</div><div class="charter-value">David Kingsley</div></div>
+<div class="charter-item"><div class="charter-label">Format</div><div class="charter-value">Web App (HTML/CSS/JS)</div></div>
+<div class="charter-item"><div class="charter-label">Date Initiated</div><div class="charter-value">2026-03-15</div></div>
+</div>
+<div class="objective">
+<div class="obj-label">Objective</div>
+Build a daily Wordle word-guessing game for the Neural NeXus website. Same premium dark UI as Spelling Bee. New word every day, 6 guesses, color-coded feedback, shareable results.
+</div>
+<div class="objective" style="margin-top:8px">
+<div class="obj-label">Success Criteria</div>
+Playable at www.neuralnexus.press/wordle, daily word rotation, keyboard with color hints, share-friendly emoji grid, stats tracking.
+</div>
+</div>
+
+<!-- Sign-off -->
+<div class="card">
+<div class="card-title">Sign-Off</div>
+<div class="sign-off-box approved">✅ Charter approved — David Kingsley · 2026-03-15</div>
+</div>
+
+<!-- Scope -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">✅ In Scope</div>
+<ul class="scope-list">
+<li>5-letter word guessing game, 6 attempts</li>
+<li>Color-coded tile feedback (green/yellow/gray)</li>
+<li>On-screen keyboard with state tracking</li>
+<li>Daily word — date-keyed, server-side</li>
+<li>Animated tile flip reveals</li>
+<li>Shareable emoji result grid</li>
+<li>Win/loss stats with streak tracking</li>
+<li>Dark glassmorphism UI</li>
+<li>Mobile responsive</li>
+</ul>
+</div>
+<div class="card">
+<div class="card-title">🚫 Out of Scope</div>
+<ul class="scope-list scope-out">
+<li>Hard mode (locked letters)</li>
+<li>Multiplayer / head-to-head</li>
+<li>User accounts / server-side stats</li>
+<li>Custom word length variants</li>
+</ul>
+</div>
+</div>
+
+<!-- Requirements -->
+<div class="card">
+<div class="card-title">Requirements</div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">5-letter word guessing game, 6 attempts max</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Color feedback: green (correct), yellow (wrong position), gray (absent)</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">On-screen keyboard with cumulative color state</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Daily word — same for all players, date-keyed</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Dark glassmorphism UI matching Neural NeXus</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Word validation — only accept real 5-letter words</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-should">Should</span><span class="req-text">Shareable emoji result grid (copy to clipboard)</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-should">Should</span><span class="req-text">Win/loss stats persistence (localStorage)</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-should">Should</span><span class="req-text">Animated tile flips on reveal</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Mobile responsive</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Nav bar back to Neural NeXus home</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Integration with existing Express server</span><span class="req-status">✅</span></div>
+</div>
+
+<!-- Design: Tech Stack -->
+<div class="card">
+<div class="card-title">Design — Tech Stack</div>
+<table class="tech-table">
+<tr><th>Layer</th><th>Choice</th><th>Rationale</th></tr>
+<tr><td>Frontend</td><td>Vanilla HTML/CSS/JS</td><td>Single page, no build step, matches existing games</td></tr>
+<tr><td>Backend</td><td>Existing Express server</td><td>New routes: /wordle, /api/wordle/*</td></tr>
+<tr><td>Word List</td><td>~850 answer words + 8,500 valid guesses</td><td>Curated answers, full dictionary for guesses</td></tr>
+<tr><td>Stats</td><td>localStorage</td><td>No auth needed, instant persistence</td></tr>
+</table>
+</div>
+
+<!-- Architecture -->
+<div class="card">
+<div class="card-title">Design — Architecture</div>
+<div class="arch-box">Browser (player)
+  ↕
+Static Frontend (wordle.html — game UI, keyboard, stats)
+  ↕
+REST API (Express)
+  ├── GET  /api/wordle/today  → today's date + word length
+  └── POST /api/wordle/guess  → validate guess, return colors
+  ↕
+wordle-words.js
+  ├── ANSWERS[] — ~850 curated common words
+  ├── dict5.txt — 8,500 valid guesses
+  └── getTodayWord() — deterministic daily pick</div>
+</div>
+
+<!-- Design: Game Mechanics -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">Design — Color System</div>
+<div class="scoring-item"><span class="dot dot-green"></span>🟩 Green — correct letter, correct position</div>
+<div class="scoring-item"><span class="dot dot-yellow"></span>🟨 Yellow — correct letter, wrong position</div>
+<div class="scoring-item"><span class="dot dot-gray"></span>⬛ Gray — letter not in the word</div>
+<div class="scoring-item"><span class="dot dot-blue"></span>Keyboard updates cumulatively (best state wins)</div>
+</div>
+<div class="card">
+<div class="card-title">Design — Stats Model</div>
+<div class="arch-box" style="font-size:0.78rem">localStorage['wordle-stats']
+  ├── played (total games)
+  ├── won (total wins)
+  ├── streak (current)
+  ├── maxStreak (all-time)
+  └── lastDate (for streak calc)
+
+localStorage['wordle-state-YYYY-MM-DD']
+  ├── guesses[] (words + results)
+  ├── gameOver (bool)
+  └── won (bool)</div>
+</div>
+</div>
+
+<!-- Implementation -->
+<div class="card">
+<div class="card-title">Implementation Milestones</div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">Word List</span><span class="milestone-tasks">Curated answers, bundled dict5.txt, getTodayWord()</span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">Game Logic</span><span class="milestone-tasks">Guess validation, color calculation, win/loss detection</span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">Game UI</span><span class="milestone-tasks">Board, keyboard, tile animations, toast messages</span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">Stats & Share</span><span class="milestone-tasks">localStorage stats, emoji grid, clipboard copy</span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">Server Routes</span><span class="milestone-tasks">/wordle page, /api/wordle/today, /api/wordle/guess</span></div>
+<div class="milestone-item"><span class="milestone-status">🔄</span><span class="milestone-name">Testing</span><span class="milestone-tasks">Word list coverage, mobile layout, edge cases</span></div>
+</div>
+
+<!-- Testing -->
+<div class="card">
+<div class="card-title">Testing</div>
+<div class="test-item">✅ <strong>API Tests</strong> — /today returns date, /guess validates and returns colors</div>
+<div class="test-item">✅ <strong>Word Coverage</strong> — Expanded to 17,241 valid guesses (Scrabble/SOWPODS merge)</div>
+<div class="test-item">✅ <strong>UI Testing</strong> — Three major UI iterations, mobile + desktop</div>
+<div class="test-item">✅ <strong>Edge Cases</strong> — Input lock during animation, row-skip fix, game restore</div>
+<div class="test-item">✅ <strong>UAT</strong> — David playtest + feedback incorporated</div>
+</div>
+
+<!-- Deployment -->
+<div class="card">
+<div class="card-title">Deployment</div>
+<div class="test-item">✅ <strong>Code pushed</strong> — GitHub main branch</div>
+<div class="test-item">✅ <strong>Railway deploy</strong> — Live at neuralnexus.press/wordle</div>
+<div class="test-item">✅ <strong>Live verification</strong> — API + UI confirmed working</div>
+<div class="test-item">✅ <strong>Homepage updated</strong> — Two-card game section (Bee + Wordle)</div>
+</div>
+
+<!-- Risks & Decisions -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">Risk Register</div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Word list missing valid words</span><span class="risk-impact">High</span></div>
+<div class="risk-item"><span class="risk-badge risk-low">Low</span><span class="risk-text">Daily word too obscure</span><span class="risk-impact">Med</span></div>
+<div class="risk-item"><span class="risk-badge risk-low">Low</span><span class="risk-text">Answer word visible in source/network</span><span class="risk-impact">Med</span></div>
+</div>
+<div class="card">
+<div class="card-title">Decision Log</div>
+<div class="decision-item"><span class="decision-date">2026-03-15</span><span class="decision-text">Project initiated</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-15</span><span class="decision-text">Server-side daily word (anti-cheat)</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-15</span><span class="decision-text">localStorage for stats (no auth)</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-15</span><span class="decision-text">Bundled dict5.txt (no system dict on Railway)</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-15</span><span class="decision-text">~850 curated answers, 8,500 valid guesses</span></div>
+</div>
+</div>
+
+<!-- Open Questions -->
+<div class="card">
+<div class="card-title">Open Questions</div>
+<div style="padding:10px 14px;background:#3b82f60d;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;font-size:0.9rem;margin-bottom:8px">Add Hard Mode? (must use revealed hints)</div>
+<div style="padding:10px 14px;background:#3b82f60d;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;font-size:0.9rem">Server-side leaderboard for Wordle? (win streak rankings)</div>
+</div>
+
+</body>
+</html>

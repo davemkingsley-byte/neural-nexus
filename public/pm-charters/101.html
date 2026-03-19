@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charter 101 — Spelling Bee Game</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#111;color:#e0e0e0;padding:24px}
+a{color:#3b82f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:0.9rem;margin-bottom:24px;color:#888}
+.back:hover{color:#fff}
+h1{font-size:1.6rem;margin-bottom:6px;color:#fff}
+.subtitle{color:#888;margin-bottom:28px;font-size:0.9rem}
+.card{background:#1a1a2e;border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid #333}
+.card-title{font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #333}
+.charter-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.charter-item{padding:12px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a}
+.charter-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:3px}
+.charter-value{font-size:0.92rem;color:#fff}
+.objective{padding:14px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a;margin-top:12px;line-height:1.6;font-size:0.92rem}
+.obj-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:6px}
+.status-badge{display:inline-block;padding:4px 14px;border-radius:16px;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44}
+.phase-tracker{display:flex;gap:4px;margin-bottom:8px}
+.phase{flex:1;padding:12px 6px;border-radius:8px;text-align:center;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.phase.done{background:#10b98122;color:#10b981;border:1px solid #10b98144}
+.phase.active{background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644;box-shadow:0 0 12px #3b82f615}
+.phase.upcoming{background:#ffffff08;color:#555;border:1px solid #ffffff0a}
+.scope-list{list-style:none;padding:0}
+.scope-list li{padding:8px 12px;margin-bottom:6px;background:#ffffff06;border-radius:6px;font-size:0.88rem;display:flex;align-items:center;gap:8px}
+.scope-list li::before{content:"✓";color:#10b981;font-weight:700;font-size:0.8rem}
+.scope-out li::before{content:"✕";color:#ef4444}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.req-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.req-priority{font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:600;text-transform:uppercase;min-width:55px;text-align:center}
+.priority-must{background:#ef444422;color:#ef4444}
+.priority-should{background:#f59e0b22;color:#f59e0b}
+.priority-nice{background:#10b98122;color:#10b981}
+.req-text{flex:1;font-size:0.85rem}
+.req-status{font-size:0.8rem}
+.decision-item{display:flex;gap:12px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.decision-date{color:#666;font-size:0.78rem;min-width:85px}
+.decision-text{font-size:0.85rem}
+.risk-item{display:flex;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;align-items:center}
+.risk-badge{font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:600;min-width:45px;text-align:center}
+.risk-med{background:#f59e0b22;color:#f59e0b}
+.risk-low{background:#10b98122;color:#10b981}
+.risk-text{flex:1;font-size:0.85rem}
+.risk-impact{font-size:0.75rem;color:#666}
+.sign-off-box{padding:16px;border-radius:10px;display:flex;align-items:center;gap:12px;font-size:0.95rem}
+.sign-off-box.approved{background:#10b9810d;border:1px solid #10b98133;color:#10b981}
+.tech-table{width:100%;border-collapse:collapse;font-size:0.88rem}
+.tech-table th{text-align:left;padding:8px 12px;color:#888;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #333}
+.tech-table td{padding:8px 12px;border-bottom:1px solid #ffffff0a}
+.tech-table td:first-child{color:#fff;font-weight:600}
+.arch-box{background:#0a0a1a;border:1px solid #333;border-radius:8px;padding:16px;font-family:'SF Mono',Monaco,monospace;font-size:0.82rem;line-height:1.8;color:#8b9dc3;white-space:pre}
+.scoring-item{padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;font-size:0.88rem;display:flex;align-items:center;gap:8px}
+.scoring-item .dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.dot-blue{background:#3b82f6}
+.dot-yellow{background:#f59e0b}
+.dot-green{background:#10b981}
+.dot-purple{background:#8b5cf6}
+.milestone-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.milestone-status{font-size:0.85rem}
+.milestone-name{font-weight:600;font-size:0.88rem;color:#fff;min-width:120px}
+.milestone-tasks{font-size:0.82rem;color:#999;flex:1}
+.test-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;font-size:0.85rem}
+</style>
+</head>
+<body>
+
+<a href="/pm-charters/neural-nexus.html" class="back">← Neural NeXus</a>
+
+<h1>🐝 Spelling Bee Game</h1>
+<p class="subtitle">Project 101 · Initiated 2026-03-14</p>
+
+<!-- Status & Phase -->
+<div class="card">
+<div class="card-title">Current Status</div>
+<div style="margin-bottom:16px"><span class="status-badge">🟡 Moving to Implementation</span></div>
+<div class="phase-tracker">
+<div class="phase done">📝 Requirements ✓</div>
+<div class="phase done">🎨 Design ✓</div>
+<div class="phase active">⚙️ Implementation</div>
+<div class="phase upcoming">🧪 Testing</div>
+<div class="phase upcoming">🚀 Deployment</div>
+<div class="phase upcoming">🔧 Maintenance</div>
+</div>
+</div>
+
+<!-- Charter Details -->
+<div class="card">
+<div class="card-title">Project Charter</div>
+<div class="charter-grid">
+<div class="charter-item"><div class="charter-label">Project ID</div><div class="charter-value">101</div></div>
+<div class="charter-item"><div class="charter-label">Owner</div><div class="charter-value">David Kingsley</div></div>
+<div class="charter-item"><div class="charter-label">Format</div><div class="charter-value">Web App (HTML/CSS/JS)</div></div>
+<div class="charter-item"><div class="charter-label">Date Initiated</div><div class="charter-value">2026-03-14</div></div>
+</div>
+<div class="objective">
+<div class="obj-label">Objective</div>
+Build a custom web-based Spelling Bee game with a 5-minute timer and daily scoreboard, shareable via link.
+</div>
+<div class="objective" style="margin-top:8px">
+<div class="obj-label">Success Criteria</div>
+Playable game with daily puzzles, enforced 5-min timer, nickname-based leaderboard, scoring by word length + obscurity.
+</div>
+</div>
+
+<!-- Sign-off -->
+<div class="card">
+<div class="card-title">Sign-Off</div>
+<div class="sign-off-box approved">✅ Charter approved — David Kingsley · 2026-03-14</div>
+</div>
+
+<!-- Scope -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">✅ In Scope</div>
+<ul class="scope-list">
+<li>7-letter honeycomb puzzle with mandatory center letter</li>
+<li>Valid word dictionary (min 4 letters, repeats allowed)</li>
+<li>5-minute game timer — locks on expiry</li>
+<li>Scoring by word length + obscurity</li>
+<li>Daily puzzle (same for all players)</li>
+<li>Nickname-based daily scoreboard</li>
+<li>Mobile-responsive design</li>
+<li>Share results button</li>
+</ul>
+</div>
+<div class="card">
+<div class="card-title">🚫 Out of Scope</div>
+<ul class="scope-list scope-out">
+<li>User accounts / authentication</li>
+<li>Multiplayer real-time play</li>
+<li>Custom puzzle creation by users</li>
+</ul>
+</div>
+</div>
+
+<!-- Requirements -->
+<div class="card">
+<div class="card-title">Requirements</div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">7-letter honeycomb layout with 1 mandatory center letter</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Valid word dictionary (min 4 letters, repeats allowed)</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">5-minute game timer — locks on expiry</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Scoring system (length + obscurity + pangram bonus)</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Daily puzzle (same for all players)</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-must">Must</span><span class="req-text">Mobile-responsive design</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-should">Should</span><span class="req-text">Daily scoreboard / leaderboard with nicknames</span><span class="req-status">✅</span></div>
+<div class="req-item"><span class="req-priority priority-nice">Nice</span><span class="req-text">Share results button</span><span class="req-status">✅</span></div>
+</div>
+
+<!-- Design: Tech Stack -->
+<div class="card">
+<div class="card-title">Design — Tech Stack</div>
+<table class="tech-table">
+<tr><th>Layer</th><th>Choice</th><th>Rationale</th></tr>
+<tr><td>Frontend</td><td>Vanilla HTML/CSS/JS</td><td>No framework overhead, fast load, easy to host</td></tr>
+<tr><td>Backend</td><td>Node.js + Express</td><td>Already available, handles scoreboard API</td></tr>
+<tr><td>Database</td><td>SQLite</td><td>Zero config, file-based, perfect for daily scores</td></tr>
+<tr><td>Hosting</td><td>TBD</td><td>Prototype first, decide later</td></tr>
+</table>
+</div>
+
+<!-- Design: Architecture -->
+<div class="card">
+<div class="card-title">Design — Architecture</div>
+<div class="arch-box">Browser (player)
+  ↕
+Static Frontend (game UI, timer, puzzle logic)
+  ↕
+REST API (Express)
+  ├── GET  /api/puzzle      → today's puzzle
+  ├── POST /api/score       → submit nickname + score
+  └── GET  /api/leaderboard → today's rankings
+  ↕
+SQLite (puzzles, scores)</div>
+</div>
+
+<!-- Design: Scoring -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">Design — Scoring Model</div>
+<div class="scoring-item"><span class="dot dot-blue"></span>Base: 1pt for 4-letter words, then 1pt per letter</div>
+<div class="scoring-item"><span class="dot dot-yellow"></span>Obscurity: common = 1x, uncommon = 1.5x, rare = 2x</div>
+<div class="scoring-item"><span class="dot dot-green"></span>Pangram bonus: +7 points</div>
+<div class="scoring-item"><span class="dot dot-purple"></span>Ranks: % of max possible score</div>
+</div>
+<div class="card">
+<div class="card-title">Design — Data Model</div>
+<div class="arch-box" style="font-size:0.78rem">puzzles
+  ├── date (primary key)
+  ├── letters (7 chars)
+  ├── center_letter
+  ├── word_list (JSON)
+  └── max_score
+
+scores
+  ├── id (auto)
+  ├── date
+  ├── nickname
+  ├── score
+  ├── words_found
+  └── time_remaining</div>
+</div>
+</div>
+
+<!-- Implementation -->
+<div class="card">
+<div class="card-title">Implementation Milestones</div>
+<div class="milestone-item"><span class="milestone-status">⬜</span><span class="milestone-name">Core Engine</span><span class="milestone-tasks">Puzzle generator, word validation, scoring</span></div>
+<div class="milestone-item"><span class="milestone-status">⬜</span><span class="milestone-name">Game UI</span><span class="milestone-tasks">Honeycomb, input, timer, found words</span></div>
+<div class="milestone-item"><span class="milestone-status">⬜</span><span class="milestone-name">Scoreboard</span><span class="milestone-tasks">Backend, storage, leaderboard view</span></div>
+<div class="milestone-item"><span class="milestone-status">⬜</span><span class="milestone-name">Polish</span><span class="milestone-tasks">Responsive design, share button, animations</span></div>
+</div>
+
+<!-- Testing -->
+<div class="card">
+<div class="card-title">Testing</div>
+<div class="test-item">⬜ <strong>Unit Tests</strong> — Puzzle generation, word validation, scoring</div>
+<div class="test-item">⬜ <strong>UI Testing</strong> — Cross-browser, mobile responsiveness</div>
+<div class="test-item">⬜ <strong>Integration</strong> — Scoreboard submission + retrieval</div>
+<div class="test-item">⬜ <strong>UAT</strong> — David + friends/family playtest</div>
+</div>
+
+<!-- Deployment -->
+<div class="card">
+<div class="card-title">Deployment</div>
+<div class="test-item">⬜ Hosting setup</div>
+<div class="test-item">⬜ Domain / URL</div>
+<div class="test-item">⬜ Go-live</div>
+</div>
+
+<!-- Risks & Decisions -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">Risk Register</div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Word list too large / too small</span><span class="risk-impact">High</span></div>
+<div class="risk-item"><span class="risk-badge risk-low">Low</span><span class="risk-text">Scoreboard abuse / spam</span><span class="risk-impact">Med</span></div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Puzzle too easy / hard</span><span class="risk-impact">Med</span></div>
+</div>
+<div class="card">
+<div class="card-title">Decision Log</div>
+<div class="decision-item"><span class="decision-date">2026-03-14</span><span class="decision-text">Project initiated</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-14</span><span class="decision-text">5-minute timer (vs NYT untimed)</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-14</span><span class="decision-text">Web app for max shareability</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-14</span><span class="decision-text">Nicknames for scoreboard</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-14</span><span class="decision-text">Scoring = length + obscurity</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-14</span><span class="decision-text">Hosting TBD — prototype first</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-14</span><span class="decision-text">Design approved: Vanilla JS + Express + SQLite</span></div>
+</div>
+</div>
+
+<!-- Open Questions -->
+<div class="card">
+<div class="card-title">Open Questions</div>
+<div style="padding:10px 14px;background:#3b82f60d;border-left:3px solid #3b82f6;border-radius:0 8px 8px 0;font-size:0.9rem">Hosting preference (revisit after prototype)</div>
+</div>
+
+</body>
+</html>

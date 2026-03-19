@@ -292,9 +292,6 @@ select.field-select {
 }
 .toast.show { opacity:1; transform:translateY(0); }
 </style>
-<meta name="google-site-verification" content="kW4a01m15KuJy1nc9RStj2h4bXvGCTIBrMhCHTxUiSs" />
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-B0X6HBHKH3"></script>
-<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','G-B0X6HBHKH3');</script>
 </head>
 <body>
 
@@ -311,6 +308,7 @@ select.field-select {
   <div class="sidebar-section">Views</div>
   <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">🏠</span> Dashboard</div>
   <div class="nav-item" onclick="showPage('projects')"><span class="icon">📁</span> Projects</div>
+  <a href="/pm-charters/" class="nav-item" style="text-decoration:none;color:inherit"><span class="icon">📜</span> Programs</a>
   <div class="nav-item" onclick="showPage('timeline')"><span class="icon">📅</span> Timeline</div>
   <div class="nav-section-label"></div>
   <div class="sidebar-section">Monitor</div>
@@ -604,6 +602,7 @@ function renderProjectCard(c, compact) {
   `).join('') || '<div style="color:var(--text-dim);font-size:0.82rem">No decisions logged</div>';
 
   const liveUrlHtml = c.liveUrl ? `<a href="${escAttr(c.liveUrl)}" target="_blank" style="color:var(--accent);font-size:0.78rem;text-decoration:none;">🔗 ${escHtml(c.liveUrl)} →</a>` : '';
+  const charterPageHtml = `<a href="/pm-charters/${c.id}.html" style="color:var(--accent-2);font-size:0.78rem;text-decoration:none;margin-left:8px;">📜 View Charter →</a>`;
 
   return `
     <div class="project-card" data-id="${c.id}">
@@ -611,6 +610,7 @@ function renderProjectCard(c, compact) {
         <span class="project-id">#${c.id}</span>
         <span class="project-title">${escHtml(c.title)}</span>
         ${liveUrlHtml}
+        ${charterPageHtml}
         ${blockerCount ? `<span class="blocker-badge">⚠ ${blockerCount} blocker${blockerCount > 1 ? 's' : ''}</span>` : ''}
         <div class="project-status">
           <div class="status-dot ${dotCls}"></div>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programs — Project Management</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#111;color:#e0e0e0;padding:24px}
+h1{font-size:1.8rem;margin-bottom:8px;color:#fff}
+.subtitle{color:#888;margin-bottom:32px;font-size:0.95rem}
+.counter{background:#ffffff08;border:1px solid #333;border-radius:12px;padding:16px 24px;margin-bottom:32px;display:flex;gap:32px}
+.counter-item .count{font-size:1.6rem;font-weight:700;color:#fff}
+.counter-item .label{font-size:0.75rem;color:#888;text-transform:uppercase;letter-spacing:0.5px}
+.programs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px}
+.program-card{background:#1a1a2e;border-radius:16px;padding:28px;border:1px solid #333;transition:transform 0.2s,border-color 0.2s;cursor:pointer;text-decoration:none;color:inherit;display:block}
+.program-card:hover{transform:translateY(-2px);border-color:#3b82f6}
+.program-card.empty{opacity:0.5;cursor:default}
+.program-card.empty:hover{transform:none;border-color:#333}
+.program-icon{font-size:2rem;margin-bottom:12px}
+.program-name{font-size:1.3rem;font-weight:700;color:#fff;margin-bottom:6px}
+.program-series{font-size:0.72rem;font-weight:600;padding:3px 10px;border-radius:12px;background:#3b82f611;color:#3b82f6;border:1px solid #3b82f633;letter-spacing:0.5px;text-transform:uppercase;display:inline-block;margin-bottom:12px}
+.program-desc{font-size:0.88rem;color:#aaa;line-height:1.5;margin-bottom:16px}
+.program-stats{display:flex;gap:16px;font-size:0.8rem}
+.program-stat{display:flex;align-items:center;gap:4px}
+.program-stat .dot{width:8px;height:8px;border-radius:50%}
+.dot-live{background:#10b981}
+.dot-progress{background:#f59e0b}
+.dot-planned{background:#8b5cf6}
+.program-stat .val{color:#ddd}
+.program-stat .lbl{color:#666}
+</style>
+</head>
+<body>
+
+<h1>📋 Programs</h1>
+<p class="subtitle">Select a program to view its charters</p>
+
+<div class="counter">
+<div class="counter-item">
+<div class="count">7</div>
+<div class="label">Programs</div>
+</div>
+<div class="counter-item">
+<div class="count" style="color:#10b981">10</div>
+<div class="label">Total Charters</div>
+</div>
+<div class="counter-item">
+<div class="count" style="color:#10b981">6</div>
+<div class="label">Live</div>
+</div>
+<div class="counter-item">
+<div class="count" style="color:#f59e0b">4</div>
+<div class="label">In Progress</div>
+</div>
+</div>
+
+<div class="programs-grid">
+
+<a href="/pm-charters/neural-nexus.html" class="program-card">
+<div class="program-icon">🧠</div>
+<div class="program-name">Neural NeXus</div>
+<span class="program-series">100-series</span>
+<div class="program-desc">Website, games, newsletter, content pipeline, SEO, and social media for the Neural NeXus platform.</div>
+<div class="program-stats">
+<div class="program-stat"><div class="dot dot-live"></div><span class="val">4 Live</span></div>
+<div class="program-stat"><div class="dot dot-progress"></div><span class="val">2 In Progress</span></div>
+<div class="program-stat"><span class="lbl">6 charters</span></div>
+</div>
+</a>
+
+<a href="/pm-charters/cognitive-enhancements.html" class="program-card">
+<div class="program-icon">🧬</div>
+<div class="program-name">Cognitive Enhancements</div>
+<span class="program-series">200-series</span>
+<div class="program-desc">Nootropic supplementation, cognitive performance tracking, and optimization protocols.</div>
+<div class="program-stats">
+<div class="program-stat"><div class="dot dot-progress"></div><span class="val">2 In Progress</span></div>
+<div class="program-stat"><span class="lbl">2 charters</span></div>
+</div>
+</a>
+
+<a href="/pm-charters/project-management.html" class="program-card">
+<div class="program-icon">📊</div>
+<div class="program-name">Project Management</div>
+<span class="program-series">700-series</span>
+<div class="program-desc">Charter templates, PMO dashboard infrastructure, agent onboarding, and operational scaling.</div>
+<div class="program-stats">
+<div class="program-stat"><div class="dot dot-live"></div><span class="val">2 Live</span></div>
+<div class="program-stat"><span class="lbl">2 charters</span></div>
+</div>
+</a>
+
+<div class="program-card empty">
+<div class="program-icon">🦣</div>
+<div class="program-name">Colossal Biosciences</div>
+<span class="program-series">300-series</span>
+<div class="program-desc">De-extinction and synthetic biology projects.</div>
+<div class="program-stats">
+<div class="program-stat"><span class="lbl">No charters yet</span></div>
+</div>
+</div>
+
+<div class="program-card empty">
+<div class="program-icon">💪</div>
+<div class="program-name">Physical Health</div>
+<span class="program-series">400-series</span>
+<div class="program-desc">Fitness, nutrition, and physical optimization.</div>
+<div class="program-stats">
+<div class="program-stat"><span class="lbl">No charters yet</span></div>
+</div>
+</div>
+
+<div class="program-card empty">
+<div class="program-icon">🔬</div>
+<div class="program-name">Treat Biosciences</div>
+<span class="program-series">500-series</span>
+<div class="program-desc">Biotech research and development projects.</div>
+<div class="program-stats">
+<div class="program-stat"><span class="lbl">No charters yet</span></div>
+</div>
+</div>
+
+<div class="program-card empty">
+<div class="program-icon">📁</div>
+<div class="program-name">Miscellaneous</div>
+<span class="program-series">600-series</span>
+<div class="program-desc">Uncategorized projects and experiments.</div>
+<div class="program-stats">
+<div class="program-stat"><span class="lbl">No charters yet</span></div>
+</div>
+</div>
+
+</div>
+
+</body>
+</html>

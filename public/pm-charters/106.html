@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charter 106 — Substack to TikTok Converter</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#111;color:#e0e0e0;padding:24px}
+a{color:#3b82f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:0.9rem;margin-bottom:24px;color:#888}
+.back:hover{color:#fff}
+h1{font-size:1.6rem;margin-bottom:6px;color:#fff}
+.subtitle{color:#888;margin-bottom:28px;font-size:0.9rem}
+.card{background:#1a1a2e;border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid #333}
+.card-title{font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #333}
+.charter-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.charter-item{padding:12px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a}
+.charter-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:3px}
+.charter-value{font-size:0.92rem;color:#fff}
+.objective{padding:14px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a;margin-top:12px;line-height:1.6;font-size:0.92rem}
+.obj-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:6px}
+.status-badge{display:inline-block;padding:4px 14px;border-radius:16px;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44}
+.phase-tracker{display:flex;gap:4px;margin-bottom:8px}
+.phase{flex:1;padding:12px 6px;border-radius:8px;text-align:center;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.phase.done{background:#10b98122;color:#10b981;border:1px solid #10b98144}
+.phase.active{background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644;box-shadow:0 0 12px #3b82f615}
+.phase.upcoming{background:#ffffff08;color:#555;border:1px solid #ffffff0a}
+.scope-list{list-style:none;padding:0}
+.scope-list li{padding:8px 12px;margin-bottom:6px;background:#ffffff06;border-radius:6px;font-size:0.88rem;display:flex;align-items:center;gap:8px}
+.scope-list li::before{content:"✓";color:#10b981;font-weight:700;font-size:0.8rem}
+.scope-out li::before{content:"✕";color:#ef4444}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.decision-item{display:flex;gap:12px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.decision-date{color:#666;font-size:0.78rem;min-width:85px}
+.decision-text{font-size:0.85rem}
+.risk-item{display:flex;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;align-items:center}
+.risk-badge{font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:600;min-width:45px;text-align:center}
+.risk-med{background:#f59e0b22;color:#f59e0b}
+.risk-low{background:#10b98122;color:#10b981}
+.risk-high{background:#ef444422;color:#ef4444}
+.risk-text{flex:1;font-size:0.85rem}
+.risk-impact{font-size:0.75rem;color:#666}
+.sign-off-box{padding:16px;border-radius:10px;display:flex;align-items:center;gap:12px;font-size:0.95rem}
+.sign-off-box.inprogress{background:#f59e0b0d;border:1px solid #f59e0b33;color:#f59e0b}
+.outstanding-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;font-size:0.88rem}
+.outstanding-item input[type=checkbox]{width:16px;height:16px;accent-color:#10b981;flex-shrink:0}
+.milestone-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.milestone-status{font-size:0.85rem;min-width:20px}
+.milestone-name{font-weight:600;font-size:0.88rem;color:#fff;min-width:140px}
+.milestone-tasks{font-size:0.82rem;color:#999;flex:1}
+</style>
+</head>
+<body>
+
+<a href="/pm-charters/neural-nexus.html" class="back">← Neural NeXus</a>
+
+<h1>🎬 Substack to TikTok Converter</h1>
+<p class="subtitle">Charter 106 · Initiated 2026-03-16</p>
+
+<!-- Status & Phase -->
+<div class="card">
+<div class="card-title">Current Status</div>
+<div style="margin-bottom:16px"><span class="status-badge">🟡 In Progress — Requirements Phase</span></div>
+<div class="phase-tracker">
+<div class="phase active">📝 Requirements</div>
+<div class="phase upcoming">🎨 Design</div>
+<div class="phase upcoming">⚙️ Implementation</div>
+<div class="phase upcoming">🧪 Testing</div>
+<div class="phase upcoming">🚀 Deployment</div>
+<div class="phase upcoming">🔧 Maintenance</div>
+</div>
+</div>
+
+<!-- Charter Details -->
+<div class="card">
+<div class="card-title">Project Charter</div>
+<div class="charter-grid">
+<div class="charter-item"><div class="charter-label">Project ID</div><div class="charter-value">106</div></div>
+<div class="charter-item"><div class="charter-label">Owner</div><div class="charter-value">David Kingsley</div></div>
+<div class="charter-item"><div class="charter-label">Program</div><div class="charter-value">Neural NeXus</div></div>
+<div class="charter-item"><div class="charter-label">Date Initiated</div><div class="charter-value">2026-03-16</div></div>
+<div class="charter-item"><div class="charter-label">Status</div><div class="charter-value">🟡 In Progress</div></div>
+<div class="charter-item"><div class="charter-label">TikTok Account</div><div class="charter-value">@science.chad</div></div>
+</div>
+<div class="objective">
+<div class="obj-label">Objective</div>
+Automated pipeline that converts Neural NeXus Substack posts into TikTok-ready short-form video content, designed to drive traffic back to Substack for subscriber growth.
+</div>
+<div class="objective" style="margin-top:8px">
+<div class="obj-label">Success Criteria</div>
+One Substack post → multiple TikTok-ready clips (30-90s), with hooks, captions, CTA overlay pointing to Substack. Minimal manual effort per post.
+</div>
+</div>
+
+<!-- Sign-off -->
+<div class="card">
+<div class="card-title">Sign-Off</div>
+<div class="sign-off-box inprogress">🟡 In Progress — David Kingsley · 2026-03-16</div>
+</div>
+
+<!-- Scope -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">✅ In Scope</div>
+<ul class="scope-list">
+<li>Parse Substack post (URL or RSS) into structured sections</li>
+<li>Extract 3-5 hook-worthy segments per post</li>
+<li>Generate TikTok scripts (hook → context → payoff → CTA)</li>
+<li>Auto-generate burned-in captions (TikTok style)</li>
+<li>Add CTA overlay: Subscribe link</li>
+<li>Text-to-speech narration (AI voice / David's voice clone)</li>
+<li>9:16 vertical format, 30-90 seconds per clip</li>
+<li>Neural NeXus logo watermark, branding</li>
+<li>Export as MP4 ready for TikTok upload</li>
+<li>Batch mode: one post → 3-5 clips</li>
+</ul>
+</div>
+<div class="card">
+<div class="card-title">🚫 Out of Scope</div>
+<ul class="scope-list scope-out">
+<li>General-purpose video production suite</li>
+<li>Non-Substack content sources</li>
+<li>Instagram Reels / YouTube Shorts (for now)</li>
+</ul>
+</div>
+</div>
+
+<!-- Implementation Milestones -->
+<div class="card">
+<div class="card-title">Implementation Milestones</div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M1: Content Parser</span><span class="milestone-tasks">Substack RSS/URL → structured post data</span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M2: Script Generator</span><span class="milestone-tasks">LLM pipeline: extract hooks, write TikTok scripts</span></div>
+<div class="milestone-item"><span class="milestone-status">✅</span><span class="milestone-name">M3: Video Assembly</span><span class="milestone-tasks">ffmpeg + TTS + Pillow captions + branding overlay (MVP)</span></div>
+<div class="milestone-item"><span class="milestone-status">⬜</span><span class="milestone-name">M4: Voice Clone</span><span class="milestone-tasks">ElevenLabs clone of David's voice — blocked, needs API key</span></div>
+<div class="milestone-item"><span class="milestone-status">⬜</span><span class="milestone-name">M5: Batch Pipeline</span><span class="milestone-tasks">One command: URL → 3-5 ready clips</span></div>
+<div class="milestone-item"><span class="milestone-status">⬜</span><span class="milestone-name">M6: Distribution</span><span class="milestone-tasks">TikTok caption gen, UTM tracking, optional API upload</span></div>
+</div>
+
+<!-- Outstanding Items -->
+<div class="card">
+<div class="card-title">Outstanding Items</div>
+<div class="outstanding-item"><input type="checkbox"> Budget for ElevenLabs TTS API (~$5-22/mo)?</div>
+<div class="outstanding-item"><input type="checkbox"> ElevenLabs API key needed for voice clone (M4)</div>
+<div class="outstanding-item"><input type="checkbox"> Complete batch pipeline (M5)</div>
+<div class="outstanding-item"><input type="checkbox"> TikTok distribution automation (M6)</div>
+</div>
+
+<!-- Risk & Decisions -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">Risk Register</div>
+<div class="risk-item"><span class="risk-badge risk-high">High</span><span class="risk-text">Content feels robotic/AI-generated</span><span class="risk-impact">High</span></div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Voice clone quality insufficient</span><span class="risk-impact">Med</span></div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Copyright issues with stock footage/music</span><span class="risk-impact">High</span></div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">TikTok algorithm buries content</span><span class="risk-impact">Med</span></div>
+<div class="risk-item"><span class="risk-badge risk-high">High</span><span class="risk-text">Scope creep into full video production suite</span><span class="risk-impact">Med</span></div>
+</div>
+<div class="card">
+<div class="card-title">Decision Log</div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">Project initiated — grow Neural NeXus via TikTok funnel</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">Short-form only (30-90s) — TikTok algorithm favors this</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">CTA drives to Substack, not website</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">Clone David's voice via ElevenLabs for authenticity</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">David reviews scripts before rendering</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">macOS Samantha TTS as interim voice</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-16</span><span class="decision-text">TikTok account: @science.chad</span></div>
+</div>
+</div>
+
+</body>
+</html>

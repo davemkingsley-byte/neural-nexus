@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charter 201 — Oral Supplementation Protocol</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#111;color:#e0e0e0;padding:24px}
+a{color:#3b82f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:0.9rem;margin-bottom:24px;color:#888}
+.back:hover{color:#fff}
+h1{font-size:1.6rem;margin-bottom:6px;color:#fff}
+.subtitle{color:#888;margin-bottom:28px;font-size:0.9rem}
+.card{background:#1a1a2e;border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid #333}
+.card-title{font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #333}
+.charter-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.charter-item{padding:12px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a}
+.charter-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:3px}
+.charter-value{font-size:0.92rem;color:#fff}
+.objective{padding:14px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a;margin-top:12px;line-height:1.6;font-size:0.92rem}
+.obj-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:6px}
+.status-badge{display:inline-block;padding:4px 14px;border-radius:16px;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44}
+.phase-tracker{display:flex;gap:4px;margin-bottom:8px}
+.phase{flex:1;padding:12px 6px;border-radius:8px;text-align:center;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.phase.done{background:#10b98122;color:#10b981;border:1px solid #10b98144}
+.phase.active{background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644;box-shadow:0 0 12px #3b82f615}
+.phase.upcoming{background:#ffffff08;color:#555;border:1px solid #ffffff0a}
+.scope-list{list-style:none;padding:0}
+.scope-list li{padding:8px 12px;margin-bottom:6px;background:#ffffff06;border-radius:6px;font-size:0.88rem;display:flex;align-items:center;gap:8px}
+.scope-list li::before{content:"✓";color:#10b981;font-weight:700;font-size:0.8rem}
+.scope-out li::before{content:"✕";color:#ef4444}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.decision-item{display:flex;gap:12px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.decision-date{color:#666;font-size:0.78rem;min-width:85px}
+.decision-text{font-size:0.85rem}
+.risk-item{display:flex;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;align-items:center}
+.risk-badge{font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:600;min-width:45px;text-align:center}
+.risk-med{background:#f59e0b22;color:#f59e0b}
+.risk-low{background:#10b98122;color:#10b981}
+.risk-high{background:#ef444422;color:#ef4444}
+.risk-text{flex:1;font-size:0.85rem}
+.risk-impact{font-size:0.75rem;color:#666}
+.sign-off-box{padding:16px;border-radius:10px;display:flex;align-items:center;gap:12px;font-size:0.95rem}
+.sign-off-box.inprogress{background:#f59e0b0d;border:1px solid #f59e0b33;color:#f59e0b}
+.outstanding-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;font-size:0.88rem}
+.outstanding-item input[type=checkbox]{width:16px;height:16px;accent-color:#10b981;flex-shrink:0}
+.phase-row{display:flex;gap:12px;padding:10px 14px;background:#ffffff06;border-radius:6px;margin-bottom:6px;align-items:center}
+.phase-row-status{font-size:0.85rem;min-width:20px}
+.phase-row-name{font-weight:600;font-size:0.88rem;color:#fff;min-width:140px}
+.phase-row-desc{font-size:0.82rem;color:#999;flex:1}
+.profile-item{padding:10px 14px;background:#ffffff06;border-radius:6px;margin-bottom:8px;font-size:0.88rem}
+.profile-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:4px}
+</style>
+</head>
+<body>
+
+<a href="/pm-charters/cognitive-enhancements.html" class="back">← Cognitive Enhancements</a>
+
+<h1>💊 Oral Supplementation Protocol</h1>
+<p class="subtitle">Charter 201 · Initiated 2026-03-17</p>
+
+<!-- Status & Phase -->
+<div class="card">
+<div class="card-title">Current Status</div>
+<div style="margin-bottom:16px"><span class="status-badge">🟡 In Progress — Phase 1 Ordered</span></div>
+<div class="phase-tracker">
+<div class="phase done">📝 Requirements ✓</div>
+<div class="phase done">🎨 Design ✓</div>
+<div class="phase active">⚙️ Implementation</div>
+<div class="phase upcoming">🧪 Testing</div>
+<div class="phase upcoming">🚀 Deployment</div>
+<div class="phase upcoming">🔧 Maintenance</div>
+</div>
+</div>
+
+<!-- Charter Details -->
+<div class="card">
+<div class="card-title">Project Charter</div>
+<div class="charter-grid">
+<div class="charter-item"><div class="charter-label">Project ID</div><div class="charter-value">201</div></div>
+<div class="charter-item"><div class="charter-label">Owner</div><div class="charter-value">David Kingsley</div></div>
+<div class="charter-item"><div class="charter-label">Program</div><div class="charter-value">Cognitive Enhancements</div></div>
+<div class="charter-item"><div class="charter-label">Date Initiated</div><div class="charter-value">2026-03-17</div></div>
+<div class="charter-item"><div class="charter-label">Status</div><div class="charter-value">🟡 In Progress</div></div>
+<div class="charter-item"><div class="charter-label">Priority</div><div class="charter-value">High</div></div>
+</div>
+<div class="objective">
+<div class="obj-label">Objective</div>
+Design a personalized, evidence-based oral supplementation protocol targeting cognitive performance — memory, focus, processing speed, neuroprotection, and long-term brain health.
+</div>
+</div>
+
+<!-- Sign-off -->
+<div class="card">
+<div class="card-title">Sign-Off</div>
+<div class="sign-off-box inprogress">🟡 In Progress — David Kingsley · 2026-03-17 | Amazon order placed 2026-03-18</div>
+</div>
+
+<!-- Baseline Profile -->
+<div class="card">
+<div class="card-title">Baseline Profile</div>
+<div class="profile-item"><div class="profile-label">Current Stack</div>Creatine monohydrate 5g · Fish oil · Multivitamin · B-complex · Vitamin D · Vitamin C · Glutamine</div>
+<div class="profile-item"><div class="profile-label">Allergies</div>Sulfa medications only</div>
+<div class="profile-item"><div class="profile-label">Goal Priority</div>1. Focus/Attention &nbsp; 2. Memory &nbsp; 3. Neuroprotection/Longevity &nbsp; 4. Stress Resilience/Mood</div>
+<div class="profile-item"><div class="profile-label">Top 3 Potent Compounds Selected</div>Modafinil · Phenylpiracetam · Cerebrolysin</div>
+<div class="profile-item"><div class="profile-label">Budget Approach</div>ROI-driven — invest heavily if evidence supports it</div>
+</div>
+
+<!-- Scope -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">✅ In Scope</div>
+<ul class="scope-list">
+<li>Racetams (piracetam, aniracetam, phenylpiracetam)</li>
+<li>Cholinergics (alpha-GPC, CDP-choline, huperzine A)</li>
+<li>Adaptogens (lion's mane, ashwagandha, rhodiola, bacopa)</li>
+<li>Amino acids (L-theanine, creatine, NAC, taurine)</li>
+<li>Omega-3 (DHA/EPA), phosphatidylserine</li>
+<li>Vitamins/minerals (B-complex, D3, magnesium L-threonate)</li>
+<li>Off-label pharma: modafinil, roflumilast, sildenafil, lithium orotate, metformin, rapamycin</li>
+<li>Injectable peptides: Cerebrolysin, research peptides (7,8-DHF)</li>
+<li>Novel pathways: TrkB, σ1, mGluR5, PDE4/5, CREB, Nrf2</li>
+<li>Tier ranking (A/B/C) by evidence strength</li>
+<li>Dosing schedule with timing and cycling protocols</li>
+<li>Brand/product recommendations (NSF/USP certified)</li>
+</ul>
+</div>
+<div class="card">
+<div class="card-title">🚫 Out of Scope</div>
+<ul class="scope-list scope-out">
+<li>Psychedelics / microdosing (separate charter)</li>
+<li>Medical diagnosis or treatment</li>
+</ul>
+</div>
+</div>
+
+<!-- Phases -->
+<div class="card">
+<div class="card-title">Execution Phases</div>
+<div class="phase-row"><span class="phase-row-status">✅</span><span class="phase-row-name">1. Research</span><span class="phase-row-desc">Literature review completed — compound review, novel pathways, off-label pharma docs produced</span></div>
+<div class="phase-row"><span class="phase-row-status">✅</span><span class="phase-row-name">2. Analysis</span><span class="phase-row-desc">Tier A/B/C ranking done, potent tier selected (Modafinil, Phenylpiracetam, Cerebrolysin)</span></div>
+<div class="phase-row"><span class="phase-row-status">🟡</span><span class="phase-row-name">3. Protocol Design</span><span class="phase-row-desc">Shopping list produced; full protocol pending</span></div>
+<div class="phase-row"><span class="phase-row-status">✅</span><span class="phase-row-name">4. Sourcing</span><span class="phase-row-desc">Shopping list with specific brands, patented forms, Amazon links</span></div>
+<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">5. Tracking</span><span class="phase-row-desc">Metrics framework — see Charter 202</span></div>
+<div class="phase-row"><span class="phase-row-status">🟡</span><span class="phase-row-name">6. Implementation</span><span class="phase-row-desc">Amazon order placed 2026-03-18, awaiting delivery</span></div>
+</div>
+
+<!-- Outstanding Items -->
+<div class="card">
+<div class="card-title">Outstanding Items</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Literature review completed</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Tier ranking completed</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Shopping list produced with Amazon links</div>
+<div class="outstanding-item"><input type="checkbox"> Complete full dosing protocol with timing and cycling</div>
+<div class="outstanding-item"><input type="checkbox"> Set up tracking metrics (see Charter 202)</div>
+<div class="outstanding-item"><input type="checkbox"> 30/60/90-day checkpoints after Amazon order arrives</div>
+</div>
+
+<!-- Risk & Decisions -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">Risk Register</div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Supplement interactions with existing medications</span><span class="risk-impact">High</span></div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Low-quality / contaminated products</span><span class="risk-impact">High</span></div>
+<div class="risk-item"><span class="risk-badge risk-high">High</span><span class="risk-text">Placebo effect masking real evaluation</span><span class="risk-impact">Med</span></div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Overcomplicated protocol leads to poor adherence</span><span class="risk-impact">High</span></div>
+</div>
+<div class="card">
+<div class="card-title">Decision Log</div>
+<div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">Charter created — cognitive enhancement project initiated</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">Scope expanded to off-label pharma + injectables + novel pathways</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">Compound review completed (with PubMed citations)</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">Top 3 potent: Modafinil, Phenylpiracetam, Cerebrolysin</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-18</span><span class="decision-text">Amazon order placed — Phase 1 supplements ordered</span></div>
+</div>
+</div>
+
+</body>
+</html>

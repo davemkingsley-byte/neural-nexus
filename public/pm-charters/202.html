@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charter 202 — Cognitive Performance Tracker</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#111;color:#e0e0e0;padding:24px}
+a{color:#3b82f6;text-decoration:none}
+a:hover{text-decoration:underline}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:0.9rem;margin-bottom:24px;color:#888}
+.back:hover{color:#fff}
+h1{font-size:1.6rem;margin-bottom:6px;color:#fff}
+.subtitle{color:#888;margin-bottom:28px;font-size:0.9rem}
+.card{background:#1a1a2e;border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid #333}
+.card-title{font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #333}
+.charter-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.charter-item{padding:12px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a}
+.charter-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:3px}
+.charter-value{font-size:0.92rem;color:#fff}
+.objective{padding:14px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a;margin-top:12px;line-height:1.6;font-size:0.92rem}
+.obj-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:6px}
+.status-badge{display:inline-block;padding:4px 14px;border-radius:16px;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;background:#f59e0b22;color:#f59e0b;border:1px solid #f59e0b44}
+.phase-tracker{display:flex;gap:4px;margin-bottom:8px}
+.phase{flex:1;padding:12px 6px;border-radius:8px;text-align:center;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.3px}
+.phase.done{background:#10b98122;color:#10b981;border:1px solid #10b98144}
+.phase.active{background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644;box-shadow:0 0 12px #3b82f615}
+.phase.upcoming{background:#ffffff08;color:#555;border:1px solid #ffffff0a}
+.scope-list{list-style:none;padding:0}
+.scope-list li{padding:8px 12px;margin-bottom:6px;background:#ffffff06;border-radius:6px;font-size:0.88rem;display:flex;align-items:center;gap:8px}
+.scope-list li::before{content:"✓";color:#10b981;font-weight:700;font-size:0.8rem}
+.scope-out li::before{content:"✕";color:#ef4444}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.decision-item{display:flex;gap:12px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.decision-date{color:#666;font-size:0.78rem;min-width:85px}
+.decision-text{font-size:0.85rem}
+.risk-item{display:flex;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;align-items:center}
+.risk-badge{font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:600;min-width:45px;text-align:center}
+.risk-med{background:#f59e0b22;color:#f59e0b}
+.risk-low{background:#10b98122;color:#10b981}
+.risk-high{background:#ef444422;color:#ef4444}
+.risk-text{flex:1;font-size:0.85rem}
+.risk-impact{font-size:0.75rem;color:#666}
+.sign-off-box{padding:16px;border-radius:10px;display:flex;align-items:center;gap:12px;font-size:0.95rem}
+.sign-off-box.inprogress{background:#f59e0b0d;border:1px solid #f59e0b33;color:#f59e0b}
+.outstanding-item{display:flex;align-items:center;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;font-size:0.88rem}
+.outstanding-item input[type=checkbox]{width:16px;height:16px;accent-color:#10b981;flex-shrink:0}
+.phase-row{display:flex;gap:12px;padding:10px 14px;background:#ffffff06;border-radius:6px;margin-bottom:6px;align-items:center}
+.phase-row-status{font-size:0.85rem;min-width:20px}
+.phase-row-name{font-weight:600;font-size:0.88rem;color:#fff;min-width:160px}
+.phase-row-desc{font-size:0.82rem;color:#999;flex:1}
+.track-table{width:100%;border-collapse:collapse;font-size:0.85rem}
+.track-table th{text-align:left;padding:8px 12px;color:#888;font-size:0.7rem;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #333}
+.track-table td{padding:8px 12px;border-bottom:1px solid #ffffff0a;vertical-align:top}
+.track-table td:first-child{color:#fff;font-weight:600}
+</style>
+</head>
+<body>
+
+<a href="/pm-charters/cognitive-enhancements.html" class="back">← Cognitive Enhancements</a>
+
+<h1>📊 Cognitive Performance Tracker</h1>
+<p class="subtitle">Charter 202 · Initiated 2026-03-17</p>
+
+<!-- Status & Phase -->
+<div class="card">
+<div class="card-title">Current Status</div>
+<div style="margin-bottom:16px"><span class="status-badge">🟡 Data Collection — Baseline Prep</span></div>
+<div class="phase-tracker">
+<div class="phase done">📝 Requirements ✓</div>
+<div class="phase active">🎨 Design</div>
+<div class="phase upcoming">⚙️ Implementation</div>
+<div class="phase upcoming">🧪 Testing</div>
+<div class="phase upcoming">🚀 Deployment</div>
+<div class="phase upcoming">🔧 Maintenance</div>
+</div>
+</div>
+
+<!-- Charter Details -->
+<div class="card">
+<div class="card-title">Project Charter</div>
+<div class="charter-grid">
+<div class="charter-item"><div class="charter-label">Project ID</div><div class="charter-value">202</div></div>
+<div class="charter-item"><div class="charter-label">Owner</div><div class="charter-value">David Kingsley</div></div>
+<div class="charter-item"><div class="charter-label">Program</div><div class="charter-value">Cognitive Enhancements</div></div>
+<div class="charter-item"><div class="charter-label">Date Initiated</div><div class="charter-value">2026-03-17</div></div>
+<div class="charter-item"><div class="charter-label">Status</div><div class="charter-value">🟡 In Progress</div></div>
+<div class="charter-item"><div class="charter-label">Dependency</div><div class="charter-value">Feeds Charter 201</div></div>
+</div>
+<div class="objective">
+<div class="obj-label">Objective</div>
+Build a longitudinal cognitive performance measurement system combining standardized testing, chess ELO tracking, and Neural NeXus game analytics — with supplement/intervention phase markers — to objectively evaluate whether cognitive enhancement strategies are working.
+</div>
+</div>
+
+<!-- Sign-off -->
+<div class="card">
+<div class="card-title">Sign-Off</div>
+<div class="sign-off-box inprogress">🟡 In Progress — David Kingsley · 2026-03-17</div>
+</div>
+
+<!-- Three-Track System -->
+<div class="card">
+<div class="card-title">Three-Track Measurement System</div>
+<table class="track-table">
+<tr><th>Track</th><th>Purpose</th><th>Frequency</th><th>Normalization</th></tr>
+<tr><td>Standardized Battery</td><td>Controlled signal, same difficulty every time</td><td>3x/week</td><td>Self-normalizing (same test)</td></tr>
+<tr><td>Chess ELO</td><td>Real-world composite cognitive metric (passive)</td><td>Ongoing (natural play)</td><td>Self-normalizing (rating system)</td></tr>
+<tr><td>Neural NeXus Games</td><td>Supplementary, ecological validity</td><td>Daily (natural play)</td><td>14-day rolling average</td></tr>
+</table>
+<div class="objective" style="margin-top:16px">
+<div class="obj-label">Standardized Battery (~3 min total)</div>
+<strong>Dual N-back</strong> (90s) — working memory, fluid intelligence: max N level, accuracy % &nbsp;|&nbsp;
+<strong>PVT</strong> (60s) — reaction time, sustained attention: median RT, lapses &gt;500ms &nbsp;|&nbsp;
+<strong>DSST</strong> (60s) — processing speed: correct substitutions/min
+</div>
+</div>
+
+<!-- Scope -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">✅ In Scope</div>
+<ul class="scope-list">
+<li>Web-based standardized cognitive tests (dual n-back, PVT, DSST)</li>
+<li>Chess.com API integration (ELO, accuracy, centipawn loss)</li>
+<li>Server-side game result logging (Spelling Bee, Wordle, Crossword)</li>
+<li>Trends dashboard with phase markers (vertical lines at interventions)</li>
+<li>Simple auth (password/token) — private dashboard</li>
+<li>Statistical helper: effect size, confidence intervals</li>
+<li>Data export (CSV)</li>
+<li>2-week baseline before any intervention</li>
+</ul>
+</div>
+<div class="card">
+<div class="card-title">🚫 Out of Scope</div>
+<ul class="scope-list scope-out">
+<li>Mobile native app (web-only)</li>
+<li>EEG / HRV / hardware measurements</li>
+<li>Automated supplement recommendations (Charter 201)</li>
+<li>Social / multiplayer features</li>
+</ul>
+</div>
+</div>
+
+<!-- Phases -->
+<div class="card">
+<div class="card-title">Execution Phases</div>
+<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">1. Design</span><span class="phase-row-desc">Finalize test specs, Chess.com API research, data schema</span></div>
+<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">2. Standardized Battery</span><span class="phase-row-desc">Build dual n-back, PVT, DSST as web pages on neuralnexus.press</span></div>
+<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">3. Game Logging</span><span class="phase-row-desc">Add server-side score logging to Spelling Bee, Wordle, Crossword</span></div>
+<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">4. Chess Integration</span><span class="phase-row-desc">Chess.com API pull, ELO + accuracy tracking</span></div>
+<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">5. Dashboard</span><span class="phase-row-desc">Trends, phase markers, summary cards</span></div>
+<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">6. Baseline</span><span class="phase-row-desc">2-week baseline measurement before any new intervention</span></div>
+<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">7. Deployment</span><span class="phase-row-desc">Push to production, begin longitudinal tracking</span></div>
+</div>
+
+<!-- Outstanding Items -->
+<div class="card">
+<div class="card-title">Outstanding Items</div>
+<div class="outstanding-item"><input type="checkbox"> Confirm dashboard URL path (/brain-lab, /cognitive, or /tracker)</div>
+<div class="outstanding-item"><input type="checkbox"> Finalize test specs and data schema (Phase 1)</div>
+<div class="outstanding-item"><input type="checkbox"> Build standardized battery web pages (Phase 2)</div>
+<div class="outstanding-item"><input type="checkbox"> Add server-side game logging (Phase 3)</div>
+<div class="outstanding-item"><input type="checkbox"> Integrate Chess.com API (Phase 4)</div>
+<div class="outstanding-item"><input type="checkbox"> Build dashboard with phase markers (Phase 5)</div>
+<div class="outstanding-item"><input type="checkbox"> Complete 2-week baseline before starting Charter 201 protocol (Phase 6)</div>
+</div>
+
+<!-- Risk & Decisions -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">Risk Register</div>
+<div class="risk-item"><span class="risk-badge risk-high">High</span><span class="risk-text">Practice effects inflate standardized test scores</span><span class="risk-impact">Med</span></div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Low compliance with 3x/week testing</span><span class="risk-impact">High</span></div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Chess ELO influenced by non-cognitive factors (tilt, fatigue)</span><span class="risk-impact">Low</span></div>
+<div class="risk-item"><span class="risk-badge risk-high">High</span><span class="risk-text">Puzzle difficulty variance in NN games</span><span class="risk-impact">Med</span></div>
+<div class="risk-item"><span class="risk-badge risk-med">Med</span><span class="risk-text">Confirmation bias in interpreting results</span><span class="risk-impact">High</span></div>
+</div>
+<div class="card">
+<div class="card-title">Decision Log</div>
+<div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">Three-track measurement system adopted</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">Chess ELO as primary passive metric — high compliance</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">NN games supplementary only — use 14-day rolling averages</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">Battery: dual n-back + PVT + DSST (3 domains)</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">2-week baseline required before any intervention</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">Chess platform: Chess.com (confirmed)</span></div>
+</div>
+</div>
+
+</body>
+</html>
