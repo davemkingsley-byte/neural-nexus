@@ -343,6 +343,7 @@ select.field-select {
   <div class="nav-item active" onclick="showPage('dashboard')"><span class="icon">🏠</span> Dashboard</div>
   <div class="nav-item" onclick="showPage('projects')"><span class="icon">📁</span> Projects</div>
   <a href="/pm-charters/" class="nav-item" style="text-decoration:none;color:inherit"><span class="icon">📜</span> Programs</a>
+  <div class="nav-item" onclick="showPage('weekly')"><span class="icon">📊</span> Weekly Report</div>
   <div class="nav-item" onclick="showPage('timeline')"><span class="icon">📅</span> Timeline</div>
   <div class="nav-section-label"></div>
   <div class="sidebar-section">Monitor</div>
@@ -424,6 +425,75 @@ select.field-select {
       </select>
     </div>
     <div class="project-list" id="projects-list"></div>
+  </div>
+
+  <!-- Weekly Report Page -->
+  <div id="page-weekly" class="page">
+    <div class="page-header">
+      <div>
+        <h1>Weekly Report</h1>
+        <p id="weekly-period">Week summary</p>
+      </div>
+      <button class="btn-primary" onclick="saveWeeklySnapshot()">📸 Save Snapshot</button>
+    </div>
+
+    <!-- This Week Stats -->
+    <div class="summary-grid" style="grid-template-columns:repeat(6,1fr);margin-bottom:24px;">
+      <div class="summary-card">
+        <div class="s-label">Status Changes</div>
+        <div class="s-value" id="w-status-changes">—</div>
+        <div class="s-sub">this week</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Phase Advances</div>
+        <div class="s-value" id="w-phase-changes">—</div>
+        <div class="s-sub">this week</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Items Completed</div>
+        <div class="s-value" style="color:var(--green)" id="w-items-done">—</div>
+        <div class="s-sub">this week</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Charters Created</div>
+        <div class="s-value" id="w-created">—</div>
+        <div class="s-sub">this week</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Budget</div>
+        <div class="s-value" style="font-size:1.2rem" id="w-budget">—</div>
+        <div class="s-sub">total allocated</div>
+      </div>
+      <div class="summary-card">
+        <div class="s-label">Spent</div>
+        <div class="s-value" style="font-size:1.2rem" id="w-spend">—</div>
+        <div class="s-sub">actual to date</div>
+      </div>
+    </div>
+
+    <!-- Accomplishments Editor -->
+    <div style="margin-bottom:24px;">
+      <div class="detail-label" style="margin-bottom:8px;">Accomplishments This Week</div>
+      <textarea id="weekly-accomplishments" style="width:100%;min-height:120px;padding:12px;border-radius:10px;border:1px solid var(--border-2);background:var(--surface);color:var(--text);font-size:0.88rem;font-family:system-ui;resize:vertical;outline:none;" placeholder="What got done this week? Key wins, milestones hit, problems solved..."></textarea>
+    </div>
+
+    <!-- Portfolio Health -->
+    <div style="margin-bottom:24px;">
+      <div class="detail-label" style="margin-bottom:12px;">Portfolio Health</div>
+      <div id="weekly-portfolio" class="project-list"></div>
+    </div>
+
+    <!-- Activity This Week -->
+    <div style="margin-bottom:24px;">
+      <div class="detail-label" style="margin-bottom:12px;">Activity This Week</div>
+      <div id="weekly-activity" class="activity-list"></div>
+    </div>
+
+    <!-- Past Reports -->
+    <div>
+      <div class="detail-label" style="margin-bottom:12px;">Past Reports</div>
+      <div id="past-reports"></div>
+    </div>
   </div>
 
   <!-- Timeline Page -->
@@ -528,6 +598,7 @@ function showPage(id) {
   document.getElementById('page-' + id)?.classList.add('active');
   event.currentTarget?.classList.add('active');
   if (id === 'activity') loadActivity();
+  if (id === 'weekly') loadWeekly();
 }
 
 // ── Dashboard ─────────────────────────────────────────────────────────────────
@@ -964,6 +1035,107 @@ function showToast(msg, isErr) {
   t.classList.add('show');
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Weekly Report ─────────────────────────────────────────────────────────────
+async function loadWeekly() {
+  try {
+    const res = await fetch('/api/weekly');
+    const data = await res.json();
+    const w = data.currentWeek;
+
+    document.getElementById('weekly-period').textContent = 'Week of ' + w.weekOf;
+    document.getElementById('w-status-changes').textContent = w.activity.statusChanges;
+    document.getElementById('w-phase-changes').textContent = w.activity.phaseChanges;
+    document.getElementById('w-items-done').textContent = w.activity.itemsCompleted;
+    document.getElementById('w-created').textContent = w.activity.chartersCreated;
+    document.getElementById('w-budget').textContent = '$' + w.stats.totalBudget;
+    document.getElementById('w-spend').textContent = '$' + w.stats.totalSpend;
+
+    // Portfolio health - show each charter with priority, status, progress
+    const portfolio = document.getElementById('weekly-portfolio');
+    portfolio.innerHTML = allCharters.map(c => {
+      const priCls = c.priority ? 'priority-' + c.priority.toLowerCase() : 'priority-medium';
+      const dotCls = statusDotClass(c.statusClean);
+      const progColor = c.progress >= 75 ? 'var(--green)' : c.progress >= 40 ? 'var(--yellow)' : 'var(--accent)';
+      let dueTag = '';
+      if (c.overdue) dueTag = '<span class="due-badge due-overdue" style="margin-left:8px">⚠ OVERDUE</span>';
+      else if (c.daysUntilTarget !== null && c.daysUntilTarget <= 7 && c.daysUntilTarget >= 0) dueTag = '<span class="due-badge due-soon" style="margin-left:8px">⏰ ' + c.daysUntilTarget + 'd</span>';
+      return `
+        <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:10px;background:var(--surface);border:1px solid var(--border);margin-bottom:6px;">
+          <span style="font-family:monospace;font-size:0.7rem;color:var(--text-dim);min-width:28px">#${c.id}</span>
+          <span class="priority-badge ${priCls}" style="font-size:0.55rem">${escHtml(c.priority||'Med')}</span>
+          <span style="flex:1;font-size:0.88rem;font-weight:600">${escHtml(c.title)}</span>
+          ${dueTag}
+          <div class="status-dot ${dotCls}" style="margin-left:auto"></div>
+          <span style="font-size:0.72rem;color:var(--text-dim);min-width:60px">${escHtml(c.statusClean)}</span>
+          <div style="width:80px;height:6px;border-radius:3px;background:var(--surface-3);overflow:hidden">
+            <div style="width:${c.progress}%;height:100%;background:${progColor};border-radius:3px"></div>
+          </div>
+          <span style="font-size:0.72rem;font-weight:700;color:${progColor};min-width:32px;text-align:right">${c.progress}%</span>
+        </div>`;
+    }).join('');
+
+    // Activity feed for this week
+    const actList = document.getElementById('weekly-activity');
+    const icons = { status: '🔄', phase: '📍', checkbox: '✅', create: '✨', weekly_snapshot: '📸' };
+    if (w.details?.length) {
+      actList.innerHTML = w.details.map(a => {
+        const icon = icons[a.type] || '📝';
+        const when = new Date(a.ts).toLocaleString();
+        let desc = '';
+        if (a.type === 'status') desc = 'Charter #' + a.charterID + ' status → ' + a.value;
+        else if (a.type === 'phase') desc = 'Charter #' + a.charterID + ' phase → ' + a.value;
+        else if (a.type === 'checkbox') desc = 'Charter #' + a.charterID + ': ' + (a.done ? 'completed' : 'reopened') + ' "' + a.text + '"';
+        else if (a.type === 'create') desc = 'Created charter #' + a.charterID + ': ' + a.name;
+        else if (a.type === 'weekly_snapshot') desc = 'Weekly snapshot saved for ' + a.weekOf;
+        return '<div class="activity-item"><span class="activity-icon">' + icon + '</span><div class="activity-body"><div>' + escHtml(desc) + '</div><div class="activity-meta">' + when + '</div></div></div>';
+      }).join('');
+    } else {
+      actList.innerHTML = '<div class="empty-state">No activity this week yet.</div>';
+    }
+
+    // Past reports
+    const pastDiv = document.getElementById('past-reports');
+    if (data.pastReports?.length) {
+      pastDiv.innerHTML = data.pastReports.map(r => `
+        <div style="padding:14px 18px;border-radius:10px;background:var(--surface);border:1px solid var(--border);margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span style="font-weight:700;font-size:0.9rem;">Week of ${r.weekOf}</span>
+            <span style="font-size:0.68rem;color:var(--text-dim);">Saved ${new Date(r.savedAt).toLocaleString()}</span>
+          </div>
+          <div style="display:flex;gap:16px;font-size:0.78rem;color:var(--text-mid);margin-bottom:8px;">
+            <span>📊 ${r.stats.total} charters</span>
+            <span style="color:var(--green)">🟢 ${r.stats.live} live</span>
+            <span style="color:var(--yellow)">🟡 ${r.stats.inProgress} in progress</span>
+            <span>${r.activityCount} changes</span>
+          </div>
+          ${r.accomplishments ? '<div style="font-size:0.84rem;color:var(--text-mid);line-height:1.5;white-space:pre-wrap;">' + escHtml(r.accomplishments) + '</div>' : ''}
+        </div>
+      `).join('');
+    } else {
+      pastDiv.innerHTML = '<div class="empty-state">No past reports saved yet. Click "Save Snapshot" to create one.</div>';
+    }
+
+  } catch(e) {
+    console.error('Weekly load error:', e);
+  }
+}
+
+async function saveWeeklySnapshot() {
+  const accomplishments = document.getElementById('weekly-accomplishments')?.value || '';
+  try {
+    const res = await fetch('/api/weekly/snapshot', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ accomplishments })
+    });
+    const data = await res.json();
+    showToast('Weekly snapshot saved ✓');
+    loadWeekly();
+  } catch(e) {
+    showToast('Error saving snapshot: ' + e.message, true);
+  }
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
