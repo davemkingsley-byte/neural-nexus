@@ -67,30 +67,6 @@
           ]
         },
         {
-          "id": "103",
-          "title": "Charter Dashboard",
-          "status": "🟢 Live",
-          "statusClean": "Live",
-          "phase": "✅ Deployed",
-          "liveUrl": null,
-          "owner": "David Kingsley",
-          "dateInitiated": "2026-03-15",
-          "objective": "Persistent, browser-accessible dashboard to view and manage all project charters from any device on the local network.",
-          "outstanding": []
-        },
-        {
-          "id": "104",
-          "title": "Project Management System",
-          "status": "🟢 Live",
-          "statusClean": "Live",
-          "phase": "✅ Built — Preview at http://localhost:8082 (pending David review)",
-          "liveUrl": "http://localhost:8082",
-          "owner": "David Kingsley",
-          "dateInitiated": "2026-03-15",
-          "objective": "Build a full-featured, browser-based project management dashboard that reads/writes charter files, tracks status, monitors deployed projects, and surfaces blockers — all from a single UI.",
-          "outstanding": []
-        },
-        {
           "id": "105",
           "title": "Wordle Game",
           "status": "🟢 Live",
@@ -320,13 +296,38 @@
       ]
     },
     {
-      "name": "Colossal Biosciences",
-      "slug": "colossal-biosciences",
-      "charters": []
+      "name": "Project Management",
+      "slug": "project-management",
+      "charters": [
+        {
+          "id": "701",
+          "title": "Project Management System",
+          "status": "🟢 Live",
+          "statusClean": "Live",
+          "phase": "✅ Built — Preview at http://localhost:8082 (pending David review)",
+          "liveUrl": "http://localhost:8082",
+          "owner": "David Kingsley",
+          "dateInitiated": "2026-03-15",
+          "objective": "Build a full-featured, browser-based project management dashboard that reads/writes charter files, tracks status, monitors deployed projects, and surfaces blockers — all from a single UI.",
+          "outstanding": []
+        },
+        {
+          "id": "702",
+          "title": "Charter Dashboard",
+          "status": "🟢 Live",
+          "statusClean": "Live",
+          "phase": "✅ Deployed",
+          "liveUrl": null,
+          "owner": "David Kingsley",
+          "dateInitiated": "2026-03-15",
+          "objective": "Persistent, browser-accessible dashboard to view and manage all project charters from any device on the local network.",
+          "outstanding": []
+        }
+      ]
     },
     {
-      "name": "Miscellaneous",
-      "slug": "miscellaneous",
+      "name": "Colossal Biosciences",
+      "slug": "colossal-biosciences",
       "charters": []
     },
     {
@@ -338,7 +339,12 @@
       "name": "Treat Biosciences",
       "slug": "treat-biosciences",
       "charters": []
+    },
+    {
+      "name": "Miscellaneous",
+      "slug": "miscellaneous",
+      "charters": []
     }
   ],
-  "generated": "2026-03-19T01:50:43.826Z"
+  "generated": "2026-03-19T01:52:14.391Z"
 }
