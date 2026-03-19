@@ -405,9 +405,9 @@ select.field-select {
       <div id="dashboard-activity" class="activity-list"></div>
     </div>
 
-    <!-- Row 4: Portfolio by Risk -->
+    <!-- Row 4: Active Work -->
     <div>
-      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:12px;">📊 Portfolio — Sorted by Priority</div>
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:12px;">🔧 Active Work</div>
       <div id="dashboard-portfolio"></div>
     </div>
   </div>
@@ -708,10 +708,11 @@ function updateDashboard() {
     actDiv.innerHTML = '<div style="padding:14px 20px;border-radius:10px;background:var(--surface);border:1px solid var(--border);color:var(--text-dim);font-size:0.84rem;">No recent activity logged yet.</div>';
   });
 
-  // ── Row 4: Portfolio by Priority ──
+  // ── Row 4: Active Work by Priority (exclude completed/live) ──
   const portfolio = document.getElementById('dashboard-portfolio');
   const priOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-  const sorted = [...allCharters].sort((a, b) => {
+  const activeOnly = allCharters.filter(c => !/live|completed|archived/i.test(c.statusClean) || c.progress < 100);
+  const sorted = [...activeOnly].sort((a, b) => {
     const pa = priOrder[(a.priority || 'medium').toLowerCase()] ?? 2;
     const pb = priOrder[(b.priority || 'medium').toLowerCase()] ?? 2;
     if (pa !== pb) return pa - pb;
