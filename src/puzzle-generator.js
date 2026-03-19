@@ -76,18 +76,9 @@ function scoreWord(word, tier, isPangram) {
   return score;
 }
 
-// Letters that make puzzles frustrating — too few words use them
-const BANNED_LETTERS = new Set(['x', 'z', 'q', 'j']);
-
-function hasBannedLetter(letters) {
-  return letters.some(l => BANNED_LETTERS.has(l.toLowerCase()));
-}
-
 function generatePuzzle(dateStr) {
   const rand = seededRandom(dateToSeed(dateStr));
-  const allPangrams = getPangrams();
-  // Filter out pangrams that contain any banned letter
-  const pangrams = allPangrams.filter(p => !hasBannedLetter(p.letters));
+  const pangrams = getPangrams();
 
   if (pangrams.length === 0) {
     throw new Error('No pangrams found in word list');
