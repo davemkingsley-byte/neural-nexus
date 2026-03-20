@@ -302,11 +302,103 @@ h2 {
   .match-btn { padding: 22px 10px; font-size: 13px; }
   .match-btn .key-hint { display: none; }
 }
+/* ── Nav Bar ── */
+.cog-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  font-size: 13px;
+  font-weight: 500;
+  flex-wrap: wrap;
+}
+.cog-nav a {
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.cog-nav a:hover, .cog-nav a.cog-nav-active { color: #d4a853; }
+.cog-nav-sep { color: rgba(255,255,255,0.15); }
+.cog-nav-label { color: rgba(255,255,255,0.3); }
+
+/* ── Session Toggle ── */
+.session-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.session-toggle .session-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 6px 16px;
+  color: rgba(255,255,255,0.3);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.session-toggle .session-btn.active {
+  background: rgba(212,168,83,0.15);
+  border-color: #d4a853;
+  color: #d4a853;
+}
+.session-toggle .session-btn:hover:not(.active) {
+  border-color: rgba(255,255,255,0.2);
+  color: #e0e0e0;
+}
+
+/* ── Post-test comparison ── */
+.comparison-section {
+  margin-bottom: 20px;
+}
+.comparison-section h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 10px;
+}
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+.comparison-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 14px 10px;
+  text-align: center;
+}
+.comparison-card .comp-val {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+}
+.comparison-card .comp-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  margin-top: 4px;
+}
 </style>
 </head>
 <body>
 
-<a href="/cognitive/" class="back-link">&larr; Back to Dashboard</a>
+<nav class="cog-nav">
+  <a href="/cognitive/">&larr; Dashboard</a>
+  <span class="cog-nav-sep">|</span>
+  <a href="/cognitive/analytics.html">Analytics</a>
+  <span class="cog-nav-sep">|</span>
+  <span class="cog-nav-label">Tests:</span>
+  <a href="/cognitive/dual-n-back.html" class="cog-nav-active">N-Back</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/pvt.html">PVT</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/dsst.html">DSST</a>
+</nav>
 
 <div class="container">
 
@@ -331,6 +423,10 @@ h2 {
         three wrong drops you down.<br>
         &bull; 20 trials. Stay sharp.
       </p>
+    </div>
+    <div class="session-toggle" id="session-toggle">
+      <button class="session-btn" data-session="morning" id="btn-morning">&#9728;&#65039; Morning</button>
+      <button class="session-btn" data-session="evening" id="btn-evening">&#127769; Evening</button>
     </div>
     <button class="btn" id="begin-btn">Begin Test</button>
   </div>
@@ -392,8 +488,27 @@ h2 {
       </div>
     </div>
 
+    <div class="comparison-section" id="comparison-section" style="display:none;">
+      <h3>How You Compare</h3>
+      <div class="comparison-grid">
+        <div class="comparison-card">
+          <div class="comp-val" id="comp-avg">—</div>
+          <div class="comp-label">Your Average</div>
+        </div>
+        <div class="comparison-card">
+          <div class="comp-val" id="comp-am">—</div>
+          <div class="comp-label">AM Average</div>
+        </div>
+        <div class="comparison-card">
+          <div class="comp-val" id="comp-pm">—</div>
+          <div class="comp-label">PM Average</div>
+        </div>
+      </div>
+    </div>
+
     <div class="results-btns">
       <button class="btn" id="save-btn">Save &amp; Return</button>
+      <a href="/cognitive/pvt.html" class="btn" style="text-decoration:none;text-align:center;">Next: PVT &rarr;</a>
       <button class="btn btn-outline" id="retry-btn">Try Again</button>
     </div>
   </div>
@@ -446,6 +561,17 @@ h2 {
   let trialActive     = false;
   let speechAvailable = false;
   let audioCtx        = null;
+
+  // ── Session ──
+  let currentSession = new Date().getHours() < 14 ? 'morning' : 'evening';
+  document.getElementById('btn-' + currentSession).classList.add('active');
+  document.querySelectorAll('.session-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.session-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSession = btn.dataset.session;
+    });
+  });
 
   // ── Build Grid ──
   const cells = [];
@@ -670,7 +796,7 @@ h2 {
   }
 
   // ── Compute & Show Results ──
-  function showResults() {
+  async function showResults() {
     const visualAcc = Math.round(results.filter(r => r.visualCorrect).length / TOTAL_TRIALS * 100);
     const audioAcc  = Math.round(results.filter(r => r.audioCorrect).length / TOTAL_TRIALS * 100);
     const combinedAcc = Math.round(results.filter(r => r.visualCorrect && r.audioCorrect).length / TOTAL_TRIALS * 100);
@@ -685,6 +811,33 @@ h2 {
 
     // Check personal best
     checkPersonalBest(maxN);
+
+    // Fetch comparison stats
+    try {
+      const compResp = await fetch('/api/cognitive/results?days=365');
+      if (compResp.ok) {
+        const compData = await compResp.json();
+        const allNback = (compData.results || compData || []).filter(r => r.test_type === 'nback');
+        if (allNback.length > 0) {
+          const parseScores = r => {
+            const s = typeof r.scores_json === 'string' ? JSON.parse(r.scores_json) : (r.scores || {});
+            return s.max_n || 0;
+          };
+          const allVals = allNback.map(parseScores).filter(v => v > 0);
+          const amVals = allNback.filter(r => r.session === 'morning').map(parseScores).filter(v => v > 0);
+          const pmVals = allNback.filter(r => r.session === 'evening').map(parseScores).filter(v => v > 0);
+
+          const compAvg = arr => arr.length ? (arr.reduce((a,b) => a+b, 0) / arr.length).toFixed(1) : null;
+
+          if (allVals.length > 0) {
+            document.getElementById('comparison-section').style.display = '';
+            document.getElementById('comp-avg').textContent = compAvg(allVals);
+          }
+          if (amVals.length > 0) document.getElementById('comp-am').textContent = compAvg(amVals);
+          if (pmVals.length > 0) document.getElementById('comp-pm').textContent = compAvg(pmVals);
+        }
+      }
+    } catch(e) {}
 
     // Store scores for saving
     resultsScreen.dataset.scores = JSON.stringify({
@@ -726,7 +879,7 @@ h2 {
       await fetch('/api/cognitive/results', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ test_type: 'nback', scores })
+        body: JSON.stringify({ test_type: 'nback', session: currentSession, scores })
       });
     } catch(e) { /* best effort */ }
     window.location.href = '/cognitive/';

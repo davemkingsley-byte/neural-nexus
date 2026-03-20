@@ -30,6 +30,7 @@ function initDB() {
         date TEXT NOT NULL,
         time TEXT NOT NULL,
         scores_json TEXT NOT NULL,
+        session TEXT,
         created_at TEXT DEFAULT (datetime('now'))
       );
 
@@ -60,11 +61,23 @@ function initDB() {
         created_at TEXT DEFAULT (datetime('now'))
       );
 
+      CREATE TABLE IF NOT EXISTS settings (
+        key TEXT PRIMARY KEY,
+        value TEXT
+      );
+
       CREATE INDEX IF NOT EXISTS idx_test_results_date ON test_results(date);
       CREATE INDEX IF NOT EXISTS idx_test_results_type ON test_results(test_type);
       CREATE INDEX IF NOT EXISTS idx_chess_elo_date ON chess_elo(date);
       CREATE INDEX IF NOT EXISTS idx_daily_notes_date ON daily_notes(date);
     `);
+
+    // Add session column to existing test_results if missing
+    try {
+      db.exec('ALTER TABLE test_results ADD COLUMN session TEXT');
+    } catch (e) {
+      // column already exists
+    }
 
     // Pre-populate supplements if table is empty
     const count = db.prepare('SELECT COUNT(*) as cnt FROM supplements').get();
@@ -94,7 +107,7 @@ const stmts = {};
 
 function prepareStatements() {
   stmts.insertResult = db.prepare(
-    'INSERT INTO test_results (test_type, date, time, scores_json) VALUES (?, ?, ?, ?)'
+    'INSERT INTO test_results (test_type, date, time, scores_json, session) VALUES (?, ?, ?, ?, ?)'
   );
   stmts.getResults = db.prepare(
     `SELECT * FROM test_results
@@ -105,6 +118,9 @@ function prepareStatements() {
     `SELECT * FROM test_results
      WHERE test_type = ? AND date >= date('now', '-' || ? || ' days')
      ORDER BY date DESC, time DESC`
+  );
+  stmts.getAllResults = db.prepare(
+    'SELECT * FROM test_results ORDER BY date ASC, time ASC'
   );
   stmts.upsertChessElo = db.prepare(
     `INSERT INTO chess_elo (date, blitz_rating, rapid_rating, bullet_rating)
@@ -118,6 +134,9 @@ function prepareStatements() {
     `SELECT * FROM chess_elo
      WHERE date >= date('now', '-' || ? || ' days')
      ORDER BY date DESC`
+  );
+  stmts.getAllChessElo = db.prepare(
+    'SELECT * FROM chess_elo ORDER BY date ASC'
   );
   stmts.getSupplements = db.prepare(
     'SELECT * FROM supplements ORDER BY start_date'
@@ -139,6 +158,9 @@ function prepareStatements() {
      WHERE date >= date('now', '-' || ? || ' days')
      ORDER BY date DESC`
   );
+  stmts.getAllDailyNotes = db.prepare(
+    'SELECT * FROM daily_notes ORDER BY date ASC'
+  );
   stmts.bestNback = db.prepare(
     `SELECT * FROM test_results
      WHERE test_type = 'nback'
@@ -158,6 +180,12 @@ function prepareStatements() {
     `SELECT scores_json FROM test_results
      WHERE test_type = ? AND date >= date('now', '-' || ? || ' days')`
   );
+  stmts.getSetting = db.prepare('SELECT value FROM settings WHERE key = ?');
+  stmts.upsertSetting = db.prepare(
+    `INSERT INTO settings (key, value) VALUES (?, ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value`
+  );
+  stmts.getAllSettings = db.prepare('SELECT * FROM settings');
 }
 
 // chess_elo needs a unique constraint on date for upsert to work
@@ -178,8 +206,8 @@ module.exports = {
     prepareStatements();
   },
 
-  saveResult(test_type, date, time, scores_json) {
-    return stmts.insertResult.run(test_type, date, time, scores_json);
+  saveResult(test_type, date, time, scores_json, session) {
+    return stmts.insertResult.run(test_type, date, time, scores_json, session || null);
   },
 
   getResults(days = 30) {
@@ -190,12 +218,20 @@ module.exports = {
     return stmts.getResultsByType.all(test_type, days);
   },
 
+  getAllResults() {
+    return stmts.getAllResults.all();
+  },
+
   saveChessElo(date, blitz, rapid, bullet) {
     return stmts.upsertChessElo.run(date, blitz, rapid, bullet);
   },
 
   getChessElo(days = 90) {
     return stmts.getChessElo.all(days);
+  },
+
+  getAllChessElo() {
+    return stmts.getAllChessElo.all();
   },
 
   getSupplements() {
@@ -212,6 +248,10 @@ module.exports = {
 
   getDailyNotes(days = 30) {
     return stmts.getDailyNotes.all(days);
+  },
+
+  getAllDailyNotes() {
+    return stmts.getAllDailyNotes.all();
   },
 
   getPersonalBests() {
@@ -245,6 +285,22 @@ module.exports = {
     }
 
     return null;
+  },
+
+  getSetting(key) {
+    const row = stmts.getSetting.get(key);
+    return row ? row.value : null;
+  },
+
+  saveSetting(key, value) {
+    return stmts.upsertSetting.run(key, value);
+  },
+
+  getAllSettings() {
+    const rows = stmts.getAllSettings.all();
+    const obj = {};
+    rows.forEach(r => { obj[r.key] = r.value; });
+    return obj;
   },
 
   close() {

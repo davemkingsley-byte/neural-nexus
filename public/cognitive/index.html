@@ -79,17 +79,39 @@ body {
   padding: 32px 24px 80px;
 }
 
-/* Back link */
-.back-link {
-  display: inline-flex; align-items: center; gap: 6px;
-  color: var(--text-dim);
-  text-decoration: none;
+/* Nav Bar */
+.cog-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 0 20px;
   font-size: 0.82rem;
   font-weight: 500;
-  transition: color 0.2s;
-  margin-bottom: 24px;
+  flex-wrap: wrap;
 }
-.back-link:hover { color: var(--gold); }
+.cog-nav a {
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.cog-nav a:hover, .cog-nav a.cog-nav-active { color: var(--gold); }
+.cog-nav-sep { color: rgba(255,255,255,0.15); }
+.cog-nav-label { color: var(--text-dim); }
+
+/* Streak badge */
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(212,168,83,0.2);
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--gold);
+  margin-left: auto;
+}
 
 /* Header */
 .page-header {
@@ -460,7 +482,20 @@ body {
 </div>
 
 <div class="page">
-  <a href="/dashboard" class="back-link">&larr; Dashboard</a>
+  <nav class="cog-nav">
+    <a href="/dashboard">&larr; Main Dashboard</a>
+    <span class="cog-nav-sep">|</span>
+    <a href="/cognitive/" class="cog-nav-active">Overview</a>
+    <span class="cog-nav-sep">|</span>
+    <a href="/cognitive/analytics.html">Analytics</a>
+    <span class="cog-nav-sep">|</span>
+    <span class="cog-nav-label">Tests:</span>
+    <a href="/cognitive/dual-n-back.html">N-Back</a>
+    <span class="cog-nav-sep">&middot;</span>
+    <a href="/cognitive/pvt.html">PVT</a>
+    <span class="cog-nav-sep">&middot;</span>
+    <a href="/cognitive/dsst.html">DSST</a>
+  </nav>
 
   <header class="page-header">
     <h1>Cognitive Performance</h1>
@@ -473,6 +508,7 @@ body {
       <div class="status-date" id="todayDate"></div>
       <div class="status-tests" id="testStatus">Loading test status&hellip;</div>
     </div>
+    <span class="streak-badge" id="streakBadge" style="display:none;">&#128293; <span id="streakCount">0</span> day streak</span>
     <a href="#" class="btn-gold" id="startBattery">Start Today's Battery</a>
   </div>
 
@@ -790,7 +826,7 @@ async function init() {
     apiFetch(API.chess),
   ]);
 
-  supplementsData = supplements || [];
+  supplementsData = (supplements && supplements.supplements) ? supplements.supplements : (supplements || []);
 
   // ── Populate supplement timeline ──
   const suppColors = ['#d4a853', '#7ab8e0', '#b07de0', '#34d399', '#f87171', '#fbbf24', '#f472b6', '#60a5fa'];
@@ -816,18 +852,34 @@ async function init() {
   const dsstResults = [];
   let todayTests = { nback: false, pvt: false, dsst: false };
 
-  if (results && Array.isArray(results)) {
-    results.forEach(r => {
-      const date = r.date || r.timestamp?.slice(0, 10);
-      if (r.test === 'nback' || r.test === 'dual-n-back') {
-        nbackResults.push({ date, value: r.max_level || r.level || r.score });
-        if (date === todayStr) todayTests.nback = true;
-      } else if (r.test === 'pvt') {
-        pvtResults.push({ date, value: r.median_rt || r.reaction_time || r.score });
-        if (date === todayStr) todayTests.pvt = true;
-      } else if (r.test === 'dsst') {
-        dsstResults.push({ date, value: r.correct || r.score });
-        if (date === todayStr) todayTests.dsst = true;
+  let todayAM = { nback: false, pvt: false, dsst: false };
+  let todayPM = { nback: false, pvt: false, dsst: false };
+
+  if (results && results.results) {
+    results.results.forEach(r => {
+      const date = r.date;
+      const scores = typeof r.scores_json === 'string' ? JSON.parse(r.scores_json) : (r.scores || r.scores_json || {});
+      if (r.test_type === 'nback') {
+        nbackResults.push({ date, value: scores.max_n || scores.level || 0 });
+        if (date === todayStr) {
+          todayTests.nback = true;
+          if (r.session === 'morning') todayAM.nback = true;
+          if (r.session === 'evening') todayPM.nback = true;
+        }
+      } else if (r.test_type === 'pvt') {
+        pvtResults.push({ date, value: scores.median_rt || scores.reaction_time || 0 });
+        if (date === todayStr) {
+          todayTests.pvt = true;
+          if (r.session === 'morning') todayAM.pvt = true;
+          if (r.session === 'evening') todayPM.pvt = true;
+        }
+      } else if (r.test_type === 'dsst') {
+        dsstResults.push({ date, value: scores.correct || 0 });
+        if (date === todayStr) {
+          todayTests.dsst = true;
+          if (r.session === 'morning') todayAM.dsst = true;
+          if (r.session === 'evening') todayPM.dsst = true;
+        }
       }
     });
   }
@@ -856,16 +908,23 @@ async function init() {
   updateCard('#valDSST', '#trendDSST', dsstResults);
 
   // Chess summary
-  if (chessData && Array.isArray(chessData) && chessData.length > 0) {
-    const sorted = [...chessData].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  const chessHistory = chessData && chessData.history ? chessData.history : (Array.isArray(chessData) ? chessData : []);
+  const chessCurrent = chessData && chessData.current ? chessData.current : null;
+  if (chessCurrent && chessCurrent.blitz) {
+    $('#valChess').textContent = Math.round(chessCurrent.blitz);
+    if (chessHistory.length > 0) {
+      const sorted = [...chessHistory].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      const prev = sorted[sorted.length - 1];
+      const prevElo = prev.blitz_rating || prev.blitz || 0;
+      const t = trendHTML(chessCurrent.blitz, prevElo);
+      $('#trendChess').innerHTML = t.html;
+      $('#trendChess').className = 'trend ' + t.cls;
+    }
+  } else if (chessHistory.length > 0) {
+    const sorted = [...chessHistory].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
     const latest = sorted[sorted.length - 1];
-    const prev = sorted.length > 1 ? sorted[sorted.length - 2] : null;
-    const elo = latest.blitz || latest.elo || latest.value || 0;
-    const prevElo = prev ? (prev.blitz || prev.elo || prev.value || 0) : null;
+    const elo = latest.blitz_rating || latest.blitz || 0;
     $('#valChess').textContent = Math.round(elo);
-    const t = trendHTML(elo, prevElo);
-    $('#trendChess').innerHTML = t.html;
-    $('#trendChess').className = 'trend ' + t.cls;
   } else {
     $('#valChess').textContent = '--';
   }
@@ -875,15 +934,21 @@ async function init() {
   const statusEl = $('#testStatus');
   const batteryBtn = $('#startBattery');
 
+  function sessionIcons(test) {
+    const am = todayAM[test] ? '&#9728;&#65039;&#10003;' : '&#9728;&#65039;&#10007;';
+    const pm = todayPM[test] ? '&#127769;&#10003;' : '&#127769;&#10007;';
+    return `<span style="font-size:0.7rem;opacity:0.6;margin-left:4px">${am} ${pm}</span>`;
+  }
+
   if (doneCount === 3) {
     statusEl.innerHTML = '<span class="done">All 3 tests completed today</span>';
     batteryBtn.textContent = 'All Done';
     batteryBtn.classList.add('completed');
   } else {
     const parts = [];
-    parts.push(todayTests.nback ? '<span class="done">N-Back &#10003;</span>' : '<span class="pending">N-Back</span>');
-    parts.push(todayTests.pvt ? '<span class="done">PVT &#10003;</span>' : '<span class="pending">PVT</span>');
-    parts.push(todayTests.dsst ? '<span class="done">DSST &#10003;</span>' : '<span class="pending">DSST</span>');
+    parts.push(todayTests.nback ? `<span class="done">N-Back &#10003;${sessionIcons('nback')}</span>` : '<span class="pending">N-Back</span>');
+    parts.push(todayTests.pvt ? `<span class="done">PVT &#10003;${sessionIcons('pvt')}</span>` : '<span class="pending">PVT</span>');
+    parts.push(todayTests.dsst ? `<span class="done">DSST &#10003;${sessionIcons('dsst')}</span>` : '<span class="pending">DSST</span>');
     statusEl.innerHTML = `${doneCount}/3 completed: ${parts.join(' &middot; ')}`;
 
     // Link to first uncompleted test
@@ -891,6 +956,15 @@ async function init() {
     else if (!todayTests.pvt) batteryBtn.href = 'pvt.html';
     else batteryBtn.href = 'dsst.html';
   }
+
+  // Fetch streak data
+  try {
+    const analyticsData = await apiFetch('/api/cognitive/analytics');
+    if (analyticsData && analyticsData.current_streak > 0) {
+      document.getElementById('streakBadge').style.display = '';
+      document.getElementById('streakCount').textContent = analyticsData.current_streak;
+    }
+  } catch(e) {}
 
   // ── Render charts ──
   if (nbackResults.length > 0) {
@@ -911,21 +985,23 @@ async function init() {
     $('#chartDSST').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:40px 0">No DSST data yet</p>';
   }
 
-  if (chessData && Array.isArray(chessData) && chessData.length > 0) {
-    const sorted = [...chessData].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-    createChessChart(sorted, supplementsData);
+  if (chessHistory.length > 0) {
+    const sorted = [...chessHistory].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    const chartData = sorted.map(r => ({ date: r.date, blitz: r.blitz_rating, rapid: r.rapid_rating, bullet: r.bullet_rating }));
+    createChessChart(chartData, supplementsData);
   } else {
     $('#chartChess').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:40px 0">No Chess data yet</p>';
   }
 
   // ── Load today's daily check-in if exists ──
-  if (dailyData && Array.isArray(dailyData)) {
-    const todayEntry = dailyData.find(d => (d.date || '').startsWith(todayStr));
+  const dailyNotes = dailyData && dailyData.notes ? dailyData.notes : (Array.isArray(dailyData) ? dailyData : []);
+  if (dailyNotes.length > 0) {
+    const todayEntry = dailyNotes.find(d => (d.date || '').startsWith(todayStr));
     if (todayEntry) {
-      $('#energy').value = todayEntry.energy || 5;
-      $('#energyVal').textContent = todayEntry.energy || 5;
-      $('#focus').value = todayEntry.focus || 5;
-      $('#focusVal').textContent = todayEntry.focus || 5;
+      $('#energy').value = todayEntry.subjective_energy || todayEntry.energy || 5;
+      $('#energyVal').textContent = todayEntry.subjective_energy || todayEntry.energy || 5;
+      $('#focus').value = todayEntry.subjective_focus || todayEntry.focus || 5;
+      $('#focusVal').textContent = todayEntry.subjective_focus || todayEntry.focus || 5;
       $('#sleepHours').value = todayEntry.sleep_hours || '';
       $('#notes').value = todayEntry.notes || '';
       $('#checkinStatus').textContent = 'Saved earlier today';
@@ -943,8 +1019,8 @@ $('#checkinForm').addEventListener('submit', async (e) => {
 
   const payload = {
     date: todayStr,
-    energy: parseInt($('#energy').value),
-    focus: parseInt($('#focus').value),
+    subjective_energy: parseInt($('#energy').value),
+    subjective_focus: parseInt($('#focus').value),
     sleep_hours: parseFloat($('#sleepHours').value) || null,
     notes: $('#notes').value.trim(),
   };

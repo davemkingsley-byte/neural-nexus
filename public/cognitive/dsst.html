@@ -341,11 +341,104 @@ h1 {
 
   .digit-breakdown td, .digit-breakdown th { padding: 6px 3px; font-size: 12px; }
 }
+/* ── Nav Bar ── */
+.cog-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  font-size: 13px;
+  font-weight: 500;
+  flex-wrap: wrap;
+}
+.cog-nav a {
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.cog-nav a:hover, .cog-nav a.cog-nav-active { color: #d4a853; }
+.cog-nav-sep { color: rgba(255,255,255,0.15); }
+.cog-nav-label { color: rgba(255,255,255,0.3); }
+
+/* ── Session Toggle ── */
+.session-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 20px 0;
+}
+.session-toggle .session-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  padding: 6px 16px;
+  color: rgba(255,255,255,0.3);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.session-toggle .session-btn.active {
+  background: rgba(212,168,83,0.15);
+  border-color: #d4a853;
+  color: #d4a853;
+}
+.session-toggle .session-btn:hover:not(.active) {
+  border-color: rgba(255,255,255,0.2);
+  color: #e0e0e0;
+}
+
+/* ── Post-test comparison ── */
+.comparison-section {
+  margin: 0 auto 24px;
+  max-width: 500px;
+}
+.comparison-section h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  margin-bottom: 10px;
+}
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+.comparison-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 14px 10px;
+  text-align: center;
+}
+.comparison-card .comp-val {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+}
+.comparison-card .comp-label {
+  font-size: 11px;
+  color: rgba(255,255,255,0.3);
+  margin-top: 4px;
+}
 </style>
 </head>
 <body>
 
-<a href="/cognitive/" class="back-link">&larr; Back to Dashboard</a>
+<nav class="cog-nav">
+  <a href="/cognitive/">&larr; Dashboard</a>
+  <span class="cog-nav-sep">|</span>
+  <a href="/cognitive/analytics.html">Analytics</a>
+  <span class="cog-nav-sep">|</span>
+  <span class="cog-nav-label">Tests:</span>
+  <a href="/cognitive/dual-n-back.html">N-Back</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/pvt.html">PVT</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/dsst.html" class="cog-nav-active">DSST</a>
+</nav>
 
 <div class="container">
 
@@ -359,7 +452,10 @@ h1 {
       <div class="symbol-key" id="setup-key"></div>
     </div>
 
-    <br>
+    <div class="session-toggle" id="session-toggle">
+      <button class="session-btn" data-session="morning" id="btn-morning">&#9728;&#65039; Morning</button>
+      <button class="session-btn" data-session="evening" id="btn-evening">&#127769; Evening</button>
+    </div>
     <button class="btn-gold" id="btn-begin">Begin Test</button>
   </div>
 
@@ -418,6 +514,24 @@ h1 {
         </thead>
         <tbody id="breakdown-body"></tbody>
       </table>
+    </div>
+
+    <div class="comparison-section" id="comparison-section" style="display:none;">
+      <h3>How You Compare</h3>
+      <div class="comparison-grid">
+        <div class="comparison-card">
+          <div class="comp-val" id="comp-avg">—</div>
+          <div class="comp-label">Your Average</div>
+        </div>
+        <div class="comparison-card">
+          <div class="comp-val" id="comp-am">—</div>
+          <div class="comp-label">AM Average</div>
+        </div>
+        <div class="comparison-card">
+          <div class="comp-val" id="comp-pm">—</div>
+          <div class="comp-label">PM Average</div>
+        </div>
+      </div>
     </div>
 
     <button class="btn-gold" id="btn-save">Save &amp; Return</button>
@@ -494,6 +608,17 @@ h1 {
   let buttonOrder = [];
 
   DIGITS.forEach(d => { perDigit[d] = { correct: 0, total: 0 }; });
+
+  // ── Session ──
+  let currentSession = new Date().getHours() < 14 ? 'morning' : 'evening';
+  document.getElementById('btn-' + currentSession).classList.add('active');
+  document.querySelectorAll('.session-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.session-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSession = btn.dataset.session;
+    });
+  });
 
   // --- DOM ---
   const setupScreen = document.getElementById('setup-screen');
@@ -646,6 +771,7 @@ h1 {
 
     window._dsstPayload = {
       test_type: 'dsst',
+      session: currentSession,
       scores: {
         correct: correct,
         attempted: attempted,
@@ -687,6 +813,34 @@ h1 {
           document.getElementById('pb-badge').style.display = 'inline-flex';
           launchConfetti();
         }
+      })
+      .finally(() => {
+        // Fetch comparison stats
+        fetch('/api/cognitive/results?days=365')
+          .then(r => r.json())
+          .then(data => {
+            const results = Array.isArray(data) ? data : (data.results || []);
+            const allDsst = results.filter(r => r.test_type === 'dsst');
+            if (allDsst.length > 0) {
+              const parseScores = r => {
+                const s = typeof r.scores_json === 'string' ? JSON.parse(r.scores_json) : (r.scores || {});
+                return s.correct || 0;
+              };
+              const allVals = allDsst.map(parseScores).filter(v => v > 0);
+              const amVals = allDsst.filter(r => r.session === 'morning').map(parseScores).filter(v => v > 0);
+              const pmVals = allDsst.filter(r => r.session === 'evening').map(parseScores).filter(v => v > 0);
+
+              const compAvg = arr => arr.length ? (arr.reduce((a,b) => a+b, 0) / arr.length).toFixed(1) : null;
+
+              if (allVals.length > 0) {
+                document.getElementById('comparison-section').style.display = '';
+                document.getElementById('comp-avg').textContent = compAvg(allVals);
+              }
+              if (amVals.length > 0) document.getElementById('comp-am').textContent = compAvg(amVals);
+              if (pmVals.length > 0) document.getElementById('comp-pm').textContent = compAvg(pmVals);
+            }
+          })
+          .catch(() => {});
       });
   }
 

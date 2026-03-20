@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognitive Analytics — Neural NeXus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+:root {
+  --bg: #06060b;
+  --surface: rgba(255,255,255,0.03);
+  --surface-hover: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.08);
+  --border-hover: rgba(255,255,255,0.14);
+  --text: #f0f0f5;
+  --text-dim: rgba(255,255,255,0.35);
+  --text-mid: rgba(255,255,255,0.6);
+  --gold: #d4a853;
+  --gold-dim: rgba(212,168,83,0.15);
+  --gold-glow: rgba(212,168,83,0.25);
+  --green: #34d399;
+  --red: #f87171;
+  --blue: #60a5fa;
+  --teal: #2dd4bf;
+  --chart-grid: rgba(255,255,255,0.05);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  line-height: 1.6;
+}
+
+.ambient {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.ambient .blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+}
+.ambient .blob-1 {
+  top: -10%; left: 10%;
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(212,168,83,0.06) 0%, transparent 70%);
+  animation: drift1 20s ease-in-out infinite alternate;
+}
+.ambient .blob-2 {
+  bottom: -15%; right: 5%;
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(96,165,250,0.04) 0%, transparent 70%);
+  animation: drift2 25s ease-in-out infinite alternate;
+}
+@keyframes drift1 { 0%{transform:translate(0,0)} 100%{transform:translate(40px,-30px)} }
+@keyframes drift2 { 0%{transform:translate(0,0)} 100%{transform:translate(-30px,40px)} }
+
+.page {
+  position: relative; z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+/* Nav */
+.cog-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 0 20px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  flex-wrap: wrap;
+}
+.cog-nav a {
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.cog-nav a:hover, .cog-nav a.cog-nav-active { color: var(--gold); }
+.cog-nav-sep { color: rgba(255,255,255,0.15); }
+.cog-nav-label { color: var(--text-dim); }
+
+/* Header */
+.page-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.page-header h1 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: 2.8rem;
+  color: var(--gold);
+  letter-spacing: -0.5px;
+  margin-bottom: 8px;
+}
+.page-header .subtitle {
+  color: var(--text-mid);
+  font-size: 1rem;
+}
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.section-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: 1.5rem;
+  color: var(--gold);
+  margin-bottom: 20px;
+  margin-top: 40px;
+}
+
+/* Summary cards */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.summary-card {
+  text-align: center;
+  padding: 20px 16px;
+}
+.summary-card .label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.summary-card .value {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.1;
+}
+.summary-card .detail {
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* Per-test summary */
+.test-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+.test-summary-card {
+  padding: 20px;
+}
+.test-summary-card h4 {
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-mid);
+  margin-bottom: 12px;
+}
+.test-stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 0.85rem;
+}
+.test-stat-row .stat-label { color: var(--text-dim); }
+.test-stat-row .stat-value { font-weight: 600; }
+.test-stat-row .am { color: var(--gold); }
+.test-stat-row .pm { color: var(--teal); }
+.test-stat-row .diff-better { color: var(--green); }
+.test-stat-row .diff-worse { color: var(--red); }
+
+/* Charts */
+.charts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+.chart-card {
+  padding: 20px;
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+}
+.chart-card.full-width {
+  grid-column: 1 / -1;
+}
+.chart-card h3 {
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-mid);
+  margin-bottom: 16px;
+}
+.chart-legend {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+  font-size: 0.75rem;
+}
+.chart-legend .legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-dim);
+}
+.chart-legend .legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.chart-wrap {
+  flex: 1;
+  position: relative;
+  min-height: 220px;
+}
+
+/* Statistical analysis table */
+.stats-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 40px;
+}
+.stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+.stats-table th {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-dim);
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+}
+.stats-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.stats-table tr:hover td {
+  background: rgba(255,255,255,0.02);
+}
+.effect-negligible { color: var(--text-dim); }
+.effect-positive { color: var(--green); }
+.effect-negative { color: var(--red); }
+
+/* Supplement timeline */
+.supp-timeline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 40px;
+}
+.supp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.supp-chip .supp-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.supp-chip .supp-start {
+  color: var(--text-dim);
+  font-size: 0.72rem;
+}
+
+/* Export buttons */
+.export-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-mid);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+.btn-outline:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--gold);
+  color: #06060b;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-gold:hover {
+  background: #e0b960;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px var(--gold-glow);
+}
+
+/* Baseline section */
+.baseline-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+}
+.baseline-status {
+  font-size: 0.85rem;
+  color: var(--text-mid);
+}
+.baseline-status strong {
+  color: var(--gold);
+}
+
+/* Loading */
+.loading-msg {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--text-dim);
+  font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .test-summary-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 700px) {
+  .summary-grid { grid-template-columns: 1fr; }
+  .page-header h1 { font-size: 2rem; }
+  .page { padding: 20px 16px 60px; }
+  .stats-table { font-size: 0.78rem; }
+  .stats-table th, .stats-table td { padding: 8px 10px; }
+}
+</style>
+</head>
+<body>
+
+<div class="ambient">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+</div>
+
+<div class="page">
+  <nav class="cog-nav">
+    <a href="/cognitive/">&larr; Dashboard</a>
+    <span class="cog-nav-sep">|</span>
+    <a href="/cognitive/analytics.html" class="cog-nav-active">Analytics</a>
+    <span class="cog-nav-sep">|</span>
+    <span class="cog-nav-label">Tests:</span>
+    <a href="/cognitive/dual-n-back.html">N-Back</a>
+    <span class="cog-nav-sep">&middot;</span>
+    <a href="/cognitive/pvt.html">PVT</a>
+    <span class="cog-nav-sep">&middot;</span>
+    <a href="/cognitive/dsst.html">DSST</a>
+  </nav>
+
+  <header class="page-header">
+    <h1>Cognitive Analytics</h1>
+    <p class="subtitle">Longitudinal performance tracking, AM/PM trends, and statistical analysis</p>
+  </header>
+
+  <div id="loading" class="loading-msg">Loading analytics data&hellip;</div>
+
+  <div id="content" style="display:none;">
+
+    <!-- Baseline bar -->
+    <div class="card baseline-bar" id="baselineBar">
+      <div class="baseline-status" id="baselineStatus">Baseline: calculating&hellip;</div>
+      <button class="btn-gold" id="btn-mark-baseline" style="display:none;">Mark Baseline Complete</button>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="summary-grid">
+      <div class="card summary-card">
+        <div class="label">Total Sessions</div>
+        <div class="value" id="totalSessions">0</div>
+      </div>
+      <div class="card summary-card">
+        <div class="label">Current Streak</div>
+        <div class="value" id="currentStreak">0</div>
+        <div class="detail">consecutive days</div>
+      </div>
+      <div class="card summary-card">
+        <div class="label">Longest Streak</div>
+        <div class="value" id="longestStreak">0</div>
+        <div class="detail">days</div>
+      </div>
+    </div>
+
+    <!-- Per-test AM/PM summary -->
+    <h2 class="section-title">AM vs PM Performance</h2>
+    <div class="test-summary-grid">
+      <div class="card test-summary-card" id="nbackSummary">
+        <h4>N-Back (Max N)</h4>
+        <div class="test-stat-row"><span class="stat-label">Overall</span><span class="stat-value" id="nback-overall">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">AM Mean</span><span class="stat-value am" id="nback-am">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">PM Mean</span><span class="stat-value pm" id="nback-pm">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">Differential</span><span class="stat-value" id="nback-diff">—</span></div>
+      </div>
+      <div class="card test-summary-card" id="pvtSummary">
+        <h4>PVT (Median RT ms)</h4>
+        <div class="test-stat-row"><span class="stat-label">Overall</span><span class="stat-value" id="pvt-overall">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">AM Mean</span><span class="stat-value am" id="pvt-am">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">PM Mean</span><span class="stat-value pm" id="pvt-pm">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">Differential</span><span class="stat-value" id="pvt-diff">—</span></div>
+      </div>
+      <div class="card test-summary-card" id="dsstSummary">
+        <h4>DSST (Correct)</h4>
+        <div class="test-stat-row"><span class="stat-label">Overall</span><span class="stat-value" id="dsst-overall">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">AM Mean</span><span class="stat-value am" id="dsst-am">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">PM Mean</span><span class="stat-value pm" id="dsst-pm">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">Differential</span><span class="stat-value" id="dsst-diff">—</span></div>
+      </div>
+    </div>
+
+    <!-- Longitudinal Charts -->
+    <h2 class="section-title">Longitudinal Trends</h2>
+    <div class="charts-grid">
+      <div class="card chart-card">
+        <h3>N-Back Performance</h3>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span> AM</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--teal)"></span> PM</span>
+          <span class="legend-item"><span class="legend-dot" style="background:rgba(255,255,255,0.3)"></span> 7-day avg</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chartNback"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <h3>Reaction Time (PVT)</h3>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span> AM</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--teal)"></span> PM</span>
+          <span class="legend-item"><span class="legend-dot" style="background:rgba(255,255,255,0.3)"></span> 7-day avg</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chartPVT"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <h3>Processing Speed (DSST)</h3>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span> AM</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--teal)"></span> PM</span>
+          <span class="legend-item"><span class="legend-dot" style="background:rgba(255,255,255,0.3)"></span> 7-day avg</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chartDSST"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <h3>Chess ELO</h3>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span> Blitz</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span> Rapid</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chartChess"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <h3>Subjective Ratings</h3>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span> Energy</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span> Focus</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chartSubjective"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <h3>Sleep Hours</h3>
+        <div class="chart-wrap"><canvas id="chartSleep"></canvas></div>
+      </div>
+      <div class="card chart-card full-width">
+        <h3>Composite Score (0-100)</h3>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span> Score (50 = personal mean)</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chartComposite"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Statistical Analysis -->
+    <h2 class="section-title">Statistical Analysis</h2>
+    <div class="card stats-table-wrap">
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Baseline Mean &plusmn; SD</th>
+            <th>Post Mean &plusmn; SD</th>
+            <th>% Change</th>
+            <th>Effect Size (d)</th>
+            <th>Interpretation</th>
+          </tr>
+        </thead>
+        <tbody id="statsBody"></tbody>
+      </table>
+    </div>
+
+    <!-- Supplement Timeline -->
+    <h2 class="section-title">Supplement Timeline</h2>
+    <div class="supp-timeline" id="suppTimeline"></div>
+
+    <!-- Data Export -->
+    <h2 class="section-title">Data Export</h2>
+    <div class="export-bar">
+      <a href="/api/cognitive/export?format=csv" class="btn-outline" id="btn-csv">Export CSV</a>
+      <a href="/api/cognitive/export?format=json" class="btn-outline" id="btn-json">Export JSON</a>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+async function apiFetch(url) {
+  try {
+    const r = await fetch(url, { credentials: 'same-origin' });
+    if (r.status === 401) { window.location.href = '/cognitive/?key='; return null; }
+    if (!r.ok) return null;
+    return await r.json();
+  } catch { return null; }
+}
+
+function shortDate(iso) {
+  const d = new Date(iso + 'T12:00:00');
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function round(v, d = 1) {
+  if (v == null) return '—';
+  return Number(v).toFixed(d);
+}
+
+// ── Chart.js setup ──
+Chart.defaults.color = 'rgba(255,255,255,0.45)';
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.font.size = 11;
+
+// Supplement annotation plugin
+const supplementAnnotationPlugin = {
+  id: 'supplementLines',
+  afterDraw(chart) {
+    const meta = chart.options.plugins.supplementLines;
+    if (!meta || !meta.supplements || !meta.labels) return;
+    const ctx = chart.ctx;
+    const xScale = chart.scales.x;
+    const yScale = chart.scales.y;
+    const labels = meta.labels;
+    const supps = meta.supplements;
+    const baselineEnd = meta.baselineEnd;
+
+    // Baseline shading
+    if (baselineEnd) {
+      const blLabel = shortDate(baselineEnd);
+      const blIdx = labels.indexOf(blLabel);
+      if (blIdx > 0) {
+        const x0 = xScale.getPixelForValue(0);
+        const xEnd = xScale.getPixelForValue(blIdx);
+        ctx.save();
+        ctx.fillStyle = 'rgba(255,255,255,0.03)';
+        ctx.fillRect(x0, yScale.top, xEnd - x0, yScale.bottom - yScale.top);
+        ctx.fillStyle = 'rgba(255,255,255,0.2)';
+        ctx.font = "500 9px 'DM Sans', sans-serif";
+        ctx.textAlign = 'center';
+        ctx.fillText('baseline', (x0 + xEnd) / 2, yScale.bottom + 14);
+        ctx.restore();
+      }
+    }
+
+    supps.forEach(s => {
+      const dateLabel = shortDate(s.start_date);
+      const idx = labels.indexOf(dateLabel);
+      if (idx === -1) return;
+      const x = xScale.getPixelForValue(idx);
+      ctx.save();
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = s.color || 'rgba(212,168,83,0.4)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(x, yScale.top);
+      ctx.lineTo(x, yScale.bottom);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = 'rgba(255,255,255,0.3)';
+      ctx.font = "500 8px 'DM Sans', sans-serif";
+      ctx.textAlign = 'center';
+      ctx.fillText(s.compound_name || s.name || '', x, yScale.top - 4);
+      ctx.restore();
+    });
+  }
+};
+Chart.register(supplementAnnotationPlugin);
+
+function baseChartOpts(yLabel) {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(6,6,11,0.92)',
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        titleFont: { weight: 600 },
+        padding: 10,
+        cornerRadius: 8,
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+        ticks: { maxTicksLimit: 10 }
+      },
+      y: {
+        grid: { color: 'rgba(255,255,255,0.05)', drawBorder: false },
+        ticks: { maxTicksLimit: 6 },
+        title: { display: true, text: yLabel, color: 'rgba(255,255,255,0.3)', font: { size: 10 } }
+      }
+    }
+  };
+}
+
+function lineDataset(label, color, data) {
+  return {
+    label,
+    data,
+    borderColor: color,
+    backgroundColor: color + '18',
+    borderWidth: 2,
+    pointRadius: 3,
+    pointBackgroundColor: color,
+    pointBorderColor: 'transparent',
+    pointHoverRadius: 5,
+    tension: 0.35,
+    fill: false,
+    spanGaps: true,
+  };
+}
+
+function compute7DayAvg(labels, amData, pmData) {
+  const merged = labels.map((_, i) => {
+    const vals = [amData[i], pmData[i]].filter(v => v != null);
+    return vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : null;
+  });
+  const avg = [];
+  for (let i = 0; i < merged.length; i++) {
+    const window = merged.slice(Math.max(0, i - 6), i + 1).filter(v => v != null);
+    avg.push(window.length >= 1 ? window.reduce((a, b) => a + b, 0) / window.length : null);
+  }
+  return avg;
+}
+
+function buildAMPMChart(canvasId, yLabel, timeSeries, supplements, baselineEnd) {
+  const dates = [...new Set(timeSeries.map(d => d.date))].sort();
+  const labels = dates.map(shortDate);
+
+  const amData = dates.map(d => {
+    const pts = timeSeries.filter(t => t.date === d && t.session === 'morning');
+    return pts.length ? pts[pts.length - 1].value : null;
+  });
+  const pmData = dates.map(d => {
+    const pts = timeSeries.filter(t => t.date === d && t.session === 'evening');
+    return pts.length ? pts[pts.length - 1].value : null;
+  });
+  // For points without session, add to both
+  dates.forEach((d, i) => {
+    const unsessioned = timeSeries.filter(t => t.date === d && !t.session);
+    if (unsessioned.length && amData[i] == null && pmData[i] == null) {
+      amData[i] = unsessioned[unsessioned.length - 1].value;
+    }
+  });
+
+  const avg7 = compute7DayAvg(labels, amData, pmData);
+
+  const opts = baseChartOpts(yLabel);
+  opts.plugins.supplementLines = { supplements, labels, baselineEnd };
+
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  return new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        lineDataset('AM', '#d4a853', amData),
+        lineDataset('PM', '#2dd4bf', pmData),
+        { ...lineDataset('7-day avg', 'rgba(255,255,255,0.3)', avg7), borderWidth: 1.5, borderDash: [4, 4], pointRadius: 0 },
+      ]
+    },
+    options: opts
+  });
+}
+
+// ── Init ──
+async function init() {
+  const [analytics, settings] = await Promise.all([
+    apiFetch('/api/cognitive/analytics'),
+    apiFetch('/api/cognitive/settings'),
+  ]);
+
+  if (!analytics) {
+    $('#loading').textContent = 'Failed to load analytics data.';
+    return;
+  }
+
+  $('#loading').style.display = 'none';
+  $('#content').style.display = '';
+
+  const baselineEnd = analytics.baseline_end_date;
+  const suppColors = ['#d4a853', '#7ab8e0', '#b07de0', '#34d399', '#f87171', '#fbbf24', '#f472b6', '#60a5fa'];
+  const supplements = (analytics.supplements || []).map((s, i) => ({ ...s, color: suppColors[i % suppColors.length] }));
+
+  // ── Summary stats ──
+  $('#totalSessions').textContent = analytics.total_sessions;
+  $('#currentStreak').textContent = analytics.current_streak;
+  $('#longestStreak').textContent = analytics.longest_streak;
+
+  // ── Baseline status ──
+  if (baselineEnd) {
+    $('#baselineStatus').innerHTML = `Baseline period ended: <strong>${shortDate(baselineEnd)}</strong>`;
+    $('#btn-mark-baseline').style.display = 'none';
+  } else {
+    $('#baselineStatus').textContent = 'Baseline: first 7 days of data (auto-detected). Mark complete to lock it in.';
+    $('#btn-mark-baseline').style.display = '';
+  }
+
+  $('#btn-mark-baseline').addEventListener('click', async () => {
+    const today = new Date().toISOString().split('T')[0];
+    await fetch('/api/cognitive/settings', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ key: 'baseline_end_date', value: today })
+    });
+    $('#baselineStatus').innerHTML = `Baseline period ended: <strong>${shortDate(today)}</strong>`;
+    $('#btn-mark-baseline').style.display = 'none';
+  });
+
+  // ── Per-test AM/PM summary ──
+  function fillTestSummary(prefix, metrics, lowerBetter = false) {
+    $(prefix + '-overall').textContent = metrics.overall_mean != null ? round(metrics.overall_mean) : '—';
+    $(prefix + '-am').textContent = metrics.am_mean != null ? round(metrics.am_mean) : '—';
+    $(prefix + '-pm').textContent = metrics.pm_mean != null ? round(metrics.pm_mean) : '—';
+
+    if (metrics.am_mean != null && metrics.pm_mean != null) {
+      const diff = metrics.am_mean - metrics.pm_mean;
+      const better = lowerBetter ? diff < 0 : diff > 0;
+      const label = better ? 'AM sharper' : 'PM sharper';
+      const cls = Math.abs(diff) < 0.5 ? '' : (better ? 'diff-better' : 'diff-worse');
+      $(prefix + '-diff').innerHTML = `<span class="${cls}">${label} (${Math.abs(diff).toFixed(1)})</span>`;
+    }
+  }
+
+  fillTestSummary('#nback', analytics.nback);
+  fillTestSummary('#pvt', analytics.pvt, true);
+  fillTestSummary('#dsst', analytics.dsst);
+
+  // ── Charts ──
+  if (analytics.nback.time_series.length > 0) {
+    buildAMPMChart('chartNback', 'Max N Level', analytics.nback.time_series, supplements, baselineEnd);
+  } else {
+    $('#chartNback').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">No N-Back data yet</p>';
+  }
+
+  if (analytics.pvt.time_series.length > 0) {
+    buildAMPMChart('chartPVT', 'Median RT (ms)', analytics.pvt.time_series, supplements, baselineEnd);
+  } else {
+    $('#chartPVT').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">No PVT data yet</p>';
+  }
+
+  if (analytics.dsst.time_series.length > 0) {
+    buildAMPMChart('chartDSST', 'Correct', analytics.dsst.time_series, supplements, baselineEnd);
+  } else {
+    $('#chartDSST').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">No DSST data yet</p>';
+  }
+
+  // Chess chart
+  if (analytics.chess && analytics.chess.length > 0) {
+    const chessLabels = analytics.chess.map(d => shortDate(d.date));
+    const opts = baseChartOpts('ELO');
+    opts.plugins.legend = { display: true, labels: { boxWidth: 10, padding: 12 } };
+    opts.plugins.supplementLines = { supplements, labels: chessLabels, baselineEnd };
+    const ctx = document.getElementById('chartChess').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: chessLabels,
+        datasets: [
+          lineDataset('Blitz', '#d4a853', analytics.chess.map(d => d.blitz)),
+          lineDataset('Rapid', '#60a5fa', analytics.chess.map(d => d.rapid)),
+        ]
+      },
+      options: opts
+    });
+  } else {
+    $('#chartChess').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">No chess data yet</p>';
+  }
+
+  // Subjective chart
+  if (analytics.subjective && analytics.subjective.length > 0) {
+    const subLabels = analytics.subjective.map(d => shortDate(d.date));
+    const opts = baseChartOpts('Rating (1-10)');
+    opts.plugins.supplementLines = { supplements, labels: subLabels, baselineEnd };
+    const ctx = document.getElementById('chartSubjective').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: subLabels,
+        datasets: [
+          lineDataset('Energy', '#d4a853', analytics.subjective.map(d => d.energy)),
+          lineDataset('Focus', '#60a5fa', analytics.subjective.map(d => d.focus)),
+        ]
+      },
+      options: opts
+    });
+  } else {
+    $('#chartSubjective').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">No subjective data yet</p>';
+  }
+
+  // Sleep chart
+  if (analytics.subjective && analytics.subjective.some(d => d.sleep_hours)) {
+    const sleepData = analytics.subjective.filter(d => d.sleep_hours != null);
+    const sleepLabels = sleepData.map(d => shortDate(d.date));
+    const opts = baseChartOpts('Hours');
+    opts.plugins.supplementLines = { supplements, labels: sleepLabels, baselineEnd };
+    const ctx = document.getElementById('chartSleep').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: sleepLabels,
+        datasets: [lineDataset('Sleep', '#d4a853', sleepData.map(d => d.sleep_hours))]
+      },
+      options: opts
+    });
+  } else {
+    $('#chartSleep').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">No sleep data yet</p>';
+  }
+
+  // Composite score chart
+  if (analytics.composite && analytics.composite.length > 0) {
+    const compLabels = analytics.composite.map(d => shortDate(d.date));
+    const opts = baseChartOpts('Score');
+    opts.plugins.supplementLines = { supplements, labels: compLabels, baselineEnd };
+    opts.scales.y.min = 0;
+    opts.scales.y.max = 100;
+    const ctx = document.getElementById('chartComposite').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: compLabels,
+        datasets: [{
+          ...lineDataset('Composite', '#d4a853', analytics.composite.map(d => d.value)),
+          fill: true,
+          backgroundColor: 'rgba(212,168,83,0.08)',
+        }]
+      },
+      options: opts
+    });
+  } else {
+    $('#chartComposite').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">Need data for all 3 tests on the same day for composite score</p>';
+  }
+
+  // ── Statistical Analysis Table ──
+  const tbody = $('#statsBody');
+  const metrics = [
+    { name: 'N-Back (Max N)', data: analytics.nback, higher: true },
+    { name: 'N-Back (Accuracy %)', data: analytics.nback_accuracy, higher: true },
+    { name: 'PVT (Median RT ms)', data: analytics.pvt, higher: false },
+    { name: 'DSST (Correct)', data: analytics.dsst, higher: true },
+  ];
+
+  metrics.forEach(m => {
+    const d = m.data;
+    const tr = document.createElement('tr');
+
+    const baseStr = d.baseline_n >= 2 ? `${round(d.baseline_mean)} &plusmn; ${round(d.baseline_sd)}` : '<span style="color:var(--text-dim)">N/A</span>';
+    const postStr = d.post_n >= 2 ? `${round(d.post_mean)} &plusmn; ${round(d.post_sd)}` : '<span style="color:var(--text-dim)">N/A</span>';
+
+    let pctStr = '—';
+    let effectStr = '—';
+    let interpStr = '<span class="effect-negligible">Insufficient data</span>';
+
+    if (d.effect_size != null) {
+      const es = d.effect_size;
+      const pct = d.pct_change;
+      const improved = m.higher ? es > 0 : es < 0;
+      const absES = Math.abs(es);
+
+      pctStr = pct != null ? (pct > 0 ? '+' : '') + round(pct) + '%' : '—';
+      effectStr = (es > 0 ? '+' : '') + round(es, 2);
+
+      let interpLabel, interpClass;
+      if (absES < 0.2) {
+        interpLabel = 'Negligible';
+        interpClass = 'effect-negligible';
+      } else if (absES < 0.5) {
+        interpLabel = 'Small';
+        interpClass = improved ? 'effect-positive' : 'effect-negative';
+      } else if (absES < 0.8) {
+        interpLabel = 'Medium';
+        interpClass = improved ? 'effect-positive' : 'effect-negative';
+      } else {
+        interpLabel = 'Large';
+        interpClass = improved ? 'effect-positive' : 'effect-negative';
+      }
+      interpStr = `<span class="${interpClass}">${interpLabel} ${improved ? 'improvement' : 'decline'}</span>`;
+    }
+
+    tr.innerHTML = `
+      <td style="font-weight:500;">${m.name}</td>
+      <td>${baseStr}</td>
+      <td>${postStr}</td>
+      <td>${pctStr}</td>
+      <td>${effectStr}</td>
+      <td>${interpStr}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  // ── Supplement Timeline ──
+  const suppEl = $('#suppTimeline');
+  if (supplements.length > 0) {
+    suppEl.innerHTML = supplements.map(s => {
+      const dateStr = new Date(s.start_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return `<div class="supp-chip">
+        <span class="supp-dot" style="background:${s.color}"></span>
+        <span>${s.compound_name}</span>
+        <span class="supp-start">${dateStr}</span>
+      </div>`;
+    }).join('');
+  } else {
+    suppEl.innerHTML = '<span style="color:var(--text-dim)">No supplements tracked</span>';
+  }
+}
+
+init();
+</script>
+</body>
+</html>

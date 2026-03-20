@@ -318,16 +318,136 @@ html, body {
   pointer-events: none;
   z-index: 100;
 }
+
+/* ── Nav Bar ── */
+.cog-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  font-size: 13px;
+  font-weight: 500;
+  flex-wrap: wrap;
+}
+.cog-nav a {
+  color: var(--text-mid);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.cog-nav a:hover, .cog-nav a.cog-nav-active { color: var(--gold); }
+.cog-nav-sep { color: rgba(255,255,255,0.15); }
+.cog-nav-label { color: var(--text-dim); }
+
+/* ── Session Toggle ── */
+.session-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.session-toggle .session-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 16px;
+  color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.session-toggle .session-btn.active {
+  background: rgba(212,168,83,0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.session-toggle .session-btn:hover:not(.active) {
+  border-color: rgba(255,255,255,0.2);
+  color: var(--text);
+}
+
+/* ── Post-test comparison ── */
+.comparison-section {
+  width: 100%;
+  max-width: 560px;
+  margin-bottom: 32px;
+}
+.comparison-section h3 {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-mid);
+  margin-bottom: 10px;
+}
+.comparison-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+.comparison-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 10px;
+  text-align: center;
+}
+.comparison-card .comp-val {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+}
+.comparison-card .comp-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 10px;
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+.btn-outline:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
 </style>
 </head>
 <body>
 
-<a href="/cognitive/" class="back-link">&larr; Back to Dashboard</a>
+<nav class="cog-nav">
+  <a href="/cognitive/">&larr; Dashboard</a>
+  <span class="cog-nav-sep">|</span>
+  <a href="/cognitive/analytics.html">Analytics</a>
+  <span class="cog-nav-sep">|</span>
+  <span class="cog-nav-label">Tests:</span>
+  <a href="/cognitive/dual-n-back.html">N-Back</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/pvt.html" class="cog-nav-active">PVT</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/dsst.html">DSST</a>
+</nav>
 
 <!-- Setup Screen -->
 <div id="setup-screen" class="screen active">
   <h1>Psychomotor Vigilance Test</h1>
   <p class="description">Measure your reaction time and alertness. A red circle will appear at random intervals. Click or tap it as quickly as possible.</p>
+  <div class="session-toggle" id="session-toggle">
+    <button class="session-btn" data-session="morning" id="btn-morning">&#9728;&#65039; Morning</button>
+    <button class="session-btn" data-session="evening" id="btn-evening">&#127769; Evening</button>
+  </div>
   <button class="btn-gold" id="btn-begin">Begin Test</button>
 </div>
 
@@ -391,7 +511,26 @@ html, body {
     <div class="pb-value" id="pb-value">—</div>
   </div>
 
+  <div class="comparison-section" id="comparison-section" style="display:none;">
+    <h3>How You Compare</h3>
+    <div class="comparison-grid">
+      <div class="comparison-card">
+        <div class="comp-val" id="comp-avg">—</div>
+        <div class="comp-label">Your Average</div>
+      </div>
+      <div class="comparison-card">
+        <div class="comp-val" id="comp-am">—</div>
+        <div class="comp-label">AM Average</div>
+      </div>
+      <div class="comparison-card">
+        <div class="comp-val" id="comp-pm">—</div>
+        <div class="comp-label">PM Average</div>
+      </div>
+    </div>
+  </div>
+
   <button class="btn-gold" id="btn-save">Save &amp; Return</button>
+  <a href="/cognitive/dsst.html" class="btn-outline" id="btn-next">Next: DSST &rarr;</a>
 </div>
 
 <canvas id="confetti-canvas"></canvas>
@@ -411,6 +550,19 @@ html, body {
   let elapsedRAF = null;
   let locked = false; // prevent double-taps during feedback
   let previousBestMedian = null;
+
+  // ── Session ──
+  let currentSession = new Date().getHours() < 14 ? 'morning' : 'evening';
+
+  // Auto-detect and set session toggle
+  document.getElementById('btn-' + currentSession).classList.add('active');
+  document.querySelectorAll('.session-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.session-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSession = btn.dataset.session;
+    });
+  });
 
   // ── DOM refs ──
   const setupScreen = document.getElementById('setup-screen');
@@ -598,6 +750,38 @@ html, body {
     } catch (e) {
       // API not available — no personal best comparison
     }
+
+    // Fetch comparison stats
+    try {
+      const compResp = await fetch('/api/cognitive/results?days=365');
+      if (compResp.ok) {
+        const compData = await compResp.json();
+        const allPvt = (compData.results || compData || []).filter(r => r.test_type === 'pvt');
+        if (allPvt.length > 0) {
+          const allMedians = allPvt.map(r => {
+            const s = typeof r.scores_json === 'string' ? JSON.parse(r.scores_json) : (r.scores || {});
+            return s.median_rt || 0;
+          }).filter(v => v > 0);
+          const amMedians = allPvt.filter(r => r.session === 'morning').map(r => {
+            const s = typeof r.scores_json === 'string' ? JSON.parse(r.scores_json) : (r.scores || {});
+            return s.median_rt || 0;
+          }).filter(v => v > 0);
+          const pmMedians = allPvt.filter(r => r.session === 'evening').map(r => {
+            const s = typeof r.scores_json === 'string' ? JSON.parse(r.scores_json) : (r.scores || {});
+            return s.median_rt || 0;
+          }).filter(v => v > 0);
+
+          const compAvg = arr => arr.length ? Math.round(arr.reduce((a,b) => a+b, 0) / arr.length) : null;
+
+          if (allMedians.length > 0) {
+            document.getElementById('comparison-section').style.display = '';
+            document.getElementById('comp-avg').textContent = compAvg(allMedians) + ' ms';
+          }
+          if (amMedians.length > 0) document.getElementById('comp-am').textContent = compAvg(amMedians) + ' ms';
+          if (pmMedians.length > 0) document.getElementById('comp-pm').textContent = compAvg(pmMedians) + ' ms';
+        }
+      }
+    } catch(e) {}
   }
 
   // ── Histogram ──
@@ -676,6 +860,7 @@ html, body {
 
     const payload = {
       test_type: 'pvt',
+      session: currentSession,
       scores: {
         median_rt: med,
         mean_rt: avg,

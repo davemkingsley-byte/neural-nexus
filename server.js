@@ -639,13 +639,14 @@ function checkCogDB(res) {
 app.post('/api/cognitive/results', dashboardAuth, (req, res) => {
   if (!checkCogDB(res)) return;
   try {
-    const { test_type, scores } = req.body;
+    const { test_type, scores, session } = req.body;
     if (!test_type || !scores) return res.status(400).json({ error: 'Missing test_type or scores' });
     if (!['nback', 'pvt', 'dsst'].includes(test_type)) return res.status(400).json({ error: 'Invalid test_type' });
+    const validSession = (session === 'morning' || session === 'evening') ? session : null;
     const now = new Date();
     const date = now.toISOString().split('T')[0];
     const time = now.toTimeString().split(' ')[0];
-    cogDB.saveResult(test_type, date, time, JSON.stringify(scores));
+    cogDB.saveResult(test_type, date, time, JSON.stringify(scores), validSession);
     res.json({ ok: true });
   } catch (err) {
     console.error('Error saving cognitive result:', err);
@@ -772,6 +773,286 @@ app.get('/api/cognitive/daily', dashboardAuth, (req, res) => {
     res.json({ notes: cogDB.getDailyNotes(days) });
   } catch (err) {
     res.status(500).json({ error: 'Failed to get daily notes' });
+  }
+});
+
+// Settings
+app.get('/api/cognitive/settings', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    res.json({ settings: cogDB.getAllSettings() });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get settings' });
+  }
+});
+
+app.post('/api/cognitive/settings', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const { key, value } = req.body;
+    if (!key) return res.status(400).json({ error: 'Missing key' });
+    cogDB.saveSetting(key, value);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save setting' });
+  }
+});
+
+// Analytics — computed stats
+app.get('/api/cognitive/analytics', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const allResults = cogDB.getAllResults();
+    const supplements = cogDB.getSupplements();
+    const dailyNotes = cogDB.getAllDailyNotes();
+    const chessElo = cogDB.getAllChessElo();
+    const settings = cogDB.getAllSettings();
+    const baselineEndDate = settings.baseline_end_date || null;
+
+    // Parse all results with scores
+    const parsed = allResults.map(r => ({
+      ...r,
+      scores: JSON.parse(r.scores_json)
+    }));
+
+    // Compute unique test days for streak
+    const testDays = [...new Set(parsed.map(r => r.date))].sort();
+
+    // Current streak: consecutive days ending today or yesterday
+    let currentStreak = 0;
+    if (testDays.length > 0) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+      let checkDate = testDays[testDays.length - 1];
+      if (checkDate === todayStr || checkDate === yesterdayStr) {
+        for (let i = testDays.length - 1; i >= 0; i--) {
+          const d = new Date(testDays[i] + 'T12:00:00');
+          const expected = new Date(Date.now() - (testDays.length - 1 - i) * 86400000);
+          // Allow checking from last test day backward
+          if (i === testDays.length - 1) {
+            currentStreak = 1;
+          } else {
+            const prev = new Date(testDays[i + 1] + 'T12:00:00');
+            const diff = (prev - d) / 86400000;
+            if (Math.round(diff) === 1) {
+              currentStreak++;
+            } else {
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    // Longest streak
+    let longestStreak = 0;
+    let tempStreak = 1;
+    for (let i = 1; i < testDays.length; i++) {
+      const prev = new Date(testDays[i - 1] + 'T12:00:00');
+      const curr = new Date(testDays[i] + 'T12:00:00');
+      if (Math.round((curr - prev) / 86400000) === 1) {
+        tempStreak++;
+      } else {
+        tempStreak = 1;
+      }
+      longestStreak = Math.max(longestStreak, tempStreak);
+    }
+    if (testDays.length === 1) longestStreak = 1;
+    longestStreak = Math.max(longestStreak, currentStreak);
+
+    // Per-test metrics with AM/PM split
+    function computeMetrics(type, extractor) {
+      const items = parsed.filter(r => r.test_type === type);
+      const allVals = items.map(extractor).filter(v => v != null);
+      const amVals = items.filter(r => r.session === 'morning').map(extractor).filter(v => v != null);
+      const pmVals = items.filter(r => r.session === 'evening').map(extractor).filter(v => v != null);
+
+      const mean = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+      const sd = arr => {
+        if (arr.length < 2) return 0;
+        const m = mean(arr);
+        return Math.sqrt(arr.reduce((sum, v) => sum + (v - m) ** 2, 0) / (arr.length - 1));
+      };
+
+      // Baseline vs post-baseline
+      let baselineVals = [];
+      let postVals = [];
+      if (baselineEndDate) {
+        baselineVals = items.filter(r => r.date <= baselineEndDate).map(extractor).filter(v => v != null);
+        postVals = items.filter(r => r.date > baselineEndDate).map(extractor).filter(v => v != null);
+      } else if (testDays.length >= 7) {
+        const cutoff = testDays[6];
+        baselineVals = items.filter(r => r.date <= cutoff).map(extractor).filter(v => v != null);
+        postVals = items.filter(r => r.date > cutoff).map(extractor).filter(v => v != null);
+      }
+
+      // Cohen's d
+      let effectSize = null;
+      let pctChange = null;
+      if (baselineVals.length >= 2 && postVals.length >= 2) {
+        const bMean = mean(baselineVals);
+        const pMean = mean(postVals);
+        const bSD = sd(baselineVals);
+        const pSD = sd(postVals);
+        const pooledSD = Math.sqrt(((baselineVals.length - 1) * bSD ** 2 + (postVals.length - 1) * pSD ** 2) / (baselineVals.length + postVals.length - 2));
+        effectSize = pooledSD > 0 ? (pMean - bMean) / pooledSD : 0;
+        pctChange = bMean !== 0 ? ((pMean - bMean) / Math.abs(bMean)) * 100 : null;
+      }
+
+      // Time series for charts (date, value, session)
+      const timeSeries = items.map(r => ({
+        date: r.date,
+        value: extractor(r),
+        session: r.session
+      })).filter(d => d.value != null);
+
+      return {
+        overall_mean: mean(allVals),
+        overall_sd: sd(allVals),
+        am_mean: mean(amVals),
+        pm_mean: mean(pmVals),
+        count: allVals.length,
+        am_count: amVals.length,
+        pm_count: pmVals.length,
+        baseline_mean: mean(baselineVals),
+        baseline_sd: sd(baselineVals),
+        post_mean: mean(postVals),
+        post_sd: sd(postVals),
+        effect_size: effectSize,
+        pct_change: pctChange,
+        baseline_n: baselineVals.length,
+        post_n: postVals.length,
+        time_series: timeSeries,
+      };
+    }
+
+    const nback = computeMetrics('nback', r => r.scores.max_n);
+    const nbackAcc = computeMetrics('nback', r => r.scores.combined_accuracy);
+    const pvt = computeMetrics('pvt', r => r.scores.median_rt);
+    const dsst = computeMetrics('dsst', r => r.scores.correct);
+
+    // Composite score: z-score each, average, scale to 0-100
+    const compositeTimeSeries = [];
+    const allDates = [...new Set(parsed.map(r => r.date))].sort();
+    allDates.forEach(date => {
+      const dayResults = parsed.filter(r => r.date === date);
+      const nbackR = dayResults.find(r => r.test_type === 'nback');
+      const pvtR = dayResults.find(r => r.test_type === 'pvt');
+      const dsstR = dayResults.find(r => r.test_type === 'dsst');
+      if (!nbackR || !pvtR || !dsstR) return;
+
+      const zScores = [];
+      if (nback.overall_sd > 0) zScores.push((nbackR.scores.max_n - nback.overall_mean) / nback.overall_sd);
+      if (pvt.overall_sd > 0) zScores.push(-((pvtR.scores.median_rt - pvt.overall_mean) / pvt.overall_sd)); // invert: lower RT = better
+      if (dsst.overall_sd > 0) zScores.push((dsstR.scores.correct - dsst.overall_mean) / dsst.overall_sd);
+
+      if (zScores.length > 0) {
+        const avgZ = zScores.reduce((a, b) => a + b, 0) / zScores.length;
+        const composite = 50 + avgZ * 15; // Scale so 50 = mean, ~15 per SD
+        const session = nbackR.session || pvtR.session || dsstR.session || null;
+        compositeTimeSeries.push({ date, value: Math.round(composite * 10) / 10, session });
+      }
+    });
+
+    // Chess time series
+    const chessTimeSeries = chessElo.map(r => ({
+      date: r.date,
+      blitz: r.blitz_rating,
+      rapid: r.rapid_rating,
+      bullet: r.bullet_rating,
+    }));
+
+    // Subjective time series
+    const subjectiveTimeSeries = dailyNotes.map(r => ({
+      date: r.date,
+      energy: r.subjective_energy,
+      focus: r.subjective_focus,
+      sleep_hours: r.sleep_hours,
+    }));
+
+    res.json({
+      total_sessions: parsed.length,
+      current_streak: currentStreak,
+      longest_streak: longestStreak,
+      baseline_end_date: baselineEndDate,
+      nback,
+      nback_accuracy: nbackAcc,
+      pvt,
+      dsst,
+      composite: compositeTimeSeries,
+      chess: chessTimeSeries,
+      subjective: subjectiveTimeSeries,
+      supplements,
+    });
+  } catch (err) {
+    console.error('Error computing analytics:', err);
+    res.status(500).json({ error: 'Failed to compute analytics' });
+  }
+});
+
+// Data export
+app.get('/api/cognitive/export', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const format = req.query.format || 'json';
+    const allResults = cogDB.getAllResults().map(r => ({
+      ...r,
+      scores: JSON.parse(r.scores_json)
+    }));
+    const supplements = cogDB.getSupplements();
+    const dailyNotes = cogDB.getAllDailyNotes();
+    const chessElo = cogDB.getAllChessElo();
+
+    if (format === 'csv') {
+      // Flatten test results to CSV
+      const rows = allResults.map(r => {
+        const s = r.scores;
+        // Find active supplements at this date
+        const activeSupps = supplements
+          .filter(sup => sup.start_date <= r.date)
+          .map(sup => sup.compound_name)
+          .join('; ');
+        return {
+          date: r.date,
+          time: r.time,
+          session: r.session || '',
+          test_type: r.test_type,
+          nback_max_n: r.test_type === 'nback' ? (s.max_n || '') : '',
+          nback_accuracy: r.test_type === 'nback' ? (s.combined_accuracy || '') : '',
+          pvt_median_rt: r.test_type === 'pvt' ? (s.median_rt || '') : '',
+          pvt_mean_rt: r.test_type === 'pvt' ? (s.mean_rt || '') : '',
+          pvt_lapses: r.test_type === 'pvt' ? (s.lapses || '') : '',
+          dsst_correct: r.test_type === 'dsst' ? (s.correct || '') : '',
+          dsst_attempted: r.test_type === 'dsst' ? (s.attempted || '') : '',
+          dsst_accuracy: r.test_type === 'dsst' ? (s.accuracy || '') : '',
+          supplements_active: activeSupps,
+        };
+      });
+      const headers = Object.keys(rows[0] || {});
+      const csvLines = [headers.join(',')];
+      rows.forEach(row => {
+        csvLines.push(headers.map(h => {
+          const v = String(row[h] || '');
+          return v.includes(',') || v.includes('"') ? `"${v.replace(/"/g, '""')}"` : v;
+        }).join(','));
+      });
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename="cognitive-data.csv"');
+      res.send(csvLines.join('\n'));
+    } else {
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', 'attachment; filename="cognitive-data.json"');
+      res.json({
+        exported_at: new Date().toISOString(),
+        test_results: allResults,
+        daily_notes: dailyNotes,
+        chess_elo: chessElo,
+        supplements,
+      });
+    }
+  } catch (err) {
+    console.error('Error exporting data:', err);
+    res.status(500).json({ error: 'Failed to export data' });
   }
 });
 
