@@ -295,6 +295,24 @@ h2 {
   pointer-events: none;
 }
 
+/* ── Tutorial ── */
+#tutorial-screen { display: none; }
+#tutorial-screen.active { display: block; }
+#practice-ready-screen { display: none; }
+#practice-ready-screen.active { display: block; text-align: center; padding-top: 80px; }
+.tut-section { margin-bottom: 28px; }
+.tut-section h3 { font-size: 16px; color: #fff; margin-bottom: 8px; }
+.tut-section p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 8px; }
+.tut-mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 120px; aspect-ratio: 1; margin: 12px 0; }
+.tut-mini-cell { background: rgba(255,255,255,0.06); border-radius: 6px; transition: background 0.3s; }
+.tut-mini-cell.lit { background: rgba(212,168,83,0.25); border: 1px solid #d4a853; box-shadow: 0 0 12px rgba(212,168,83,0.15); }
+.tut-mini-cell.match-glow { background: rgba(74,222,128,0.3); box-shadow: 0 0 12px rgba(74,222,128,0.3); }
+.skip-link { display: inline-block; color: rgba(255,255,255,0.35); font-size: 13px; cursor: pointer; margin-top: 8px; border: none; background: none; font-family: inherit; }
+.skip-link:hover { color: #d4a853; }
+.practice-hint-bar { text-align: center; height: 24px; margin-top: 8px; font-size: 13px; font-weight: 600; color: #d4a853; }
+.match-btn.hint-glow { animation: hintPulse 0.6s ease-in-out 3; }
+@keyframes hintPulse { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 20px rgba(74,222,128,0.5)} }
+
 /* ── Responsive ── */
 @media (max-width: 480px) {
   h1 { font-size: 32px; }
@@ -398,6 +416,8 @@ h2 {
   <a href="/cognitive/pvt.html">PVT</a>
   <span class="cog-nav-sep">&middot;</span>
   <a href="/cognitive/dsst.html">DSST</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/stroop.html">Stroop</a>
 </nav>
 
 <div class="container">
@@ -429,6 +449,47 @@ h2 {
       <button class="session-btn" data-session="evening" id="btn-evening">&#127769; Evening</button>
     </div>
     <button class="btn" id="begin-btn">Begin Test</button>
+    <br>
+    <button class="skip-link" id="tutorial-btn" style="display:none">How It Works (Tutorial)</button>
+  </div>
+
+  <!-- ── Tutorial Screen ── -->
+  <div id="tutorial-screen">
+    <h2>How It Works</h2>
+    <div class="tut-section">
+      <h3>1. Watch the grid</h3>
+      <p>Each turn, a square lights up on the 3&times;3 grid. Remember where it appears.</p>
+      <div class="tut-mini-grid" id="tutGridDesktop1">
+        <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+        <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+        <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+      </div>
+    </div>
+    <div class="tut-section">
+      <h3>2. Position Match</h3>
+      <p>When the <strong class="gold">current position</strong> matches the one from <em>N steps ago</em>, press <strong class="gold">A</strong> or tap <strong class="gold">Position Match</strong>.</p>
+      <div class="tut-mini-grid" id="tutGridDesktop2">
+        <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+        <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+        <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+      </div>
+    </div>
+    <div class="tut-section">
+      <h3>3. Audio Match</h3>
+      <p>A letter is spoken each turn. When the <strong class="gold">current letter</strong> matches <em>N steps ago</em>, press <strong class="gold">L</strong> or tap <strong class="gold">Sound Match</strong>.</p>
+    </div>
+    <button class="btn" id="practice-btn">Try Practice Round (1-Back)</button>
+    <br>
+    <button class="skip-link" id="skip-to-test-btn">Skip to real test &rarr;</button>
+  </div>
+
+  <!-- ── Practice Ready Screen ── -->
+  <div id="practice-ready-screen">
+    <h2>Practice Complete!</h2>
+    <p class="subtitle">Nice work. Ready for the real test?</p>
+    <button class="btn" id="start-after-practice-btn" style="margin-bottom:12px;">Start Real Test</button>
+    <br>
+    <button class="btn btn-outline" id="practice-again-btn">Practice Again</button>
   </div>
 
   <!-- ── Countdown Overlay ── -->
@@ -457,6 +518,7 @@ h2 {
       </button>
     </div>
     <div class="trial-feedback" id="trial-feedback"></div>
+    <div class="practice-hint-bar" id="practice-hint-bar"></div>
   </div>
 
   <!-- ── Results Screen ── -->
@@ -539,6 +601,139 @@ h2 {
   const retryBtn       = document.getElementById('retry-btn');
   const pbBadge        = document.getElementById('pb-badge');
   const confettiCanvas = document.getElementById('confetti-canvas');
+  const tutorialScreen = document.getElementById('tutorial-screen');
+  const practiceReadyScreen = document.getElementById('practice-ready-screen');
+  const practiceHintBar = document.getElementById('practice-hint-bar');
+
+  // ── Practice Mode ──
+  let practiceMode = false;
+  const PRACTICE_TRIALS = 5;
+  const PRACTICE_INTERVAL = 3000;
+
+  // Show tutorial button for first-time users
+  if (!localStorage.getItem('nback_desktop_tutorial_done')) {
+    document.getElementById('tutorial-btn').style.display = 'inline-block';
+    document.getElementById('tutorial-btn').addEventListener('click', () => showScreen(tutorialScreen));
+  }
+
+  document.getElementById('practice-btn').addEventListener('click', startPractice);
+  document.getElementById('skip-to-test-btn').addEventListener('click', () => {
+    try { getAudioCtx(); } catch(e) {}
+    runGame();
+  });
+  document.getElementById('start-after-practice-btn').addEventListener('click', () => runGame());
+  document.getElementById('practice-again-btn').addEventListener('click', startPractice);
+
+  // Tutorial animations
+  (function runTutAnimations() {
+    const g1 = document.querySelectorAll('#tutGridDesktop1 .tut-mini-cell');
+    const g2 = document.querySelectorAll('#tutGridDesktop2 .tut-mini-cell');
+    const seq1 = [0, 4, 8, 2, 6];
+    let i1 = 0;
+    setInterval(() => { g1.forEach(c => c.classList.remove('lit')); g1[seq1[i1 % seq1.length]].classList.add('lit'); i1++; }, 1000);
+    const seq2 = [{p:3,m:false},{p:7,m:false},{p:3,m:false},{p:3,m:true}];
+    let i2 = 0;
+    setInterval(() => { g2.forEach(c => c.classList.remove('lit','match-glow')); const s = seq2[i2 % seq2.length]; g2[s.p].classList.add(s.m ? 'match-glow' : 'lit'); i2++; }, 1200);
+  })();
+
+  function startPractice() {
+    practiceMode = true;
+    try { getAudioCtx(); } catch(e) {}
+    nLevel = 1;
+    maxN = 1;
+    currentTrial = 0;
+    consecutiveCorrect = 0;
+    consecutiveErrors = 0;
+    positionHistory = [];
+    letterHistory = [];
+    results = [];
+    trialFeedback.textContent = '';
+    practiceHintBar.textContent = '';
+
+    // Generate practice sequence with guaranteed matches
+    for (let i = 0; i < PRACTICE_TRIALS; i++) {
+      if (i >= 1 && (i === 2 || i === 4)) {
+        positionHistory.push(positionHistory[i - 1]);
+      } else {
+        let p; do { p = Math.floor(Math.random() * 9); } while (i >= 1 && p === positionHistory[i - 1]);
+        positionHistory.push(p);
+      }
+      if (i >= 1 && (i === 3 || i === 4)) {
+        letterHistory.push(letterHistory[i - 1]);
+      } else {
+        letterHistory.push(LETTERS[Math.floor(Math.random() * LETTERS.length)]);
+      }
+    }
+
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    showScreen(gameScreen);
+    hudN.textContent = '1-Back (Practice)';
+    runPracticeTrial(0);
+  }
+
+  function runPracticeTrial(idx) {
+    if (idx >= PRACTICE_TRIALS) {
+      practiceMode = false;
+      localStorage.setItem('nback_desktop_tutorial_done', '1');
+      showScreen(practiceReadyScreen);
+      return;
+    }
+    currentTrial = idx;
+    trialActive = true;
+    positionPressed = false;
+    soundPressed = false;
+    btnPosition.classList.remove('pressed', 'hint-glow');
+    btnSound.classList.remove('pressed', 'hint-glow');
+    trialFeedback.textContent = '';
+    trialFeedback.className = 'trial-feedback';
+    practiceHintBar.textContent = '';
+
+    hudTrial.textContent = `Practice ${idx + 1} / ${PRACTICE_TRIALS}`;
+
+    const pos = positionHistory[idx];
+    const letter = letterHistory[idx];
+
+    cells[pos].classList.add('lit');
+    speakLetter(letter);
+
+    // Hint glow for matches
+    if (idx >= 1) {
+      if (pos === positionHistory[idx - 1]) btnPosition.classList.add('hint-glow');
+      if (letter === letterHistory[idx - 1]) btnSound.classList.add('hint-glow');
+    }
+
+    setTimeout(() => { cells[pos].classList.remove('lit'); }, STIMULUS_MS);
+
+    setTimeout(() => {
+      trialActive = false;
+      const posMatch = idx >= 1 && positionHistory[idx] === positionHistory[idx - 1];
+      const sndMatch = idx >= 1 && letterHistory[idx] === letterHistory[idx - 1];
+      const vc = positionPressed === posMatch;
+      const ac = soundPressed === sndMatch;
+
+      if (vc && ac) {
+        trialFeedback.textContent = 'Correct';
+        trialFeedback.className = 'trial-feedback correct';
+      } else {
+        let parts = [];
+        if (!vc) parts.push('Position');
+        if (!ac) parts.push('Sound');
+        trialFeedback.textContent = parts.join(' & ') + ' wrong';
+        trialFeedback.className = 'trial-feedback wrong';
+      }
+
+      // Show practice hint
+      if (idx >= 1) {
+        const hints = [];
+        if (posMatch) hints.push(positionPressed ? '✓ Position match!' : '⚠ Missed position match');
+        if (sndMatch) hints.push(soundPressed ? '✓ Audio match!' : '⚠ Missed audio match');
+        if (!posMatch && !sndMatch) hints.push('No match this time');
+        practiceHintBar.textContent = hints.join(' · ');
+      }
+
+      setTimeout(() => runPracticeTrial(idx + 1), 800);
+    }, PRACTICE_INTERVAL);
+  }
 
   // ── Constants ──
   const LETTERS        = ['C','H','K','L','Q','R','S','T'];
@@ -636,6 +831,8 @@ h2 {
     setupScreen.classList.remove('active');
     gameScreen.classList.remove('active');
     resultsScreen.classList.remove('active');
+    tutorialScreen.classList.remove('active');
+    practiceReadyScreen.classList.remove('active');
     screen.classList.add('active');
   }
 
@@ -769,6 +966,8 @@ h2 {
 
   // ── Run Full Game ──
   async function runGame() {
+    practiceMode = false;
+    localStorage.setItem('nback_desktop_tutorial_done', '1');
     // Reset state
     nLevel = 2;
     maxN = 2;

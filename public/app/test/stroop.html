@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#06060b">
+<link rel="manifest" href="/app/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Stroop — Neural NeXus</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+:root{--bg:#06060b;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--text:#e0e0e0;--heading:#ffffff;--gold:#d4a853;--green:#4ade80;--red:#ef4444;--radius:16px}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:16px;min-height:100vh;min-height:100dvh;overflow:hidden;touch-action:manipulation}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.screen.hidden{display:none}
+h1{color:var(--heading);font-size:24px;margin-bottom:8px}
+h2{color:var(--heading);font-size:20px;margin-bottom:16px}
+p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:340px;margin-bottom:12px}
+.btn{display:inline-block;padding:16px 48px;background:linear-gradient(135deg,#d4a853,#c49a48);color:#06060b;font-size:18px;font-weight:700;border:none;border-radius:12px;cursor:pointer;font-family:inherit;transition:transform .2s;min-height:48px}
+.btn:active{transform:scale(0.95)}
+.btn-outline{background:none;border:1px solid rgba(255,255,255,0.2);color:#e0e0e0;font-size:15px;padding:12px 24px;margin:6px}
+/* Game layout */
+.game-screen{position:fixed;inset:0;display:flex;flex-direction:column}
+.game-screen.hidden{display:none}
+.game-top{padding:calc(12px + env(safe-area-inset-top)) 16px 8px;text-align:center;flex-shrink:0}
+.trial-info{color:rgba(255,255,255,0.4);font-size:13px}
+.trial-info span{color:var(--gold)}
+/* Word display */
+.word-area{flex:1;display:flex;align-items:center;justify-content:center}
+.stroop-word{font-size:clamp(48px,14vw,80px);font-weight:800;letter-spacing:4px;text-transform:uppercase}
+/* Color buttons */
+.color-buttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px 16px calc(16px + env(safe-area-inset-bottom));flex-shrink:0}
+.color-btn{min-height:64px;border:2px solid transparent;border-radius:14px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .1s;display:flex;align-items:center;justify-content:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,0.4)}
+.color-btn:active{transform:scale(0.95)}
+.color-btn[data-color="red"]{background:#ff4444}
+.color-btn[data-color="blue"]{background:#4488ff}
+.color-btn[data-color="green"]{background:#44ff88;color:#06060b;text-shadow:none}
+.color-btn[data-color="yellow"]{background:#ffdd44;color:#06060b;text-shadow:none}
+.color-btn.correct-flash{border-color:#44ff88;box-shadow:0 0 20px rgba(68,255,136,0.3)}
+.color-btn.wrong-flash{border-color:#ff4444;box-shadow:0 0 20px rgba(255,68,68,0.3)}
+/* Results */
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:320px;width:100%;margin:20px 0}
+.result-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;text-align:center}
+.result-item .val{font-size:28px;font-weight:700;color:#fff}
+.result-item .lab{font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px}
+.result-item.highlight .val{color:var(--gold)}
+.btns{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;justify-content:center}
+.auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-box{text-align:center;max-width:300px;width:100%}
+.auth-box h2{color:var(--heading);margin-bottom:16px}
+.auth-box input{width:100%;padding:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;color:var(--heading);font-size:16px;font-family:inherit;text-align:center;margin-bottom:12px}
+.auth-box button{width:100%;padding:14px;background:var(--gold);color:#06060b;font-weight:700;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+
+<!-- Instructions -->
+<div class="screen" id="instrScreen">
+  <h1>🎨 Stroop Test</h1>
+  <h2>Inhibitory Control</h2>
+  <p>Color words appear in <strong style="color:#ff4444">different</strong> <strong style="color:#4488ff">ink</strong> <strong style="color:#44ff88">colors</strong>. Tap the button matching the <strong style="color:#d4a853">INK COLOR</strong>, not the word!</p>
+  <p style="color:rgba(255,255,255,0.3)">40 trials · ~3 min</p>
+  <button class="btn" onclick="startTest()">Start</button>
+</div>
+
+<!-- Game -->
+<div class="game-screen hidden" id="gameScreen">
+  <div class="game-top">
+    <div class="trial-info">Trial <span id="trialNum">1</span>/40</div>
+  </div>
+  <div class="word-area">
+    <div class="stroop-word" id="stroopWord"></div>
+  </div>
+  <div class="color-buttons" id="colorButtons">
+    <button class="color-btn" data-color="red">Red</button>
+    <button class="color-btn" data-color="blue">Blue</button>
+    <button class="color-btn" data-color="green">Green</button>
+    <button class="color-btn" data-color="yellow">Yellow</button>
+  </div>
+</div>
+
+<!-- Results -->
+<div class="screen hidden" id="resultsScreen">
+  <h2>Results</h2>
+  <div class="results-grid" id="resultsGrid"></div>
+  <div class="btns">
+    <a href="/app/test/" class="btn btn-outline">Back to Tests</a>
+    <a href="/app/" class="btn">Done</a>
+  </div>
+</div>
+
+<!-- Auth -->
+<div class="auth-overlay" id="authOverlay" style="display:none">
+  <div class="auth-box">
+    <h2>Neural NeXus</h2>
+    <p style="color:rgba(255,255,255,0.4);margin-bottom:20px;font-size:14px">Enter password</p>
+    <input type="password" id="authPass" placeholder="Password" autocomplete="current-password">
+    <button onclick="doAuth()">Enter</button>
+  </div>
+</div>
+
+<script>
+function checkAuth(){if(!document.cookie.includes('dash_auth=nexus2026')){document.getElementById('authOverlay').style.display='flex';return false}return true}
+function doAuth(){const p=document.getElementById('authPass').value;if(p){document.cookie=`dash_auth=${p};max-age=2592000;path=/`;location.reload()}}
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!checkAuth())return;
+  const ap=document.getElementById('authPass');if(ap)ap.addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
+});
+
+const COLORS = [
+  { name: 'red', hex: '#ff4444' },
+  { name: 'blue', hex: '#4488ff' },
+  { name: 'green', hex: '#44ff88' },
+  { name: 'yellow', hex: '#ffdd44' }
+];
+const TOTAL_CONGRUENT = 20;
+const TOTAL_INCONGRUENT = 20;
+const TOTAL_TRIALS = 40;
+
+let trials = [];
+let trialIdx = 0;
+let trialResults = [];
+let stimStart = 0;
+let locked = false;
+let wakeLock = null;
+
+function show(id) {
+  document.querySelectorAll('.screen,.game-screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function generateTrials() {
+  trials = [];
+  for (let i = 0; i < TOTAL_CONGRUENT; i++) {
+    const c = COLORS[i % 4];
+    trials.push({ word: c.name, ink: c, congruent: true });
+  }
+  for (let i = 0; i < TOTAL_INCONGRUENT; i++) {
+    const wi = i % 4;
+    let ii;
+    do { ii = Math.floor(Math.random() * 4); } while (ii === wi);
+    trials.push({ word: COLORS[wi].name, ink: COLORS[ii], congruent: false });
+  }
+  for (let i = trials.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [trials[i], trials[j]] = [trials[j], trials[i]];
+  }
+}
+
+async function startTest() {
+  generateTrials();
+  trialIdx = 0;
+  trialResults = [];
+  try { wakeLock = await navigator.wakeLock.request('screen'); } catch {}
+  show('gameScreen');
+  showTrial();
+}
+
+function showTrial() {
+  if (trialIdx >= TOTAL_TRIALS) { endTest(); return; }
+  locked = false;
+  const t = trials[trialIdx];
+  document.getElementById('stroopWord').textContent = t.word.toUpperCase();
+  document.getElementById('stroopWord').style.color = t.ink.hex;
+  document.getElementById('trialNum').textContent = trialIdx + 1;
+  document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('correct-flash', 'wrong-flash'));
+  stimStart = performance.now();
+}
+
+document.getElementById('colorButtons').addEventListener('pointerdown', (e) => {
+  const btn = e.target.closest('.color-btn');
+  if (!btn || locked) return;
+  e.preventDefault();
+  locked = true;
+
+  const rt = Math.round(performance.now() - stimStart);
+  const t = trials[trialIdx];
+  const chosen = btn.dataset.color;
+  const correct = chosen === t.ink.name;
+
+  trialResults.push({ congruent: t.congruent, correct, rt });
+
+  if (correct) {
+    btn.classList.add('correct-flash');
+  } else {
+    btn.classList.add('wrong-flash');
+    document.querySelector(`.color-btn[data-color="${t.ink.name}"]`).classList.add('correct-flash');
+  }
+
+  trialIdx++;
+  setTimeout(showTrial, 500);
+});
+
+async function endTest() {
+  if (wakeLock) { try { await wakeLock.release(); } catch {} }
+
+  const cong = trialResults.filter(r => r.congruent);
+  const incong = trialResults.filter(r => !r.congruent);
+  const congCorr = cong.filter(r => r.correct);
+  const incongCorr = incong.filter(r => r.correct);
+
+  const congAcc = Math.round(congCorr.length / cong.length * 100);
+  const incongAcc = Math.round(incongCorr.length / incong.length * 100);
+  const avgRT = arr => arr.length ? Math.round(arr.reduce((s, r) => s + r.rt, 0) / arr.length) : 0;
+  const congRT = avgRT(congCorr);
+  const incongRT = avgRT(incongCorr);
+  const interference = incongRT - congRT;
+  const totalCorrect = congCorr.length + incongCorr.length;
+
+  document.getElementById('resultsGrid').innerHTML = `
+    <div class="result-item highlight"><div class="val">${interference} ms</div><div class="lab">Interference Score</div></div>
+    <div class="result-item highlight"><div class="val">${Math.round(totalCorrect/TOTAL_TRIALS*100)}%</div><div class="lab">Overall Accuracy</div></div>
+    <div class="result-item"><div class="val">${congAcc}%</div><div class="lab">Congruent Acc</div></div>
+    <div class="result-item"><div class="val">${incongAcc}%</div><div class="lab">Incongruent Acc</div></div>
+    <div class="result-item"><div class="val">${congRT} ms</div><div class="lab">Congruent RT</div></div>
+    <div class="result-item"><div class="val">${incongRT} ms</div><div class="lab">Incongruent RT</div></div>
+  `;
+  show('resultsScreen');
+
+  // Save
+  const now = new Date();
+  const date = now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  const time = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false });
+  const h = parseInt(now.toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false }));
+  const session = h < 14 ? 'morning' : 'evening';
+  try {
+    await fetch('/api/cognitive/results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        test_type: 'stroop',
+        date,
+        time,
+        session,
+        scores_json: JSON.stringify({
+          congruent_accuracy: congAcc,
+          incongruent_accuracy: incongAcc,
+          congruent_rt: congRT,
+          incongruent_rt: incongRT,
+          interference_score: interference,
+          total_correct: totalCorrect,
+          total_trials: TOTAL_TRIALS
+        })
+      })
+    });
+  } catch {}
+}
+</script>
+</body>
+</html>

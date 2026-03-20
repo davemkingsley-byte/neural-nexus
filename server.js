@@ -641,14 +641,15 @@ function checkCogDB(res) {
 app.post('/api/cognitive/results', dashboardAuth, (req, res) => {
   if (!checkCogDB(res)) return;
   try {
-    const { test_type, scores, session } = req.body;
-    if (!test_type || !scores) return res.status(400).json({ error: 'Missing test_type or scores' });
-    if (!['nback', 'pvt', 'dsst'].includes(test_type)) return res.status(400).json({ error: 'Invalid test_type' });
+    const { test_type, scores, scores_json, session, date, time } = req.body;
+    const resolvedScores = scores || (scores_json ? (typeof scores_json === 'string' ? JSON.parse(scores_json) : scores_json) : null);
+    if (!test_type || !resolvedScores) return res.status(400).json({ error: 'Missing test_type or scores' });
+    if (!['nback', 'pvt', 'dsst', 'stroop'].includes(test_type)) return res.status(400).json({ error: 'Invalid test_type' });
     const validSession = (session === 'morning' || session === 'evening') ? session : null;
     const now = new Date();
-    const date = now.toISOString().split('T')[0];
-    const time = now.toTimeString().split(' ')[0];
-    cogDB.saveResult(test_type, date, time, JSON.stringify(scores), validSession);
+    const saveDate = date || now.toISOString().split('T')[0];
+    const saveTime = time || now.toTimeString().split(' ')[0];
+    cogDB.saveResult(test_type, saveDate, saveTime, JSON.stringify(resolvedScores), validSession);
     res.json({ ok: true });
   } catch (err) {
     console.error('Error saving cognitive result:', err);

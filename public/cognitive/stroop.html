@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Stroop Color-Word Test | Neural Nexus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #06060b;
+  --card: rgba(255,255,255,0.03);
+  --border: rgba(255,255,255,0.08);
+  --gold: #d4a853;
+  --gold-dim: rgba(212,168,83,0.15);
+  --red: #e74c3c;
+  --text: #e0e0e0;
+  --text-dim: rgba(255,255,255,0.3);
+  --text-mid: rgba(255,255,255,0.55);
+}
+
+html, body {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-mid);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 20px 24px;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--gold); }
+
+.screen { display: none; }
+.screen.active { display: flex; }
+
+#setup-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - 60px);
+  padding: 24px;
+  text-align: center;
+}
+
+#setup-screen h1 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(32px, 6vw, 48px);
+  color: #fff;
+  margin-bottom: 20px;
+  line-height: 1.15;
+}
+
+#setup-screen .description {
+  max-width: 480px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-mid);
+  margin-bottom: 40px;
+}
+
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gold);
+  color: #06060b;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 40px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,168,83,0.3); }
+.btn-gold:active { transform: translateY(0); }
+
+#test-screen {
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.test-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.trial-counter {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-mid);
+}
+.trial-counter span { color: var(--gold); }
+
+.stimulus-zone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 20px;
+}
+
+.stroop-word {
+  font-size: clamp(56px, 12vw, 96px);
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  transition: opacity 0.15s;
+}
+
+.color-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.color-btn {
+  padding: 18px 24px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.15s;
+  -webkit-user-select: none;
+  user-select: none;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.color-btn:active { transform: scale(0.95); }
+.color-btn:hover { opacity: 0.9; }
+.color-btn[data-color="red"] { background: #ff4444; }
+.color-btn[data-color="blue"] { background: #4488ff; }
+.color-btn[data-color="green"] { background: #44ff88; color: #06060b; text-shadow: none; }
+.color-btn[data-color="yellow"] { background: #ffdd44; color: #06060b; text-shadow: none; }
+
+.color-btn.correct-flash { border-color: #44ff88; box-shadow: 0 0 20px rgba(68,255,136,0.3); }
+.color-btn.wrong-flash { border-color: #ff4444; box-shadow: 0 0 20px rgba(255,68,68,0.3); }
+
+.fixation {
+  font-size: 48px;
+  color: var(--text-dim);
+}
+
+#results-screen {
+  flex-direction: column;
+  align-items: center;
+  min-height: 100dvh;
+  padding: 24px;
+  padding-bottom: 60px;
+}
+
+.results-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(28px, 5vw, 40px);
+  color: #fff;
+  margin: 20px 0 8px;
+}
+
+.primary-stat {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.primary-stat .value {
+  font-size: clamp(48px, 12vw, 80px);
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+}
+.primary-stat .label {
+  font-size: 14px;
+  color: var(--text-mid);
+  margin-top: 6px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+  margin-bottom: 36px;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.stat-card .stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+}
+.stat-card .stat-label {
+  font-size: 12px;
+  color: var(--text-mid);
+  margin-top: 4px;
+}
+
+.interference-section {
+  width: 100%;
+  max-width: 560px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+.interference-section .if-label {
+  font-size: 13px;
+  color: var(--text-mid);
+  margin-bottom: 4px;
+}
+.interference-section .if-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--gold);
+}
+.interference-section .if-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 10px;
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+.btn-outline:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.cog-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  font-size: 13px;
+  font-weight: 500;
+  flex-wrap: wrap;
+}
+.cog-nav a {
+  color: var(--text-mid);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.cog-nav a:hover, .cog-nav a.cog-nav-active { color: var(--gold); }
+.cog-nav-sep { color: rgba(255,255,255,0.15); }
+.cog-nav-label { color: var(--text-dim); }
+
+.session-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.session-toggle .session-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 16px;
+  color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.session-toggle .session-btn.active {
+  background: rgba(212,168,83,0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.session-toggle .session-btn:hover:not(.active) {
+  border-color: rgba(255,255,255,0.2);
+  color: var(--text);
+}
+
+#confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+</style>
+</head>
+<body>
+
+<nav class="cog-nav">
+  <a href="/cognitive/">&larr; Dashboard</a>
+  <span class="cog-nav-sep">|</span>
+  <a href="/cognitive/analytics.html">Analytics</a>
+  <span class="cog-nav-sep">|</span>
+  <span class="cog-nav-label">Tests:</span>
+  <a href="/cognitive/dual-n-back.html">N-Back</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/pvt.html">PVT</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/dsst.html">DSST</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/stroop.html" class="cog-nav-active">Stroop</a>
+</nav>
+
+<!-- Setup Screen -->
+<div id="setup-screen" class="screen active">
+  <h1>Stroop Color-Word Test</h1>
+  <p class="description">Measure your inhibitory control. Color words will appear in different ink colors. Tap the <strong style="color:#d4a853;">ink color</strong>, not the word itself. Your ability to suppress the automatic reading response reveals cognitive flexibility.</p>
+  <div class="session-toggle" id="session-toggle">
+    <button class="session-btn" data-session="morning" id="btn-morning">&#9728;&#65039; Morning</button>
+    <button class="session-btn" data-session="evening" id="btn-evening">&#127769; Evening</button>
+  </div>
+  <button class="btn-gold" id="btn-begin">Begin Test</button>
+</div>
+
+<!-- Test Screen -->
+<div id="test-screen" class="screen">
+  <div class="test-header">
+    <span class="trial-counter">Trial <span id="trial-current">1</span> of 40</span>
+    <a href="/cognitive/" class="back-link" style="padding:0;font-size:13px;">&larr; Exit</a>
+  </div>
+  <div class="stimulus-zone">
+    <div class="stroop-word" id="stroop-word"></div>
+    <div class="color-buttons" id="color-buttons">
+      <button class="color-btn" data-color="red">Red</button>
+      <button class="color-btn" data-color="blue">Blue</button>
+      <button class="color-btn" data-color="green">Green</button>
+      <button class="color-btn" data-color="yellow">Yellow</button>
+    </div>
+  </div>
+</div>
+
+<!-- Results Screen -->
+<div id="results-screen" class="screen">
+  <h1 class="results-title">Results</h1>
+
+  <div class="primary-stat">
+    <div class="value" id="res-interference">—</div>
+    <div class="label">Stroop Interference (ms)</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="res-cong-acc">—</div>
+      <div class="stat-label">Congruent Accuracy</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-incong-acc">—</div>
+      <div class="stat-label">Incongruent Accuracy</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-cong-rt">—</div>
+      <div class="stat-label">Congruent Avg RT</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-incong-rt">—</div>
+      <div class="stat-label">Incongruent Avg RT</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-total">—</div>
+      <div class="stat-label">Total Correct</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-overall-acc">—</div>
+      <div class="stat-label">Overall Accuracy</div>
+    </div>
+  </div>
+
+  <div class="interference-section">
+    <div class="if-label">Stroop Interference Score</div>
+    <div class="if-value" id="res-interference-detail">—</div>
+    <div class="if-desc">Difference between incongruent and congruent reaction times.<br>Lower = better inhibitory control. Typical range: 50–150 ms.</div>
+  </div>
+
+  <button class="btn-gold" id="btn-save">Save &amp; Return</button>
+  <a href="/cognitive/pvt.html" class="btn-outline">Next: PVT &rarr;</a>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+(function() {
+  'use strict';
+
+  const COLORS = [
+    { name: 'red', hex: '#ff4444' },
+    { name: 'blue', hex: '#4488ff' },
+    { name: 'green', hex: '#44ff88' },
+    { name: 'yellow', hex: '#ffdd44' }
+  ];
+  const TOTAL_CONGRUENT = 20;
+  const TOTAL_INCONGRUENT = 20;
+  const TOTAL_TRIALS = TOTAL_CONGRUENT + TOTAL_INCONGRUENT;
+
+  let trials = [];
+  let currentTrial = 0;
+  let trialResults = [];
+  let stimulusTime = 0;
+  let locked = false;
+
+  // Session
+  let currentSession = new Date().getHours() < 14 ? 'morning' : 'evening';
+  document.getElementById('btn-' + currentSession).classList.add('active');
+  document.querySelectorAll('.session-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.session-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSession = btn.dataset.session;
+    });
+  });
+
+  // DOM refs
+  const setupScreen = document.getElementById('setup-screen');
+  const testScreen = document.getElementById('test-screen');
+  const resultsScreen = document.getElementById('results-screen');
+  const btnBegin = document.getElementById('btn-begin');
+  const btnSave = document.getElementById('btn-save');
+  const trialCounter = document.getElementById('trial-current');
+  const stroopWord = document.getElementById('stroop-word');
+  const colorButtons = document.getElementById('color-buttons');
+
+  function showScreen(screen) {
+    [setupScreen, testScreen, resultsScreen].forEach(s => s.classList.remove('active'));
+    screen.classList.add('active');
+  }
+
+  // Generate trial sequence
+  function generateTrials() {
+    trials = [];
+    // Create 20 congruent and 20 incongruent
+    for (let i = 0; i < TOTAL_CONGRUENT; i++) {
+      const colorIdx = i % 4;
+      trials.push({ word: COLORS[colorIdx].name, inkColor: COLORS[colorIdx], congruent: true });
+    }
+    for (let i = 0; i < TOTAL_INCONGRUENT; i++) {
+      const wordIdx = i % 4;
+      let inkIdx;
+      do { inkIdx = Math.floor(Math.random() * 4); } while (inkIdx === wordIdx);
+      trials.push({ word: COLORS[wordIdx].name, inkColor: COLORS[inkIdx], congruent: false });
+    }
+    // Shuffle (Fisher-Yates)
+    for (let i = trials.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [trials[i], trials[j]] = [trials[j], trials[i]];
+    }
+  }
+
+  // Begin
+  btnBegin.addEventListener('click', () => {
+    generateTrials();
+    currentTrial = 0;
+    trialResults = [];
+    showScreen(testScreen);
+    trialCounter.textContent = '1';
+    showTrial();
+  });
+
+  function showTrial() {
+    if (currentTrial >= TOTAL_TRIALS) {
+      showResults();
+      return;
+    }
+    locked = false;
+    const trial = trials[currentTrial];
+    stroopWord.textContent = trial.word.toUpperCase();
+    stroopWord.style.color = trial.inkColor.hex;
+    stroopWord.style.opacity = '1';
+    stimulusTime = performance.now();
+
+    // Reset button states
+    document.querySelectorAll('.color-btn').forEach(b => {
+      b.classList.remove('correct-flash', 'wrong-flash');
+      b.disabled = false;
+    });
+  }
+
+  // Button click handler
+  colorButtons.addEventListener('click', (e) => {
+    const btn = e.target.closest('.color-btn');
+    if (!btn || locked) return;
+    locked = true;
+
+    const rt = Math.round(performance.now() - stimulusTime);
+    const trial = trials[currentTrial];
+    const chosen = btn.dataset.color;
+    const correct = chosen === trial.inkColor.name;
+
+    trialResults.push({
+      trial: currentTrial,
+      word: trial.word,
+      inkColor: trial.inkColor.name,
+      congruent: trial.congruent,
+      chosen,
+      correct,
+      rt
+    });
+
+    // Visual feedback
+    if (correct) {
+      btn.classList.add('correct-flash');
+    } else {
+      btn.classList.add('wrong-flash');
+      // Highlight correct
+      document.querySelector(`.color-btn[data-color="${trial.inkColor.name}"]`).classList.add('correct-flash');
+    }
+
+    currentTrial++;
+    trialCounter.textContent = Math.min(currentTrial + 1, TOTAL_TRIALS);
+
+    setTimeout(showTrial, 600);
+  });
+
+  // Results
+  async function showResults() {
+    showScreen(resultsScreen);
+
+    const congruent = trialResults.filter(r => r.congruent);
+    const incongruent = trialResults.filter(r => !r.congruent);
+
+    const congCorrect = congruent.filter(r => r.correct);
+    const incongCorrect = incongruent.filter(r => r.correct);
+
+    const congAcc = Math.round(congCorrect.length / congruent.length * 100);
+    const incongAcc = Math.round(incongCorrect.length / incongruent.length * 100);
+
+    const avgRT = arr => arr.length ? Math.round(arr.reduce((s, r) => s + r.rt, 0) / arr.length) : 0;
+    const congRT = avgRT(congCorrect);
+    const incongRT = avgRT(incongCorrect);
+    const interference = incongRT - congRT;
+    const totalCorrect = congCorrect.length + incongCorrect.length;
+
+    document.getElementById('res-interference').textContent = interference + ' ms';
+    document.getElementById('res-cong-acc').textContent = congAcc + '%';
+    document.getElementById('res-incong-acc').textContent = incongAcc + '%';
+    document.getElementById('res-cong-rt').textContent = congRT + ' ms';
+    document.getElementById('res-incong-rt').textContent = incongRT + ' ms';
+    document.getElementById('res-total').textContent = totalCorrect + '/' + TOTAL_TRIALS;
+    document.getElementById('res-overall-acc').textContent = Math.round(totalCorrect / TOTAL_TRIALS * 100) + '%';
+    document.getElementById('res-interference-detail').textContent = interference + ' ms';
+
+    // Store for save
+    resultsScreen.dataset.scores = JSON.stringify({
+      congruent_accuracy: congAcc,
+      incongruent_accuracy: incongAcc,
+      congruent_rt: congRT,
+      incongruent_rt: incongRT,
+      interference_score: interference,
+      total_correct: totalCorrect,
+      total_trials: TOTAL_TRIALS
+    });
+  }
+
+  // Save
+  btnSave.addEventListener('click', async () => {
+    btnSave.disabled = true;
+    btnSave.textContent = 'Saving…';
+    try {
+      const scores = JSON.parse(resultsScreen.dataset.scores || '{}');
+      await fetch('/api/cognitive/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ test_type: 'stroop', session: currentSession, scores })
+      });
+    } catch (e) { /* best effort */ }
+    window.location.href = '/cognitive/';
+  });
+
+  // Prevent pull-to-refresh during test
+  document.addEventListener('touchmove', (e) => {
+    if (testScreen.classList.contains('active')) e.preventDefault();
+  }, { passive: false });
+
+})();
+</script>
+</body>
+</html>

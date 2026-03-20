@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#06060b">
 <link rel="manifest" href="/app/manifest.json">
+<link rel="apple-touch-icon" href="/app/icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <title>Neural NeXus</title>
@@ -98,6 +99,7 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
         <span class="test-chip" data-test="nback">N-Back</span>
         <span class="test-chip" data-test="pvt">PVT</span>
         <span class="test-chip" data-test="dsst">DSST</span>
+        <span class="test-chip" data-test="stroop">Stroop</span>
       </div>
     </div>
     <div class="session-row">
@@ -106,6 +108,7 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
         <span class="test-chip" data-test="nback">N-Back</span>
         <span class="test-chip" data-test="pvt">PVT</span>
         <span class="test-chip" data-test="dsst">DSST</span>
+        <span class="test-chip" data-test="stroop">Stroop</span>
       </div>
     </div>
     <a href="/app/test/" class="btn-gold">Start Battery</a>
@@ -309,6 +312,11 @@ function showScores(results) {
   if (pvt) {
     const s = typeof pvt.scores_json === 'string' ? JSON.parse(pvt.scores_json) : pvt.scores_json;
     html += `<div class="score-item"><div class="value">${s.medianRT || s.median_rt || '—'}</div><div class="label">PVT RT (ms)</div></div>`;
+  }
+  const stroop = results.find(r => r.test_type === 'stroop');
+  if (stroop) {
+    const s = typeof stroop.scores_json === 'string' ? JSON.parse(stroop.scores_json) : stroop.scores_json;
+    html += `<div class="score-item"><div class="value">${s.interference_score != null ? s.interference_score : '—'}</div><div class="label">Stroop (ms)</div></div>`;
   }
   html += '</div>';
   document.getElementById('scoresContent').innerHTML = html;
