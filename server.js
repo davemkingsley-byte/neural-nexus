@@ -1056,6 +1056,28 @@ app.get('/api/cognitive/export', dashboardAuth, (req, res) => {
   }
 });
 
+// Delete a specific test result (admin)
+app.delete('/api/cognitive/results/:id', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    cogDB.db.prepare('DELETE FROM test_results WHERE id = ?').run(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Delete a daily note (admin)
+app.delete('/api/cognitive/daily/:id', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    cogDB.db.prepare('DELETE FROM daily_notes WHERE id = ?').run(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Neural NeXus running on http://localhost:${PORT}`);
 });
