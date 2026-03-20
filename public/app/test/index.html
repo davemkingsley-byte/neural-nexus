@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#06060b">
+<link rel="manifest" href="/app/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Tests — Neural NeXus</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#06060b;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--text:#e0e0e0;--heading:#ffffff;--gold:#d4a853;--green:#4ade80;--radius:16px}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:16px;min-height:100vh;padding:0 16px;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+.container{max-width:480px;margin:0 auto;padding-top:calc(16px + env(safe-area-inset-top))}
+.back{display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,0.5);text-decoration:none;font-size:14px;padding:8px 0;margin-bottom:8px}
+h1{color:var(--heading);font-size:22px;font-weight:700;margin-bottom:4px}
+.session-info{color:rgba(255,255,255,0.4);font-size:14px;margin-bottom:20px}
+.test-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;text-decoration:none;display:block;position:relative;transition:transform .2s}
+.test-card:active{transform:scale(0.98)}
+.test-card .emoji{font-size:36px;margin-bottom:8px}
+.test-card .name{color:var(--heading);font-size:18px;font-weight:700}
+.test-card .subtitle{color:rgba(255,255,255,0.4);font-size:13px;margin-top:2px}
+.test-card .duration{color:var(--gold);font-size:13px;font-weight:600;margin-top:8px}
+.done-badge{position:absolute;top:16px;right:16px;background:rgba(74,222,128,0.15);color:var(--green);font-size:13px;font-weight:600;padding:4px 10px;border-radius:20px}
+.tab-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(6,6,11,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 0 calc(8px + env(safe-area-inset-bottom));z-index:100}
+.tab-bar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;font-size:11px;color:rgba(255,255,255,0.35);padding:6px 0;transition:color .2s}
+.tab-bar a.active{color:var(--gold)}
+.tab-bar a .icon{font-size:22px}
+.auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-box{text-align:center;max-width:300px;width:100%}
+.auth-box h2{color:var(--heading);margin-bottom:16px}
+.auth-box input{width:100%;padding:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;color:var(--heading);font-size:16px;font-family:inherit;text-align:center;margin-bottom:12px}
+.auth-box button{width:100%;padding:14px;background:var(--gold);color:#06060b;font-weight:700;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+
+<div class="container" id="main" style="display:none">
+  <a href="/app/" class="back">← Back</a>
+  <h1>Test Battery</h1>
+  <div class="session-info" id="sessionInfo"></div>
+
+  <a href="/app/test/nback.html" class="test-card" id="card-nback">
+    <div class="emoji">🧠</div>
+    <div class="name">Dual N-Back</div>
+    <div class="subtitle">Working Memory</div>
+    <div class="duration">~5 min</div>
+  </a>
+
+  <a href="/app/test/pvt.html" class="test-card" id="card-pvt">
+    <div class="emoji">⚡</div>
+    <div class="name">PVT</div>
+    <div class="subtitle">Reaction Time</div>
+    <div class="duration">~2 min</div>
+  </a>
+
+  <a href="/app/test/dsst.html" class="test-card" id="card-dsst">
+    <div class="emoji">🔢</div>
+    <div class="name">DSST</div>
+    <div class="subtitle">Processing Speed</div>
+    <div class="duration">~90 sec</div>
+  </a>
+</div>
+
+<nav class="tab-bar" id="tabBar" style="display:none">
+  <a href="/app/"><span class="icon">🏠</span>Today</a>
+  <a href="/app/test/" class="active"><span class="icon">🧠</span>Tests</a>
+  <a href="/app/analytics.html"><span class="icon">📊</span>Analytics</a>
+  <a href="/app/settings.html"><span class="icon">⚙️</span>Settings</a>
+</nav>
+
+<div class="auth-overlay" id="authOverlay" style="display:none">
+  <div class="auth-box">
+    <h2>Neural NeXus</h2>
+    <p style="color:rgba(255,255,255,0.4);margin-bottom:20px;font-size:14px">Enter password to continue</p>
+    <input type="password" id="authPass" placeholder="Password" autocomplete="current-password">
+    <button onclick="doAuth()">Enter</button>
+  </div>
+</div>
+
+<script>
+function checkAuth(){if(!document.cookie.includes('dash_auth=nexus2026')){document.getElementById('authOverlay').style.display='flex';return false}return true}
+function doAuth(){const p=document.getElementById('authPass').value;if(p){document.cookie=`dash_auth=${p};max-age=2592000;path=/`;location.reload()}}
+document.getElementById('authPass').addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
+
+function todayStr(){return new Date().toLocaleDateString('en-CA',{timeZone:'America/New_York'})}
+function currentSession(){const h=new Date().toLocaleString('en-US',{timeZone:'America/New_York',hour:'numeric',hour12:false});return parseInt(h)<14?'morning':'evening'}
+
+document.addEventListener('DOMContentLoaded',async()=>{
+  if(!checkAuth())return;
+  document.getElementById('main').style.display='block';
+  document.getElementById('tabBar').style.display='flex';
+
+  const session=currentSession();
+  document.getElementById('sessionInfo').textContent=session==='morning'?'☀️ AM Session':'🌙 PM Session';
+
+  try{
+    const data=await fetch(`/api/cognitive/results?date=${todayStr()}`).then(r=>r.json());
+    const results=data.results||data||[];
+    ['nback','pvt','dsst'].forEach(type=>{
+      const done=results.some(r=>r.test_type===type&&r.session===session);
+      if(done){
+        const card=document.getElementById('card-'+type);
+        const badge=document.createElement('div');
+        badge.className='done-badge';
+        badge.textContent='✓ Done';
+        card.appendChild(badge);
+      }
+    });
+  }catch{}
+});
+</script>
+</body>
+</html>

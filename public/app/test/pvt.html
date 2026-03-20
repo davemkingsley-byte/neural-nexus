@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="/app/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>PVT — Neural NeXus</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+body{background:#000;color:#e0e0e0;font-family:'DM Sans',system-ui,sans-serif;font-size:16px;min-height:100vh;min-height:100dvh;overflow:hidden;touch-action:manipulation}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.screen.hidden{display:none}
+h1{color:#fff;font-size:24px;margin-bottom:12px}
+h2{color:#fff;font-size:20px;margin-bottom:16px}
+p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:320px;margin-bottom:16px}
+.btn{display:inline-block;padding:16px 48px;background:linear-gradient(135deg,#d4a853,#c49a48);color:#000;font-size:18px;font-weight:700;border:none;border-radius:12px;cursor:pointer;font-family:inherit;transition:transform .2s;min-height:48px;min-width:48px}
+.btn:active{transform:scale(0.95)}
+.btn-outline{background:none;border:1px solid rgba(255,255,255,0.2);color:#e0e0e0;font-size:15px;padding:12px 24px;margin:6px}
+.trial-counter{position:fixed;top:calc(16px + env(safe-area-inset-top));left:0;right:0;text-align:center;color:rgba(255,255,255,0.3);font-size:13px;z-index:10}
+.wait-text{color:rgba(255,255,255,0.15);font-size:28px;font-weight:600;letter-spacing:2px}
+.red-circle{width:120px;height:120px;border-radius:50%;background:#ff4444;box-shadow:0 0 60px rgba(255,68,68,0.4)}
+.rt-display{font-size:64px;font-weight:700;color:#fff}
+.rt-unit{font-size:18px;color:rgba(255,255,255,0.4)}
+.warning-text{color:#ff4444;font-size:20px;font-weight:600}
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:320px;width:100%;margin:20px 0}
+.result-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;text-align:center}
+.result-item .val{font-size:28px;font-weight:700;color:#fff}
+.result-item .lab{font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px}
+.result-item.highlight .val{color:#d4a853}
+.btns{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;justify-content:center}
+.auth-overlay{position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-box{text-align:center;max-width:300px;width:100%}
+.auth-box h2{color:#fff;margin-bottom:16px}
+.auth-box input{width:100%;padding:14px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.06);border-radius:10px;color:#fff;font-size:16px;font-family:inherit;text-align:center;margin-bottom:12px}
+.auth-box button{width:100%;padding:14px;background:#d4a853;color:#000;font-weight:700;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+
+<!-- Instructions -->
+<div class="screen" id="instrScreen">
+  <h1>⚡ PVT</h1>
+  <h2>Psychomotor Vigilance Test</h2>
+  <p>When you see the <span style="color:#ff4444">red circle</span>, tap the screen as fast as you can.</p>
+  <p>Wait for it — don't tap early!</p>
+  <p style="color:rgba(255,255,255,0.3)">10 trials · ~2 minutes</p>
+  <button class="btn" onclick="startTest()">Start</button>
+</div>
+
+<!-- Test -->
+<div class="screen hidden" id="testScreen">
+  <div class="trial-counter" id="trialCounter"></div>
+  <div id="stimulus"></div>
+</div>
+
+<!-- Results -->
+<div class="screen hidden" id="resultsScreen">
+  <h2>Results</h2>
+  <div class="results-grid" id="resultsGrid"></div>
+  <div class="btns">
+    <a href="/app/test/" class="btn btn-outline">Back to Tests</a>
+    <a href="/app/test/dsst.html" class="btn">Next Test →</a>
+  </div>
+</div>
+
+<!-- Auth -->
+<div class="auth-overlay" id="authOverlay" style="display:none">
+  <div class="auth-box">
+    <h2>Neural NeXus</h2>
+    <p style="color:rgba(255,255,255,0.4);margin-bottom:20px;font-size:14px">Enter password</p>
+    <input type="password" id="authPass" placeholder="Password" autocomplete="current-password">
+    <button onclick="doAuth()">Enter</button>
+  </div>
+</div>
+
+<script>
+function checkAuth(){if(!document.cookie.includes('dash_auth=nexus2026')){document.getElementById('authOverlay').style.display='flex';return false}return true}
+function doAuth(){const p=document.getElementById('authPass').value;if(p){document.cookie=`dash_auth=${p};max-age=2592000;path=/`;location.reload()}}
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!checkAuth())return;
+  const ap=document.getElementById('authPass');if(ap)ap.addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
+});
+
+const TRIALS = 10;
+let wakeLock = null;
+let trialNum = 0;
+let rts = [];
+let falseStarts = 0;
+let state = 'idle'; // idle, waiting, stimulus, feedback
+let stimTimeout = null;
+let stimStart = 0;
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+async function startTest() {
+  show('testScreen');
+  trialNum = 0;
+  rts = [];
+  falseStarts = 0;
+  // Wake lock
+  try { wakeLock = await navigator.wakeLock.request('screen'); } catch {}
+  nextTrial();
+}
+
+function nextTrial() {
+  if (trialNum >= TRIALS) { endTest(); return; }
+  trialNum++;
+  document.getElementById('trialCounter').textContent = `${trialNum} / ${TRIALS}`;
+  state = 'waiting';
+  document.getElementById('stimulus').innerHTML = '<div class="wait-text">Wait...</div>';
+  const delay = 2000 + Math.random() * 8000;
+  stimTimeout = setTimeout(showStimulus, delay);
+}
+
+function showStimulus() {
+  state = 'stimulus';
+  stimStart = performance.now();
+  document.getElementById('stimulus').innerHTML = '<div class="red-circle"></div>';
+  if (navigator.vibrate) navigator.vibrate(50);
+}
+
+function handleTap() {
+  if (state === 'waiting') {
+    // False start
+    clearTimeout(stimTimeout);
+    falseStarts++;
+    state = 'feedback';
+    document.getElementById('stimulus').innerHTML = '<div class="warning-text">Too early!</div>';
+    setTimeout(nextTrial, 1200);
+  } else if (state === 'stimulus') {
+    const rt = Math.round(performance.now() - stimStart);
+    rts.push(rt);
+    state = 'feedback';
+    document.getElementById('stimulus').innerHTML = `<div class="rt-display">${rt}</div><div class="rt-unit">ms</div>`;
+    setTimeout(nextTrial, 1200);
+  }
+}
+
+document.getElementById('testScreen').addEventListener('pointerdown', e => {
+  e.preventDefault();
+  handleTap();
+});
+
+function median(arr) {
+  const s = [...arr].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2);
+}
+
+async function endTest() {
+  if (wakeLock) { try { await wakeLock.release(); } catch {} }
+  if (rts.length === 0) { rts = [0]; }
+  const sorted = [...rts].sort((a, b) => a - b);
+  const med = median(rts);
+  const mean = Math.round(rts.reduce((a, b) => a + b, 0) / rts.length);
+  const fastest = sorted[0];
+  const slowest = sorted[sorted.length - 1];
+  const lapses = rts.filter(r => r > 500).length;
+
+  const grid = document.getElementById('resultsGrid');
+  grid.innerHTML = `
+    <div class="result-item highlight"><div class="val">${med}</div><div class="lab">Median RT (ms)</div></div>
+    <div class="result-item"><div class="val">${mean}</div><div class="lab">Mean RT (ms)</div></div>
+    <div class="result-item"><div class="val">${fastest}</div><div class="lab">Fastest (ms)</div></div>
+    <div class="result-item"><div class="val">${slowest}</div><div class="lab">Slowest (ms)</div></div>
+    <div class="result-item"><div class="val">${lapses}</div><div class="lab">Lapses (>500ms)</div></div>
+    <div class="result-item"><div class="val">${falseStarts}</div><div class="lab">False Starts</div></div>
+  `;
+  show('resultsScreen');
+
+  // Save
+  const now = new Date();
+  const date = now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  const time = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false });
+  const h = parseInt(now.toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false }));
+  const session = h < 14 ? 'morning' : 'evening';
+  try {
+    await fetch('/api/cognitive/results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        test_type: 'pvt',
+        date,
+        time,
+        session,
+        scores_json: JSON.stringify({ medianRT: med, meanRT: mean, fastest, slowest, lapses, falseStarts, trials: rts })
+      })
+    });
+  } catch {}
+}
+</script>
+</body>
+</html>

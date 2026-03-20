@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#06060b">
+<link rel="manifest" href="/app/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Settings — Neural NeXus</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#06060b;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--text:#e0e0e0;--heading:#ffffff;--gold:#d4a853;--green:#4ade80;--red:#ef4444;--radius:16px}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:16px;min-height:100vh;padding:0 16px;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+.container{max-width:480px;margin:0 auto;padding-top:calc(16px + env(safe-area-inset-top))}
+.back{display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,0.5);text-decoration:none;font-size:14px;padding:8px 0;margin-bottom:8px}
+h1{color:var(--heading);font-size:22px;font-weight:700;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:12px}
+.btn{display:inline-block;padding:12px 20px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-size:14px;font-family:inherit;cursor:pointer;transition:all .2s;text-decoration:none;text-align:center}
+.btn:active{transform:scale(0.97)}
+.btn-gold{background:var(--gold);color:#06060b;border-color:var(--gold);font-weight:600}
+.status-text{font-size:13px;color:rgba(255,255,255,0.4);margin-top:8px}
+.about-text{color:rgba(255,255,255,0.4);font-size:14px;line-height:1.6}
+.tab-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(6,6,11,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 0 calc(8px + env(safe-area-inset-bottom));z-index:100}
+.tab-bar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;font-size:11px;color:rgba(255,255,255,0.35);padding:6px 0;transition:color .2s}
+.tab-bar a.active{color:var(--gold)}
+.tab-bar a .icon{font-size:22px}
+.auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-box{text-align:center;max-width:300px;width:100%}
+.auth-box h2{color:var(--heading);margin-bottom:16px}
+.auth-box input{width:100%;padding:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;color:var(--heading);font-size:16px;font-family:inherit;text-align:center;margin-bottom:12px}
+.auth-box button{width:100%;padding:14px;background:var(--gold);color:#06060b;font-weight:700;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+
+<div class="container" id="main" style="display:none">
+  <a href="/app/" class="back">← Back</a>
+  <h1>Settings</h1>
+
+  <div class="card">
+    <div class="card-title">WHOOP Integration</div>
+    <div id="whoopSection">
+      <button class="btn btn-gold" id="whoopBtn" onclick="connectWhoop()">Connect WHOOP</button>
+      <div class="status-text" id="whoopStatus">Checking status...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Data</div>
+    <a href="/api/cognitive/export?format=json" class="btn" style="display:block;width:fit-content">Export Data (JSON)</a>
+    <div class="status-text" style="margin-top:8px">Download all cognitive test data</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">About</div>
+    <div class="about-text">
+      <strong style="color:var(--heading)">Neural NeXus Cognitive Tracker v1.0</strong><br>
+      Track cognitive performance with standardized tests, subjective ratings, and biometric data integration.
+    </div>
+  </div>
+</div>
+
+<nav class="tab-bar" id="tabBar" style="display:none">
+  <a href="/app/"><span class="icon">🏠</span>Today</a>
+  <a href="/app/test/"><span class="icon">🧠</span>Tests</a>
+  <a href="/app/analytics.html"><span class="icon">📊</span>Analytics</a>
+  <a href="/app/settings.html" class="active"><span class="icon">⚙️</span>Settings</a>
+</nav>
+
+<div class="auth-overlay" id="authOverlay" style="display:none">
+  <div class="auth-box">
+    <h2>Neural NeXus</h2>
+    <p style="color:rgba(255,255,255,0.4);margin-bottom:20px;font-size:14px">Enter password to continue</p>
+    <input type="password" id="authPass" placeholder="Password" autocomplete="current-password">
+    <button onclick="doAuth()">Enter</button>
+  </div>
+</div>
+
+<script>
+function checkAuth(){if(!document.cookie.includes('dash_auth=nexus2026')){document.getElementById('authOverlay').style.display='flex';return false}return true}
+function doAuth(){const p=document.getElementById('authPass').value;if(p){document.cookie=`dash_auth=${p};max-age=2592000;path=/`;location.reload()}}
+document.getElementById('authPass').addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
+
+function connectWhoop(){window.location.href='/api/whoop/connect'}
+
+async function syncWhoop(){
+  document.getElementById('whoopStatus').textContent='Syncing...';
+  try{
+    await fetch('/api/whoop/sync',{method:'POST'});
+    document.getElementById('whoopStatus').textContent='Synced successfully!';
+  }catch{document.getElementById('whoopStatus').textContent='Sync failed'}
+}
+
+document.addEventListener('DOMContentLoaded',async()=>{
+  if(!checkAuth())return;
+  document.getElementById('main').style.display='block';
+  document.getElementById('tabBar').style.display='flex';
+  try{
+    const data=await fetch('/api/whoop/status').then(r=>r.json());
+    if(data.connected){
+      document.getElementById('whoopBtn').textContent='Sync WHOOP';
+      document.getElementById('whoopBtn').onclick=syncWhoop;
+      document.getElementById('whoopStatus').textContent=data.lastSync?`Last sync: ${new Date(data.lastSync).toLocaleString()}`:'Connected';
+    }else{
+      document.getElementById('whoopStatus').textContent='Not connected';
+    }
+  }catch{document.getElementById('whoopStatus').textContent='Unable to check status'}
+});
+</script>
+</body>
+</html>

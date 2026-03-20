@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#06060b">
+<link rel="manifest" href="/app/manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>Neural NeXus</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#06060b;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--text:#e0e0e0;--heading:#ffffff;--gold:#d4a853;--green:#4ade80;--red:#ef4444;--radius:16px}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:16px;line-height:1.5;min-height:100vh;padding:0 16px env(safe-area-inset-bottom) 16px;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+.container{max-width:480px;margin:0 auto;padding-top:calc(16px + env(safe-area-inset-top))}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:12px}
+h1{color:var(--heading);font-size:24px;font-weight:700}
+.header{padding:20px 0 8px}
+.header .date{color:rgba(255,255,255,0.4);font-size:14px;margin-top:4px}
+.streak-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(212,168,83,0.15);color:var(--gold);font-size:13px;font-weight:600;padding:4px 10px;border-radius:20px;margin-top:8px}
+/* WHOOP card */
+.whoop-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.whoop-stat{text-align:center}
+.whoop-stat .value{font-size:28px;font-weight:700;color:var(--heading)}
+.whoop-stat .label{font-size:12px;color:rgba(255,255,255,0.4);margin-top:2px}
+.whoop-connect{text-align:center;padding:20px 0}
+.whoop-connect a{color:var(--gold);text-decoration:none;font-weight:600}
+/* Tests card */
+.session-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0}
+.session-label{font-weight:600;font-size:14px}
+.session-tests{display:flex;gap:8px}
+.test-chip{font-size:12px;padding:4px 8px;border-radius:8px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.4)}
+.test-chip.done{background:rgba(74,222,128,0.15);color:var(--green)}
+.btn-gold{display:block;width:100%;padding:16px;background:linear-gradient(135deg,#d4a853,#c49a48);color:#06060b;font-size:16px;font-weight:700;border:none;border-radius:12px;cursor:pointer;text-align:center;text-decoration:none;transition:transform .2s,box-shadow .2s;margin-top:16px}
+.btn-gold:active{transform:scale(0.97)}
+/* Quick Log */
+.log-field{margin-bottom:16px}
+.log-field label{display:block;font-size:14px;font-weight:500;margin-bottom:8px}
+.slider-wrap{position:relative}
+.slider-wrap input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:rgba(255,255,255,0.1);outline:none}
+.slider-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--gold);cursor:pointer}
+.slider-val{position:absolute;right:0;top:-2px;font-size:14px;font-weight:600;color:var(--gold)}
+.num-input{background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;padding:10px 14px;color:var(--heading);font-size:16px;font-family:inherit;width:100px}
+.supp-toggle{display:flex;gap:8px}
+.supp-btn{flex:1;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-size:14px;font-family:inherit;cursor:pointer;transition:all .2s;text-align:center}
+.supp-btn.active-yes{background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.3);color:var(--green)}
+.supp-btn.active-no{background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.3);color:var(--red)}
+.btn-save{display:block;width:100%;padding:14px;background:var(--gold);color:#06060b;font-size:15px;font-weight:700;border:none;border-radius:12px;cursor:pointer;transition:transform .2s}
+.btn-save:active{transform:scale(0.97)}
+.save-msg{text-align:center;font-size:13px;color:var(--green);margin-top:8px;display:none}
+/* Scores card */
+.scores-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;text-align:center}
+.score-item .value{font-size:24px;font-weight:700;color:var(--heading)}
+.score-item .label{font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px}
+.score-item .value.above{color:var(--green)}
+.score-item .value.below{color:var(--red)}
+.scores-empty{text-align:center;color:rgba(255,255,255,0.3);font-size:14px;padding:8px 0}
+/* Tab bar */
+.tab-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(6,6,11,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 0 calc(8px + env(safe-area-inset-bottom));z-index:100}
+.tab-bar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;font-size:11px;color:rgba(255,255,255,0.35);padding:6px 0;transition:color .2s}
+.tab-bar a.active{color:var(--gold)}
+.tab-bar a .icon{font-size:22px}
+/* Auth overlay */
+.auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-box{text-align:center;max-width:300px;width:100%}
+.auth-box h2{color:var(--heading);margin-bottom:16px}
+.auth-box input{width:100%;padding:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;color:var(--heading);font-size:16px;font-family:inherit;text-align:center;margin-bottom:12px}
+.auth-box button{width:100%;padding:14px;background:var(--gold);color:#06060b;font-weight:700;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+
+<div class="container" id="main" style="display:none">
+  <!-- Header -->
+  <div class="header">
+    <h1 id="greeting"></h1>
+    <div class="date" id="dateStr"></div>
+    <div class="streak-badge" id="streakBadge" style="display:none">🔥 <span id="streakCount"></span> day streak</div>
+  </div>
+
+  <!-- WHOOP Card -->
+  <div class="card" id="whoopCard">
+    <div class="card-title">WHOOP Recovery</div>
+    <div id="whoopContent">
+      <div class="whoop-connect"><a href="/app/settings.html">Loading...</a></div>
+    </div>
+  </div>
+
+  <!-- Tests Card -->
+  <div class="card">
+    <div class="card-title">Today's Tests</div>
+    <div class="session-row">
+      <span class="session-label">AM Session</span>
+      <div class="session-tests" id="amTests">
+        <span class="test-chip" data-test="nback">N-Back</span>
+        <span class="test-chip" data-test="pvt">PVT</span>
+        <span class="test-chip" data-test="dsst">DSST</span>
+      </div>
+    </div>
+    <div class="session-row">
+      <span class="session-label">PM Session</span>
+      <div class="session-tests" id="pmTests">
+        <span class="test-chip" data-test="nback">N-Back</span>
+        <span class="test-chip" data-test="pvt">PVT</span>
+        <span class="test-chip" data-test="dsst">DSST</span>
+      </div>
+    </div>
+    <a href="/app/test/" class="btn-gold">Start Battery</a>
+  </div>
+
+  <!-- Quick Log Card -->
+  <div class="card">
+    <div class="card-title">Quick Log</div>
+    <div class="log-field">
+      <label>Energy <span class="slider-val" id="energyVal">5</span></label>
+      <div class="slider-wrap">
+        <input type="range" min="1" max="10" value="5" id="energy" oninput="document.getElementById('energyVal').textContent=this.value">
+      </div>
+    </div>
+    <div class="log-field">
+      <label>Focus <span class="slider-val" id="focusVal">5</span></label>
+      <div class="slider-wrap">
+        <input type="range" min="1" max="10" value="5" id="focus" oninput="document.getElementById('focusVal').textContent=this.value">
+      </div>
+    </div>
+    <div class="log-field">
+      <label>Sleep Hours</label>
+      <input type="number" class="num-input" id="sleepHours" value="7" min="0" max="24" step="0.5">
+    </div>
+    <div class="log-field">
+      <label>Supplements</label>
+      <div class="supp-toggle">
+        <button class="supp-btn" id="suppYes" onclick="setSupp(true)">Taken ✅</button>
+        <button class="supp-btn" id="suppNo" onclick="setSupp(false)">Missed ❌</button>
+      </div>
+    </div>
+    <button class="btn-save" onclick="saveLog()">Save</button>
+    <div class="save-msg" id="saveMsg">Saved ✓</div>
+  </div>
+
+  <!-- Scores Card -->
+  <div class="card" id="scoresCard" style="display:none">
+    <div class="card-title">Today's Scores</div>
+    <div id="scoresContent"></div>
+  </div>
+</div>
+
+<!-- Tab Bar -->
+<nav class="tab-bar" id="tabBar" style="display:none">
+  <a href="/app/" class="active"><span class="icon">🏠</span>Today</a>
+  <a href="/app/test/"><span class="icon">🧠</span>Tests</a>
+  <a href="/app/analytics.html"><span class="icon">📊</span>Analytics</a>
+  <a href="/app/settings.html"><span class="icon">⚙️</span>Settings</a>
+</nav>
+
+<!-- Auth Overlay -->
+<div class="auth-overlay" id="authOverlay" style="display:none">
+  <div class="auth-box">
+    <h2>Neural NeXus</h2>
+    <p style="color:rgba(255,255,255,0.4);margin-bottom:20px;font-size:14px">Enter password to continue</p>
+    <input type="password" id="authPass" placeholder="Password" autocomplete="current-password">
+    <button onclick="doAuth()">Enter</button>
+  </div>
+</div>
+
+<script>
+// Auth
+function checkAuth() {
+  if (!document.cookie.includes('dash_auth=nexus2026')) {
+    document.getElementById('authOverlay').style.display = 'flex';
+    return false;
+  }
+  return true;
+}
+function doAuth() {
+  const p = document.getElementById('authPass').value;
+  if (p) {
+    document.cookie = `dash_auth=${p};max-age=2592000;path=/`;
+    location.reload();
+  }
+}
+document.getElementById('authPass').addEventListener('keydown', e => { if (e.key === 'Enter') doAuth(); });
+
+// Helpers
+function todayStr() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+}
+function currentSession() {
+  const h = new Date().toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false });
+  return parseInt(h) < 14 ? 'morning' : 'evening';
+}
+async function api(url, opts) {
+  const res = await fetch(url, opts);
+  if (!res.ok) throw new Error(res.statusText);
+  return res.json();
+}
+
+let suppTaken = null;
+
+function setSupp(taken) {
+  suppTaken = taken;
+  document.getElementById('suppYes').className = 'supp-btn' + (taken ? ' active-yes' : '');
+  document.getElementById('suppNo').className = 'supp-btn' + (!taken ? ' active-no' : '');
+}
+
+async function saveLog() {
+  const body = {
+    date: todayStr(),
+    energy: parseInt(document.getElementById('energy').value),
+    focus: parseInt(document.getElementById('focus').value),
+    sleep_hours: parseFloat(document.getElementById('sleepHours').value),
+    notes: ''
+  };
+  try {
+    await api('/api/cognitive/daily', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+    if (suppTaken !== null) {
+      await api('/api/cognitive/supplements', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ date: todayStr(), taken: suppTaken }) });
+    }
+    const msg = document.getElementById('saveMsg');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 2000);
+  } catch (e) {
+    alert('Save failed: ' + e.message);
+  }
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!checkAuth()) return;
+  document.getElementById('main').style.display = 'block';
+  document.getElementById('tabBar').style.display = 'flex';
+
+  // Greeting
+  const h = new Date().getHours();
+  const greet = h < 12 ? 'Good Morning' : h < 17 ? 'Good Afternoon' : 'Good Evening';
+  document.getElementById('greeting').textContent = `${greet}, David`;
+  document.getElementById('dateStr').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  // Load data
+  loadWhoop();
+  loadTests();
+  loadStreak();
+  loadDaily();
+});
+
+async function loadWhoop() {
+  try {
+    const data = await api('/api/whoop/data');
+    if (data && data.recovery && data.recovery.length > 0) {
+      const latest = data.recovery[0];
+      const sleep = data.sleep && data.sleep.length > 0 ? data.sleep[0] : null;
+      const sleepH = sleep ? (sleep.score?.stage_summary?.total_in_bed_time_milli || 0) / 3600000 : null;
+      document.getElementById('whoopContent').innerHTML = `
+        <div class="whoop-grid">
+          <div class="whoop-stat"><div class="value">${latest.score?.recovery_score ?? '—'}%</div><div class="label">Recovery</div></div>
+          <div class="whoop-stat"><div class="value">${latest.score?.hrv_rmssd_milli ? Math.round(latest.score.hrv_rmssd_milli) : '—'}</div><div class="label">HRV (ms)</div></div>
+          <div class="whoop-stat"><div class="value">${latest.score?.resting_heart_rate ?? '—'}</div><div class="label">RHR (bpm)</div></div>
+          <div class="whoop-stat"><div class="value">${sleepH ? sleepH.toFixed(1) + 'h' : '—'}</div><div class="label">Sleep</div></div>
+        </div>`;
+    } else {
+      document.getElementById('whoopContent').innerHTML = '<div class="whoop-connect"><a href="/app/settings.html">Connect WHOOP →</a></div>';
+    }
+  } catch {
+    document.getElementById('whoopContent').innerHTML = '<div class="whoop-connect"><a href="/app/settings.html">Connect WHOOP →</a></div>';
+  }
+}
+
+async function loadTests() {
+  try {
+    const data = await api(`/api/cognitive/results?date=${todayStr()}`);
+    const results = data.results || data || [];
+    ['am', 'pm'].forEach(session => {
+      const sessionKey = session === 'am' ? 'morning' : 'evening';
+      const container = document.getElementById(session + 'Tests');
+      const chips = container.querySelectorAll('.test-chip');
+      chips.forEach(chip => {
+        const type = chip.dataset.test;
+        const done = results.some(r => r.test_type === type && r.session === sessionKey);
+        if (done) chip.classList.add('done');
+      });
+    });
+    // Scores
+    const today = results.filter(r => r.date === todayStr());
+    if (today.length > 0) {
+      showScores(today);
+    }
+  } catch {}
+}
+
+function showScores(results) {
+  const card = document.getElementById('scoresCard');
+  const dsst = results.find(r => r.test_type === 'dsst');
+  const nback = results.find(r => r.test_type === 'nback');
+  const pvt = results.find(r => r.test_type === 'pvt');
+  if (!dsst && !nback && !pvt) return;
+  card.style.display = 'block';
+  let html = '<div class="scores-grid">';
+  if (dsst) {
+    const s = typeof dsst.scores_json === 'string' ? JSON.parse(dsst.scores_json) : dsst.scores_json;
+    html += `<div class="score-item"><div class="value">${s.accuracy || s.correct || '—'}${s.accuracy ? '%' : ''}</div><div class="label">DSST Acc</div></div>`;
+  }
+  if (nback) {
+    const s = typeof nback.scores_json === 'string' ? JSON.parse(nback.scores_json) : nback.scores_json;
+    html += `<div class="score-item"><div class="value">${s.maxN || s.max_n || '—'}</div><div class="label">N-Back Max</div></div>`;
+  }
+  if (pvt) {
+    const s = typeof pvt.scores_json === 'string' ? JSON.parse(pvt.scores_json) : pvt.scores_json;
+    html += `<div class="score-item"><div class="value">${s.medianRT || s.median_rt || '—'}</div><div class="label">PVT RT (ms)</div></div>`;
+  }
+  html += '</div>';
+  document.getElementById('scoresContent').innerHTML = html;
+}
+
+async function loadStreak() {
+  try {
+    const data = await api('/api/cognitive/analytics');
+    if (data.streak && data.streak.current > 0) {
+      document.getElementById('streakCount').textContent = data.streak.current;
+      document.getElementById('streakBadge').style.display = 'inline-flex';
+    }
+  } catch {}
+}
+
+async function loadDaily() {
+  try {
+    const data = await api('/api/cognitive/daily');
+    const notes = data.notes || data || [];
+    const today = notes.find(n => n.date === todayStr());
+    if (today) {
+      if (today.energy) document.getElementById('energy').value = today.energy;
+      if (today.focus) document.getElementById('focus').value = today.focus;
+      if (today.sleep_hours) document.getElementById('sleepHours').value = today.sleep_hours;
+      document.getElementById('energyVal').textContent = today.energy || 5;
+      document.getElementById('focusVal').textContent = today.focus || 5;
+    }
+  } catch {}
+}
+
+// Register SW
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/app/sw.js');
+}
+</script>
+</body>
+</html>

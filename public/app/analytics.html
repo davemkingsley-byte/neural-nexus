@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#06060b">
+<link rel="manifest" href="/app/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Analytics — Neural NeXus</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#06060b;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--text:#e0e0e0;--heading:#ffffff;--gold:#d4a853;--green:#4ade80;--red:#ef4444;--radius:16px}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:16px;min-height:100vh;padding:0 16px;padding-bottom:calc(72px + env(safe-area-inset-bottom))}
+.container{max-width:480px;margin:0 auto;padding-top:calc(16px + env(safe-area-inset-top))}
+.back{display:inline-flex;align-items:center;gap:6px;color:rgba(255,255,255,0.5);text-decoration:none;font-size:14px;padding:8px 0;margin-bottom:8px}
+h1{color:var(--heading);font-size:22px;font-weight:700;margin-bottom:20px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:16px}
+.chart-wrap{position:relative;width:100%;aspect-ratio:1.5}
+.no-data{text-align:center;color:rgba(255,255,255,0.3);font-size:14px;padding:20px 0}
+.tab-bar{position:fixed;bottom:0;left:0;right:0;background:rgba(6,6,11,0.95);backdrop-filter:blur(20px);border-top:1px solid var(--border);display:flex;padding:8px 0 calc(8px + env(safe-area-inset-bottom));z-index:100}
+.tab-bar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;text-decoration:none;font-size:11px;color:rgba(255,255,255,0.35);padding:6px 0;transition:color .2s}
+.tab-bar a.active{color:var(--gold)}
+.tab-bar a .icon{font-size:22px}
+.auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-box{text-align:center;max-width:300px;width:100%}
+.auth-box h2{color:var(--heading);margin-bottom:16px}
+.auth-box input{width:100%;padding:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;color:var(--heading);font-size:16px;font-family:inherit;text-align:center;margin-bottom:12px}
+.auth-box button{width:100%;padding:14px;background:var(--gold);color:#06060b;font-weight:700;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+
+<div class="container" id="main" style="display:none">
+  <a href="/app/" class="back">← Back</a>
+  <h1>Analytics</h1>
+
+  <div class="card">
+    <div class="card-title">Score Trends (14 days)</div>
+    <div class="chart-wrap"><canvas id="scoreChart"></canvas></div>
+    <div class="no-data" id="scoreNoData" style="display:none">No test data yet</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Subjective Ratings</div>
+    <div class="chart-wrap"><canvas id="ratingChart"></canvas></div>
+    <div class="no-data" id="ratingNoData" style="display:none">No daily logs yet</div>
+  </div>
+
+  <div class="card" id="whoopChartCard" style="display:none">
+    <div class="card-title">WHOOP Data</div>
+    <div class="chart-wrap"><canvas id="whoopChart"></canvas></div>
+  </div>
+</div>
+
+<nav class="tab-bar" id="tabBar" style="display:none">
+  <a href="/app/"><span class="icon">🏠</span>Today</a>
+  <a href="/app/test/"><span class="icon">🧠</span>Tests</a>
+  <a href="/app/analytics.html" class="active"><span class="icon">📊</span>Analytics</a>
+  <a href="/app/settings.html"><span class="icon">⚙️</span>Settings</a>
+</nav>
+
+<div class="auth-overlay" id="authOverlay" style="display:none">
+  <div class="auth-box">
+    <h2>Neural NeXus</h2>
+    <p style="color:rgba(255,255,255,0.4);margin-bottom:20px;font-size:14px">Enter password</p>
+    <input type="password" id="authPass" placeholder="Password" autocomplete="current-password">
+    <button onclick="doAuth()">Enter</button>
+  </div>
+</div>
+
+<script>
+function checkAuth(){if(!document.cookie.includes('dash_auth=nexus2026')){document.getElementById('authOverlay').style.display='flex';return false}return true}
+function doAuth(){const p=document.getElementById('authPass').value;if(p){document.cookie=`dash_auth=${p};max-age=2592000;path=/`;location.reload()}}
+document.addEventListener('DOMContentLoaded',()=>{
+  const ap=document.getElementById('authPass');if(ap)ap.addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
+});
+
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: true,
+  aspectRatio: 1.5,
+  plugins: {
+    legend: { labels: { color: 'rgba(255,255,255,0.5)', font: { family: 'DM Sans', size: 11 }, boxWidth: 12, padding: 12 } }
+  },
+  scales: {
+    x: { ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+    y: { ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+  }
+};
+
+document.addEventListener('DOMContentLoaded', async () => {
+  if (!checkAuth()) return;
+  document.getElementById('main').style.display = 'block';
+  document.getElementById('tabBar').style.display = 'flex';
+  loadAnalytics();
+  loadWhoop();
+});
+
+async function loadAnalytics() {
+  try {
+    const data = await fetch('/api/cognitive/analytics').then(r => r.json());
+
+    // Score trends
+    const ts = data.timeSeries || [];
+    if (ts.length > 0) {
+      const last14 = ts.slice(-14);
+      const labels = last14.map(d => {
+        const dt = new Date(d.date + 'T12:00:00');
+        return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      });
+
+      const dsstData = last14.map(d => {
+        if (!d.dsst) return null;
+        const s = typeof d.dsst.scores_json === 'string' ? JSON.parse(d.dsst.scores_json) : d.dsst.scores_json;
+        return s?.accuracy ?? s?.correct ?? null;
+      });
+      const pvtData = last14.map(d => {
+        if (!d.pvt) return null;
+        const s = typeof d.pvt.scores_json === 'string' ? JSON.parse(d.pvt.scores_json) : d.pvt.scores_json;
+        return s?.medianRT ?? s?.median_rt ?? null;
+      });
+      const nbackData = last14.map(d => {
+        if (!d.nback) return null;
+        const s = typeof d.nback.scores_json === 'string' ? JSON.parse(d.nback.scores_json) : d.nback.scores_json;
+        return s?.maxN ?? s?.max_n ?? null;
+      });
+
+      const datasets = [];
+      if (dsstData.some(v => v !== null)) datasets.push({ label: 'DSST Accuracy %', data: dsstData, borderColor: '#d4a853', backgroundColor: 'rgba(212,168,83,0.1)', tension: 0.3, spanGaps: true });
+      if (nbackData.some(v => v !== null)) datasets.push({ label: 'N-Back Max N', data: nbackData, borderColor: '#4488ff', backgroundColor: 'rgba(68,136,255,0.1)', tension: 0.3, spanGaps: true, yAxisID: 'y1' });
+
+      if (datasets.length > 0) {
+        const scales = { ...chartDefaults.scales };
+        if (nbackData.some(v => v !== null)) {
+          scales.y1 = { position: 'right', ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 } }, grid: { display: false } };
+        }
+        new Chart(document.getElementById('scoreChart'), {
+          type: 'line',
+          data: { labels, datasets },
+          options: { ...chartDefaults, scales }
+        });
+      } else {
+        document.getElementById('scoreNoData').style.display = 'block';
+        document.getElementById('scoreChart').style.display = 'none';
+      }
+    } else {
+      document.getElementById('scoreNoData').style.display = 'block';
+      document.getElementById('scoreChart').style.display = 'none';
+    }
+
+    // Ratings
+    const daily = data.daily || [];
+    if (daily.length > 0) {
+      const last14d = daily.slice(-14);
+      const dLabels = last14d.map(d => {
+        const dt = new Date(d.date + 'T12:00:00');
+        return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      });
+      new Chart(document.getElementById('ratingChart'), {
+        type: 'line',
+        data: {
+          labels: dLabels,
+          datasets: [
+            { label: 'Energy', data: last14d.map(d => d.energy), borderColor: '#f59e0b', backgroundColor: 'rgba(245,158,11,0.1)', tension: 0.3, spanGaps: true },
+            { label: 'Focus', data: last14d.map(d => d.focus), borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', tension: 0.3, spanGaps: true }
+          ]
+        },
+        options: { ...chartDefaults, scales: { ...chartDefaults.scales, y: { ...chartDefaults.scales.y, min: 0, max: 10 } } }
+      });
+    } else {
+      document.getElementById('ratingNoData').style.display = 'block';
+      document.getElementById('ratingChart').style.display = 'none';
+    }
+  } catch (e) {
+    console.error('Analytics load error:', e);
+  }
+}
+
+async function loadWhoop() {
+  try {
+    const data = await fetch('/api/whoop/data').then(r => r.json());
+    if (data && data.recovery && data.recovery.length > 1) {
+      document.getElementById('whoopChartCard').style.display = 'block';
+      const recovery = [...data.recovery].reverse().slice(-14);
+      const labels = recovery.map((r, i) => `Day ${i + 1}`);
+      new Chart(document.getElementById('whoopChart'), {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [
+            { label: 'Recovery %', data: recovery.map(r => r.score?.recovery_score ?? null), borderColor: '#4ade80', backgroundColor: 'rgba(74,222,128,0.1)', tension: 0.3, spanGaps: true },
+            { label: 'HRV (ms)', data: recovery.map(r => r.score?.hrv_rmssd_milli ? Math.round(r.score.hrv_rmssd_milli) : null), borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.1)', tension: 0.3, spanGaps: true, yAxisID: 'y1' }
+          ]
+        },
+        options: {
+          ...chartDefaults,
+          scales: {
+            ...chartDefaults.scales,
+            y1: { position: 'right', ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 } }, grid: { display: false } }
+          }
+        }
+      });
+    }
+  } catch {}
+}
+</script>
+</body>
+</html>
