@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MUMS Act Analysis — TRT-001 | Treat Biosciences</title>
+<style>
+:root {
+  --bg: #080812;
+  --surface: #0d0d1f;
+  --surface2: #111124;
+  --border: #1e1e38;
+  --border2: #2a2a48;
+  --text: #e2e2f0;
+  --muted: #7070a0;
+  --green: #22c55e;
+  --green-light: #86efac;
+  --green-vivid: #00ff88;
+  --amber: #f59e0b;
+  --amber-light: #fde68a;
+  --red: #ef4444;
+  --red-light: #fca5a5;
+  --blue: #818cf8;
+  --blue-dark: #4f46e5;
+  --teal: #14b8a6;
+  --font: -apple-system, 'Segoe UI', system-ui, Helvetica, sans-serif;
+  --font-mono: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+/* Confidential Watermark */
+body::before {
+  content: 'CONFIDENTIAL';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-35deg);
+  font-size: 120px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.018);
+  pointer-events: none;
+  z-index: 9999;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  user-select: none;
+}
+/* Top Banner */
+.top-banner {
+  background: #ef4444;
+  color: #fff;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  padding: 6px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+/* Report Nav */
+.report-nav {
+  display: flex; gap: 8px; padding: 12px 32px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 29px;
+  z-index: 99;
+}
+.report-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 4px 12px;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.report-nav a:hover { color: var(--text); background: var(--surface2); border-color: var(--blue); }
+.report-nav a.active { color: var(--red); background: var(--surface2); border-color: var(--red); }
+
+/* Section Nav */
+.section-nav {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 40px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.section-nav span {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+.section-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  transition: all 0.2s;
+}
+.section-nav a:hover { color: var(--text); border-color: var(--border2); }
+
+/* Main layout */
+.doc-wrapper {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 40px 60px;
+}
+
+/* Document Header */
+.doc-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 20px;
+  border-bottom: 2px solid var(--red);
+  padding-bottom: 20px;
+  margin-bottom: 28px;
+}
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.logo-mark {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, #22c55e, #14b8a6);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 17px; color: #080812;
+  flex-shrink: 0;
+}
+.logo-text { font-size: 18px; font-weight: 800; }
+.doc-title { font-size: 22px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; }
+.doc-subtitle { font-size: 13px; color: var(--muted); }
+.doc-meta { text-align: right; font-size: 11px; color: var(--muted); }
+.doc-meta div { margin-bottom: 3px; }
+.meta-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+}
+.badge-conf { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.badge-v1 { background: rgba(129,140,248,0.15); color: var(--blue); border: 1px solid rgba(129,140,248,0.3); }
+
+/* Hero stat — 675× */
+.hero-stat-block {
+  background: linear-gradient(135deg, rgba(239,68,68,0.08), rgba(239,68,68,0.03));
+  border: 1px solid rgba(239,68,68,0.35);
+  border-radius: 12px;
+  padding: 28px 36px;
+  margin-bottom: 28px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 28px;
+  align-items: center;
+}
+.hero-num {
+  font-size: 90px;
+  font-weight: 900;
+  color: var(--red);
+  font-family: var(--font-mono);
+  line-height: 1;
+}
+.hero-num sup { font-size: 36px; vertical-align: super; }
+.hero-label { font-size: 22px; font-weight: 700; color: var(--red-light); margin-bottom: 8px; }
+.hero-desc { font-size: 14px; color: var(--text); line-height: 1.6; }
+.hero-desc strong { color: var(--red); }
+
+/* Conclusion banner */
+.conclusion-banner {
+  background: rgba(239,68,68,0.12);
+  border: 2px solid var(--red);
+  border-radius: 10px;
+  padding: 18px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.conclusion-icon { font-size: 36px; flex-shrink: 0; }
+.conclusion-text h3 { font-size: 17px; font-weight: 800; color: var(--red); margin-bottom: 4px; }
+.conclusion-text p { font-size: 13px; color: var(--text); }
+
+/* Section */
+.doc-section {
+  margin-bottom: 40px;
+  scroll-margin-top: 100px;
+}
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--blue);
+  border-left: 3px solid var(--blue);
+  padding-left: 12px;
+  margin-bottom: 16px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.section-title.red { color: var(--red); border-color: var(--red); }
+.section-title.green { color: var(--green); border-color: var(--green); }
+.section-title.amber { color: var(--amber); border-color: var(--amber); }
+.section-title.teal { color: var(--teal); border-color: var(--teal); }
+.section-title.muted { color: var(--muted); border-color: var(--border2); }
+
+.subsection-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 20px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+p { font-size: 13.5px; line-height: 1.65; margin-bottom: 12px; }
+p:last-child { margin-bottom: 0; }
+
+/* Tables */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin-bottom: 16px;
+}
+.data-table th {
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 2px solid var(--border2);
+}
+.data-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:nth-child(even) td { background: rgba(255,255,255,0.018); }
+.data-table tr:hover td { background: rgba(129,140,248,0.04); }
+
+/* Highlight table row */
+.data-table tr.highlight td { background: rgba(239,68,68,0.08); }
+.data-table tr.highlight-green td { background: rgba(34,197,94,0.06); }
+
+/* Pills / Badges */
+.pill {
+  display: inline-block; padding: 2px 8px;
+  border-radius: 99px; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.05em; white-space: nowrap;
+}
+.pill-green { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.pill-red { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.pill-amber { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.pill-blue { background: rgba(129,140,248,0.15); color: var(--blue); border: 1px solid rgba(129,140,248,0.3); }
+.pill-muted { background: rgba(112,112,160,0.15); color: var(--muted); border: 1px solid rgba(112,112,160,0.3); }
+
+/* Blockquote / statute text */
+.statute-quote {
+  background: var(--surface2);
+  border-left: 3px solid var(--teal);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text);
+  margin: 14px 0;
+  line-height: 1.65;
+}
+.statute-quote cite {
+  display: block;
+  margin-top: 8px;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+/* Callout boxes */
+.callout {
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 14px 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.callout.warn {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.3);
+  color: var(--amber-light);
+}
+.callout.danger {
+  background: rgba(239,68,68,0.08);
+  border: 1px solid rgba(239,68,68,0.3);
+  color: var(--red-light);
+}
+.callout.info {
+  background: rgba(129,140,248,0.08);
+  border: 1px solid rgba(129,140,248,0.3);
+  color: var(--blue);
+}
+.callout.success {
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.3);
+  color: var(--green-light);
+}
+.callout strong { font-weight: 700; }
+
+/* Stat strip */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 14px 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-card.green::before { background: var(--green); }
+.stat-card.amber::before { background: var(--amber); }
+.stat-card.red::before { background: var(--red); }
+.stat-card.blue::before { background: var(--blue); }
+.stat-num {
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 4px;
+  font-family: var(--font-mono);
+}
+.stat-card.green .stat-num { color: var(--green); }
+.stat-card.amber .stat-num { color: var(--amber); }
+.stat-card.red .stat-num { color: var(--red); }
+.stat-card.blue .stat-num { color: var(--blue); }
+.stat-label { font-size: 10px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.stat-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* Action items */
+.action-list { list-style: none; padding: 0; }
+.action-list li {
+  display: flex;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+  align-items: flex-start;
+}
+.action-list li:last-child { border-bottom: none; }
+.action-num {
+  background: var(--blue);
+  color: #080812;
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* Summary Q&A table */
+.qa-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 16px; }
+.qa-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.5; }
+.qa-table td:first-child { color: var(--muted); font-weight: 600; width: 48%; }
+.qa-table tr:last-child td { border-bottom: none; }
+.qa-table tr:nth-child(even) td { background: rgba(255,255,255,0.018); }
+
+/* References */
+.ref-list { list-style: none; padding: 0; counter-reset: ref-counter; }
+.ref-list li {
+  counter-increment: ref-counter;
+  display: flex;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.ref-list li:last-child { border-bottom: none; }
+.ref-list li::before {
+  content: '[' counter(ref-counter) ']';
+  color: var(--blue);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  flex-shrink: 0;
+  min-width: 28px;
+  padding-top: 1px;
+}
+.ref-list a { color: var(--blue); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+
+/* Color helpers */
+.hl-green { color: var(--green); font-weight: 600; }
+.hl-amber { color: var(--amber); font-weight: 600; }
+.hl-red { color: var(--red); font-weight: 700; }
+.hl-blue { color: var(--blue); font-weight: 600; }
+.hl-teal { color: var(--teal); font-weight: 600; }
+.mono { font-family: var(--font-mono); }
+
+/* Section card wrapper */
+.op-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+/* Comparison grid for pathway */
+.pathway-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+.pathway-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 16px;
+}
+.pathway-card.recommended {
+  border-color: rgba(34,197,94,0.4);
+  background: rgba(34,197,94,0.04);
+}
+.pathway-card.disqualified {
+  border-color: rgba(239,68,68,0.3);
+  background: rgba(239,68,68,0.04);
+  opacity: 0.85;
+}
+.pathway-card-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.pathway-card-title.green { color: var(--green); }
+.pathway-card-title.red { color: var(--red); }
+.pathway-card-title.muted { color: var(--muted); }
+.pathway-card ul { list-style: none; padding: 0; font-size: 12px; }
+.pathway-card ul li { padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; gap: 6px; align-items: flex-start; }
+.pathway-card ul li:last-child { border-bottom: none; }
+
+/* Footer */
+.doc-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 40px;
+}
+
+/* Print */
+@media print {
+  .top-banner { position: static; }
+  .report-nav, .section-nav { display: none; }
+  body { background: #fff; color: #111; }
+  .doc-wrapper { padding: 10px 20px; }
+  .hero-stat-block { background: #fff8f8; border: 2px solid #ef4444; }
+}
+
+@media (max-width: 768px) {
+  .doc-header { grid-template-columns: 1fr; }
+  .hero-stat-block { grid-template-columns: 1fr; text-align: center; }
+  .hero-num { font-size: 60px; }
+  .stat-strip { grid-template-columns: 1fr 1fr; }
+  .pathway-grid { grid-template-columns: 1fr; }
+  .doc-wrapper { padding: 20px 16px 40px; }
+  .report-nav { padding: 10px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-banner">CONFIDENTIAL — TREAT BIOSCIENCES — PRE-PATENT — DO NOT DISTRIBUTE</div>
+
+<nav class="report-nav">
+  <a href="one-pager-investor-v2.html">Investor One-Pager</a>
+  <a href="canine-study-data-requirements.html">Canine Study Requirements</a>
+  <a href="mums-act-analysis.html" class="active">MUMS Act Analysis</a>
+</nav>
+
+<nav class="section-nav">
+  <span>Sections:</span>
+  <a href="#exec-summary">Executive Summary</a>
+  <a href="#what-is-mums">1. MUMS Act</a>
+  <a href="#definitions">2. Definitions</a>
+  <a href="#qualification">3. Disqualification</a>
+  <a href="#mums-benefits">4. MUMS Benefits</a>
+  <a href="#cnada-pathway">5. CNADA Pathway</a>
+  <a href="#comparison">6. Comparison</a>
+  <a href="#precedents">7. Precedents</a>
+  <a href="#recommendation">8. Recommendation</a>
+  <a href="#summary">10. Summary</a>
+  <a href="#references">References</a>
+</nav>
+
+<div class="doc-wrapper">
+
+  <!-- Document Header -->
+  <header class="doc-header">
+    <div>
+      <div class="logo-row">
+        <div class="logo-mark">Tx</div>
+        <div class="logo-text">Treat Biosciences</div>
+      </div>
+      <div class="doc-title">MUMS Act Qualification Analysis</div>
+      <div class="doc-subtitle">TRT-001 (Canine-Optimized Triple Incretin Agonist) — Regulatory Pathway Assessment</div>
+    </div>
+    <div class="doc-meta">
+      <div>Regulatory Analysis</div>
+      <div>Version 1.0 — March 2026</div>
+      <div>Lead: TRT-001 | GLP-1R/GIPR/GCGR</div>
+      <div style="margin-top:6px">
+        <span class="meta-badge badge-conf">CONFIDENTIAL</span>
+        <span class="meta-badge badge-v1">PRE-PATENT</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Stat: 675× -->
+  <div class="hero-stat-block">
+    <div>
+      <div class="hero-num">675<sup>×</sup></div>
+    </div>
+    <div>
+      <div class="hero-label">Canine Obesity Exceeds MUMS Threshold by 675-Fold</div>
+      <div class="hero-desc">
+        54 million obese US dogs vs. the statutory cap of <strong>≤80,000 dogs/year</strong> under 21 CFR §516.3.
+        This is a <strong>hard regulatory disqualification</strong>, not a matter of FDA discretion. Canine obesity
+        does <strong>NOT qualify</strong> as "minor use" under the MUMS Act — and no subset argument, petition,
+        or informal interpretation can change this without formal rulemaking.
+      </div>
+    </div>
+  </div>
+
+  <!-- Conclusion Banner -->
+  <div class="conclusion-banner">
+    <div class="conclusion-icon">❌</div>
+    <div class="conclusion-text">
+      <h3>CONCLUSION: DOES NOT QUALIFY FOR MUMS DESIGNATION</h3>
+      <p>Canine obesity (~54M dogs) exceeds the 21 CFR §516.3 threshold (≤80,000 dogs/year) by 675×. Do not apply for MUMS designation. Pursue CNADA under ADAA 1996 as the primary regulatory pathway. File composition of matter patent immediately as primary exclusivity mechanism.</p>
+    </div>
+  </div>
+
+  <!-- Key Stats -->
+  <div class="stat-strip">
+    <div class="stat-card red">
+      <div class="stat-num">54M</div>
+      <div class="stat-label">Obese US Dogs</div>
+      <div class="stat-sub">90M total × 60% obese</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-num">80K</div>
+      <div class="stat-label">MUMS Cap (Dogs)</div>
+      <div class="stat-sub">21 CFR §516.3 hard threshold</div>
+    </div>
+    <div class="stat-card green">
+      <div class="stat-num">18–24mo</div>
+      <div class="stat-label">CNADA Timeline</div>
+      <div class="stat-sub">ADAA 1996 — correct pathway</div>
+    </div>
+  </div>
+
+  <!-- Exec Summary -->
+  <section id="exec-summary" class="doc-section">
+    <div class="section-title red">Executive Summary</div>
+
+    <p>The Minor Use and Minor Species Animal Health Act of 2004 (MUMS Act, Public Law 108-282) creates a "minor use" designation for drugs intended for indications in major species that occur in "only a small number of animals annually." The FDA's implementing regulation (21 CFR §516.3) quantitatively defines "small number of animals" for dogs as <strong class="hl-red">≤80,000 dogs per year</strong>. Canine obesity affects approximately 54 million US dogs — exceeding the statutory threshold by <strong class="hl-red">675-fold</strong>. This is a hard regulatory disqualification, not a matter of FDA discretion.</p>
+
+    <p>However, this analysis reveals that MUMS designation, even if available, would add limited incremental value over the CNADA pathway already available under the Animal Drug Availability Act of 1996 (ADAA). The CNADA pathway under ADAA 1996 independently provides conditional approval on "reasonable expectation of effectiveness" grounds, commercial sales during the conditional period, and a 5-year (extendable to 10-year) approval window — the same major advantages the MUMS Act was designed to provide. The primary MUMS-unique benefit (7-year post-approval exclusivity) is far inferior to Treat's primary exclusivity tool: a patent on the TRT-001 composition of matter (20-year protection).</p>
+
+    <div class="callout success">
+      <strong>Bottom line:</strong> Confirm the MUMS disqualification at the pre-submission meeting; do not apply for MUMS designation; focus resources on the CNADA pathway under ADAA 1996 and strong patent protection.
+    </div>
+  </section>
+
+  <!-- Section 1: What is MUMS -->
+  <section id="what-is-mums" class="doc-section">
+    <div class="section-title">1. What Is the MUMS Act?</div>
+
+    <div class="subsection-title">1.1 Statute and Purpose</div>
+    <p>The <strong>Minor Use and Minor Species Animal Health Act of 2004</strong> (MUMS Act) was enacted as <strong>Public Law 108-282, Title I, signed August 2, 2004</strong>. The statute amends the Federal Food, Drug, and Cosmetic Act (FD&C Act) by adding Sections 571–574 (21 U.S.C. §360ccc–360ccc-3) and Section 573 (21 U.S.C. §360ccc-2) governing MUMS drug designation.</p>
+
+    <p><strong>Legislative intent</strong>: The MUMS Act was explicitly modeled on the <strong>Orphan Drug Act of 1983</strong> (Public Law 97-414). Both statutes address the same fundamental market failure: rational drug development economics dictate that drugs for small patient populations will not be developed by commercial sponsors unless the government creates economic incentives.</p>
+
+    <p><strong>Two mechanisms created by the MUMS Act:</strong></p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Mechanism</th>
+          <th>Statutory Section</th>
+          <th>Application</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>MUMS Designation</td>
+          <td class="mono">Section 573 (21 U.S.C. §360ccc-2); 21 CFR Part 516</td>
+          <td>For drugs intended for minor use in major species OR use in minor species; provides 7-year exclusivity</td>
+        </tr>
+        <tr>
+          <td>Index of Legally Marketed Unapproved Drugs</td>
+          <td class="mono">Section 572 (21 U.S.C. §360ccc-1); 21 CFR Part 516 Subpart C</td>
+          <td><strong>ONLY for minor species</strong> (not major species); provides legal marketing pathway without full approval</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <strong>Critical distinction:</strong> The Indexing pathway (§572) is available exclusively for minor species — it cannot be used for any indication in dogs, regardless of prevalence. Dogs are a major species.
+    </div>
+
+    <div class="subsection-title">1.2 Relationship to Conditional Approval</div>
+    <p>The MUMS Act did <strong>NOT</strong> create the conditional approval pathway. The <strong>Animal Drug Availability Act of 1996 (ADAA)</strong> already established conditional approval (21 U.S.C. §360b(n)) and is the governing statute for Treat's CNADA strategy regardless of MUMS. The MUMS Act enhanced certain aspects of conditional approval for MUMS-designated drugs (primarily adding the 7-year exclusivity provision) but is not required for CNADA eligibility.</p>
+  </section>
+
+  <!-- Section 2: Definitions -->
+  <section id="definitions" class="doc-section">
+    <div class="section-title">2. Key Definitions — Statutory Text and Regulatory Interpretation</div>
+
+    <div class="subsection-title">2.1 Major vs. Minor Species</div>
+
+    <div class="statute-quote">
+      <strong>"Major species means cattle, horses, swine, chickens, turkeys, dogs, and cats."</strong>
+      <cite>21 CFR §516.3 — Implementing Regulation</cite>
+    </div>
+
+    <div class="statute-quote">
+      <strong>"Minor species means animals, other than humans, that are not major species."</strong>
+      <cite>21 CFR §516.3 — Implementing Regulation</cite>
+    </div>
+
+    <div class="callout danger">
+      <strong>Dogs are definitively, explicitly, and unambiguously a MAJOR species.</strong> This is codified in regulation and statute. There is no mechanism, discretion, or petition process to reclassify dogs as a minor species. Examples of minor species include ferrets, rabbits, ornamental fish, zoo animals, exotic pets, and aquaculture species.
+    </div>
+
+    <div class="subsection-title">2.2 "Minor Use" and "Small Number of Animals" — The Critical Threshold</div>
+
+    <div class="statute-quote">
+      "Minor use means the intended use of a drug in a major species for an indication that occurs <strong>infrequently</strong> and in only a <strong>small number of animals</strong> or in <strong>limited geographical areas</strong> and in only a small number of animals annually."
+      <cite>21 U.S.C. §360ccc-2; implemented by 21 CFR §516.3</cite>
+    </div>
+
+    <div class="statute-quote">
+      <strong>"Infrequently, as used in the minor use definition, means a disease or condition that is uncommon or that occurs only sporadically on an annualized basis."</strong>
+      <cite>21 CFR §516.3</cite>
+    </div>
+
+    <div class="statute-quote">
+      <strong>"Small number of animals means equal to or less than 50,000 horses; 80,000 dogs; 150,000 cats; 310,000 cattle; 1,450,000 pigs; 14,000,000 turkeys; and 72,000,000 chickens."</strong>
+      <cite>21 CFR §516.3 — THE CRITICAL REGULATORY THRESHOLD (72 FR 41017, July 26, 2007)</cite>
+    </div>
+
+    <div class="callout danger">
+      This is not a soft guideline or a discretionary factor — it is a <strong>hard quantitative threshold codified in regulation</strong> (72 FR 41017, July 26, 2007). A proposed use in dogs that affects more than 80,000 dogs per year is definitively not a "minor use" under MUMS, regardless of any other factor.
+    </div>
+
+    <div class="subsection-title">2.3 Documentation Requirement (21 CFR §516.21)</div>
+    <p>When a sponsor requests MUMS designation for a minor use in a major species, they must submit the estimated total number of animals to which the drug could potentially be administered annually, including a list of sources. The regulation permits a sponsor to argue that administration is only medically justified for a subset (§516.21(b)), but only if administration to animals outside the subset is "not medically justified." For canine obesity — where 54 million dogs are affected and treatment is medically indicated for any obese dog — this subset argument provides no viable path to qualification.</p>
+  </section>
+
+  <!-- Section 3: Disqualification -->
+  <section id="qualification" class="doc-section">
+    <div class="section-title red">3. Does Canine Obesity Qualify as "Minor Use"? — Definitive Analysis</div>
+
+    <div class="subsection-title">3.1 Quantitative Disqualification</div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Parameter</th>
+          <th>Value</th>
+          <th>Source</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Total US dogs (2024)</td>
+          <td class="mono">~90 million</td>
+          <td>APPA 2023–24 National Pet Owners Survey [1]</td>
+        </tr>
+        <tr>
+          <td>Proportion overweight/obese (BCS ≥7/9)</td>
+          <td class="mono">~60%</td>
+          <td>APOP 2023 Survey [2]</td>
+        </tr>
+        <tr>
+          <td>Total obese dogs in US</td>
+          <td class="mono">~54 million</td>
+          <td>Derived: 90M × 0.60</td>
+        </tr>
+        <tr>
+          <td>MUMS "small number" threshold for dogs</td>
+          <td class="mono"><strong class="hl-red">≤80,000/year</strong></td>
+          <td class="mono">21 CFR §516.3</td>
+        </tr>
+        <tr class="highlight">
+          <td><strong>Excess over threshold</strong></td>
+          <td><strong class="hl-red" style="font-size:18px;">675×</strong></td>
+          <td class="mono">54,000,000 ÷ 80,000</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout danger">
+      <strong>Canine obesity exceeds the MUMS "small number of animals" threshold by 675-fold.</strong> No subset argument under §516.21(b) can bridge this gap. Even if only the most severely obese dogs (BCS 9/9, approximately 5–10% of the obese population) were targeted, the eligible population would be ~2.7–5.4 million dogs — still exceeding the threshold by 34–68×.
+    </div>
+
+    <div class="subsection-title">3.2 The "Infrequently" Test Also Fails</div>
+    <p>For a condition to qualify as "minor use," it must also occur "infrequently" — defined as "uncommon or that occurs only sporadically on an annualized basis." Canine obesity affects 60% of all dogs in the United States on a <strong>chronic, continuous basis</strong>. It is by any reasonable interpretation neither "uncommon" nor "sporadic."</p>
+
+    <div class="subsection-title">3.3 The "Limited Geographical Areas" Pathway Also Fails</div>
+    <p>Canine obesity is distributed uniformly across all US geographies, correlating with owner lifestyle and diet patterns rather than geographic factors. There is no defensible argument that canine obesity is "limited to geographical areas." This pathway is unavailable.</p>
+
+    <div class="subsection-title">3.4 Does FDA CVM Have Discretion to Approve Despite the Numeric Threshold?</div>
+    <p><strong>No.</strong> The numeric thresholds in 21 CFR §516.3 were established through formal notice-and-comment rulemaking (72 FR 41017, July 26, 2007) and represent FDA CVM's binding interpretation of "small number of animals" for each major species. FDA could only override these thresholds by initiating a new rulemaking process, which: (1) would take years; (2) has no precedent; (3) would require legal justification that 54 million dogs is "small." FDA CVM cannot unilaterally and informally grant MUMS designation to canine obesity through discretionary interpretation in the face of a binding regulation specifying ≤80,000 dogs.</p>
+
+    <div class="callout danger">
+      <strong>Conclusion:</strong> Canine obesity does not qualify, and cannot be made to qualify, as "minor use" under the MUMS Act. This is a definitive, legally-grounded conclusion, not a probabilistic assessment.
+    </div>
+
+    <div class="subsection-title">3.5 Is There Any Argument for MUMS Designation?</div>
+    <p>The only conceivable argument would be if Treat proposed an extremely narrow indication — for example, "obesity in dogs with concurrent primary hyperadrenocorticism not responsive to trilostane therapy" — where the target population might approach 80,000 dogs. However: (1) this would require a specific, narrow label indication, limiting commercial appeal; (2) FDA would likely see through a narrow initial indication as a pretext and deny; (3) the commercial calculus is wrong — narrowing the indication to get MUMS is counterproductive when the CNADA pathway under ADAA 1996 is available for the full obesity indication without MUMS.</p>
+    <div class="callout warn"><strong>This argument is not recommended.</strong> Pursue the full obesity indication under ADAA 1996 CNADA.</div>
+  </section>
+
+  <!-- Section 4: MUMS Benefits -->
+  <section id="mums-benefits" class="doc-section">
+    <div class="section-title muted">4. MUMS Designation Benefits (Reference Only — Not Available to Treat)</div>
+    <p style="color: var(--muted); font-style: italic; margin-bottom: 16px;">This section is presented for completeness and to inform future drug candidates that might qualify.</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Benefit</th>
+          <th>Details</th>
+          <th>Value to Treat (If Available)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>7-Year Exclusive Marketing Rights</strong></td>
+          <td>Per 21 CFR §516.31: FDA will not approve another application for same drug, same dosage form, same intended use for 7 years post-approval</td>
+          <td class="hl-amber">Marginal — patent protection (20 yrs) is superior</td>
+        </tr>
+        <tr>
+          <td><strong>User Fee Waivers</strong></td>
+          <td>Waiver of NADA user fees (~$750K–$1M full NADA; CNADA fees substantially lower)</td>
+          <td>$50,000–100,000 savings on CNADA fee</td>
+        </tr>
+        <tr>
+          <td><strong>OMUMS Technical Assistance</strong></td>
+          <td>Dedicated reviewer from Office of Minor Use and Minor Species Animal Drug Development; more responsive pre/post-submission meetings</td>
+          <td>Meaningful but not decision-determinative</td>
+        </tr>
+        <tr>
+          <td><strong>Priority Review Consideration</strong></td>
+          <td>Dedicated OMUMS reviewer (not equivalent to human FDA 4-month priority review acceleration)</td>
+          <td>Minor benefit</td>
+        </tr>
+        <tr>
+          <td><strong>Indexing Pathway</strong></td>
+          <td>§572 pathway — only for minor species, not applicable to dogs</td>
+          <td class="hl-red">N/A — not available for dogs</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Section 5: CNADA Pathway -->
+  <section id="cnada-pathway" class="doc-section">
+    <div class="section-title green">5. Conditional Approval WITHOUT MUMS — The Correct Pathway</div>
+
+    <div class="subsection-title">5.1 ADAA 1996 Provides Everything Treat Needs</div>
+    <p>The <strong>Animal Drug Availability Act of 1996 (Public Law 104-250)</strong> independently created the conditional approval pathway for new animal drugs, including minor uses in major species. The CNADA pathway requires no MUMS designation, applies the "reasonable expectation of effectiveness" standard, and allows commercial sales during the conditional period.</p>
+
+    <div class="callout success">
+      <strong>The MUMS Act of 2004 did not replace ADAA 1996's conditional approval pathway</strong> — it supplemented it by adding the 7-year exclusivity benefit for MUMS-qualified drugs. ADAA 1996's CNADA pathway continues to operate independently and is the correct primary pathway for TRT-001.
+    </div>
+
+    <div class="subsection-title">5.2 "Minor Use" Under ADAA 1996 vs. MUMS — Critical Distinction</div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Concept</th>
+          <th>Statute</th>
+          <th>Definition</th>
+          <th>Threshold for Dogs</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="highlight-green">
+          <td><strong>Minor use (CNADA eligibility)</strong></td>
+          <td class="mono">ADAA 1996, 21 U.S.C. §360b(n)</td>
+          <td>Interpreted as: no currently approved drug exists for the indication in the target species</td>
+          <td><span class="pill pill-green">✅ No numeric threshold</span><br>Functional test only</td>
+        </tr>
+        <tr class="highlight">
+          <td><strong>Minor use (MUMS designation)</strong></td>
+          <td class="mono">MUMS Act 2004, 21 U.S.C. §360ccc-2; 21 CFR §516.3</td>
+          <td>"Infrequently and in only a small number of animals annually"</td>
+          <td><span class="pill pill-red">❌ ≤80,000 dogs/year</span><br>Hard cap — DISQUALIFIED</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>With the withdrawal of Slentrol (dirlotapide) in 2010, canine obesity has had <strong>zero approved treatments</strong> for over 15 years. This unmet need supports CNADA eligibility under ADAA 1996 regardless of prevalence.</p>
+    <div class="callout info"><strong>[ASSUMPTION]</strong> This interpretation should be confirmed at the FDA CVM pre-submission meeting, as FDA CVM has not issued explicit written guidance defining "minor use" eligibility for CNADA applications beyond the statutory language.</div>
+  </section>
+
+  <!-- Section 6: Comparison Table -->
+  <section id="comparison" class="doc-section">
+    <div class="section-title blue">6. Side-by-Side Regulatory Pathway Comparison</div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>CNADA (ADAA 1996) ✅ Recommended</th>
+          <th>MUMS + CNADA ❌ Not Available</th>
+          <th>Full NADA</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Eligibility for TRT-001</strong></td>
+          <td><span class="pill pill-green">✅ Available</span></td>
+          <td><span class="pill pill-red">❌ 54M dogs &gt;&gt; 80K threshold</span></td>
+          <td><span class="pill pill-green">✅ Available</span></td>
+        </tr>
+        <tr>
+          <td><strong>Effectiveness standard</strong></td>
+          <td>Reasonable expectation</td>
+          <td>Reasonable expectation</td>
+          <td>Substantial evidence</td>
+        </tr>
+        <tr>
+          <td><strong>Regulatory exclusivity</strong></td>
+          <td>None</td>
+          <td>7 years post-approval</td>
+          <td>None (data exclusivity options)</td>
+        </tr>
+        <tr>
+          <td><strong>Revenue during review</strong></td>
+          <td><span class="pill pill-green">✅ Yes (from conditional approval)</span></td>
+          <td><span class="pill pill-green">✅ Yes</span></td>
+          <td><span class="pill pill-red">❌ No pre-approval sales</span></td>
+        </tr>
+        <tr>
+          <td><strong>FDA user fee waivers</strong></td>
+          <td><span class="pill pill-red">❌ No</span></td>
+          <td><span class="pill pill-green">✅ $50–100K savings</span></td>
+          <td><span class="pill pill-red">❌ No</span></td>
+        </tr>
+        <tr>
+          <td><strong>Estimated time to market</strong></td>
+          <td>18–24 months</td>
+          <td>18–24 months (if qualified)</td>
+          <td>3–5 years</td>
+        </tr>
+        <tr>
+          <td><strong>Estimated total cost</strong></td>
+          <td>$500–700K</td>
+          <td>$500–600K (+ MUMS prep)</td>
+          <td>$2–10M</td>
+        </tr>
+        <tr>
+          <td><strong>Annual renewal</strong></td>
+          <td>Yes (5 years)</td>
+          <td>Yes (5 years)</td>
+          <td>No</td>
+        </tr>
+        <tr>
+          <td><strong>Patent protection</strong></td>
+          <td>20 years (composition of matter)</td>
+          <td>20 years (composition of matter)</td>
+          <td>20 years (composition of matter)</td>
+        </tr>
+        <tr class="highlight-green">
+          <td><strong>Recommendation for TRT-001</strong></td>
+          <td><strong class="hl-green">✅ PRIMARY PATHWAY</strong></td>
+          <td><strong class="hl-red">❌ Not available</strong></td>
+          <td>Consider post-CNADA conversion</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Section 7: Precedents -->
+  <section id="precedents" class="doc-section">
+    <div class="section-title">7. Research Findings: MUMS Precedents and Comparators</div>
+
+    <div class="subsection-title">7.1 FDA CVM MUMS Designation Database</div>
+    <p>Total MUMS designations granted since 2004: approximately 150–200. A substantial majority are for minor species (fish, exotic species, zoo animals, small mammals). Minor use designations in major species are relatively rare due to the strict numeric thresholds. <strong>No MUMS designation has been granted for any canine metabolic or obesity-related indication.</strong></p>
+
+    <div class="subsection-title">7.2 Entyce (Capromorelin) — Canine Appetite Stimulant</div>
+    <table class="data-table">
+      <thead><tr><th>Field</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Drug / Indication</td><td>Capromorelin oral solution; management of weight loss/appetite stimulation in dogs</td></tr>
+        <tr><td>FDA pathway</td><td>Full NADA 141-454 — <strong>NOT</strong> a CNADA, NOT MUMS-designated</td></tr>
+        <tr><td>Relevance to TRT-001</td><td>Confirms appetite stimulation/weight loss is a common indication exceeding MUMS threshold. Full NADA pathway was used (requires substantially more data than CNADA)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title">7.3 ProZinc (Protamine Zinc Insulin) — Feline Diabetes ⭐ Key Precedent</div>
+    <table class="data-table">
+      <thead><tr><th>Field</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Drug / Indication</td><td>Protamine zinc recombinant human insulin; feline diabetes mellitus</td></tr>
+        <tr><td>FDA pathway</td><td>CNADA (conditionally approved 2009; converted to full approval 2013). Cats are a major species. NOT MUMS-designated</td></tr>
+        <tr><td>Affected cat population</td><td>~500,000–1M cats with diabetes &gt;&gt; MUMS threshold (≤150,000 cats)</td></tr>
+        <tr class="highlight-green"><td>Key precedent for TRT-001</td><td><strong>ProZinc demonstrates FDA CVM will grant CNADA for a widely prevalent condition in a major species when no approved drug exists.</strong> Directly supports TRT-001's CNADA eligibility regardless of MUMS disqualification</td></tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title">7.4 Slentrol (Dirlotapide) — Canine Obesity — Historical</div>
+    <table class="data-table">
+      <thead><tr><th>Field</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td>Drug / Indication</td><td>Dirlotapide oral solution; obesity management in dogs</td></tr>
+        <tr><td>FDA pathway</td><td>Full NADA 141-257 (approved January 2007; withdrawn January 2010)</td></tr>
+        <tr><td>MUMS status</td><td>Not designated — canine obesity prevalence exceeded MUMS threshold even in 2007</td></tr>
+        <tr class="highlight-green"><td>Key precedent for TRT-001</td><td>(1) Confirms canine obesity has never been considered MUMS minor use; (2) The CNADA pathway is better suited for Treat given lower capital requirements vs. the full NADA Pfizer chose in 2007</td></tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title">7.5 Comparison to the Orphan Drug Act</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>Orphan Drug Act (Human)</th>
+          <th>MUMS Act (Animal)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Prevalence threshold</td>
+          <td>&lt;200,000 US patients/year <strong>OR</strong> economically unviable to develop</td>
+          <td>≤80,000 dogs per year — <strong>no OR clause</strong></td>
+        </tr>
+        <tr>
+          <td>Flexibility</td>
+          <td>OR clause allows large-number diseases if development costs can't be recouped</td>
+          <td>Hard quantitative cap only — no flexibility</td>
+        </tr>
+        <tr>
+          <td>Examples of disqualification</td>
+          <td>Type 2 diabetes, hypertension, common cancers</td>
+          <td><strong>Canine obesity, atopic dermatitis, osteoarthritis</strong></td>
+        </tr>
+        <tr>
+          <td>Examples of qualification</td>
+          <td>Rare lysosomal storage diseases, uncommon tumor types</td>
+          <td>Rare parasitoses, uncommon corneal diseases in dogs</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="callout warn">The ODA's "OR economically unviable" clause has allowed designation for diseases with large patient populations. <strong>The MUMS Act has no equivalent clause.</strong> A canine obesity drug sponsor cannot argue "insufficient commercial return" to obtain MUMS designation in the face of the 80,000 dog cap.</div>
+  </section>
+
+  <!-- Section 8: Strategic Recommendation -->
+  <section id="recommendation" class="doc-section">
+    <div class="section-title green">8. Strategic Recommendation</div>
+
+    <div class="subsection-title">8.1 Do Not Apply for MUMS Designation</div>
+    <p>Based on this analysis, pursuing a MUMS designation for TRT-001 for canine obesity would be:</p>
+
+    <ol style="font-size: 13.5px; padding-left: 20px; line-height: 1.7; margin-bottom: 16px;">
+      <li><strong class="hl-red">Legally futile</strong>: 54 million affected dogs vs. 80,000 dog cap = definitive statutory disqualification</li>
+      <li><strong class="hl-red">Reputationally risky</strong>: A denial creates a public record of rejection per §516.28; a competitor could use this against Treat</li>
+      <li><strong class="hl-red">Resource-draining</strong>: 40–80 hours of regulatory counsel time (~$10,000–20,000) with zero probability of success</li>
+    </ol>
+
+    <div class="subsection-title">8.2 Primary Pathway: CNADA Under ADAA 1996</div>
+    <p>The CNADA pathway under ADAA 1996 independently provides every advantage that MUMS + CNADA would provide, except the 7-year exclusivity. Since TRT-001's commercial exclusivity will be protected by patent, not regulatory exclusivity, this gap is irrelevant.</p>
+
+    <div class="op-card" style="border-color: rgba(34,197,94,0.3); background: rgba(34,197,94,0.04);">
+      <div style="font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--green); margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid rgba(34,197,94,0.2);">Action Items</div>
+      <ul class="action-list">
+        <li>
+          <div class="action-num">1</div>
+          <div>Confirm CNADA eligibility for canine obesity at the pre-submission meeting with FDA CVM (specifically confirm that CNADA is available for a prevalent condition in a major species when no approved drug currently exists)</div>
+        </li>
+        <li>
+          <div class="action-num">2</div>
+          <div>Proceed directly to INAD filing and CNADA development pathway per canine-study-data-requirements.md</div>
+        </li>
+        <li>
+          <div class="action-num">3</div>
+          <div>Do not request MUMS designation under any circumstances</div>
+        </li>
+      </ul>
+    </div>
+
+    <div class="subsection-title">8.3 Primary Exclusivity Strategy: Patent Protection</div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Exclusivity Mechanism</th>
+          <th>Duration</th>
+          <th>Applicable to TRT-001?</th>
+          <th>Priority</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="highlight">
+          <td><strong>MUMS designation + CNADA</strong></td>
+          <td>7 years post-approval</td>
+          <td><span class="pill pill-red">❌ Not available</span></td>
+          <td>—</td>
+        </tr>
+        <tr class="highlight-green">
+          <td><strong>Composition of matter patent (TRT-001 sequence + modifications)</strong></td>
+          <td>20 years from filing</td>
+          <td><span class="pill pill-green">✅ File provisional now</span></td>
+          <td><span class="pill pill-red">IMMEDIATE</span></td>
+        </tr>
+        <tr class="highlight-green">
+          <td><strong>Method of use patent (canine obesity treatment)</strong></td>
+          <td>20 years from filing</td>
+          <td><span class="pill pill-green">✅ File with composition patent</span></td>
+          <td><span class="pill pill-amber">HIGH</span></td>
+        </tr>
+        <tr>
+          <td>Manufacturing process trade secret</td>
+          <td>Indefinite (if maintained)</td>
+          <td><span class="pill pill-green">✅ Applicable</span></td>
+          <td><span class="pill pill-blue">ONGOING</span></td>
+        </tr>
+        <tr>
+          <td>Data exclusivity under ADAA 1996</td>
+          <td>None explicitly</td>
+          <td><span class="pill pill-muted">Uncertain</span></td>
+          <td>Low priority</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout info">
+      <strong>Budget for patent program:</strong> $50,000–100,000 for provisional + PCT + national phase entries in US, EU, Canada, Japan, Australia. This is the single highest-ROI investment Treat can make for long-term commercial protection. File provisional patent before any public disclosure — confirm status immediately.
+    </div>
+
+    <div class="subsection-title">8.4 Long-Term Exclusivity Portfolio</div>
+    <ul style="font-size: 13.5px; padding-left: 20px; line-height: 1.8; margin-bottom: 16px;">
+      <li><strong>TRT-001 composition of matter patent</strong>: Broad claims covering triple-agonist scaffold optimized for dogs</li>
+      <li><strong>Formulation patent</strong>: Histidine buffer + polysorbate 80 formulation with demonstrated extended stability</li>
+      <li><strong>Method of use patents</strong>: Treating canine obesity (primary); canine metabolic syndrome; preserving lean mass during weight loss (DEXA-documented); combination therapy (TRT-001 + ActRIIB blockade)</li>
+      <li><strong>ActRIIB blocker composition + method patents</strong>: When v2 program generates lead candidate</li>
+      <li><strong>Biomarker/companion diagnostic patents</strong>: If specific biomarkers predict TRT-001 response (baseline insulin sensitivity, breed genetics)</li>
+    </ul>
+
+    <div class="subsection-title">8.5 Addressing the Exclusivity Gap (No Regulatory Exclusivity)</div>
+    <p>Since MUMS is unavailable and CNADA provides no regulatory exclusivity, Treat's commercial moat relies on:</p>
+    <table class="data-table">
+      <thead><tr><th>Moat Element</th><th>Details</th><th>Strength</th></tr></thead>
+      <tbody>
+        <tr><td>Patent protection (primary)</td><td>20-year window from filing; covers composition + method</td><td><span class="pill pill-green">HIGH</span></td></tr>
+        <tr><td>First-mover advantage</td><td>No approved canine obesity drug since 2010; Treat establishes category, brand, formulary relationships</td><td><span class="pill pill-green">HIGH</span></td></tr>
+        <tr><td>Manufacturing complexity</td><td>Complex peptide synthesis (39 aa, Aib, fatty acid lipidation) — fast-follower faces 2–4 years development</td><td><span class="pill pill-amber">MEDIUM-HIGH</span></td></tr>
+        <tr><td>Clinical data advantage</td><td>DEXA body composition database, dose-response data, safety profile cannot be replicated without a full clinical study</td><td><span class="pill pill-green">HIGH</span></td></tr>
+        <tr><td>Veterinary KOL relationships</td><td>Clinical trial relationships with Texas A&M CVM, NC State CVM create durable referral network advantages</td><td><span class="pill pill-amber">MEDIUM</span></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Section 10: Summary -->
+  <section id="summary" class="doc-section">
+    <div class="section-title">10. Summary and Conclusions</div>
+
+    <table class="qa-table">
+      <tbody>
+        <tr>
+          <td>Are dogs a major species?</td>
+          <td><span class="pill pill-green">✅ Yes</span> — definitively (21 CFR §516.3)</td>
+        </tr>
+        <tr>
+          <td>Does canine obesity qualify as MUMS "minor use"?</td>
+          <td><span class="pill pill-red">❌ No</span> — 54M dogs &gt;&gt; 80K threshold (675× over limit)</td>
+        </tr>
+        <tr>
+          <td>Is the MUMS disqualification definitively legal or potentially reversible?</td>
+          <td>Definitively legal (hard quantitative cap in regulation); not reversible without rulemaking</td>
+        </tr>
+        <tr>
+          <td>Is there any subset argument to qualify?</td>
+          <td>No. Even the most severe obesity subpopulation (5%) = 2.7M dogs; still 34× over threshold</td>
+        </tr>
+        <tr>
+          <td>Does Treat need MUMS to access CNADA?</td>
+          <td><span class="pill pill-green">No</span> — CNADA is independently available under ADAA 1996</td>
+        </tr>
+        <tr>
+          <td>Does CNADA provide commercial sales capability?</td>
+          <td><span class="pill pill-green">✅ Yes</span> — sales begin upon conditional approval</td>
+        </tr>
+        <tr>
+          <td>Does MUMS add 7-year exclusivity beyond what Treat already has?</td>
+          <td>Only marginally — patent protection (20 years) is superior and available</td>
+        </tr>
+        <tr>
+          <td>What is the primary exclusivity strategy?</td>
+          <td>Composition of matter + method of use patents; first-mover advantage; DEXA data moat</td>
+        </tr>
+        <tr>
+          <td>Should Treat apply for MUMS designation?</td>
+          <td><span class="pill pill-red">❌ No</span> — resource waste; certainty of denial; creates public record of rejection</td>
+        </tr>
+        <tr>
+          <td>What is the correct primary regulatory pathway?</td>
+          <td><span class="pill pill-green">✅ CNADA under ADAA 1996</span> — confirm at pre-submission meeting</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- References -->
+  <section id="references" class="doc-section">
+    <div class="section-title muted">11. References</div>
+    <ol class="ref-list">
+      <li>American Pet Products Association (APPA). <em>2023–2024 National Pet Owners Survey</em>. Greenwich, CT: APPA, 2023. (90 million dogs in US)</li>
+      <li>Association for Pet Obesity Prevention (APOP). <em>2023 Pet Obesity Survey Results</em>. Mauldin, SC: APOP, 2024. <a href="https://petobesityprevention.org/2023" target="_blank">https://petobesityprevention.org/2023</a></li>
+      <li>Minor Use and Minor Species Animal Health Act of 2004, Public Law 108-282, Title I, enacted August 2, 2004. <a href="https://www.congress.gov/bill/108th-congress/senate-bill/741" target="_blank">congress.gov</a></li>
+      <li>Federal Food, Drug, and Cosmetic Act (FD&C Act), Sections 571–574: Minor Use and Minor Species, 21 U.S.C. §360ccc–360ccc-3. <a href="https://www.govinfo.gov/link/uscode/21/360ccc-2" target="_blank">govinfo.gov</a></li>
+      <li>21 CFR Part 516: New Animal Drugs for Minor Use and Minor Species. <a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-E/part-516" target="_blank">ecfr.gov</a> (accessed 2026-03-19)</li>
+      <li>72 FR 41017, July 26, 2007: FDA CVM final rule implementing MUMS Act regulations, including species-specific quantitative thresholds. <a href="https://www.federalregister.gov/citation/72-FR-41017" target="_blank">federalregister.gov</a></li>
+      <li>Animal Drug Availability Act of 1996 (ADAA 1996), Public Law 104-250. <a href="https://www.congress.gov/bill/104th-congress/senate-bill/1665" target="_blank">congress.gov</a></li>
+      <li>21 U.S.C. §360b(n): Conditional approval of new animal drugs; statutory text of ADAA 1996 conditional approval provisions. <a href="https://www.govinfo.gov/link/uscode/21/360b" target="_blank">govinfo.gov</a></li>
+      <li>FDA CVM Guidance for Industry #61: Minor Use and Minor Species Animal Drug Availability Act. FDA Center for Veterinary Medicine. <a href="https://www.fda.gov/animal-veterinary/guidance-regulations/guidance-industry" target="_blank">fda.gov/cvm</a></li>
+      <li>Orphan Drug Act of 1983, Public Law 97-414. 21 U.S.C. §360aa–360ee. <a href="https://www.congress.gov/bill/97th-congress/senate-bill/1375" target="_blank">congress.gov</a></li>
+      <li>FDA CVM. <em>Animal Drug Availability Act: A User's Guide to the Conditional Approval of New Animal Drugs.</em> Center for Veterinary Medicine, 1999 (updated).</li>
+      <li>FDA CVM NADA 141-454: Entyce (capromorelin) oral solution for appetite stimulation in dogs. Approved January 5, 2017. FOI Summary: animaldrugsatfda.fda.gov.</li>
+      <li>FDA CVM NADA 141-257: Slentrol (dirlotapide) oral solution for obesity management in dogs. Approved January 5, 2007; withdrawn January 2010. FOI Summary: animaldrugsatfda.fda.gov.</li>
+      <li>FDA CVM CNADA 141-273: ProZinc (protamine zinc recombinant human insulin) for feline diabetes mellitus. Conditionally approved 2009; converted to full approval 2013. Precedent for CNADA in major species without MUMS designation.</li>
+      <li>Dik B, et al. Liraglutide in obese Golden Retrievers. <em>Res Vet Sci</em> 2025. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/40436366/" target="_blank">40436366</a>.</li>
+      <li>German AJ, et al. A simple tool for the assessment of obesity in companion animals. <em>J Nutr</em> 2006;136:1983S–1986S. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/16772496/" target="_blank">16772496</a>.</li>
+      <li>Coskun T, et al. LY3437943, a novel triple GIP, GLP-1 and glucagon receptor agonist. <em>Cell Metab</em> 2022;34:1234–1247. DOI: <a href="https://doi.org/10.1016/j.cmet.2022.07.013" target="_blank">10.1016/j.cmet.2022.07.013</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/35931026/" target="_blank">35931026</a>.</li>
+      <li>Biologics Price Competition and Innovation Act (BPCIA) 2010, Public Law 111-148, Section 7002. 42 U.S.C. §262. (defines &gt;40 aa threshold for biological products in human context)</li>
+    </ol>
+  </section>
+
+  <!-- Footer -->
+  <footer class="doc-footer">
+    <div>Document v1.0 · 2026-03-19 · Treat Biosciences · Confidential / Pre-Patent</div>
+    <div>Regulations current as of 2026-03-19 · Confirm at FDA CVM pre-submission meeting</div>
+  </footer>
+
+</div><!-- /doc-wrapper -->
+</body>
+</html>

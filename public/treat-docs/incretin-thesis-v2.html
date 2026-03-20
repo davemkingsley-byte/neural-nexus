@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canine Triple Incretin Agonist Thesis — v2.0 | Treat Biosciences</title>
+<style>
+:root {
+  --bg: #080812;
+  --surface: #0d0d1f;
+  --surface2: #111124;
+  --border: #1e1e38;
+  --border2: #2a2a48;
+  --text: #e2e2f0;
+  --muted: #7070a0;
+  --green: #22c55e;
+  --green-light: #86efac;
+  --green-vivid: #00ff88;
+  --amber: #f59e0b;
+  --amber-light: #fde68a;
+  --red: #ef4444;
+  --red-light: #fca5a5;
+  --blue: #818cf8;
+  --blue-dark: #4f46e5;
+  --teal: #14b8a6;
+  --font: -apple-system, 'Segoe UI', system-ui, Helvetica, sans-serif;
+  --font-mono: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 16px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.65;
+  min-height: 100vh;
+}
+/* Confidential Watermark */
+body::before {
+  content: 'CONFIDENTIAL';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-35deg);
+  font-size: 120px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.018);
+  pointer-events: none;
+  z-index: 9999;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  user-select: none;
+}
+/* Layout */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 32px 80px; }
+/* Top Banner */
+.top-banner {
+  background: #ef4444;
+  color: #fff;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  padding: 8px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+/* Header */
+.report-header {
+  border-bottom: 1px solid var(--border2);
+  padding: 40px 0 32px;
+  margin-bottom: 8px;
+}
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.logo-mark {
+  width: 44px; height: 44px;
+  background: linear-gradient(135deg, #22c55e, #14b8a6);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 20px; color: #080812;
+}
+.logo-text { font-size: 20px; font-weight: 700; color: var(--text); letter-spacing: 0.01em; }
+.logo-sub { font-size: 12px; color: var(--muted); letter-spacing: 0.05em; }
+.report-title { font-size: 32px; font-weight: 800; line-height: 1.2; margin-bottom: 12px; }
+.report-title span { color: var(--green); }
+.report-meta {
+  display: flex; flex-wrap: wrap; gap: 24px;
+  font-size: 13px; color: var(--muted);
+}
+.report-meta span { display: flex; align-items: center; gap: 6px; }
+.meta-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+.badge-v2 { background: rgba(129,140,248,0.15); color: var(--blue); border: 1px solid rgba(129,140,248,0.3); }
+.badge-confidential { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.badge-prepat { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+/* Report Nav */
+.report-nav {
+  display: flex; gap: 8px; padding: 20px 0;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 40px;
+}
+.report-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 6px 14px;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.report-nav a:hover { color: var(--text); background: var(--surface2); border-color: var(--blue); }
+.report-nav a.active { color: var(--blue); background: var(--surface2); border-color: var(--blue); }
+/* TOC */
+.toc {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--blue);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 40px;
+}
+.toc h3 { font-size: 12px; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 12px; text-transform: uppercase; }
+.toc ol { padding-left: 18px; }
+.toc li { margin: 4px 0; }
+.toc a { color: var(--blue); text-decoration: none; font-size: 14px; }
+.toc a:hover { color: var(--text); }
+/* Sections */
+.section { margin-bottom: 56px; }
+.section-title {
+  font-size: 22px; font-weight: 700;
+  border-bottom: 1px solid var(--border2);
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-num {
+  font-size: 12px; font-weight: 600; color: var(--blue);
+  background: rgba(129,140,248,0.12);
+  padding: 2px 10px; border-radius: 99px;
+  letter-spacing: 0.08em;
+}
+.subsection { margin-bottom: 32px; }
+.subsection-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 16px; }
+p { margin-bottom: 14px; color: var(--text); }
+ul, ol { padding-left: 22px; margin-bottom: 14px; }
+li { margin-bottom: 6px; }
+/* Executive Summary Box */
+.exec-summary {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-left: 4px solid var(--green);
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin-bottom: 24px;
+}
+.exec-summary h3 { color: var(--green); font-size: 13px; letter-spacing: 0.12em; margin-bottom: 12px; text-transform: uppercase; }
+.exec-summary p { margin-bottom: 10px; }
+.exec-summary p:last-child { margin-bottom: 0; }
+/* Key finding */
+.key-finding {
+  background: rgba(34,197,94,0.08);
+  border: 1px solid rgba(34,197,94,0.2);
+  border-radius: 6px;
+  padding: 14px 18px;
+  margin: 16px 0;
+  font-weight: 500;
+}
+/* Callouts */
+.callout {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-size: 14px;
+}
+.callout-warn { border-left: 3px solid var(--amber); background: rgba(245,158,11,0.06); }
+.callout-info { border-left: 3px solid var(--blue); background: rgba(129,140,248,0.06); }
+.callout-success { border-left: 3px solid var(--green); background: rgba(34,197,94,0.06); }
+/* Tables */
+.table-wrap { overflow-x: auto; margin-bottom: 24px; border-radius: 8px; border: 1px solid var(--border); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+thead th {
+  background: var(--surface2);
+  color: var(--blue);
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border2);
+  white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:nth-child(even) { background: rgba(255,255,255,0.022); }
+tbody tr:hover { background: rgba(129,140,248,0.06); }
+tbody td { padding: 11px 16px; vertical-align: middle; }
+.td-mono { font-family: var(--font-mono); font-size: 12px; }
+.status-low { color: var(--green); font-weight: 600; }
+.status-mod { color: var(--amber); font-weight: 600; }
+.status-high { color: var(--red); font-weight: 600; }
+.status-zero { color: var(--red); font-weight: 700; letter-spacing: 0.05em; }
+.status-excellent { color: var(--green-vivid); font-weight: 600; }
+/* Figure containers */
+.figure {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 24px;
+  margin: 28px 0;
+  overflow: hidden;
+}
+.figure-title {
+  font-size: 13px; font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.figure-caption {
+  font-size: 12px; color: var(--muted);
+  margin-top: 12px; line-height: 1.5;
+  border-top: 1px solid var(--border);
+  padding-top: 10px;
+}
+.figure svg { display: block; width: 100%; overflow: visible; }
+/* Quote / Investor Narrative */
+.investor-quote {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-left: 4px solid var(--teal);
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin: 24px 0;
+  font-size: 15px;
+  font-style: italic;
+  line-height: 1.8;
+  color: var(--text);
+}
+/* Decisions Log */
+.decisions-table td:first-child { white-space: nowrap; font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
+/* Open Questions */
+.open-q-list { list-style: none; padding: 0; }
+.open-q-list li {
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 8px;
+  background: var(--surface2);
+  font-size: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.open-q-num {
+  background: rgba(245,158,11,0.15);
+  color: var(--amber);
+  border-radius: 99px;
+  min-width: 24px;
+  height: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+/* Accession block */
+.accession-block {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 14px 18px;
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  color: var(--green-light);
+  margin: 16px 0;
+  line-height: 1.9;
+}
+/* Footer */
+.report-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 32px;
+  margin-top: 56px;
+  font-size: 12px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+</style>
+</head>
+<body>
+
+<div class="top-banner">CONFIDENTIAL — PRE-PATENT — TREAT BIOSCIENCES — DO NOT DISTRIBUTE</div>
+
+<div class="container">
+
+  <!-- Header -->
+  <header class="report-header">
+    <div class="logo-row">
+      <div class="logo-mark">Tx</div>
+      <div>
+        <div class="logo-text">Treat Biosciences</div>
+        <div class="logo-sub">CANINE METABOLIC HEALTH</div>
+      </div>
+    </div>
+    <h1 class="report-title">The Canine <span>Triple Incretin Agonist</span> Thesis</h1>
+    <div class="report-meta">
+      <span>Strategic Analysis</span>
+      <span>Version 2.0 — 2026-03-19</span>
+      <span class="meta-badge badge-v2">SUPERSEDES v1</span>
+      <span class="meta-badge badge-confidential">CONFIDENTIAL</span>
+      <span class="meta-badge badge-prepat">PRE-PATENT</span>
+    </div>
+  </header>
+
+  <!-- Nav -->
+  <nav class="report-nav">
+    <a href="receptor-conservation-report.html">Receptor Conservation Report</a>
+    <a href="incretin-thesis-v2.html" class="active">Incretin Thesis v2</a>
+    <a href="one-pager-investor-v2.html">Investor One-Pager</a>
+  </nav>
+
+  <!-- TOC -->
+  <div class="toc">
+    <h3>Table of Contents</h3>
+    <ol>
+      <li><a href="#insight">The Insight</a></li>
+      <li><a href="#problem">The Problem — Canine Obesity</a></li>
+      <li><a href="#science">The Science</a></li>
+      <li><a href="#products">Product Architecture</a></li>
+      <li><a href="#market">The Market</a></li>
+      <li><a href="#competition">The Competition</a></li>
+      <li><a href="#devpath">Development Path</a></li>
+      <li><a href="#narrative">Investor Narrative</a></li>
+      <li><a href="#openq">Open Questions</a></li>
+      <li><a href="#decisions">Key Decisions Log</a></li>
+    </ol>
+  </div>
+
+  <!-- Executive Summary -->
+  <div class="exec-summary">
+    <h3>Executive Summary</h3>
+    <p>Eli Lilly's retatrutide is the most potent weight-loss drug ever tested in humans — a triple incretin agonist targeting GLP-1R, GIPR, and GCGR simultaneously, showing 24–28% body weight loss in Phase 2 trials. Nobody is developing anything like it for dogs.</p>
+    <p>Treat Biosciences will build the first canine-optimized triple incretin agonist. Not "Ozempic for dogs" — that's already one generation behind. This is <strong>"Retatrutide for dogs"</strong> before retatrutide exists commercially in any species.</p>
+    <p>The receptor conservation data is verified. Human GLP-1 drugs already work in dogs. The binding pockets are conserved. The competitive white space is total. The path to conditional FDA approval costs ~$500K and takes 18–21 months.</p>
+  </div>
+
+  <!-- 1. The Insight -->
+  <section class="section" id="insight">
+    <h2 class="section-title"><span class="section-num">01</span> The Insight</h2>
+    <p>Eli Lilly's retatrutide is the most potent weight-loss drug ever tested in humans — a <strong>triple incretin agonist</strong> targeting GLP-1R, GIPR, and GCGR simultaneously. Phase 2 data showed <strong>24–28% body weight loss</strong> (vs ~15% for semaglutide, ~22% for tirzepatide). It hasn't been approved yet. Nobody is developing anything like it for dogs.</p>
+    <p><strong>We will build the first canine-optimized triple incretin agonist.</strong> Not "Ozempic for dogs" — that's already one generation behind. This is <strong>"Retatrutide for dogs"</strong> before retatrutide exists in any species commercially.</p>
+    <p>Activin receptor blockade (muscle preservation) is our v2 pipeline asset — valuable, de-risked by Lilly's bimagrumab + tirzepatide trials, but not required for the lead product.</p>
+
+    <!-- Figure 1: Weight Loss Comparison -->
+    <div class="figure" id="fig1">
+      <div class="figure-title">Figure 1 — Weight Loss by Mechanism Class (Human Clinical Data)</div>
+      <svg viewBox="0 0 700 200" height="200">
+        <!-- Background grid lines -->
+        <line x1="180" y1="20" x2="180" y2="170" stroke="#1e1e38" stroke-width="1"/>
+        <line x1="290" y1="20" x2="290" y2="170" stroke="#1e1e38" stroke-width="1"/>
+        <line x1="400" y1="20" x2="400" y2="170" stroke="#1e1e38" stroke-width="1"/>
+        <line x1="510" y1="20" x2="510" y2="170" stroke="#1e1e38" stroke-width="1"/>
+        <line x1="620" y1="20" x2="620" y2="170" stroke="#1e1e38" stroke-width="1"/>
+        <!-- X axis labels -->
+        <text x="180" y="185" fill="#7070a0" font-size="10" text-anchor="middle">0%</text>
+        <text x="290" y="185" fill="#7070a0" font-size="10" text-anchor="middle">10%</text>
+        <text x="400" y="185" fill="#7070a0" font-size="10" text-anchor="middle">20%</text>
+        <text x="510" y="185" fill="#7070a0" font-size="10" text-anchor="middle">30%</text>
+        <!-- Row 1: GLP-1 alone -->
+        <text x="170" y="56" fill="#e2e2f0" font-size="12" text-anchor="end">GLP-1 alone</text>
+        <text x="170" y="70" fill="#7070a0" font-size="10" text-anchor="end">Semaglutide</text>
+        <rect x="180" y="42" width="176" height="28" rx="4" fill="#818cf8" opacity="0.7"/>
+        <text x="364" y="61" fill="#e2e2f0" font-size="12" font-weight="700" dx="6">~16%</text>
+        <!-- Row 2: Dual GLP-1/GIP -->
+        <text x="170" y="106" fill="#e2e2f0" font-size="12" text-anchor="end">Dual GLP-1/GIP</text>
+        <text x="170" y="120" fill="#7070a0" font-size="10" text-anchor="end">Tirzepatide</text>
+        <rect x="180" y="92" width="259" height="28" rx="4" fill="#14b8a6" opacity="0.8"/>
+        <text x="447" y="111" fill="#e2e2f0" font-size="12" font-weight="700" dx="6">~23.5%</text>
+        <!-- Row 3: Triple GLP-1/GIP/GCGR -->
+        <text x="170" y="156" fill="#e2e2f0" font-size="12" text-anchor="end">Triple GLP-1/GIP/GCGR</text>
+        <text x="170" y="170" fill="#7070a0" font-size="10" text-anchor="end">Retatrutide</text>
+        <rect x="180" y="142" width="286" height="28" rx="4" fill="#22c55e" opacity="0.9"/>
+        <text x="474" y="161" fill="#e2e2f0" font-size="13" font-weight="800" dx="6">~26%</text>
+        <!-- Best-in-class label -->
+        <text x="480" y="140" fill="#22c55e" font-size="10" font-weight="600">★ BEST-IN-CLASS</text>
+      </svg>
+      <div class="figure-caption">Mean body weight reduction in Phase 2/3 human clinical trials. GLP-1 alone (semaglutide/Wegovy): ~15–17%. Dual GLP-1/GIP (tirzepatide/Zepbound): ~22–25%. Triple GLP-1/GIP/GCGR (retatrutide, Lilly Phase 3): ~24–28%. The GCGR component adds energy expenditure via hepatic fat oxidation and thermogenesis.</div>
+    </div>
+  </section>
+
+  <!-- 2. The Problem -->
+  <section class="section" id="problem">
+    <h2 class="section-title"><span class="section-num">02</span> The Problem — Canine Obesity: Zero Approved Treatments</h2>
+    <ul>
+      <li><strong>~60% of US dogs are overweight or obese</strong> — 54 million animals</li>
+      <li><strong>Zero FDA-approved weight loss drugs</strong> on the market since 2010 — Slentrol (dirlotapide) was the only one; pulled by Pfizer, market empty for 16 years</li>
+      <li>Dirlotapide resurrection paper published (PMID 40882685, Dec 2025) — validates that the unmet need persists</li>
+      <li>Obesity reduces canine lifespan by <strong>2.5 years</strong> on average</li>
+      <li>Veterinarians cite obesity as the #1 health concern in practice</li>
+      <li>Dog owners spend $7,000+/year on pet care; willingness to pay for pharma solutions is proven (Cytopoint: $800M+/yr)</li>
+    </ul>
+    <div class="callout callout-warn">
+      <strong>Market Void:</strong> The last approved canine weight-loss drug was pulled in 2010. No company has filled this gap in 16 years — despite a massive, documented unmet need and proven veterinary pharma pricing power.
+    </div>
+  </section>
+
+  <!-- 3. The Science -->
+  <section class="section" id="science">
+    <h2 class="section-title"><span class="section-num">03</span> The Science</h2>
+
+    <div class="subsection">
+      <h3 class="subsection-title">Why Triple Agonism, Not Single or Dual</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Approach</th>
+              <th>Human Drug</th>
+              <th>Weight Loss</th>
+              <th>Mechanism</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>GLP-1 alone</strong></td>
+              <td>Semaglutide (Wegovy)</td>
+              <td>~15–17%</td>
+              <td>Appetite suppression, gastric slowing</td>
+            </tr>
+            <tr>
+              <td><strong>Dual GLP-1/GIP</strong></td>
+              <td>Tirzepatide (Zepbound)</td>
+              <td>~22–25%</td>
+              <td>Enhanced insulin sensitization, adipose signaling</td>
+            </tr>
+            <tr>
+              <td><strong>Triple GLP-1/GIP/GCGR</strong></td>
+              <td>Retatrutide (Lilly Phase 3)</td>
+              <td style="color:var(--green);font-weight:700">~24–28%</td>
+              <td>Adds thermogenesis, hepatic fat oxidation</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The glucagon receptor (GCGR) component is the differentiator. It adds energy expenditure via hepatic fat oxidation and thermogenesis — you're not just suppressing appetite, you're burning fat through a second pathway. This is why retatrutide showed the highest weight loss numbers ever recorded in clinical trials.</p>
+      <p>If we're designing de novo, the additional complexity of a triple agonist is primarily in peptide sequence design, not manufacturing. Same synthesis process, same injection, same COGS.</p>
+    </div>
+
+    <div class="subsection">
+      <h3 class="subsection-title">Receptor Conservation — VERIFIED</h3>
+      <p>All four target receptors are conserved between human and dog. Analysis verified against canonical sequences with mutagenesis-validated contact residues.</p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Receptor</th>
+              <th>Overall Identity</th>
+              <th>Pocket Conservation</th>
+              <th>Risk Level</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>GLP-1R</strong></td>
+              <td>89.6%</td>
+              <td>13/13 contacts conserved (100%)</td>
+              <td class="status-low">LOW ✅</td>
+            </tr>
+            <tr>
+              <td><strong>GCGR</strong></td>
+              <td>83.5%</td>
+              <td>22/23 contacts conserved (95.7%)</td>
+              <td class="status-low">LOW ✅</td>
+            </tr>
+            <tr>
+              <td><strong>GIPR</strong></td>
+              <td>86.7%</td>
+              <td>TM5/TM6 100%; ECL1 63.6%</td>
+              <td class="status-mod">MODERATE ⚠️</td>
+            </tr>
+            <tr>
+              <td><strong>ActRIIB</strong></td>
+              <td>99.8%</td>
+              <td>1 aa difference in 495</td>
+              <td class="status-excellent">EXCELLENT ✅ (pipeline)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>Canonical accessions (USE THESE ONLY):</strong></p>
+      <div class="accession-block">
+        GLP-1R: Human P43220 (463 aa) → Canine A0A8I3NUR9 (464 aa)<br>
+        GIPR:   Human P48546 (466 aa) → Canine A0A8C0QLM4 (466 aa) = RefSeq XP_038512564<br>
+        GCGR:   Human P47871 (477 aa) → Canine A0A8P0SBC0 (493 aa)<br>
+        ActRIIB: Human Q13705 (512 aa) → Canine A0A8C0MVE7 (523 aa)
+      </div>
+
+      <div class="key-finding">
+        <strong>Key Finding:</strong> The TMD activation pocket — where the retatrutide N-terminus drives receptor signaling — is <strong>100% conserved at validated contact positions</strong> across GLP-1R and GCGR. GCGR has only one contact substitution (H339R, ICL3, G-protein face — not ligand pocket). Conservative (both positively charged). GIPR ECL1 is 63.6% conserved — this is where retatrutide's middle region makes receptor-specific contacts. <strong>GIPR is the primary optimization target.</strong>
+      </div>
+
+      <div class="callout callout-info">
+        <strong>Canine glucagon is identical to human glucagon</strong> (zero amino acid differences) — confirming matched selective pressure on GCGR and validating the GCGR binding site conservation data.
+      </div>
+
+      <p><strong>Detailed analysis:</strong> See the <a href="receptor-conservation-report.html" style="color:var(--blue)">Receptor Conservation Report (VERIFIED)</a>.</p>
+    </div>
+
+    <div class="subsection">
+      <h3 class="subsection-title">Functional Validation: Human GLP-1 Agonists Work in Dogs</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Study</th>
+              <th>Drug</th>
+              <th>Finding</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Dik et al. 2013</td>
+              <td>Liraglutide</td>
+              <td>13.8% glucose AUC reduction in healthy dogs</td>
+            </tr>
+            <tr>
+              <td><strong>Dik et al. 2025</strong></td>
+              <td>Liraglutide 1.2 mg/dog</td>
+              <td><strong>Significant weight loss, reduced BCS, appetite, cholesterol, triglycerides in obese Golden Retrievers</strong> (PMID 40436366)</td>
+            </tr>
+            <tr>
+              <td>Ionut et al. 2016</td>
+              <td>Exenatide</td>
+              <td>Weight loss + increased insulin secretion in prediabetic dogs</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>This proves that human-derived incretin agonists engage canine receptors despite ~10% overall sequence divergence. The binding pocket conservation we verified explains why.</p>
+    </div>
+  </section>
+
+  <!-- 4. Product Architecture -->
+  <section class="section" id="products">
+    <h2 class="section-title"><span class="section-num">04</span> Product Architecture</h2>
+
+    <!-- Figure 2: Product Architecture SVG -->
+    <div class="figure" id="fig2">
+      <div class="figure-title">Figure 2 — Treat Biosciences Product Architecture</div>
+      <svg viewBox="0 0 700 320" height="320">
+        <!-- TRT-001 Box -->
+        <rect x="40" y="30" width="290" height="190" rx="10" fill="#0d1f14" stroke="#22c55e" stroke-width="1.5"/>
+        <text x="185" y="58" fill="#22c55e" font-size="13" font-weight="700" text-anchor="middle">TRT-001</text>
+        <text x="185" y="75" fill="#86efac" font-size="11" text-anchor="middle">LEAD PRODUCT</text>
+        <text x="185" y="96" fill="#e2e2f0" font-size="11" text-anchor="middle">Canine-Optimized Triple Incretin Agonist</text>
+        <!-- Receptor targets TRT-001 -->
+        <rect x="60" y="108" width="80" height="30" rx="5" fill="#22c55e" opacity="0.2" stroke="#22c55e" stroke-width="1"/>
+        <text x="100" y="128" fill="#22c55e" font-size="11" font-weight="600" text-anchor="middle">GLP-1R</text>
+        <rect x="155" y="108" width="80" height="30" rx="5" fill="#14b8a6" opacity="0.2" stroke="#14b8a6" stroke-width="1"/>
+        <text x="195" y="128" fill="#14b8a6" font-size="11" font-weight="600" text-anchor="middle">GIPR</text>
+        <rect x="250" y="108" width="65" height="30" rx="5" fill="#818cf8" opacity="0.2" stroke="#818cf8" stroke-width="1"/>
+        <text x="282" y="128" fill="#818cf8" font-size="11" font-weight="600" text-anchor="middle">GCGR</text>
+        <!-- Scaffold info -->
+        <text x="185" y="160" fill="#7070a0" font-size="10" text-anchor="middle">Scaffold: Retatrutide backbone (glucagon-derived, 39 aa)</text>
+        <text x="185" y="176" fill="#7070a0" font-size="10" text-anchor="middle">Mods: GIPR ECL1 optimization, Aib2/Aib13, C20 fatty diacid</text>
+        <text x="185" y="192" fill="#7070a0" font-size="10" text-anchor="middle">Route: Subcutaneous injection, monthly / bi-weekly</text>
+        <text x="185" y="208" fill="#22c55e" font-size="10" font-weight="600" text-anchor="middle">COGS at scale: $2–5/dose → 95%+ gross margin</text>
+
+        <!-- Arrow to TRT-002 -->
+        <line x1="335" y1="125" x2="365" y2="125" stroke="#2a2a48" stroke-width="2" marker-end="url(#arr)"/>
+        <defs>
+          <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+            <path d="M0,0 L0,6 L8,3 z" fill="#2a2a48"/>
+          </marker>
+        </defs>
+        <text x="350" y="118" fill="#7070a0" font-size="9" text-anchor="middle">v2</text>
+
+        <!-- TRT-002 Box -->
+        <rect x="370" y="30" width="290" height="190" rx="10" fill="#12111f" stroke="#818cf8" stroke-width="1.5" stroke-dasharray="6,3"/>
+        <text x="515" y="58" fill="#818cf8" font-size="13" font-weight="700" text-anchor="middle">TRT-002</text>
+        <text x="515" y="75" fill="#b0b0e0" font-size="11" text-anchor="middle">PIPELINE (v2)</text>
+        <text x="515" y="96" fill="#e2e2f0" font-size="11" text-anchor="middle">Triple Incretin + Activin Blockade</text>
+        <!-- Receptor targets TRT-002 -->
+        <rect x="385" y="108" width="60" height="30" rx="5" fill="#22c55e" opacity="0.15" stroke="#22c55e" stroke-width="1"/>
+        <text x="415" y="128" fill="#22c55e" font-size="10" font-weight="600" text-anchor="middle">GLP-1R</text>
+        <rect x="453" y="108" width="54" height="30" rx="5" fill="#14b8a6" opacity="0.15" stroke="#14b8a6" stroke-width="1"/>
+        <text x="480" y="128" fill="#14b8a6" font-size="10" font-weight="600" text-anchor="middle">GIPR</text>
+        <rect x="515" y="108" width="56" height="30" rx="5" fill="#818cf8" opacity="0.15" stroke="#818cf8" stroke-width="1"/>
+        <text x="543" y="128" fill="#818cf8" font-size="10" font-weight="600" text-anchor="middle">GCGR</text>
+        <rect x="579" y="108" width="66" height="30" rx="5" fill="#f59e0b" opacity="0.15" stroke="#f59e0b" stroke-width="1"/>
+        <text x="612" y="128" fill="#f59e0b" font-size="10" font-weight="600" text-anchor="middle">ActRIIB</text>
+        <!-- TRT-002 detail -->
+        <text x="515" y="160" fill="#7070a0" font-size="10" text-anchor="middle">Adds: Muscle preservation (anti-lean-mass loss)</text>
+        <text x="515" y="176" fill="#7070a0" font-size="10" text-anchor="middle">Approach TBD: caninized mAb or peptide binder</text>
+        <text x="515" y="192" fill="#7070a0" font-size="10" text-anchor="middle">ActRIIB conservation: 99.8% (1 aa in 495)</text>
+        <text x="515" y="208" fill="#f59e0b" font-size="10" font-weight="600" text-anchor="middle">Trigger: Lilly bimagrumab data (Jan 2027)</text>
+
+        <!-- IP Strategy Note -->
+        <rect x="40" y="240" width="620" height="62" rx="8" fill="#0d0d1f" stroke="#1e1e38" stroke-width="1"/>
+        <text x="60" y="262" fill="#7070a0" font-size="11" font-weight="600">IP STRATEGY</text>
+        <text x="60" y="280" fill="#e2e2f0" font-size="11">Primary: Canine-optimized triple incretin agonist (composition of matter + method of use)</text>
+        <text x="60" y="295" fill="#e2e2f0" font-size="11">Combination: Triple incretin + activin blockade for canine obesity with muscle preservation</text>
+        <text x="60" y="310" fill="#22c55e" font-size="11">FTO: CLEAR — No blocking patents for canine peptide incretins or canine incretin + activin combos</text>
+      </svg>
+      <div class="figure-caption">TRT-001 is the lead product: a canine-optimized triple incretin agonist targeting all three receptors with verified conservation. TRT-002 adds activin receptor blockade (ActRIIB) for muscle preservation — deferred to v2 pending Lilly clinical data. The real inventive step for TRT-001 is the GIPR ECL1 optimization — genuine species-specific engineering, not a copy of any existing molecule.</div>
+    </div>
+
+    <div class="subsection">
+      <h3 class="subsection-title">Lead Product: TRT-001</h3>
+      <ul>
+        <li><strong>Scaffold:</strong> Retatrutide backbone (glucagon-derived, 39 aa)</li>
+        <li><strong>Modifications:</strong> Canine GIPR ECL1 optimization (positions 10–21), Aib2/Aib13 for DPP-4 resistance, C20 fatty diacid at K17 for half-life extension (may need canine albumin optimization)</li>
+        <li><strong>Administration:</strong> Subcutaneous injection, monthly or bi-weekly</li>
+        <li><strong>COGS at scale:</strong> $2–5/dose → 95%+ gross margin at $100/month pricing</li>
+      </ul>
+    </div>
+
+    <div class="subsection">
+      <h3 class="subsection-title">Pipeline (v2): TRT-002 — Activin Receptor Blockade for Muscle Preservation</h3>
+      <ul>
+        <li><strong>Rationale:</strong> GLP-1/incretin agonists cause 25–40% lean mass loss. Activin blockade (bimagrumab mechanism) prevents this.</li>
+        <li><strong>Approach TBD:</strong> Caninized mAb (proven but expensive), de novo peptide binder (cheap but unproven), or skip if triple agonist alone shows acceptable body composition</li>
+        <li><strong>Trigger:</strong> Lilly Phase 2 bimagrumab + tirzepatide results (Jan 2027) will validate or invalidate the muscle-preservation premium</li>
+        <li><strong>ActRIIB conservation:</strong> 99.8% — whatever approach we choose, the target is near-identical</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 5. The Market -->
+  <section class="section" id="market">
+    <h2 class="section-title"><span class="section-num">05</span> The Market</h2>
+
+    <!-- Figure 3: Market Funnel -->
+    <div class="figure" id="fig3">
+      <div class="figure-title">Figure 3 — Market Opportunity Funnel</div>
+      <svg viewBox="0 0 700 280" height="280">
+        <!-- Level 1: Total US Dogs -->
+        <polygon points="100,20 600,20 560,80 140,80" fill="#818cf8" opacity="0.25" stroke="#818cf8" stroke-width="1.5"/>
+        <text x="350" y="52" fill="#e2e2f0" font-size="15" font-weight="700" text-anchor="middle">~90 Million US Dogs</text>
+        <text x="350" y="70" fill="#b0b0d8" font-size="11" text-anchor="middle">Total US dog population</text>
+        <!-- Level 2: Overweight/Obese -->
+        <polygon points="140,88 560,88 510,148 190,148" fill="#14b8a6" opacity="0.25" stroke="#14b8a6" stroke-width="1.5"/>
+        <text x="350" y="120" fill="#e2e2f0" font-size="15" font-weight="700" text-anchor="middle">54 Million Overweight/Obese</text>
+        <text x="350" y="138" fill="#b0b0d8" font-size="11" text-anchor="middle">~60% of all US dogs</text>
+        <!-- Level 3: TAM -->
+        <polygon points="190,156 510,156 455,216 245,216" fill="#22c55e" opacity="0.28" stroke="#22c55e" stroke-width="1.5"/>
+        <text x="350" y="188" fill="#e2e2f0" font-size="15" font-weight="700" text-anchor="middle">$63.6B Annual TAM</text>
+        <text x="350" y="206" fill="#b0b0d8" font-size="11" text-anchor="middle">54M dogs × $1,200/year ($100/month)</text>
+        <!-- Level 4: SOM -->
+        <polygon points="245,224 455,224 420,268 280,268" fill="#f59e0b" opacity="0.35" stroke="#f59e0b" stroke-width="2"/>
+        <text x="350" y="250" fill="#e2e2f0" font-size="14" font-weight="700" text-anchor="middle">$216M SOM — Year 5</text>
+        <text x="350" y="265" fill="#fde68a" font-size="10" text-anchor="middle">2% market penetration</text>
+        <!-- Right labels -->
+        <text x="620" y="52" fill="#818cf8" font-size="11" font-weight="600">Total Population</text>
+        <text x="620" y="120" fill="#14b8a6" font-size="11" font-weight="600">Addressable</text>
+        <text x="620" y="188" fill="#22c55e" font-size="11" font-weight="600">TAM</text>
+        <text x="620" y="250" fill="#f59e0b" font-size="11" font-weight="600">SOM (Yr 5)</text>
+      </svg>
+      <div class="figure-caption">Market funnel from total US dog population (90M) to the overweight/obese addressable segment (54M, 60%), through the total addressable market at $100/month pricing ($63.6B/yr), to a conservative 2% penetration Serviceable Obtainable Market of $216M in Year 5.</div>
+    </div>
+
+    <div class="subsection">
+      <h3 class="subsection-title">Pricing Precedent</h3>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Price</th>
+              <th>Frequency</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Cytopoint (Zoetis)</td>
+              <td>$50–150/injection</td>
+              <td>Every 4–8 weeks</td>
+            </tr>
+            <tr>
+              <td>Librela (Zoetis)</td>
+              <td>$50–250/injection</td>
+              <td>Monthly</td>
+            </tr>
+            <tr>
+              <td>Wegovy (human)</td>
+              <td>$1,300/month</td>
+              <td>Weekly</td>
+            </tr>
+            <tr style="background: rgba(34,197,94,0.08);">
+              <td><strong>Canine triple incretin (TRT-001)</strong></td>
+              <td style="color:var(--green);font-weight:700">$75–200/month</td>
+              <td>Monthly</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Peptide COGS at scale: $2–5/dose → <strong>95%+ gross margin</strong> at $100/month pricing.</p>
+    </div>
+
+    <div class="subsection">
+      <h3 class="subsection-title">Comparable Exits</h3>
+
+      <!-- Figure 5: Comparable Exits Bar Chart -->
+      <div class="figure" id="fig5">
+        <div class="figure-title">Figure 5 — Comparable Exits: Veterinary Biotech Acquisitions</div>
+        <svg viewBox="0 0 700 220" height="220">
+          <!-- Y axis label -->
+          <text x="30" y="110" fill="#7070a0" font-size="11" text-anchor="middle" transform="rotate(-90,30,110)">Acquisition Value ($M)</text>
+          <!-- Grid lines -->
+          <line x1="70" y1="20" x2="670" y2="20" stroke="#1e1e38" stroke-width="1"/>
+          <line x1="70" y1="60" x2="670" y2="60" stroke="#1e1e38" stroke-width="1"/>
+          <line x1="70" y1="100" x2="670" y2="100" stroke="#1e1e38" stroke-width="1"/>
+          <line x1="70" y1="140" x2="670" y2="140" stroke="#1e1e38" stroke-width="1"/>
+          <line x1="70" y1="170" x2="670" y2="170" stroke="#1e1e38" stroke-width="1"/>
+          <!-- Y axis labels -->
+          <text x="65" y="173" fill="#7070a0" font-size="10" text-anchor="end">$0</text>
+          <text x="65" y="143" fill="#7070a0" font-size="10" text-anchor="end">$100M</text>
+          <text x="65" y="103" fill="#7070a0" font-size="10" text-anchor="end">$300M</text>
+          <text x="65" y="63" fill="#7070a0" font-size="10" text-anchor="end">$400M</text>
+          <text x="65" y="23" fill="#7070a0" font-size="10" text-anchor="end">$500M+</text>
+          <!-- Bar: Nexvet $85M → height ~25px from baseline 170 -->
+          <rect x="90" y="145" width="80" height="25" rx="3" fill="#818cf8" opacity="0.8"/>
+          <text x="130" y="142" fill="#e2e2f0" font-size="11" font-weight="700" text-anchor="middle">$85M</text>
+          <text x="130" y="187" fill="#7070a0" font-size="10" text-anchor="middle">Nexvet</text>
+          <text x="130" y="198" fill="#7070a0" font-size="9" text-anchor="middle">→ Zoetis 2017</text>
+          <!-- Bar: Arantana $238M → height ~69px -->
+          <rect x="210" y="101" width="80" height="69" rx="3" fill="#14b8a6" opacity="0.8"/>
+          <text x="250" y="97" fill="#e2e2f0" font-size="11" font-weight="700" text-anchor="middle">$238M</text>
+          <text x="250" y="187" fill="#7070a0" font-size="10" text-anchor="middle">Arantana</text>
+          <text x="250" y="198" fill="#7070a0" font-size="9" text-anchor="middle">→ Elanco 2019</text>
+          <!-- Bar: Kindred $440M → height ~128px -->
+          <rect x="330" y="42" width="80" height="128" rx="3" fill="#22c55e" opacity="0.8"/>
+          <text x="370" y="38" fill="#e2e2f0" font-size="11" font-weight="700" text-anchor="middle">$440M</text>
+          <text x="370" y="187" fill="#7070a0" font-size="10" text-anchor="middle">Kindred Bio</text>
+          <text x="370" y="198" fill="#7070a0" font-size="9" text-anchor="middle">→ Elanco 2021</text>
+          <!-- Bar: Loyal $500M+ → height ~150px (implied) -->
+          <rect x="450" y="22" width="80" height="148" rx="3" fill="#f59e0b" opacity="0.8"/>
+          <text x="490" y="18" fill="#e2e2f0" font-size="11" font-weight="700" text-anchor="middle">$500M+</text>
+          <text x="490" y="187" fill="#7070a0" font-size="10" text-anchor="middle">Loyal</text>
+          <text x="490" y="198" fill="#7070a0" font-size="9" text-anchor="middle">Private 2024</text>
+          <!-- Petmedix note -->
+          <rect x="570" y="155" width="80" height="15" rx="3" fill="#818cf8" opacity="0.4"/>
+          <text x="610" y="167" fill="#e2e2f0" font-size="10" font-weight="700" text-anchor="middle">~$50M</text>
+          <text x="610" y="187" fill="#7070a0" font-size="10" text-anchor="middle">Petmedix</text>
+          <text x="610" y="198" fill="#7070a0" font-size="9" text-anchor="middle">→ Zoetis 2022</text>
+        </svg>
+        <div class="figure-caption">Comparable veterinary biotech acquisitions. The range of $85M–$500M+ demonstrates strong buyer appetite from Zoetis and Elanco for novel animal health assets. A canine obesity drug with first-in-class triple incretin mechanism and proven receptor conservation would command premium valuation in this range.</div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Company</th>
+              <th>Deal</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Arantana → Elanco (2019)</td>
+              <td>Acquisition</td>
+              <td style="color:var(--green);font-weight:600">$238M</td>
+            </tr>
+            <tr>
+              <td>Nexvet → Zoetis (2017)</td>
+              <td>Acquisition</td>
+              <td style="color:var(--blue);font-weight:600">$85M</td>
+            </tr>
+            <tr>
+              <td>Petmedix → Zoetis (2022)</td>
+              <td>Acquisition</td>
+              <td style="color:var(--blue);font-weight:600">~$50M</td>
+            </tr>
+            <tr>
+              <td>Loyal (private, 2024)</td>
+              <td>Implied valuation</td>
+              <td style="color:var(--amber);font-weight:600">$500M+</td>
+            </tr>
+            <tr>
+              <td>Kindred Bio → Elanco (2021)</td>
+              <td>Acquisition</td>
+              <td style="color:var(--green);font-weight:600">$440M</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. Competition -->
+  <section class="section" id="competition">
+    <h2 class="section-title"><span class="section-num">06</span> The Competition</h2>
+    <div class="key-finding">
+      <strong>White Space: TOTAL.</strong> Zero competitors in canine GLP-1, dual incretin, or triple incretin agonists — pharma or biotech.
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>What</th>
+            <th>Threat Level</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Nobody</strong></td>
+            <td>Canine triple incretin</td>
+            <td class="status-zero">ZERO</td>
+          </tr>
+          <tr>
+            <td><strong>Nobody</strong></td>
+            <td>Canine dual incretin</td>
+            <td class="status-zero">ZERO</td>
+          </tr>
+          <tr>
+            <td><strong>Nobody</strong></td>
+            <td>Canine GLP-1 (commercial program)</td>
+            <td class="status-zero">ZERO</td>
+          </tr>
+          <tr>
+            <td>Okava Pharmaceuticals</td>
+            <td>Implantable GLP-1 device for CATS</td>
+            <td class="status-low">Low (different species, delivery)</td>
+          </tr>
+          <tr>
+            <td>Better Choice / Aimia</td>
+            <td>"GLP-1 treats" (nutraceutical)</td>
+            <td style="color:var(--muted)">None (no FDA, no efficacy data)</td>
+          </tr>
+          <tr>
+            <td>Loyal</td>
+            <td>Anti-sense RNA (IGF pathway), longevity</td>
+            <td style="color:var(--muted)">Different mechanism</td>
+          </tr>
+          <tr>
+            <td>Vetigenics</td>
+            <td>Canibody anti-PD-1/CTLA-4 for cancer</td>
+            <td style="color:var(--muted)">100% oncology, not metabolic</td>
+          </tr>
+          <tr>
+            <td>Zoetis</td>
+            <td>Cytopoint, Librela</td>
+            <td style="color:var(--muted)">Dermatitis/pain, not obesity</td>
+          </tr>
+          <tr>
+            <td>Elanco</td>
+            <td>Befrena, Trutect</td>
+            <td style="color:var(--muted)">Dermatitis/parvo, not obesity</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout callout-success">
+      The nutraceutical "GLP-1 treats" (Better Choice) actually help us — they prove market demand exists without any real drug behind it. We bring the real thing.
+    </div>
+  </section>
+
+  <!-- 7. Development Path -->
+  <section class="section" id="devpath">
+    <h2 class="section-title"><span class="section-num">07</span> Development Path</h2>
+
+    <!-- Figure 4: Development Timeline -->
+    <div class="figure" id="fig4">
+      <div class="figure-title">Figure 4 — Development Timeline to Conditional FDA Approval</div>
+      <svg viewBox="0 0 700 220" height="220">
+        <!-- Timeline spine -->
+        <line x1="50" y1="100" x2="660" y2="100" stroke="#2a2a48" stroke-width="2.5"/>
+        <!-- Arrow head -->
+        <polygon points="656,94 670,100 656,106" fill="#2a2a48"/>
+
+        <!-- Phase 0 -->
+        <circle cx="80" cy="100" r="12" fill="#818cf8" opacity="0.9"/>
+        <text x="80" y="104" fill="#080812" font-size="9" font-weight="800" text-anchor="middle">0</text>
+        <text x="80" y="128" fill="#e2e2f0" font-size="11" font-weight="700" text-anchor="middle">Phase 0</text>
+        <text x="80" y="142" fill="#7070a0" font-size="10" text-anchor="middle">Computational</text>
+        <text x="80" y="154" fill="#7070a0" font-size="10" text-anchor="middle">Design</text>
+        <text x="80" y="168" fill="#818cf8" font-size="10" font-weight="600" text-anchor="middle">Wks 1–6</text>
+        <text x="80" y="181" fill="#22c55e" font-size="10" font-weight="600" text-anchor="middle">~$500</text>
+        <!-- Phase 0 detail above -->
+        <text x="80" y="78" fill="#7070a0" font-size="9" text-anchor="middle">AlphaFold2/3</text>
+        <text x="80" y="66" fill="#7070a0" font-size="9" text-anchor="middle">ADMET + patent</text>
+
+        <!-- Phase 1 -->
+        <circle cx="220" cy="100" r="12" fill="#14b8a6" opacity="0.9"/>
+        <text x="220" y="104" fill="#080812" font-size="9" font-weight="800" text-anchor="middle">1</text>
+        <text x="220" y="128" fill="#e2e2f0" font-size="11" font-weight="700" text-anchor="middle">Phase 1</text>
+        <text x="220" y="142" fill="#7070a0" font-size="10" text-anchor="middle">Synthesis &amp;</text>
+        <text x="220" y="154" fill="#7070a0" font-size="10" text-anchor="middle">In Vitro</text>
+        <text x="220" y="168" fill="#818cf8" font-size="10" font-weight="600" text-anchor="middle">Mo. 2–4</text>
+        <text x="220" y="181" fill="#22c55e" font-size="10" font-weight="600" text-anchor="middle">$29–44K</text>
+        <!-- Phase 1 detail above -->
+        <text x="220" y="78" fill="#7070a0" font-size="9" text-anchor="middle">6 variants, cAMP EC50</text>
+        <text x="220" y="66" fill="#7070a0" font-size="9" text-anchor="middle">3 canine receptor lines</text>
+
+        <!-- Phase 2 -->
+        <circle cx="370" cy="100" r="12" fill="#22c55e" opacity="0.9"/>
+        <text x="370" y="104" fill="#080812" font-size="9" font-weight="800" text-anchor="middle">2</text>
+        <text x="370" y="128" fill="#e2e2f0" font-size="11" font-weight="700" text-anchor="middle">Phase 2</text>
+        <text x="370" y="142" fill="#7070a0" font-size="10" text-anchor="middle">Preclinical</text>
+        <text x="370" y="154" fill="#7070a0" font-size="10" text-anchor="middle">PK/Safety</text>
+        <text x="370" y="168" fill="#818cf8" font-size="10" font-weight="600" text-anchor="middle">Mo. 4–8</text>
+        <text x="370" y="181" fill="#22c55e" font-size="10" font-weight="600" text-anchor="middle">$100–200K</text>
+        <!-- Phase 2 detail above -->
+        <text x="370" y="78" fill="#7070a0" font-size="9" text-anchor="middle">PK, albumin binding</text>
+        <text x="370" y="66" fill="#7070a0" font-size="9" text-anchor="middle">Safety + DEXA signal</text>
+
+        <!-- Phase 3 -->
+        <circle cx="520" cy="100" r="12" fill="#f59e0b" opacity="0.9"/>
+        <text x="520" y="104" fill="#080812" font-size="9" font-weight="800" text-anchor="middle">3</text>
+        <text x="520" y="128" fill="#e2e2f0" font-size="11" font-weight="700" text-anchor="middle">Phase 3</text>
+        <text x="520" y="142" fill="#7070a0" font-size="10" text-anchor="middle">Clinical Trial</text>
+        <text x="520" y="154" fill="#7070a0" font-size="10" text-anchor="middle">20–40 dogs</text>
+        <text x="520" y="168" fill="#818cf8" font-size="10" font-weight="600" text-anchor="middle">Mo. 8–18</text>
+        <text x="520" y="181" fill="#22c55e" font-size="10" font-weight="600" text-anchor="middle">$300–500K</text>
+        <!-- Phase 3 detail above -->
+        <text x="520" y="78" fill="#7070a0" font-size="9" text-anchor="middle">12-wk BW, DEXA</text>
+        <text x="520" y="66" fill="#7070a0" font-size="9" text-anchor="middle">Metabolic panel</text>
+
+        <!-- Conditional Approval -->
+        <rect x="615" y="84" width="50" height="32" rx="6" fill="#22c55e" opacity="0.2" stroke="#22c55e" stroke-width="1.5"/>
+        <text x="640" y="97" fill="#22c55e" font-size="9" font-weight="700" text-anchor="middle">CNADA</text>
+        <text x="640" y="109" fill="#22c55e" font-size="9" font-weight="700" text-anchor="middle">Approval</text>
+
+        <!-- Total budget label -->
+        <text x="350" y="210" fill="#e2e2f0" font-size="12" font-weight="700" text-anchor="middle">Total to Conditional Approval: ~$500K · Timeline: 18–21 months</text>
+      </svg>
+      <div class="figure-caption">Four-phase development path from computational design through clinical trial and conditional FDA CVM approval (CNADA). Total capital requirement ~$500K across all phases. CRO recommendation for Phase 2–3: Texas A&M CVM (30–50% cheaper than commercial CROs, local to David). Primary endpoint: ≥10% body weight reduction with &lt;20% lean mass loss.</div>
+    </div>
+
+    <div class="subsection">
+      <h3 class="subsection-title">Phase Details</h3>
+
+      <div class="callout callout-info">
+        <strong>Phase 0 — Computational Design (Weeks 1–6, ~$500)</strong><br>
+        Design triple incretin peptide variants based on retatrutide scaffold. Optimize GIPR ECL1 engagement using canine receptor model (AlphaFold2/3). ADMET prediction and down-selection. File provisional patent on lead sequences.
+      </div>
+
+      <div class="callout callout-info">
+        <strong>Phase 1 — Synthesis &amp; In Vitro (Months 2–4, ~$29–44K)</strong><br>
+        Synthesize 6 peptide variants (see variant panel in conservation report). Build canine GLP-1R, GIPR, GCGR stable cell lines (or source from CRO). cAMP accumulation dose-response at all three canine receptors. Binding affinity assays. Gs/Gi BRET assay for GCGR (H339R bias check). <strong>Deliverable:</strong> Lead compound with measured EC50 at all three canine receptors.
+      </div>
+
+      <div class="callout callout-info">
+        <strong>Phase 2 — Preclinical (Months 4–8, ~$100–200K)</strong><br>
+        PK study: half-life, bioavailability in dogs. Canine albumin binding (lipidation optimization if needed). Single-dose safety in healthy dogs (3–5 dogs). Body composition (DEXA) signal in obese dogs. <strong>CRO recommendation:</strong> Texas A&amp;M CVM (local to David, 30–50% cheaper than commercial CROs).
+      </div>
+
+      <div class="callout callout-warn">
+        <strong>Phase 3 — Clinical (Months 8–18, ~$300–500K)</strong><br>
+        Conditional approval study in client-owned obese dogs (20–40 dogs). 12-week treatment: body weight, DEXA body composition, metabolic panel. Primary endpoint: ≥10% body weight reduction with &lt;20% lean mass loss. → CNADA (Conditional New Animal Drug Application) to FDA CVM.
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. Investor Narrative -->
+  <section class="section" id="narrative">
+    <h2 class="section-title"><span class="section-num">08</span> Investor Narrative</h2>
+    <div class="investor-quote">
+      "60% of American dogs are overweight. There are zero approved drugs — the last one was pulled 16 years ago. Using AI-guided computational design and verified receptor conservation data, we've built the first canine-optimized triple incretin agonist — targeting the same three receptors as Eli Lilly's retatrutide, the most potent weight-loss drug ever tested in humans. We already know human GLP-1 drugs work in dogs. Our binding pocket analysis shows 100% conservation at validated contact positions for two of three targets, with a clear optimization path for the third. We're seeking $500K to take our lead compound through a clinical trial in obese dogs and apply for conditional FDA approval. The $63 billion pet obesity market has been waiting 16 years for a real drug. We're building it."
+    </div>
+  </section>
+
+  <!-- 9. Open Questions -->
+  <section class="section" id="openq">
+    <h2 class="section-title"><span class="section-num">09</span> Open Questions</h2>
+    <ul class="open-q-list">
+      <li><span class="open-q-num">1</span><span><strong>GIPR ECL1 optimization</strong> — Molecular dynamics or AlphaFold modeling needed to design canine-specific contacts. This is the primary computational task.</span></li>
+      <li><span class="open-q-num">2</span><span><strong>Canine albumin binding</strong> — Retatrutide's C20 fatty diacid binds human serum albumin for half-life. Canine albumin is ~79% identical. May need optimization.</span></li>
+      <li><span class="open-q-num">3</span><span><strong>GI tolerability</strong> — Dogs vomit easily. GLP-1 agonists cause nausea in humans. Dose-escalation protocol critical.</span></li>
+      <li><span class="open-q-num">4</span><span><strong>Delivery format</strong> — Injectable (simplest), implant (differentiated), or oral (hardest but highest value).</span></li>
+      <li><span class="open-q-num">5</span><span><strong>Will Zoetis/Elanco develop canine incretins internally?</strong> — Possible but big pharma moves slowly. First data wins.</span></li>
+      <li><span class="open-q-num">6</span><span><strong>Activin blockade approach</strong> — Peptide vs mAb vs skip at launch. Decision deferred to post-Phase 1 data and Lilly Phase 2 results (Jan 2027).</span></li>
+    </ul>
+  </section>
+
+  <!-- 10. Key Decisions Log -->
+  <section class="section" id="decisions">
+    <h2 class="section-title"><span class="section-num">10</span> Key Decisions Log</h2>
+    <div class="table-wrap decisions-table">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Decision</th>
+            <th>Rationale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>2026-03-19 (AM)</td>
+            <td>Pivot from "GLP-1 for dogs" to triple incretin agonist</td>
+            <td>If designing de novo, go best-in-class from day one</td>
+          </tr>
+          <tr>
+            <td>2026-03-19 (AM)</td>
+            <td>Use "incretin" terminology, not just "GLP-1"</td>
+            <td>GLP-1 is one agonist in the incretin field; precision matters</td>
+          </tr>
+          <tr>
+            <td>2026-03-19 (AM)</td>
+            <td>Activin blockade is v2 pipeline, not launch product</td>
+            <td>De-risks lead, reduces capital need, activin approach TBD</td>
+          </tr>
+          <tr>
+            <td>2026-03-19 (AM)</td>
+            <td>Hold on Frank until thesis mature</td>
+            <td>No incorporated entity; mature the science first</td>
+          </tr>
+          <tr>
+            <td>2026-03-19 (PM)</td>
+            <td>GIPR ECL1 identified as primary optimization target</td>
+            <td>63.6% conservation at ECL1 vs 100% TMD pocket</td>
+          </tr>
+          <tr>
+            <td>2026-03-19 (PM)</td>
+            <td>GCGR H339R confirmed (not H339Y)</td>
+            <td>Off-by-one error in initial report; more conservative substitution</td>
+          </tr>
+          <tr>
+            <td>2026-03-19 (PM)</td>
+            <td>Canonical accessions locked</td>
+            <td>A0A8I3NUR9 / A0A8C0QLM4 / A0A8P0SBC0 — all others excluded</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="report-footer">
+    <div>Treat Biosciences — Confidential / Pre-Patent</div>
+    <div>Incretin Thesis v2.0 — 2026-03-19 | Supersedes: glp1-activin-combo-thesis.md (v1)</div>
+    <div>
+      <a href="receptor-conservation-report.html" style="color:var(--blue);text-decoration:none">Receptor Report</a> ·
+      <a href="one-pager-investor-v2.html" style="color:var(--blue);text-decoration:none">Investor One-Pager</a>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

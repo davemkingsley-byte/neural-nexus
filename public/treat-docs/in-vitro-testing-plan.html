@@ -1,0 +1,1306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>In Vitro Testing Plan — TRT-001 | Treat Biosciences</title>
+<style>
+:root {
+  --bg: #080812;
+  --surface: #0d0d1f;
+  --surface2: #111124;
+  --border: #1e1e38;
+  --border2: #2a2a48;
+  --text: #e2e2f0;
+  --muted: #7070a0;
+  --green: #22c55e;
+  --green-light: #86efac;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --blue: #818cf8;
+  --teal: #14b8a6;
+  --font: -apple-system, 'Segoe UI', system-ui, Helvetica, sans-serif;
+  --font-mono: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+body::before {
+  content: 'CONFIDENTIAL';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-35deg);
+  font-size: 120px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.018);
+  pointer-events: none;
+  z-index: 9999;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  user-select: none;
+}
+.top-banner {
+  background: #ef4444;
+  color: #fff;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  padding: 6px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.report-nav {
+  display: flex; gap: 8px; padding: 12px 32px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 29px;
+  z-index: 99;
+}
+.report-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 4px 12px;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.report-nav a:hover { color: var(--text); background: var(--surface2); border-color: var(--blue); }
+.report-nav a.active { color: var(--green); background: var(--surface2); border-color: var(--green); }
+.nav-sep { display: flex; align-items: center; color: var(--border2); font-size: 14px; padding: 0 4px; }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 32px 32px 60px; }
+
+/* Document Header */
+.doc-header {
+  display: grid; grid-template-columns: 1fr auto; align-items: start; gap: 20px;
+  border-bottom: 2px solid var(--blue);
+  padding-bottom: 20px; margin-bottom: 32px;
+}
+.logo-row { display: flex; align-items: center; gap: 12px; margin-bottom: 8px; }
+.logo-mark {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, #22c55e, #14b8a6);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 18px; color: #080812;
+}
+.logo-text { font-size: 20px; font-weight: 800; }
+.doc-title { font-size: 26px; font-weight: 900; line-height: 1.2; margin-bottom: 6px; }
+.doc-subtitle { font-size: 15px; color: var(--muted); }
+.doc-meta { text-align: right; font-size: 12px; color: var(--muted); }
+.doc-meta div { margin-bottom: 4px; }
+.meta-badge {
+  display: inline-block; padding: 3px 10px; border-radius: 99px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.07em;
+}
+.badge-conf { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.badge-gate { background: rgba(129,140,248,0.15); color: var(--blue); border: 1px solid rgba(129,140,248,0.3); }
+
+/* Sections */
+.section { margin-bottom: 48px; scroll-margin-top: 80px; }
+.section-header {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 20px; padding: 16px 20px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 4px solid var(--blue); border-radius: 0 8px 8px 0;
+}
+.section-header.green { border-left-color: var(--green); }
+.section-header.amber { border-left-color: var(--amber); }
+.section-header.teal { border-left-color: var(--teal); }
+.section-header.red { border-left-color: var(--red); }
+
+.section-num {
+  font-size: 28px; font-weight: 900; color: var(--blue);
+  opacity: 0.3; line-height: 1; min-width: 36px;
+}
+.section-header.green .section-num { color: var(--green); }
+.section-header.amber .section-num { color: var(--amber); }
+.section-header.teal .section-num { color: var(--teal); }
+.section-header.red .section-num { color: var(--red); }
+.section-title { font-size: 20px; font-weight: 800; }
+.section-label {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--muted); margin-left: auto;
+}
+
+/* Assay number badge */
+.assay-badge {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(129,140,248,0.15); color: var(--blue);
+  border: 1px solid rgba(129,140,248,0.3);
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+
+/* Cards */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 20px 24px; margin-bottom: 20px;
+}
+.card-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--blue); margin-bottom: 12px; padding-bottom: 10px;
+  border-bottom: 1px solid rgba(129,140,248,0.2);
+}
+.card-title.green { color: var(--green); border-bottom-color: rgba(34,197,94,0.2); }
+.card-title.amber { color: var(--amber); border-bottom-color: rgba(245,158,11,0.2); }
+.card-title.teal { color: var(--teal); border-bottom-color: rgba(20,184,166,0.2); }
+.card-title.red { color: var(--red); border-bottom-color: rgba(239,68,68,0.2); }
+
+.card p { font-size: 14px; line-height: 1.65; margin-bottom: 12px; }
+.card p:last-child { margin-bottom: 0; }
+.card h3 { font-size: 15px; font-weight: 700; color: var(--text); margin: 16px 0 8px; }
+.card h3:first-child { margin-top: 0; }
+.card ul, .card ol { font-size: 14px; padding-left: 20px; margin-bottom: 12px; }
+.card li { margin-bottom: 6px; line-height: 1.6; }
+
+/* Assay card — special layout */
+.assay-card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; padding: 0; margin-bottom: 20px; overflow: hidden;
+}
+.assay-card-header {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 20px;
+  background: var(--surface2); border-bottom: 1px solid var(--border);
+}
+.assay-card-title { font-size: 15px; font-weight: 800; flex: 1; }
+.assay-card-badge { font-size: 10px; }
+.assay-card-body { padding: 18px 20px; }
+.assay-card-body p { font-size: 14px; line-height: 1.65; margin-bottom: 10px; }
+.assay-card-body p:last-child { margin-bottom: 0; }
+.assay-card-body ul { font-size: 14px; padding-left: 20px; margin-bottom: 10px; }
+.assay-card-body li { margin-bottom: 5px; }
+.assay-meta {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
+}
+.assay-meta-item { text-align: center; }
+.assay-meta-label { font-size: 9px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+.assay-meta-value { font-size: 13px; font-weight: 700; color: var(--text); }
+
+/* Grids */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.grid-wide-left { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; margin-bottom: 20px; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; margin-bottom: 16px; }
+table.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.data-table th {
+  background: var(--surface2); color: var(--muted);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 9px 12px; text-align: left; border-bottom: 1px solid var(--border2); white-space: nowrap;
+}
+table.data-table td {
+  padding: 9px 12px; border-bottom: 1px solid var(--border);
+  vertical-align: middle; line-height: 1.5;
+}
+table.data-table tr:last-child td { border-bottom: none; }
+table.data-table tr:nth-child(even) td { background: rgba(255,255,255,0.018); }
+table.data-table tr:hover td { background: rgba(129,140,248,0.04); }
+table.data-table .total-row td {
+  border-top: 2px solid var(--border2);
+  font-weight: 700;
+  background: rgba(34,197,94,0.06) !important;
+}
+table.data-table .subtotal-row td { font-style: italic; color: var(--muted); }
+
+/* Badges / pills */
+.pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: 600; letter-spacing: 0.05em; }
+.pill-green { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.pill-amber { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.pill-red { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.pill-blue { background: rgba(129,140,248,0.15); color: var(--blue); border: 1px solid rgba(129,140,248,0.3); }
+.pill-teal { background: rgba(20,184,166,0.15); color: var(--teal); border: 1px solid rgba(20,184,166,0.3); }
+
+/* Highlight */
+.hl-green { color: var(--green); font-weight: 600; }
+.hl-amber { color: var(--amber); font-weight: 600; }
+.hl-blue { color: var(--blue); font-weight: 600; }
+.hl-red { color: var(--red); font-weight: 700; }
+.hl-teal { color: var(--teal); font-weight: 600; }
+
+/* Info box */
+.info-box {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-left: 3px solid var(--blue); border-radius: 0 6px 6px 0;
+  padding: 12px 16px; font-size: 13px; margin-bottom: 14px; line-height: 1.6;
+}
+.info-box.green { border-left-color: var(--green); }
+.info-box.amber { border-left-color: var(--amber); }
+.info-box.red { border-left-color: var(--red); }
+.info-box.teal { border-left-color: var(--teal); }
+
+/* Gate box */
+.gate-box {
+  background: linear-gradient(135deg, rgba(34,197,94,0.07), rgba(20,184,166,0.07));
+  border: 1px solid rgba(34,197,94,0.25); border-radius: 10px;
+  padding: 20px 24px; margin-bottom: 20px;
+}
+.gate-box h3 { color: var(--green); font-size: 17px; font-weight: 800; margin-bottom: 12px; }
+.gate-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 14px;
+}
+.gate-row:last-child { border-bottom: none; padding-bottom: 0; }
+.gate-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+.gate-label { font-weight: 700; min-width: 110px; }
+
+/* Timeline Gantt-style */
+.timeline-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.timeline-table th {
+  background: var(--surface2); color: var(--muted);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 8px 10px; text-align: center; border-bottom: 1px solid var(--border2);
+}
+.timeline-table th.left-align { text-align: left; }
+.timeline-table td {
+  padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: middle;
+}
+.timeline-table tr:last-child td { border-bottom: none; }
+.timeline-table tr:nth-child(even) td { background: rgba(255,255,255,0.018); }
+.timeline-cell-active {
+  background: rgba(34,197,94,0.2) !important;
+  border-radius: 3px;
+}
+.timeline-cell-parallel {
+  background: rgba(129,140,248,0.15) !important;
+  border-radius: 3px;
+}
+.timeline-cell-key {
+  background: rgba(245,158,11,0.2) !important;
+  border-radius: 3px;
+  font-weight: 600;
+}
+
+/* Budget total row */
+.budget-total td {
+  border-top: 2px solid var(--border2) !important;
+  background: rgba(34,197,94,0.06) !important;
+  font-weight: 700;
+}
+.budget-credit td {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Objective box */
+.objective-box {
+  background: var(--surface2); border: 1px solid var(--border2);
+  border-radius: 8px; padding: 18px 20px; margin-bottom: 24px;
+  border-top: 3px solid var(--blue);
+}
+.objective-box p { font-size: 14.5px; line-height: 1.7; color: var(--text); }
+
+/* References */
+.references ol { padding-left: 22px; font-size: 13px; }
+.references li { margin-bottom: 10px; line-height: 1.6; color: var(--muted); }
+.references li a { color: var(--blue); text-decoration: none; }
+.references li a:hover { text-decoration: underline; }
+.references li em { font-style: italic; color: var(--text); }
+
+/* Footer */
+.doc-footer {
+  border-top: 1px solid var(--border); padding-top: 16px;
+  font-size: 11px; color: var(--muted);
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  margin-top: 40px;
+}
+.doc-footer a { color: var(--blue); text-decoration: none; }
+
+@media print {
+  .top-banner { position: static; }
+  .report-nav { display: none; }
+  body { background: #fff; color: #111; }
+  .container { padding: 10px 20px; }
+}
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-wide-left { grid-template-columns: 1fr; }
+  .doc-header { grid-template-columns: 1fr; }
+  .container { padding: 16px; }
+  .assay-meta { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-banner">CONFIDENTIAL — TREAT BIOSCIENCES — PRE-PATENT — DO NOT DISTRIBUTE</div>
+
+<nav class="report-nav">
+  <a href="one-pager-investor-v2.html">Investor One-Pager</a>
+  <a href="discovery-program.html">Discovery Program</a>
+  <a href="in-vitro-testing-plan.html" class="active">In Vitro Testing Plan</a>
+  <a href="preclinical-testing-plan.html">Preclinical Testing Plan</a>
+  <span class="nav-sep">|</span>
+  <a href="#s1">1. Objective</a>
+  <a href="#s2">2. Cell Lines</a>
+  <a href="#s3">3. Assay Panel</a>
+  <a href="#s4">4. CRO Options</a>
+  <a href="#s5">5. Go/No-Go</a>
+  <a href="#s6">6. Timeline</a>
+  <a href="#s7">7. Budget</a>
+  <a href="#s8">8. References</a>
+</nav>
+
+<div class="container">
+
+  <!-- Document Header -->
+  <header class="doc-header">
+    <div>
+      <div class="logo-row">
+        <div class="logo-mark">Tx</div>
+        <div class="logo-text">Treat Biosciences</div>
+      </div>
+      <div class="doc-title">In Vitro Testing Plan — TRT-001</div>
+      <div class="doc-subtitle">TRT-001 Variant Panel · Gate 2 In Vitro Functional Validation</div>
+    </div>
+    <div class="doc-meta">
+      <div>Version 1.0</div>
+      <div>Date: 2026-03-19</div>
+      <div>Gate: 2 — In Vitro Validation</div>
+      <div style="margin-top: 8px;">
+        <span class="meta-badge badge-conf">CONFIDENTIAL</span>
+        <span class="meta-badge badge-gate">GATE 2</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Section 1: Objective -->
+  <section class="section" id="s1">
+    <div class="section-header blue">
+      <span class="section-num">1</span>
+      <span class="section-title">Objective</span>
+    </div>
+
+    <div class="objective-box">
+      <p>Measure binding affinity and functional activity (Gs-mediated cAMP accumulation as the primary readout) of TRT-001 variant peptides at canine GLP-1R, GIPR, and GCGR expressed in stable cell lines. Secondary objectives: characterize β-arrestin recruitment bias, signaling fidelity at the GCGR H339R variant, and pharmacokinetic surrogate markers (plasma stability, DPP-4 resistance, albumin binding).</p>
+    </div>
+
+    <div class="gate-box">
+      <h3>Primary Decision (Gate 2)</h3>
+      <p style="font-size: 14px; color: var(--text);">Identify ≥1 TRT-001 variant with:</p>
+      <div style="margin-top: 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+        <div style="background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 6px; padding: 12px; text-align: center;">
+          <div style="font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px;">GLP-1R</div>
+          <div style="font-size: 20px; font-weight: 900; color: var(--green);">EC50 &lt; 10 nM</div>
+        </div>
+        <div style="background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 6px; padding: 12px; text-align: center;">
+          <div style="font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px;">GIPR</div>
+          <div style="font-size: 20px; font-weight: 900; color: var(--green);">EC50 &lt; 50 nM</div>
+        </div>
+        <div style="background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 6px; padding: 12px; text-align: center;">
+          <div style="font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px;">GCGR</div>
+          <div style="font-size: 20px; font-weight: 900; color: var(--green);">EC50 &lt; 50 nM</div>
+        </div>
+      </div>
+      <p style="font-size: 12px; color: var(--muted); margin-top: 10px;">In canine stable cell lines → designate as lead compound for preclinical development.</p>
+    </div>
+  </section>
+
+  <!-- Section 2: Cell Lines -->
+  <section class="section" id="s2">
+    <div class="section-header green">
+      <span class="section-num">2</span>
+      <span class="section-title">Cell Line Requirements</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title green">2.1 — Design Decision: Two-Stage Approach</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Stage</th><th>Cell Lines</th><th>Rationale</th><th>Cost</th><th>Timeline</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Stage 1</strong> (Screen)</td>
+              <td>Human GLP-1R, GIPR, GCGR (off-the-shelf)</td>
+              <td>Rapid initial screen; validates synthesis quality and assay system; establishes human comparator EC50</td>
+              <td>$0–5K</td>
+              <td>Weeks 1–3</td>
+            </tr>
+            <tr>
+              <td><strong>Stage 2</strong> (Confirm + Lead) <span class="pill pill-green">REQUIRED</span></td>
+              <td>Canine GLP-1R, GIPR, GCGR (custom stable)</td>
+              <td>Definitive data for patent, regulatory filing, and investor positioning; required for Go/No-Go</td>
+              <td>$10–15K to build; $15–30K to source</td>
+              <td>Weeks 3–8</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box red">
+        ⚠️ <strong>Why canine cell lines are non-negotiable for Gate 2:</strong> Human receptor EC50 data are insufficient to claim canine-specific optimization or to support an FDA CVM conditional approval application. All definitive Go/No-Go data must be obtained on canine receptors.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title green">2.2 — Canine Receptor Accessions for Cloning</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Receptor</th><th>Canine UniProt Accession</th><th>Length</th><th>RefSeq Equivalent</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>GLP-1R</strong></td>
+              <td><code style="font-family: var(--font-mono); background: rgba(129,140,248,0.1); padding: 2px 6px; border-radius: 3px; font-size: 12px;">A0A8I3NUR9</code></td>
+              <td>464 aa</td>
+              <td>—</td>
+            </tr>
+            <tr>
+              <td><strong>GIPR</strong></td>
+              <td><code style="font-family: var(--font-mono); background: rgba(129,140,248,0.1); padding: 2px 6px; border-radius: 3px; font-size: 12px;">A0A8C0QLM4</code></td>
+              <td>466 aa</td>
+              <td>XP_038512564.1</td>
+            </tr>
+            <tr>
+              <td><strong>GCGR</strong></td>
+              <td><code style="font-family: var(--font-mono); background: rgba(129,140,248,0.1); padding: 2px 6px; border-radius: 3px; font-size: 12px;">A0A8P0SBC0</code></td>
+              <td>493 aa</td>
+              <td>—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box amber">
+        ⚠️ <strong>Accession note:</strong> Multiple canine GPCR entries exist in UniProt TrEMBL (different genome assemblies). Use ONLY the canonical accessions above. Truncated entries (GIPR: 423 aa, 430 aa, 449 aa) are assembly artifacts and will produce misleading results. Verify sequence length before ordering gene synthesis.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title green">2.3 — Cell Line Options and Cost Comparison</div>
+
+      <div class="grid-2">
+        <div>
+          <h3>Option A: Build In-House (CHO-K1) — Recommended with Academic Partner</h3>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Item</th><th>Cost</th></tr></thead>
+              <tbody>
+                <tr><td>Gene synthesis (3 genes × 1.5 kb = ~4.5 kb total)</td><td>$1,500–2,500</td></tr>
+                <tr><td>Vector + cloning supplies</td><td>$500–1,000</td></tr>
+                <tr><td>CHO-K1 cells + media + selection antibiotic (G418)</td><td>$500–1,000</td></tr>
+                <tr><td>Staff time (academic CRO or collaborator)</td><td>$3,000–8,000</td></tr>
+                <tr class="total-row"><td><strong>Total (Option A)</strong></td><td><strong>$5,500–12,500</strong></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <h3>Option D: Texas A&M CVM — OPTIMAL for Cost</h3>
+          <div class="info-box teal">
+            <strong>Texas A&M CVM</strong> has the capability to generate custom stable cell lines in-house. A research collaboration or fee-for-service arrangement typically runs 30–50% below commercial CRO pricing.<br><br>
+            <strong>Contact:</strong> Dept. of Veterinary Physiology and Pharmacology<br>
+            <strong>Estimated cost:</strong> <span class="hl-green">$5,000–8,000</span> for all three canine receptor lines with academic collaboration agreement.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title green">2.4 — Cell Line Generation Timeline</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Week</th><th>Activity</th></tr></thead>
+          <tbody>
+            <tr><td><span class="pill pill-blue">Week 1</span></td><td>Order gene synthesis (3 canine receptor sequences, codon-optimized for CHO/HEK293)</td></tr>
+            <tr><td><span class="pill pill-blue">Wk 2–3</span></td><td>Cloning into expression vector; prepare for transfection</td></tr>
+            <tr><td><span class="pill pill-blue">Wk 3–4</span></td><td>Stable transfection; antibiotic selection begins</td></tr>
+            <tr><td><span class="pill pill-amber">Wk 4–6</span></td><td>Clone isolation; screen by surface expression</td></tr>
+            <tr><td><span class="pill pill-amber">Wk 6–7</span></td><td>Expand top clone; validate receptor expression by radioligand binding or western blot</td></tr>
+            <tr><td><span class="pill pill-green">Wk 7–8</span></td><td>Cryo-stock preparation; release testing</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box">
+        <em>This timeline runs in parallel with peptide synthesis (Weeks 1–3). In vitro assays begin when both are ready (~Week 7–8).</em>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: Assay Panel -->
+  <section class="section" id="s3">
+    <div class="section-header blue">
+      <span class="section-num">3</span>
+      <span class="section-title">Assay Panel</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title">3.1 — Peptide Synthesis Requirements</div>
+      <div class="grid-wide-left">
+        <div>
+          <p><strong>Number of peptides:</strong> 6–8 TRT-001 variants (V1–V8) + 3–4 positive controls</p>
+          <p><strong>Positive controls required:</strong> Semaglutide (GLP-1R), Tirzepatide (GLP-1R/GIPR), Retatrutide (triple agonist scaffold reference), native peptides GLP-1(7-36)NH₂, GIP, glucagon.</p>
+          <div class="table-wrap" style="margin-top: 12px;">
+            <table class="data-table">
+              <thead>
+                <tr><th>Parameter</th><th>Specification</th><th>Rationale</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Purity</td><td>≥95% by HPLC (C18)</td><td>Avoids false signals from truncation products</td></tr>
+                <tr><td>Scale</td><td>5–10 mg/peptide</td><td>Sufficient for all assays with 2× surplus</td></tr>
+                <tr><td>Analysis</td><td>RP-HPLC + LC-MS/MS</td><td>Identity confirmation + purity verification</td></tr>
+                <tr><td>Modifications</td><td>Aib at pos. 2, 13; fatty diacid at K20</td><td>Standard at specialist CDMOs</td></tr>
+                <tr><td>Storage</td><td>Lyophilized; -80°C</td><td>Room-temperature stability not yet established</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div>
+          <div class="info-box amber">
+            ⚠️ <strong>Verify CDMO experience with Aib SPPS</strong> before placing order. Aib at positions 2 and 13 slows chain elongation but is routinely achievable by experienced CDMOs (Bachem, PolyPeptide, CPC Scientific).
+          </div>
+          <div class="info-box">
+            <strong>Synthesizing retatrutide itself</strong> (~$3,500–5,000 for &gt;95% purity) may be considered for the strongest comparator. This is research use under 35 USC 271(e)(1).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">3.2 — CDMO Recommendations for Peptide Synthesis</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>CDMO</th><th>Specialization</th><th>Standard Peptide (5 mg, &gt;95%)</th><th>Modified Peptide (Aib + lipid)</th><th>Timeline</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr style="border-left: 3px solid var(--green);">
+              <td><strong>CPC Scientific</strong> <span class="pill pill-green">RECOMMENDED</span></td>
+              <td>Modified peptides, fatty acid conjugation</td>
+              <td>$1,500–2,500</td>
+              <td>$2,500–4,000</td>
+              <td>3–4 weeks</td>
+              <td>Extensive Aib+lipid experience</td>
+            </tr>
+            <tr>
+              <td><strong>GenScript</strong></td>
+              <td>Broad peptide services</td>
+              <td>$1,500–3,000</td>
+              <td>$2,500–4,000</td>
+              <td>2–3 weeks</td>
+              <td>High throughput; most commonly used</td>
+            </tr>
+            <tr>
+              <td><strong>LifeTein</strong></td>
+              <td>Standard and custom peptides</td>
+              <td>$800–2,000</td>
+              <td>$2,000–3,500</td>
+              <td>2–4 weeks</td>
+              <td>Budget option; good for controls</td>
+            </tr>
+            <tr>
+              <td><strong>JPT Peptide Technologies</strong></td>
+              <td>Peptide libraries, arrays</td>
+              <td>$500–1,000/peptide (array)</td>
+              <td>N/A</td>
+              <td>2–3 weeks</td>
+              <td>Good for screening panels</td>
+            </tr>
+            <tr>
+              <td><strong>Bachem</strong></td>
+              <td>GMP-grade synthesis</td>
+              <td>$8,000–20,000</td>
+              <td>$15,000–30,000</td>
+              <td>6–10 weeks</td>
+              <td>GMP-grade; defer to clinical stage</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Item</th><th>Units</th><th>Unit Cost</th><th>Total</th></tr></thead>
+          <tbody>
+            <tr><td>TRT-001 variants V1–V8 (CPC Scientific)</td><td>8</td><td>$3,000–4,000</td><td>$24,000–32,000</td></tr>
+            <tr><td>Standard controls (LifeTein)</td><td>4</td><td>$800–1,500</td><td>$3,200–6,000</td></tr>
+            <tr class="total-row"><td><strong>Total synthesis</strong></td><td></td><td></td><td><strong class="hl-green">$27,200–38,000</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Assay 1 -->
+    <div class="assay-card" id="assay1">
+      <div class="assay-card-header">
+        <div class="assay-badge">1</div>
+        <div class="assay-card-title">cAMP Accumulation Assay <span class="pill pill-green">PRIMARY READOUT</span></div>
+        <div class="assay-card-badge"><span class="pill pill-blue">Gs-Coupled</span></div>
+      </div>
+      <div class="assay-card-body">
+        <p><strong>Purpose:</strong> Measure Gs-coupled receptor activation. All three target receptors (GLP-1R, GIPR, GCGR) signal predominantly through Gs → adenylyl cyclase → cAMP production. This is the primary pharmacological readout.</p>
+        <p><strong>Platform:</strong> HTRF cAMP assay (Cisbio/Revvity); or LANCE Ultra cAMP (PerkinElmer); or BRET2 cAMP sensor (CAMYEL construct).<br>
+        <strong>Format:</strong> 5,000–10,000 cells/well in 384-well plate; 1-hour stimulation at 37°C; dose-response (10-point, 0.01 nM – 10 µM). 4-parameter logistic curve fitting (GraphPad Prism 10).</p>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Receptor</th><th>Target EC50 (TRT-001)</th><th>Comparator Reference</th></tr></thead>
+            <tbody>
+              <tr>
+                <td>Canine GLP-1R</td>
+                <td><span class="hl-green">&lt; 10 nM</span> (ideal); &lt; 100 nM (minimum)</td>
+                <td>Semaglutide at human GLP-1R: ~0.05 nM; liraglutide at canine GLP-1R: ~1–5 nM [2]</td>
+              </tr>
+              <tr>
+                <td>Canine GIPR</td>
+                <td><span class="hl-green">&lt; 50 nM</span> (ideal); &lt; 200 nM (minimum)</td>
+                <td>Native GIP at human GIPR: ~0.1 nM; retatrutide at human GIPR: ~0.011 nM</td>
+              </tr>
+              <tr>
+                <td>Canine GCGR</td>
+                <td><span class="hl-green">&lt; 50 nM</span> (ideal); &lt; 200 nM (minimum)</td>
+                <td>Native glucagon at human GCGR: ~0.05 nM; canine GCGR expected similar</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="info-box green">
+          <strong>GIPR threshold justification:</strong> Retatrutide's 8.9× GIPR superagonism provides significant potency headroom. Even if canine ECL1 divergence reduces potency by 10×, TRT-001 may achieve EC50 ~1 nM at canine GIPR — comparable to or better than native GIP at human GIPR.
+        </div>
+        <div class="assay-meta">
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Format</div>
+            <div class="assay-meta-value">384-well HTRF</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Cost Estimate</div>
+            <div class="assay-meta-value hl-green">$5,000–8,000</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">EC50 Threshold</div>
+            <div class="assay-meta-value">&lt; 10–50 nM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assay 2 -->
+    <div class="assay-card" id="assay2">
+      <div class="assay-card-header">
+        <div class="assay-badge" style="background: rgba(245,158,11,0.15); color: var(--amber); border-color: rgba(245,158,11,0.3);">2</div>
+        <div class="assay-card-title">Radioligand Binding Assay — Kd and Ki</div>
+        <div class="assay-card-badge"><span class="pill pill-amber">Binding Affinity</span></div>
+      </div>
+      <div class="assay-card-body">
+        <p><strong>Purpose:</strong> Determine equilibrium binding affinity (Kd for saturation binding; Ki for competition binding). Required to distinguish potency differences from efficacy differences — partial agonists may show low cAMP EC50 but low Emax.</p>
+        <ul>
+          <li><strong>Option A (saturation binding):</strong> [¹²⁵I]-GLP-1, [¹²⁵I]-GIP, [¹²⁵I]-glucagon (or tritiated analogs)</li>
+          <li><strong>Option B (TR-FRET-based — no radioactivity):</strong> Tb-chelate-labeled peptide + SNAP-tag receptor</li>
+          <li><strong>Ki calculation:</strong> Cheng-Prusoff equation [3]</li>
+        </ul>
+        <div class="assay-meta">
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Readout</div>
+            <div class="assay-meta-value">Ki (nM)</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Cost Estimate</div>
+            <div class="assay-meta-value hl-green">$3,000–5,000</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Threshold</div>
+            <div class="assay-meta-value">Ki &lt; 100 nM (all 3)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assay 3 -->
+    <div class="assay-card" id="assay3">
+      <div class="assay-card-header">
+        <div class="assay-badge" style="background: rgba(20,184,166,0.15); color: var(--teal); border-color: rgba(20,184,166,0.3);">3</div>
+        <div class="assay-card-title">β-Arrestin Recruitment Assay — Bias Profiling</div>
+        <div class="assay-card-badge"><span class="pill pill-teal">Signaling Bias</span></div>
+      </div>
+      <div class="assay-card-body">
+        <p><strong>Purpose:</strong> Characterize signaling bias. For canine tolerability (dogs vomit easily with GLP-1 agonists), understanding β-arrestin bias is critical. A Gs-biased profile may reduce GI side effects.</p>
+        <ul>
+          <li><strong>BRET-based:</strong> NanoLuc-tagged β-arrestin2 + receptor-Venus BRET pair</li>
+          <li><strong>PathHunter (DiscoverX/Eurofins):</strong> β-arrestin enzyme fragment complementation (EFC) — most widely used for GPCR bias profiling</li>
+          <li><strong>Bias factor:</strong> Log(τ/KA) from operational model of agonism [4]; compare cAMP vs. β-arrestin curves</li>
+        </ul>
+        <div class="info-box teal">
+          If a TRT-001 variant shows <strong>Gs-biased profile</strong>, this is a differentiating feature that should be emphasized in IP and marketing positioning — potentially superior GI tolerability vs. semaglutide.
+        </div>
+        <div class="assay-meta">
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Platform</div>
+            <div class="assay-meta-value">BRET / PathHunter</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Cost Estimate</div>
+            <div class="assay-meta-value hl-green">$3,000–5,000</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Threshold</div>
+            <div class="assay-meta-value">No arrestin bias</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assay 4 -->
+    <div class="assay-card" id="assay4">
+      <div class="assay-card-header">
+        <div class="assay-badge" style="background: rgba(129,140,248,0.15); color: var(--blue); border-color: rgba(129,140,248,0.3);">4</div>
+        <div class="assay-card-title">Calcium Flux Assay — GIPR Gq Coupling Check</div>
+        <div class="assay-card-badge"><span class="pill pill-blue">Off-Target Check</span></div>
+      </div>
+      <div class="assay-card-body">
+        <p><strong>Purpose:</strong> GIPR has documented Gq/Gi coupling in certain cell contexts in addition to primary Gs signaling [6]. This assay determines whether TRT-001 activates any calcium-mobilizing pathways in canine GIPR cells.</p>
+        <p><strong>Platform:</strong> Fluo-4 AM or FLIPR Calcium 6 dye (Molecular Devices); FLIPR Tetra (384-well) or standard plate reader with fluorescence kinetics. 60-second read after compound addition; peak fluorescence vs. baseline.</p>
+        <p><strong>Expected result:</strong> Minimal calcium flux (GIPR is predominantly Gs-coupled; any significant calcium signal warrants investigation).</p>
+        <div class="assay-meta">
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Platform</div>
+            <div class="assay-meta-value">FLIPR / Fluo-4</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Cost Estimate</div>
+            <div class="assay-meta-value hl-green">$1,000–2,000</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Receptor</div>
+            <div class="assay-meta-value">Canine GIPR only</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assay 5 -->
+    <div class="assay-card" id="assay5">
+      <div class="assay-card-header">
+        <div class="assay-badge" style="background: rgba(239,68,68,0.15); color: var(--red); border-color: rgba(239,68,68,0.3);">5</div>
+        <div class="assay-card-title">GCGR Gs/Gi BRET Assay — H339R Signaling Fidelity</div>
+        <div class="assay-card-badge"><span class="pill pill-red">Species Validation</span></div>
+      </div>
+      <div class="assay-card-body">
+        <p><strong>Purpose:</strong> The canine GCGR H339R substitution maps to ICL3, at the G-protein coupling interface. Confirm this substitution does not introduce Gi coupling or alter the Gs/Gi ratio. Gi signaling at GCGR would reduce intracellular cAMP and blunt the desired metabolic effect (thermogenesis, hepatic fat oxidation).</p>
+        <ul>
+          <li><strong>BRET2-based:</strong> RLuc8-tagged Gαs (or Gαi) + GFP2-tagged Gβγ</li>
+          <li><strong>Mini-Gs/Mini-Gi recruitment BRET:</strong> SmBiT-tagged receptor + LgBiT-tagged mini-Gs or mini-Gi</li>
+          <li><strong>Expected:</strong> Gs-dominant coupling ratio (Gs BRET/Gi BRET &gt; 10:1), comparable to human GCGR</li>
+        </ul>
+        <div class="assay-meta">
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Platform</div>
+            <div class="assay-meta-value">BRET2</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Cost Estimate</div>
+            <div class="assay-meta-value hl-green">$3,000–4,000</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Threshold</div>
+            <div class="assay-meta-value">Gs/Gi &gt; 10:1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assay 6 -->
+    <div class="assay-card" id="assay6">
+      <div class="assay-card-header">
+        <div class="assay-badge" style="background: rgba(34,197,94,0.15); color: var(--green); border-color: rgba(34,197,94,0.3);">6</div>
+        <div class="assay-card-title">Canine Plasma Stability</div>
+        <div class="assay-card-badge"><span class="pill pill-green">PK Surrogate</span></div>
+      </div>
+      <div class="assay-card-body">
+        <p><strong>Purpose:</strong> Determine metabolic stability of TRT-001 variants in canine biological matrix. Plasma stability predicts in vivo half-life and identifies labile bonds beyond DPP-4 cleavage.</p>
+        <ul>
+          <li><strong>Matrix:</strong> Fresh canine plasma (citrate-anticoagulated; Lampire Biological Laboratories or BioIVT)</li>
+          <li><strong>Incubation:</strong> 37°C, 5% CO₂; timepoints: 0, 1, 4, 8, 24h</li>
+          <li><strong>Analysis:</strong> LC-MS/MS with stable isotope-labeled internal standard; monitor parent peptide and major metabolites</li>
+        </ul>
+        <div class="info-box green">
+          <strong>Expected result based on retatrutide analogy:</strong> Aib2 modification provides DPP-4 resistance; Aib13 + fatty acid provide additional stability. Expected plasma t½ &gt; 24h for lipidated variants (retatrutide t½ in humans: ~6 days [7]).
+        </div>
+        <div class="assay-meta">
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Analysis</div>
+            <div class="assay-meta-value">LC-MS/MS</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Cost Estimate</div>
+            <div class="assay-meta-value hl-green">$2,000–4,000</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Threshold</div>
+            <div class="assay-meta-value">≥ 70% intact at 24h</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assay 7 -->
+    <div class="assay-card" id="assay7">
+      <div class="assay-card-header">
+        <div class="assay-badge" style="background: rgba(245,158,11,0.15); color: var(--amber); border-color: rgba(245,158,11,0.3);">7</div>
+        <div class="assay-card-title">DPP-4 Resistance</div>
+        <div class="assay-card-badge"><span class="pill pill-amber">Confirmatory</span></div>
+      </div>
+      <div class="assay-card-body">
+        <p><strong>Purpose:</strong> Explicitly confirm that the Aib2 modification protects TRT-001 variants from canine DPP-4 cleavage. This is a confirmatory assay — DPP-4 resistance should be robust given the Aib2 modification, but species-specific verification is required.</p>
+        <ul>
+          <li><strong>Enzyme:</strong> Recombinant canine DPP-4; or porcine DPP-4 as surrogate (96% identical to canine)</li>
+          <li><strong>Timepoints:</strong> 0, 15, 30, 60, 120 min at 37°C</li>
+          <li><strong>Positive control:</strong> GLP-1(7-36) without Aib2 (rapid DPP-4 cleavage expected; validates assay)</li>
+        </ul>
+        <div class="assay-meta">
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Readout</div>
+            <div class="assay-meta-value">% cleavage product</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Cost Estimate</div>
+            <div class="assay-meta-value hl-green">$1,500–3,000</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Threshold</div>
+            <div class="assay-meta-value">&lt; 5% cleavage at 60 min</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Assay 8 -->
+    <div class="assay-card" id="assay8">
+      <div class="assay-card-header">
+        <div class="assay-badge" style="background: rgba(20,184,166,0.15); color: var(--teal); border-color: rgba(20,184,166,0.3);">8</div>
+        <div class="assay-card-title">Canine Serum Albumin Binding (SPR) — Half-Life Predictor</div>
+        <div class="assay-card-badge"><span class="pill pill-teal">SPR / ITC</span></div>
+      </div>
+      <div class="assay-card-body">
+        <p><strong>Purpose:</strong> The C20 fatty diacid moiety at K20 binds serum albumin for half-life extension. Canine serum albumin (CSA) is ~79% identical to human serum albumin (HSA). The binding affinity must be empirically measured to select the optimal lipid moiety.</p>
+        <ul>
+          <li><strong>SPR:</strong> Biacore T200 or S200; CSA (Sigma-Aldrich A3803) immobilized on CM5 chip; TRT-001 variants as analytes. Full kinetic profile: kon, koff, Kd.</li>
+          <li><strong>Alternative:</strong> Isothermal Titration Calorimetry (ITC); or equilibrium dialysis with [¹⁴C]-labeled peptide (lower cost, lower information)</li>
+        </ul>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Compound</th><th>HSA Kd</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>Semaglutide</td><td>~2 µM</td><td>Reference [8]</td></tr>
+              <tr><td>Retatrutide</td><td>&lt; 5 µM</td><td>Reference [7]</td></tr>
+              <tr style="background: rgba(34,197,94,0.06);"><td><strong>Target for TRT-001 (CSA)</strong></td><td><span class="hl-green">&lt; 10 µM preferred</span></td><td>Sufficient for half-life extension</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="assay-meta">
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Platform</div>
+            <div class="assay-meta-value">SPR (Biacore)</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Cost Estimate</div>
+            <div class="assay-meta-value hl-green">$3,000–5,000</div>
+          </div>
+          <div class="assay-meta-item">
+            <div class="assay-meta-label">Threshold</div>
+            <div class="assay-meta-value">Kd (CSA) &lt; 50 µM</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 4: CRO Options -->
+  <section class="section" id="s4">
+    <div class="section-header teal">
+      <span class="section-num">4</span>
+      <span class="section-title">CRO Options for Assays</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title teal">4.1 — Commercial CROs</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>CRO</th><th>Capabilities</th><th>Custom Receptor</th><th>Pricing</th><th>Location</th></tr>
+          </thead>
+          <tbody>
+            <tr style="border-left: 3px solid var(--green);">
+              <td><strong>Eurofins (DiscoverX)</strong> <span class="pill pill-green">RECOMMENDED</span></td>
+              <td>PathHunter β-arrestin, cAMP, custom cell lines</td>
+              <td>Yes</td>
+              <td>~$5,000–15,000/panel</td>
+              <td>San Diego, CA</td>
+            </tr>
+            <tr>
+              <td><strong>Charles River</strong></td>
+              <td>Full GPCR panel, custom receptors</td>
+              <td>Yes</td>
+              <td>~$10,000–25,000/panel</td>
+              <td>Multiple sites</td>
+            </tr>
+            <tr>
+              <td><strong>Reaction Biology</strong></td>
+              <td>High-throughput GPCR screening</td>
+              <td>Limited custom</td>
+              <td>~$3,000–8,000/panel</td>
+              <td>Malvern, PA</td>
+            </tr>
+            <tr>
+              <td><strong>WuXi AppTec</strong></td>
+              <td>Full GPCR panel, custom stable lines</td>
+              <td>Yes</td>
+              <td>~$8,000–20,000</td>
+              <td>Multiple (China + US)</td>
+            </tr>
+            <tr>
+              <td><strong>Pharmaron</strong></td>
+              <td>Full pharmacology CRO</td>
+              <td>Yes</td>
+              <td>~$8,000–18,000</td>
+              <td>Multiple</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title teal">4.2 — Academic CRO Options</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Institution</th><th>Contact</th><th>Capabilities</th><th>vs. Commercial</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr style="border-left: 3px solid var(--green);">
+              <td><strong>Texas A&M CVM</strong> <span class="pill pill-green">RECOMMENDED</span></td>
+              <td>Dept. Vet Physiology &amp; Pharmacology</td>
+              <td>GPCR pharmacology, custom cell lines, cAMP, calcium</td>
+              <td>30–50% lower</td>
+              <td>Local to David; canine infrastructure on-site</td>
+            </tr>
+            <tr>
+              <td><strong>UT Southwestern GPCR Signaling</strong></td>
+              <td>Core facility</td>
+              <td>cAMP, BRET, custom GPCRs</td>
+              <td>~40% lower</td>
+              <td>Dallas area — geographic advantage</td>
+            </tr>
+            <tr>
+              <td><strong>UCSF GPCR Core</strong></td>
+              <td>UCSF core facility</td>
+              <td>Full GPCR panel</td>
+              <td>~30% lower</td>
+              <td>Strong GPCR expertise</td>
+            </tr>
+            <tr>
+              <td><strong>Baylor College of Medicine</strong></td>
+              <td>Signaling core</td>
+              <td>cAMP, beta-arrestin</td>
+              <td>~35% lower</td>
+              <td>Houston</td>
+            </tr>
+            <tr>
+              <td><strong>NC State CVM</strong></td>
+              <td>Pharmacology dept.</td>
+              <td>Veterinary drug pharmacology</td>
+              <td>~40% lower</td>
+              <td>Established animal drug research</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box teal">
+        <strong>Texas A&M CVM rationale:</strong> David is based in Dallas, TX. Texas A&M CVM (College Station, ~3 hr drive) has in-house GPCR pharmacology capability, veterinary-specific expertise, academic pricing (30–50% below commercial CRO), in-person supervision capability, and access to canine biological materials on-site. A formal sponsored research agreement (SRA) costs $2,000–5,000 to set up but saves $10,000–20,000 on assay execution.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title teal">4.3 — Recommended Assay Division</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Assay</th><th>Recommended Source</th><th>Cost Range</th></tr></thead>
+          <tbody>
+            <tr><td>Canine receptor stable cell line generation</td><td>Texas A&M CVM or GenScript</td><td>$5,000–12,000</td></tr>
+            <tr><td>cAMP assay (primary)</td><td>Texas A&M CVM or Eurofins</td><td>$4,000–8,000</td></tr>
+            <tr><td>β-arrestin BRET</td><td>Eurofins (PathHunter) or UT Southwestern</td><td>$3,000–5,000</td></tr>
+            <tr><td>Canine plasma stability</td><td>BioIVT + in-house LC-MS</td><td>$2,000–4,000</td></tr>
+            <tr><td>DPP-4 resistance</td><td>Texas A&M or Reaction Biology</td><td>$1,500–3,000</td></tr>
+            <tr><td>Albumin binding (SPR)</td><td>Biacore facility (UT Southwestern)</td><td>$3,000–5,000</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: Go/No-Go -->
+  <section class="section" id="s5">
+    <div class="section-header green">
+      <span class="section-num">5</span>
+      <span class="section-title">Go/No-Go Criteria — Gate 2</span>
+    </div>
+
+    <div class="gate-box">
+      <h3>Gate 2 Definition</h3>
+      <div class="gate-row">
+        <div class="gate-icon">✅</div>
+        <div><span class="gate-label hl-green">FULL GO:</span> ≥1 variant meets EC50 &lt; 10 nM (GLP-1R) AND EC50 &lt; 50 nM (GIPR) AND EC50 &lt; 50 nM (GCGR), Emax ≥ 70% native ligand, ≥ 70% plasma stability at 24h, no GCGR Gi bias. → Designate as TRT-001 lead; move to preclinical PK/safety study.</div>
+      </div>
+      <div class="gate-row">
+        <div class="gate-icon">⚠️</div>
+        <div><span class="gate-label hl-amber">PARTIAL GO (A):</span> Best variant meets GLP-1R and GCGR criteria but GIPR EC50 in 50–500 nM range. → Consider dual GLP-1R/GCGR agonist as fallback. Commission additional 2–3 GIPR-optimized variants. Additional cost: $6,000–10,000; timeline: +4–6 weeks.</div>
+      </div>
+      <div class="gate-row">
+        <div class="gate-icon">⚠️</div>
+        <div><span class="gate-label hl-amber">PARTIAL GO (B):</span> All three receptors active but EC50 in 100–1,000 nM range. → Enter lead optimization round. Focus on GIPR optimization + albumin binding adjustment. Re-screen 4–6 optimized variants.</div>
+      </div>
+      <div class="gate-row">
+        <div class="gate-icon">❌</div>
+        <div><span class="gate-label hl-red">NO-GO:</span> No variant with EC50 &lt; 1 µM at any receptor. → Pause; reassess scaffold choice. Consider de novo design using RFdiffusion. Were accessions correct? Is computational model valid?</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title green">EC50 Target Benchmarking</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Variant / Drug</th><th>GLP-1R EC50</th><th>GIPR EC50</th><th>GCGR EC50</th><th>Species</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Retatrutide (Coskun 2022)</td><td>~0.05 nM</td><td>~0.011 nM</td><td>~0.145 nM</td><td>Human receptor</td></tr>
+            <tr><td>Semaglutide</td><td>~0.02 nM</td><td>—</td><td>—</td><td>Human</td></tr>
+            <tr><td>Tirzepatide</td><td>~0.05 nM</td><td>~0.01 nM</td><td>—</td><td>Human</td></tr>
+            <tr><td>GLP-1 (native)</td><td>~0.02 nM</td><td>—</td><td>—</td><td>Human</td></tr>
+            <tr><td><strong>TRT-001 V1 (predicted)</strong></td><td>~0.1–1 nM</td><td>~0.1–1 nM</td><td>~0.5–5 nM</td><td>Canine</td></tr>
+            <tr style="background: rgba(34,197,94,0.06);">
+              <td><strong>TRT-001 V8 (predicted)</strong></td>
+              <td>~0.05–0.5 nM</td>
+              <td>~0.05–1 nM</td>
+              <td>~0.2–2 nM</td>
+              <td>Canine</td>
+            </tr>
+            <tr class="total-row">
+              <td><strong>Gate 2 MINIMUM</strong></td>
+              <td><strong>&lt; 100 nM</strong></td>
+              <td><strong>&lt; 200 nM</strong></td>
+              <td><strong>&lt; 200 nM</strong></td>
+              <td>Canine</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box amber">
+        <em>Predictions are estimates based on receptor conservation analysis and retatrutide potency extrapolation; actual values to be determined empirically.</em>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 6: Timeline -->
+  <section class="section" id="s6">
+    <div class="section-header amber">
+      <span class="section-num">6</span>
+      <span class="section-title">Timeline — Week-by-Week</span>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Week</th><th>Activity</th><th>Responsible</th><th>Deliverable</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="pill pill-blue">Week 1</span></td>
+              <td>Order gene synthesis (canine GLP-1R, GIPR, GCGR); order peptide synthesis (TRT-001 V1–V8 + controls)</td>
+              <td>David / CRO</td>
+              <td>Purchase orders placed</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-blue">Wk 1–2</span></td>
+              <td>Set up SRA with Texas A&M CVM (or initiate quote at commercial CRO)</td>
+              <td>David</td>
+              <td>SRA executed</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-blue">Wk 1–2</span></td>
+              <td>Set up peptide stock solutions (10 mM in DMSO; serial dilution plates)</td>
+              <td>CRO / Lab</td>
+              <td>Ready for assay</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-amber">Wk 2–3</span></td>
+              <td>Screen human receptor stable lines (if available from CRO): cAMP at human GLP-1R, GIPR, GCGR</td>
+              <td>CRO</td>
+              <td>Human receptor EC50 data</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-amber">Wk 3–5</span></td>
+              <td>Stable transfection and clone selection for canine receptors</td>
+              <td>Texas A&M / CRO</td>
+              <td>Transfected pools</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-amber">Wk 5–6</span></td>
+              <td>Validate canine receptor expression by radioligand binding or ELISA</td>
+              <td>Texas A&M</td>
+              <td>Validated stable lines ✅</td>
+            </tr>
+            <tr style="background: rgba(34,197,94,0.04);">
+              <td><span class="pill pill-green">Wk 6–7</span></td>
+              <td>cAMP assay (primary): all 8 variants + 4 controls × 3 canine receptors (dose-response)</td>
+              <td>Texas A&M / Eurofins</td>
+              <td>cAMP EC50 data table</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-green">Week 7</span></td>
+              <td>β-arrestin BRET: top 3–4 variants selected from cAMP data</td>
+              <td>Eurofins</td>
+              <td>Bias factor data</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-green">Week 7</span></td>
+              <td>GCGR Gs/Gi BRET: canine GCGR H339R validation</td>
+              <td>Eurofins</td>
+              <td>Gs:Gi coupling ratio</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-green">Wk 7–8</span></td>
+              <td>Canine plasma stability: top 3–4 variants</td>
+              <td>BioIVT / CRO</td>
+              <td>% intact at 24h</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-green">Wk 7–8</span></td>
+              <td>DPP-4 resistance: all variants</td>
+              <td>CRO</td>
+              <td>% DPP-4 cleavage</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-teal">Week 8</span></td>
+              <td>Albumin binding (SPR): top 3 variants</td>
+              <td>Biacore facility (UTSW)</td>
+              <td>Kd (CSA)</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-teal">Wk 8–9</span></td>
+              <td>Data analysis, lead selection, Gate 2 assessment</td>
+              <td>David</td>
+              <td>Go/No-Go decision</td>
+            </tr>
+            <tr>
+              <td><span class="pill pill-teal">Week 9</span></td>
+              <td>Update provisional patent with in vitro data</td>
+              <td>Patent attorney</td>
+              <td>Patent amendment</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box green">
+        <strong>Total in vitro phase timeline: 8–10 weeks</strong> (runs partially in parallel with computational phase)
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 7: Budget -->
+  <section class="section" id="s7">
+    <div class="section-header green">
+      <span class="section-num">7</span>
+      <span class="section-title">Budget — Line-Item</span>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Item</th><th>Low Estimate</th><th>High Estimate</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Peptide synthesis (8 variants, CPC Scientific)</td><td>$24,000</td><td>$32,000</td><td>Includes Aib, fatty acid</td></tr>
+            <tr><td>Positive control peptides (4, LifeTein)</td><td>$3,200</td><td>$6,000</td><td>GLP-1, GIP, glucagon, semaglutide</td></tr>
+            <tr><td>Gene synthesis (3 canine receptors)</td><td>$1,500</td><td>$2,500</td><td>Codon-optimized</td></tr>
+            <tr><td>Cloning and stable cell line generation</td><td>$5,500</td><td>$15,000</td><td>Texas A&M (low) to CRO (high)</td></tr>
+            <tr><td>cAMP assay (full panel)</td><td>$4,000</td><td>$8,000</td><td>3 receptors × 12 peptides</td></tr>
+            <tr><td>β-arrestin assay</td><td>$3,000</td><td>$5,000</td><td>Top 4 variants × 3 receptors</td></tr>
+            <tr><td>GCGR Gs/Gi BRET</td><td>$2,000</td><td>$3,000</td><td>Canine GCGR only</td></tr>
+            <tr><td>Calcium flux assay</td><td>$1,000</td><td>$2,000</td><td>GIPR only</td></tr>
+            <tr><td>Canine plasma stability</td><td>$2,000</td><td>$4,000</td><td>Top 4 variants</td></tr>
+            <tr><td>DPP-4 resistance</td><td>$1,500</td><td>$3,000</td><td>All 8 variants</td></tr>
+            <tr><td>Albumin SPR</td><td>$3,000</td><td>$5,000</td><td>Top 3 variants</td></tr>
+            <tr><td>LC-MS/MS analysis</td><td>$2,000</td><td>$4,000</td><td>Stability + DPP-4 readouts</td></tr>
+            <tr class="budget-total">
+              <td><strong>Subtotal</strong></td>
+              <td><strong>$52,700</strong></td>
+              <td><strong>$89,500</strong></td>
+              <td></td>
+            </tr>
+            <tr class="budget-credit">
+              <td><em>Minus synthesis (in discovery budget)</em></td>
+              <td><em>(-$27,200)</em></td>
+              <td><em>(-$38,000)</em></td>
+              <td><em>Per discovery-program.md</em></td>
+            </tr>
+            <tr class="budget-total">
+              <td><strong>Net in vitro assays only</strong></td>
+              <td><strong class="hl-green">$25,500</strong></td>
+              <td><strong class="hl-amber">$51,500</strong></td>
+              <td></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box green">
+        <strong>Discovery-program.md budget ($29–44K)</strong> covers peptide synthesis + core in vitro assays. Full plan including synthesis is $29–44K for lean execution through Texas A&M CVM, rising to $52–89K if commercial CRO pricing is used throughout.
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 8: References -->
+  <section class="section" id="s8">
+    <div class="section-header">
+      <span class="section-num" style="color: var(--blue); opacity: 0.3;">8</span>
+      <span class="section-title">References</span>
+    </div>
+
+    <div class="card references">
+      <ol>
+        <li>Jordan M, et al. HEK293 cells for GPCR research: properties, signaling fidelity, and assay optimization. <em>Curr Protoc Pharmacol</em> 2006. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/18429087/" target="_blank">18429087</a>.</li>
+        <li>Dik B, et al. Liraglutide in obese Golden Retrievers. <em>Res Vet Sci</em> 2025. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/40436366/" target="_blank">40436366</a>.</li>
+        <li>Cheng Y, Prusoff WH. Relationship between the inhibition constant (Ki) and the IC50 of an enzymatic reaction. <em>Biochem Pharmacol</em> 1973;22:3099–3108. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/4202581/" target="_blank">4202581</a>.</li>
+        <li>Kenakin TP. Functional selectivity and biased receptor signaling. <em>J Pharmacol Exp Ther</em> 2011;336:296–302. DOI: <a href="https://doi.org/10.1124/jpet.110.173948" target="_blank">10.1124/jpet.110.173948</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/21030484/" target="_blank">21030484</a>.</li>
+        <li>Roth BL. Ironing out the wrinkles of biased agonism. <em>Nat Chem Biol</em> 2016;12:359–360. DOI: <a href="https://doi.org/10.1038/nchembio.2091" target="_blank">10.1038/nchembio.2091</a>. [β-arrestin bias and GI side effects]</li>
+        <li>Yabe D, Seino Y. Two incretin hormones GLP-1 and GIP: comparison of their actions in insulin secretion and β cell preservation. <em>Prog Biophys Mol Biol</em> 2011;107:248–256. DOI: <a href="https://doi.org/10.1016/j.pbiomolbio.2011.07.010" target="_blank">10.1016/j.pbiomolbio.2011.07.010</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/21798273/" target="_blank">21798273</a>.</li>
+        <li>Coskun T, et al. LY3437943, a novel triple GIP, GLP-1 and glucagon receptor agonist. <em>Cell Metab</em> 2022;34:1234–1247. DOI: <a href="https://doi.org/10.1016/j.cmet.2022.07.013" target="_blank">10.1016/j.cmet.2022.07.013</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/35931026/" target="_blank">35931026</a>.</li>
+        <li>Lau J, et al. Discovery of the once-weekly GLP-1 analogue semaglutide. <em>J Med Chem</em> 2015;58:7370–7380. DOI: <a href="https://doi.org/10.1021/acs.jmedchem.5b00726" target="_blank">10.1021/acs.jmedchem.5b00726</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/26308095/" target="_blank">26308095</a>.</li>
+        <li>Siu CR, et al. Structural basis of GIP receptor function. <em>Nat Commun</em> 2021. DOI: <a href="https://doi.org/10.1038/s41467-021-24243-2" target="_blank">10.1038/s41467-021-24243-2</a>.</li>
+        <li>Xu Y, et al. Structural basis of the triple agonism of retatrutide. <em>Cell Discovery</em> 2024;10:100. DOI: <a href="https://doi.org/10.1038/s41421-024-00729-3" target="_blank">10.1038/s41421-024-00729-3</a>.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="doc-footer">
+    <div>Treat Biosciences — Confidential / Pre-Patent — Version 1.0 — 2026-03-19</div>
+    <div>
+      <a href="one-pager-investor-v2.html">Investor One-Pager</a> ·
+      <a href="discovery-program.html">Discovery Program</a> ·
+      <a href="preclinical-testing-plan.html">Preclinical Testing Plan</a>
+    </div>
+    <div>David Kingsley, PhD — davemkingsley@gmail.com</div>
+  </footer>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TRT-001 Discovery Program | Treat Biosciences</title>
+<style>
+:root {
+  --bg: #080812;
+  --surface: #0d0d1f;
+  --surface2: #111124;
+  --border: #1e1e38;
+  --border2: #2a2a48;
+  --text: #e2e2f0;
+  --muted: #7070a0;
+  --green: #22c55e;
+  --green-light: #86efac;
+  --green-vivid: #00ff88;
+  --amber: #f59e0b;
+  --amber-light: #fde68a;
+  --red: #ef4444;
+  --red-light: #fca5a5;
+  --blue: #818cf8;
+  --blue-dark: #4f46e5;
+  --teal: #14b8a6;
+  --font: -apple-system, 'Segoe UI', system-ui, Helvetica, sans-serif;
+  --font-mono: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+body::before {
+  content: 'CONFIDENTIAL';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-35deg);
+  font-size: 120px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.018);
+  pointer-events: none;
+  z-index: 9999;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  user-select: none;
+}
+.top-banner {
+  background: #ef4444;
+  color: #fff;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  padding: 6px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.report-nav {
+  display: flex; gap: 8px; padding: 12px 32px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 29px;
+  z-index: 99;
+}
+.report-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 4px 12px;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.report-nav a:hover { color: var(--text); background: var(--surface2); border-color: var(--blue); }
+.report-nav a.active { color: var(--green); background: var(--surface2); border-color: var(--green); }
+.report-nav .nav-sep {
+  display: flex; align-items: center;
+  color: var(--border2);
+  font-size: 14px;
+  padding: 0 4px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 32px 60px;
+}
+
+/* Document Header */
+.doc-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 20px;
+  border-bottom: 2px solid var(--green);
+  padding-bottom: 20px;
+  margin-bottom: 32px;
+}
+.logo-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 8px;
+}
+.logo-mark {
+  width: 42px; height: 42px;
+  background: linear-gradient(135deg, #22c55e, #14b8a6);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 18px; color: #080812;
+}
+.logo-text { font-size: 20px; font-weight: 800; letter-spacing: 0.01em; }
+.doc-title { font-size: 26px; font-weight: 900; color: var(--text); margin-bottom: 6px; line-height: 1.2; }
+.doc-subtitle { font-size: 15px; color: var(--muted); }
+.doc-meta { text-align: right; font-size: 12px; color: var(--muted); }
+.doc-meta div { margin-bottom: 4px; }
+.meta-badge {
+  display: inline-block; padding: 3px 10px;
+  border-radius: 99px; font-size: 10px; font-weight: 600; letter-spacing: 0.07em;
+}
+.badge-conf { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.badge-v1 { background: rgba(129,140,248,0.15); color: var(--blue); border: 1px solid rgba(129,140,248,0.3); }
+.badge-disc { background: rgba(20,184,166,0.15); color: var(--teal); border: 1px solid rgba(20,184,166,0.3); }
+
+/* Sections */
+.section {
+  margin-bottom: 48px;
+  scroll-margin-top: 80px;
+}
+.section-header {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 20px;
+  padding: 16px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 4px solid var(--green);
+  border-radius: 0 8px 8px 0;
+}
+.section-header.amber { border-left-color: var(--amber); }
+.section-header.blue { border-left-color: var(--blue); }
+.section-header.teal { border-left-color: var(--teal); }
+.section-header.red { border-left-color: var(--red); }
+.section-label {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--green);
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.25);
+  padding: 3px 10px; border-radius: 4px;
+  flex-shrink: 0;
+}
+.section-label.amber { color: var(--amber); background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.25); }
+.section-label.blue { color: var(--blue); background: rgba(129,140,248,0.1); border-color: rgba(129,140,248,0.25); }
+.section-label.teal { color: var(--teal); background: rgba(20,184,166,0.1); border-color: rgba(20,184,166,0.25); }
+.section-label.red { color: var(--red); background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.25); }
+.section-title { font-size: 20px; font-weight: 800; color: var(--text); }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.card-title {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--green);
+  margin-bottom: 12px; padding-bottom: 10px;
+  border-bottom: 1px solid rgba(34,197,94,0.2);
+}
+.card-title.amber { color: var(--amber); border-bottom-color: rgba(245,158,11,0.2); }
+.card-title.blue { color: var(--blue); border-bottom-color: rgba(129,140,248,0.2); }
+.card-title.teal { color: var(--teal); border-bottom-color: rgba(20,184,166,0.2); }
+.card-title.red { color: var(--red); border-bottom-color: rgba(239,68,68,0.2); }
+
+.card p { font-size: 14px; line-height: 1.65; margin-bottom: 12px; color: var(--text); }
+.card p:last-child { margin-bottom: 0; }
+.card h3 { font-size: 15px; font-weight: 700; color: var(--text); margin: 16px 0 8px; }
+.card h3:first-child { margin-top: 0; }
+.card ul, .card ol { font-size: 14px; padding-left: 20px; margin-bottom: 12px; }
+.card li { margin-bottom: 6px; line-height: 1.6; }
+
+/* Two and three column grids */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+.grid-wide-left { display: grid; grid-template-columns: 3fr 2fr; gap: 16px; margin-bottom: 20px; }
+
+/* Tables */
+.table-wrap { overflow-x: auto; margin-bottom: 16px; }
+table.data-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 13px;
+}
+table.data-table th {
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 9px 12px;
+  text-align: left;
+  border-bottom: 1px solid var(--border2);
+  white-space: nowrap;
+}
+table.data-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  line-height: 1.5;
+}
+table.data-table tr:last-child td { border-bottom: none; }
+table.data-table tr:nth-child(even) td { background: rgba(255,255,255,0.018); }
+table.data-table tr:hover td { background: rgba(129,140,248,0.04); }
+
+/* Highlight table for variant panel */
+table.highlight-table {
+  width: 100%; border-collapse: collapse; font-size: 13px;
+}
+table.highlight-table th {
+  background: rgba(34,197,94,0.08);
+  color: var(--green);
+  font-size: 10px; font-weight: 700; letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid rgba(34,197,94,0.2);
+}
+table.highlight-table td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+table.highlight-table tr:last-child td { border-bottom: none; }
+table.highlight-table tr:nth-child(even) td { background: rgba(255,255,255,0.018); }
+table.highlight-table .lead-row td {
+  background: rgba(34,197,94,0.06) !important;
+  border-left: 3px solid var(--green);
+}
+
+/* Code block */
+.code-block {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--green-light);
+  overflow-x: auto;
+  margin-bottom: 12px;
+  white-space: pre;
+}
+
+/* Inline code */
+code {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  background: rgba(129,140,248,0.1);
+  border: 1px solid rgba(129,140,248,0.2);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: var(--blue);
+}
+
+/* Badges */
+.pill {
+  display: inline-block; padding: 2px 8px;
+  border-radius: 99px; font-size: 10px; font-weight: 600; letter-spacing: 0.05em;
+}
+.pill-green { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.pill-amber { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.pill-red { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.pill-blue { background: rgba(129,140,248,0.15); color: var(--blue); border: 1px solid rgba(129,140,248,0.3); }
+.pill-teal { background: rgba(20,184,166,0.15); color: var(--teal); border: 1px solid rgba(20,184,166,0.3); }
+
+/* Risk level indicators */
+.risk-low { color: var(--green); font-weight: 600; }
+.risk-mod { color: var(--amber); font-weight: 600; }
+.risk-high { color: var(--red); font-weight: 600; }
+
+/* Highlight text */
+.hl-green { color: var(--green); font-weight: 600; }
+.hl-amber { color: var(--amber); font-weight: 600; }
+.hl-blue { color: var(--blue); font-weight: 600; }
+.hl-red { color: var(--red); font-weight: 700; }
+.hl-teal { color: var(--teal); font-weight: 600; }
+
+/* Info box */
+.info-box {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-left: 3px solid var(--blue);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 16px;
+  font-size: 13px;
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+.info-box.green { border-left-color: var(--green); }
+.info-box.amber { border-left-color: var(--amber); }
+.info-box.red { border-left-color: var(--red); }
+.info-box.teal { border-left-color: var(--teal); }
+
+/* Gate criteria box */
+.gate-box {
+  background: linear-gradient(135deg, rgba(34,197,94,0.07), rgba(20,184,166,0.07));
+  border: 1px solid rgba(34,197,94,0.25);
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin-bottom: 16px;
+}
+.gate-box h3 { color: var(--green); font-size: 16px; font-weight: 800; margin-bottom: 8px; }
+.gate-box p { font-size: 13.5px; margin-bottom: 6px; }
+
+/* References section */
+.references ol {
+  padding-left: 22px;
+  font-size: 13px;
+  counter-reset: none;
+}
+.references li {
+  margin-bottom: 10px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+.references li a { color: var(--blue); text-decoration: none; }
+.references li a:hover { text-decoration: underline; }
+.references li em { font-style: italic; color: var(--text); }
+
+/* Timeline summary strip */
+.timeline-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.timeline-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 14px 16px;
+  border-top: 3px solid var(--green);
+}
+.timeline-card.amber { border-top-color: var(--amber); }
+.timeline-card.blue { border-top-color: var(--blue); }
+.timeline-card.teal { border-top-color: var(--teal); }
+.timeline-phase { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+.timeline-duration { font-size: 20px; font-weight: 900; color: var(--green); margin-bottom: 2px; }
+.timeline-card.amber .timeline-duration { color: var(--amber); }
+.timeline-card.blue .timeline-duration { color: var(--blue); }
+.timeline-card.teal .timeline-duration { color: var(--teal); }
+.timeline-desc { font-size: 11px; color: var(--muted); }
+.timeline-budget { font-size: 12px; font-weight: 700; color: var(--text); margin-top: 6px; }
+
+/* Risk register table special styling */
+.risk-high-row td { border-left: 3px solid var(--red); }
+.risk-mod-row td { border-left: 3px solid var(--amber); }
+.risk-low-row td { border-left: 3px solid var(--green); }
+
+/* Footer */
+.doc-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  font-size: 11px;
+  color: var(--muted);
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  margin-top: 40px;
+}
+.doc-footer a { color: var(--blue); text-decoration: none; }
+
+/* Print */
+@media print {
+  .top-banner { position: static; }
+  .report-nav { display: none; }
+  body { background: #fff; color: #111; }
+  .container { padding: 10px 20px; }
+  .card { break-inside: avoid; }
+}
+
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-wide-left { grid-template-columns: 1fr; }
+  .timeline-strip { grid-template-columns: 1fr 1fr; }
+  .doc-header { grid-template-columns: 1fr; }
+  .container { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-banner">CONFIDENTIAL — TREAT BIOSCIENCES — PRE-PATENT — DO NOT DISTRIBUTE</div>
+
+<nav class="report-nav">
+  <a href="one-pager-investor-v2.html">Investor One-Pager</a>
+  <a href="discovery-program.html" class="active">Discovery Program</a>
+  <a href="in-vitro-testing-plan.html">In Vitro Testing Plan</a>
+  <a href="preclinical-testing-plan.html">Preclinical Testing Plan</a>
+  <span class="nav-sep">|</span>
+  <a href="#section-a">A. Overview</a>
+  <a href="#section-b">B. Target Biology</a>
+  <a href="#section-c">C. Computational Design</a>
+  <a href="#section-d">D. In Vitro Strategy</a>
+  <a href="#section-e">E. IP Strategy</a>
+  <a href="#section-f">F. Risk Register</a>
+  <a href="#section-g">G. References</a>
+</nav>
+
+<div class="container">
+
+  <!-- Document Header -->
+  <header class="doc-header">
+    <div>
+      <div class="logo-row">
+        <div class="logo-mark">Tx</div>
+        <div class="logo-text">Treat Biosciences</div>
+      </div>
+      <div class="doc-title">TRT-001 Discovery Program</div>
+      <div class="doc-subtitle">Canine-Optimized Triple Incretin Agonist — GLP-1R / GIPR / GCGR</div>
+    </div>
+    <div class="doc-meta">
+      <div>Version 1.0</div>
+      <div>Date: 2026-03-19</div>
+      <div>Classification: Discovery Phase</div>
+      <div style="margin-top: 8px;">
+        <span class="meta-badge badge-conf">CONFIDENTIAL</span>
+        <span class="meta-badge badge-disc">PRE-PATENT</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Section A: Program Overview -->
+  <section class="section" id="section-a">
+    <div class="section-header">
+      <span class="section-label">Section A</span>
+      <span class="section-title">Program Overview</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Objective</div>
+      <p>Design, computationally optimize, and in vitro validate a panel of canine-specific triple incretin agonist peptide candidates targeting canine GLP-1R, GIPR, and GCGR simultaneously, leading to the selection of a single lead compound (designated <strong>TRT-001</strong>) for progression to preclinical development.</p>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Scope</div>
+        <p>This program covers the full discovery phase: from target biology characterization and receptor structure acquisition through computational peptide design, in silico screening, variant panel synthesis, and in vitro functional validation. The program ends at <strong>Lead Candidate Selection (Gate 2)</strong>: in vitro EC50 confirmed at all three canine receptors.</p>
+        <p>Preclinical development, IND-enabling studies, and regulatory submissions are addressed in companion documents.</p>
+      </div>
+      <div class="card">
+        <div class="card-title">Strategic Context</div>
+        <p>TRT-001 is designed to be the <strong>first canine-optimized triple incretin agonist</strong>, based on the retatrutide scaffold (LY3437943; Eli Lilly), targeting GLP-1R/GIPR/GCGR.</p>
+        <p>The canine obesity market represents <span class="hl-green">~54 million affected animals</span> in the US with zero approved pharmacological treatments since dirlotapide (Slentrol) was withdrawn in 2010.</p>
+        <p>The discovery program is deliberately capital-efficient: <span class="hl-green">~$500</span> in cloud compute for the computational phase, <span class="hl-green">$29–44K</span> for in vitro validation.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Timeline Summary</div>
+      <div class="timeline-strip">
+        <div class="timeline-card">
+          <div class="timeline-phase">Computational Design</div>
+          <div class="timeline-duration">6 wks</div>
+          <div class="timeline-desc">Structure acquisition, peptide design, in silico screening</div>
+          <div class="timeline-budget">~$500</div>
+        </div>
+        <div class="timeline-card amber">
+          <div class="timeline-phase">Peptide Synthesis</div>
+          <div class="timeline-duration">2–3 wks</div>
+          <div class="timeline-desc">SPPS, QC — parallel with cell line generation</div>
+          <div class="timeline-budget">$8–12K</div>
+        </div>
+        <div class="timeline-card blue">
+          <div class="timeline-phase">Cell Line Generation</div>
+          <div class="timeline-duration">3–4 wks</div>
+          <div class="timeline-desc">Stable canine receptor cell lines — parallel</div>
+          <div class="timeline-budget">$10–15K</div>
+        </div>
+        <div class="timeline-card teal">
+          <div class="timeline-phase">In Vitro Validation</div>
+          <div class="timeline-duration">6–8 wks</div>
+          <div class="timeline-desc">Binding assays, cAMP, BRET, stability</div>
+          <div class="timeline-budget">$11–17K</div>
+        </div>
+      </div>
+      <div class="info-box green">
+        <strong>Total Discovery Phase:</strong> ~14–18 weeks &nbsp;|&nbsp; <strong>Total Budget:</strong> <span class="hl-green">$29–44K</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Deliverables</div>
+      <ol>
+        <li>AlphaFold3 models of all three canine receptors (GLP-1R, GIPR, GCGR)</li>
+        <li>Variant panel (6–8 peptide sequences) with computational support for design rationale</li>
+        <li>Provisional patent application covering lead sequences</li>
+        <li>In vitro EC50 data at all three canine receptors for all variants</li>
+        <li>Lead compound designation (TRT-001) for progression to preclinical</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Section B: Target Biology -->
+  <section class="section" id="section-b">
+    <div class="section-header blue">
+      <span class="section-label blue">Section B</span>
+      <span class="section-title">Target Biology and Rationale</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title blue">B.1 — The Case for Triple Agonism</div>
+      <p>The evolution from single to triple incretin agonism represents a stepwise increase in weight loss efficacy that is mechanistically additive, not redundant:</p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Agent</th>
+              <th>Targets</th>
+              <th>Human Weight Loss</th>
+              <th>Key Study</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Semaglutide</strong> (Wegovy)</td>
+              <td>GLP-1R</td>
+              <td>~15–17%</td>
+              <td>STEP 1 trial [1]</td>
+            </tr>
+            <tr>
+              <td><strong>Tirzepatide</strong> (Zepbound)</td>
+              <td>GLP-1R + GIPR</td>
+              <td>~22–25%</td>
+              <td>SURMOUNT-1 trial [2]</td>
+            </tr>
+            <tr>
+              <td><strong>Retatrutide</strong> <span class="pill pill-green">BEST IN CLASS</span></td>
+              <td>GLP-1R + GIPR + GCGR</td>
+              <td><span class="hl-green"><strong>24.2%</strong> (24 mg, 24 wk)</span></td>
+              <td>Jastreboff et al. 2023 [3]</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The Phase 2 retatrutide data (PMID 37351564) are decisive: at 24 weeks, the 24 mg dose achieved 24.2% mean body weight reduction vs. placebo (p&lt;0.001), with a dose-response relationship from 4 mg (8.7%) to 24 mg (24.2%). This represents <strong>the highest weight loss efficacy ever recorded for any drug</strong> in controlled clinical trials in humans.</p>
+      <div class="info-box amber">
+        <strong>Strategic Rationale:</strong> If designing de novo from scratch — as Treat Biosciences is doing — the marginal cost of engineering triple agonism versus dual agonism is negligible (sequence design complexity) while the potential efficacy gain is substantial (~5–8 percentage points of body weight).
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title blue">B.2 — Receptor-Level Biology and Mechanism</div>
+
+      <h3>GLP-1R: Appetite Suppression and Gastric Motility</h3>
+      <p>GLP-1 (7-36)NH₂ is released from intestinal L-cells in response to nutrient ingestion and acts at: the hypothalamus/brainstem (reduces food intake via inhibition of AgRP/NPY, activation of POMC [4]), GI tract (slows gastric emptying), and pancreas (insulin secretion, glucose-dependent).</p>
+      <p>In dogs, GLP-1R preferentially drives glucose uptake into peripheral tissues rather than augmenting insulin secretion (Dik et al. 2013 [5]). Dik et al. 2025 (PMID 40436366) confirmed liraglutide at 1.2 mg/dog achieved significant reductions in body condition score, body weight, appetite, cholesterol, and triglycerides over 40 days in obese Golden Retrievers [6] — <span class="hl-green">direct proof of concept</span>.</p>
+      <p><code>Human GLP-1R (P43220)</code> → <code>Canine GLP-1R (A0A8I3NUR9)</code>: <strong>89.6% overall identity; 13/13 mutagenesis-validated ligand contact residues 100% conserved</strong> [7,8]. The TMD activation pocket is functionally identical between species.</p>
+
+      <h3>GIPR: Insulin Sensitization and Adipose Signaling</h3>
+      <p>Pharmacological GIPR agonism — particularly the "superagonist" profile of retatrutide at GIPR (<strong>8.9× more potent than native GIP</strong> [9]) — has a net anti-obesity effect through adipose tissue remodeling and enhanced GLP-1R-mediated effects. Coskun et al. 2022 proposed that retatrutide's GIPR superagonism acts to desensitize the receptor in adipose tissue, shifting the balance away from lipid storage [9].</p>
+      <p><code>Human GIPR (P48546)</code> → <code>Canine GIPR (A0A8C0QLM4)</code>: 86.7% overall identity; ECL1 is 63.6% conserved (4/11 positions differ), while TM5 and TM6 are <strong>100% conserved</strong>. ECL1 divergence is the <span class="hl-amber">primary optimization target</span> for TRT-001.</p>
+
+      <h3>GCGR: Thermogenesis and Hepatic Fat Oxidation</h3>
+      <p>GCGR drives energy expenditure through hepatic fat oxidation (β-oxidation, anti-NAFLD), thermogenesis via brown adipose tissue (sympathetic nervous system), and mild ketogenesis during caloric restriction.</p>
+      <p>Critically: <strong>canine glucagon is 100% identical to human glucagon (zero amino acid differences)</strong>, confirming evolutionary matching of selective pressure. This makes the GCGR component the highest-confidence component of TRT-001.</p>
+      <p><code>Human GCGR (P47871)</code> → <code>Canine GCGR (A0A8P0SBC0)</code>: 83.5% overall identity; <strong>22/23 mutagenesis-validated contact residues conserved (95.7%)</strong>. The single substitution, H339R at ICL3, is a conservative His→Arg change (both positively charged) at the G-protein coupling interface, NOT the orthosteric ligand binding site [10].</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title blue">B.3 — Canine-Specific Pharmacology Differences</div>
+      <div class="info-box amber">
+        <strong>⚠️ Insulinotropic axis divergence:</strong> In dogs, GLP-1 drives glucose uptake via peripheral tissue mechanisms rather than primarily augmenting insulin secretion (Dik et al. 2013 [5]). For weight loss — primarily CNS and adipose tissue-mediated — this difference is not deleterious. However, dosing calibration must account for this.
+      </div>
+      <div class="info-box">
+        <strong>Hepatic expression:</strong> Canine liver is rich in GCGR but has minimal GLP-1R and GIPR expression [11]. Hepatic metabolic effects (fat oxidation, anti-steatotic) are driven primarily by GCGR — given 100% identical glucagon sequences, this pathway translates directly.
+      </div>
+      <div class="info-box amber">
+        <strong>⚠️ DPP-4 resistance and albumin binding:</strong> Canine DPP-4 substrate specificity is conserved with human, and retatrutide's Aib2 substitution prevents DPP-4 cleavage. <strong>Canine serum albumin is ~79% identical to human serum albumin</strong> — binding affinity may differ and requires empirical optimization (variant panel Section C.3) [12].
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title teal">B.4 — Receptor Conservation Summary</div>
+      <div class="info-box red">
+        ⚠️ <strong>Accession note:</strong> Use ONLY the canonical accessions below. Multiple canine entries exist in UniProt TrEMBL (different genome assemblies). Non-canonical entries are truncated or artifact-extended. See receptor-conservation-report-VERIFIED.md for full audit.
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Receptor</th>
+              <th>Human Accession</th>
+              <th>Canine Accession</th>
+              <th>Overall Identity</th>
+              <th>Contact Conservation</th>
+              <th>Risk Level</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>GLP-1R</strong></td>
+              <td><code>P43220</code> (463 aa)</td>
+              <td><code>A0A8I3NUR9</code> (464 aa)</td>
+              <td>89.6%</td>
+              <td>13/13 (100%)</td>
+              <td><span class="risk-low">LOW ✅</span></td>
+            </tr>
+            <tr>
+              <td><strong>GIPR</strong></td>
+              <td><code>P48546</code> (466 aa)</td>
+              <td><code>A0A8C0QLM4</code> (466 aa)</td>
+              <td>86.7%</td>
+              <td>ECL1: 63.6%; TM5/6: 100%</td>
+              <td><span class="risk-mod">MODERATE ⚠️</span></td>
+            </tr>
+            <tr>
+              <td><strong>GCGR</strong></td>
+              <td><code>P47871</code> (477 aa)</td>
+              <td><code>A0A8P0SBC0</code> (493 aa)</td>
+              <td>83.5%</td>
+              <td>22/23 (95.7%)</td>
+              <td><span class="risk-low">LOW ✅</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title blue">B.5 — Why the Retatrutide Scaffold</div>
+      <p>Retatrutide (LY3437943) is a 39-amino acid glucagon backbone peptide with <strong>His1-Aib2</strong> N-terminus (DPP-4 resistance), <strong>Aib13</strong> (additional stability and α-helical stabilization), <strong>K20 fatty diacid</strong> (C20 via γGlu-miniPEG₂ linker for albumin binding, t½ ~6 days in humans), and C-terminal GPSSGAPPPS extension from exendin-4 homology.</p>
+      <div class="grid-2">
+        <div class="info-box green">
+          <strong>✅ Proven triple receptor engagement:</strong> Only validated triple incretin agonist with Phase 3 human data (ongoing as of 2026).
+        </div>
+        <div class="info-box green">
+          <strong>✅ Known SAR:</strong> Coskun et al. 2022 [9] and Xu et al. 2024 [13] provide full structure-activity relationship data and cryo-EM structure.
+        </div>
+        <div class="info-box green">
+          <strong>✅ Reduced design space:</strong> Starting from a validated scaffold reduces in silico design error; allows systematic canine-specific optimization.
+        </div>
+        <div class="info-box green">
+          <strong>✅ IP differentiation:</strong> Any canine-specific modifications (particularly GIPR ECL1 optimization) create genuine patentable novelty distinct from the parent retatrutide sequence.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section C: Computational Design -->
+  <section class="section" id="section-c">
+    <div class="section-header teal">
+      <span class="section-label teal">Section C</span>
+      <span class="section-title">Computational Design Pipeline</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title teal">Overview</div>
+      <p>The computational phase (~6 weeks, <span class="hl-green">~$500 compute cost</span>) uses open-source and freely available academic tools to: acquire and validate target structures; map retatrutide contact residues onto canine receptor models; design 6–8 variant sequences optimized for canine receptors; screen variants in silico for binding energy, ADMET, and synthetic accessibility; and down-select to 6–8 candidates for synthesis.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title teal">C.1 — Step 1: Target Structure Acquisition (~1 week)</div>
+      <h3>Human Receptor Reference Structures (PDB)</h3>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Receptor</th><th>PDB Code</th><th>Resolution</th><th>Description</th><th>Reference</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>GLP-1R</td>
+              <td><span class="pill pill-blue">6X18</span></td>
+              <td>3.3 Å cryo-EM</td>
+              <td>GLP-1R with semaglutide + Gs complex</td>
+              <td>Zhao et al. 2020 [14]</td>
+            </tr>
+            <tr>
+              <td>GLP-1R</td>
+              <td><span class="pill pill-blue">7KI1</span></td>
+              <td>2.5 Å cryo-EM</td>
+              <td>GLP-1R with tirzepatide + Gs</td>
+              <td>Wang et al. 2021 [15]</td>
+            </tr>
+            <tr>
+              <td>GCGR</td>
+              <td><span class="pill pill-blue">5YQZ</span></td>
+              <td>2.9 Å cryo-EM</td>
+              <td>GCGR with glucagon + Gs</td>
+              <td>Zhang et al. 2017 [16]</td>
+            </tr>
+            <tr>
+              <td>GIPR</td>
+              <td><span class="pill pill-blue">7DTY</span></td>
+              <td>2.9 Å cryo-EM</td>
+              <td>GIPR with GIP + Gs</td>
+              <td>Zhao et al. 2021 [17]</td>
+            </tr>
+            <tr>
+              <td>Retatrutide at GLP-1R/GIPR/GCGR</td>
+              <td><span class="pill pill-teal">Cell Disc. 2024</span></td>
+              <td>Cryo-EM</td>
+              <td>Structural basis of triple agonism</td>
+              <td>Xu et al. 2024 [13]</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3>Canine Receptor Structure Acquisition: AlphaFold3 Workflow</h3>
+      <p><strong>Step 1a:</strong> Download canine receptor sequences from UniProt: GLP-1R canine A0A8I3NUR9 (464 aa), GIPR canine A0A8C0QLM4 (466 aa), GCGR canine A0A8P0SBC0 (493 aa).</p>
+      <p><strong>Step 1b:</strong> Submit each sequence to AlphaFold3 server (alphafoldserver.com) in FASTA format. Use full-length sequence including signal peptide.</p>
+      <p><strong>Step 1c:</strong> For active-state GPCR conformation, perform peptide-receptor co-folding (canine receptor sequence + retatrutide). AlphaFold3 predicts binding pose and receptor conformation simultaneously. Predicted TM-score &gt; 0.7 indicates high confidence [18]. Validate by superposition with human receptor PDB structure (expected RMSD &lt; 1.5 Å at conserved positions).</p>
+      <p><strong>Step 1d:</strong> For GIPR (primary optimization target), run additional molecular dynamics (MD) on the canine GIPR/retatrutide complex to understand ECL1 conformational dynamics.</p>
+      <p><strong>Cost:</strong> <span class="hl-green">$0 (free server) to $10 (Google Colab Pro)</span> per structure batch.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title teal">C.2 — Step 2: Scaffold Analysis — Mapping Retatrutide onto Canine Receptors (~1 week)</div>
+      <h3>Retatrutide Sequence (Reference)</h3>
+      <div class="code-block">H-[Aib]-QGTFTSDYSI-[Aib]-LDKIAQKAFVQWLIAGGPSSGAPPPS-NH2
+Position: 1  2  3456789 10 11  12  13 14 15...                           39-40
+
+Modifications:
+  Aib = α-aminoisobutyric acid at positions 2 and 13
+  C20 fatty diacid at K20 (via γGlu-miniPEG₂ linker)
+  C-terminal amidation</div>
+
+      <h3>Retatrutide Potency Profile (Coskun et al. 2022 [9])</h3>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Receptor</th><th>Retatrutide EC50</th><th>Endogenous Ligand EC50</th><th>Relative Potency</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>GLP-1R</td>
+              <td>2.5× lower potency vs. GLP-1</td>
+              <td>0.02 nM (GLP-1)</td>
+              <td>~0.05 nM</td>
+            </tr>
+            <tr>
+              <td>GIPR</td>
+              <td><span class="hl-green"><strong>8.9× superagonist</strong></span> vs. GIP</td>
+              <td>0.1 nM (GIP)</td>
+              <td>~0.011 nM</td>
+            </tr>
+            <tr>
+              <td>GCGR</td>
+              <td>2.9× lower potency vs. glucagon</td>
+              <td>0.05 nM (glucagon)</td>
+              <td>~0.145 nM</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box green">
+        <strong>GIPR Superagonism Headroom:</strong> Even if canine GIPR ECL1 divergence reduces potency by 2–5×, the 8.9× superagonism headroom means TRT-001 may retain potency comparable to or above native canine GIP even after optimization.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title teal">C.3 — Step 3: Variant Design — Canine Optimization Strategy (~2 weeks)</div>
+      <h3>Design Principles</h3>
+      <div class="grid-2">
+        <div class="info-box">
+          <strong>Principle 1 — Minimize changes from retatrutide:</strong> Every deviation from the validated scaffold introduces uncertainty. Only make changes computationally justified by canine receptor divergence analysis. The Aib2, Aib13, and K20 fatty diacid must be retained in ALL variants.
+        </div>
+        <div class="info-box amber">
+          <strong>Principle 2 — GIPR ECL1 is the primary target:</strong> The 4 ECL1 substitutions in canine GIPR create an altered binding surface for retatrutide residues 10–21. Canine-specific optimization at these positions is the primary design task.
+        </div>
+        <div class="info-box green">
+          <strong>Principle 3 — IP differentiation:</strong> Any canine-specific substitution that demonstrably improves potency at canine GIPR constitutes patentable novelty distinct from the retatrutide parent sequence. This is the "inventive step."
+        </div>
+        <div class="info-box red">
+          <strong>Principle 4 — Maintain DPP-4 resistance:</strong> Aib2 (position 2) MUST be retained in all variants. DPP-4 cleaves the His1-Ala2 bond of native GLP-1; Aib at position 2 sterically prevents this. Loss would reduce half-life by &gt;90% in vivo.
+        </div>
+      </div>
+
+      <h3>Proposed Variant Panel</h3>
+      <div class="table-wrap">
+        <table class="highlight-table">
+          <thead>
+            <tr><th>Variant</th><th>Description</th><th>Key Modifications</th><th>Design Rationale</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>TRT-001-V1</strong></td>
+              <td>Unmodified retatrutide</td>
+              <td>None (reference)</td>
+              <td>Baseline activity at canine receptors; prior art comparison</td>
+            </tr>
+            <tr>
+              <td><strong>TRT-001-V2</strong></td>
+              <td>GIPR ECL1 opt. (conservative)</td>
+              <td>Positions 12–16: 2 conservative substitutions guided by canine ECL1 AlphaFold3 model</td>
+              <td>Address 63.6% ECL1 conservation; conservative first attempt</td>
+            </tr>
+            <tr>
+              <td><strong>TRT-001-V3</strong></td>
+              <td>GIPR ECL1 opt. (aggressive)</td>
+              <td>Positions 10–21: 4 substitutions guided by canine GIPR MD simulation</td>
+              <td>Full ECL1 complementarity redesign</td>
+            </tr>
+            <tr>
+              <td><strong>TRT-001-V4</strong></td>
+              <td>Albumin binding optimization</td>
+              <td>Alternative fatty acid at K20: C18 vs. C20; explore γGlu linker length variants</td>
+              <td>Canine albumin (79% identity to human) may require adjusted lipid for optimal half-life</td>
+            </tr>
+            <tr>
+              <td><strong>TRT-001-V5</strong></td>
+              <td>Combined GIPR opt. + albumin opt.</td>
+              <td>TRT-001-V2 + TRT-001-V4 changes</td>
+              <td>Test synergy; likely the candidate with best in vivo potential</td>
+            </tr>
+            <tr>
+              <td><strong>TRT-001-V6</strong></td>
+              <td>GLP-1R ECL1 refinement</td>
+              <td>Position 9–11: Modification to improve engagement with canine A209P context</td>
+              <td>Maximize GLP-1R potency in canine context</td>
+            </tr>
+            <tr>
+              <td><strong>TRT-001-V7</strong></td>
+              <td>Extended half-life variant</td>
+              <td>Dual fatty acid or extended PEG linker at K20</td>
+              <td>Target monthly dosing (t½ &gt; 96h equivalent to Cytopoint)</td>
+            </tr>
+            <tr class="lead-row">
+              <td><strong>TRT-001-V8</strong> <span class="pill pill-green">PRIMARY IP</span></td>
+              <td>Pan-optimized lead candidate</td>
+              <td>Combined V3 + V4 + V6 changes selected by computational scoring</td>
+              <td>All-in canine optimization; primary IP position</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box amber">
+        <em>Note: Exact substitutions for V2, V3, V6, and V8 are determined post-AlphaFold3 modeling and MD simulation in Step 4. Specific GIPR ECL1 substitutions to be determined computationally based on canine ECL1 geometry.</em>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title teal">C.4 — Step 4: In Silico Screening (~1 week)</div>
+
+      <h3>Molecular Dynamics Simulations</h3>
+      <div class="grid-2">
+        <div>
+          <ul>
+            <li><strong>Platform:</strong> OpenMM 8.x [20] (open source, GPU-accelerated)</li>
+            <li><strong>Force field:</strong> CHARMM36m [21] for protein; GAFF2 for Aib and lipid modifications</li>
+            <li><strong>System:</strong> Peptide-receptor complex embedded in POPC membrane bilayer</li>
+            <li><strong>Simulation length:</strong> 10 ns minimum per complex (3 complexes per variant = 30 ns/variant)</li>
+            <li><strong>GPU:</strong> 1× NVIDIA A100 or equivalent; ~1 hr per 10 ns on A100</li>
+          </ul>
+        </div>
+        <div>
+          <p><strong>Key readouts:</strong></p>
+          <ul>
+            <li>RMSD of peptide within binding pocket (want &lt; 2 Å over 10 ns)</li>
+            <li>Number of stable hydrogen bonds at interface (want ≥ 8)</li>
+            <li>Interface buried surface area (want &gt; 1200 Å²)</li>
+            <li>Binding free energy estimate via MM-GBSA</li>
+          </ul>
+          <div class="info-box">
+            <strong>Cloud cost:</strong> ~$3/hr on Lambda Labs A100; ~30 hrs total = ~$90/variant; ~<span class="hl-green">$720 total</span> for 8 variants
+          </div>
+        </div>
+      </div>
+
+      <h3>Computational Cloud Cost Summary</h3>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Task</th><th>GPU</th><th>Duration</th><th>Cloud Cost</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>AlphaFold3 predictions (10 structures + peptide co-folds)</td>
+              <td>A100 × 1</td>
+              <td>8 hr</td>
+              <td>~$25</td>
+            </tr>
+            <tr>
+              <td>MD simulations (8 variants × 3 receptors × 10 ns)</td>
+              <td>A100 × 1</td>
+              <td>48 hr</td>
+              <td>~$145</td>
+            </tr>
+            <tr>
+              <td>Binding energy calculations (MM-PBSA)</td>
+              <td>CPU</td>
+              <td>24 hr</td>
+              <td>~$20</td>
+            </tr>
+            <tr>
+              <td>Sequence scoring (ProteinMPNN + Rosetta)</td>
+              <td>A100 × 1</td>
+              <td>4 hr</td>
+              <td>~$12</td>
+            </tr>
+            <tr style="border-top: 2px solid var(--border2);">
+              <td><strong>Total</strong></td>
+              <td></td>
+              <td>~84 GPU-hr</td>
+              <td><strong style="color: var(--green); font-size: 15px;">~$200–300</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="info-box">
+        <strong>Cloud provider recommendation:</strong> Lambda Labs (lambda.ai; ~$2–3/hr A100) or AWS p3.2xlarge (~$3.06/hr V100). Google Colab Pro+ (~$50/month) covers most tasks at lower throughput.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title teal">C.4 — Computational Tools Reference</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Tool</th><th>Version</th><th>Access</th><th>Cost</th><th>Function</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>AlphaFold3</strong></td><td>3.0</td><td>alphafoldserver.com</td><td><span class="hl-green">Free</span></td><td>Structure prediction</td></tr>
+            <tr><td><strong>ColabFold</strong></td><td>v1.5.5</td><td>Google Colab</td><td><span class="hl-green">Free</span></td><td>AlphaFold2 rapid prediction</td></tr>
+            <tr><td><strong>OpenMM</strong></td><td>8.x</td><td>openmm.org</td><td><span class="hl-green">Free</span> + GPU cost</td><td>MD simulations</td></tr>
+            <tr><td><strong>CHARMM36m FF</strong></td><td>2017</td><td>MacKerell lab</td><td><span class="hl-green">Free</span></td><td>Protein force field</td></tr>
+            <tr><td><strong>Rosetta / PyRosetta</strong></td><td>3.14</td><td>Academic license</td><td><span class="hl-green">Free</span></td><td>Docking, optimization</td></tr>
+            <tr><td><strong>RFdiffusion</strong></td><td>2024</td><td>github.com/baker-lab</td><td><span class="hl-green">Free</span></td><td>De novo backbone design</td></tr>
+            <tr><td><strong>ProteinMPNN</strong></td><td>2023</td><td>github.com/dauparas</td><td><span class="hl-green">Free</span></td><td>Sequence optimization</td></tr>
+            <tr><td><strong>SwissADME</strong></td><td>2017</td><td>swissadme.ch</td><td><span class="hl-green">Free</span></td><td>ADMET prediction</td></tr>
+            <tr><td><strong>pkCSM</strong></td><td>2015</td><td>pkcsm online</td><td><span class="hl-green">Free</span></td><td>PK prediction</td></tr>
+            <tr><td><strong>ADMETlab 2.0</strong></td><td>2021</td><td>Free web</td><td><span class="hl-green">Free</span></td><td>Toxicity prediction</td></tr>
+            <tr><td><strong>PyMOL</strong></td><td>3.x</td><td>Academic license</td><td><span class="hl-green">Free</span></td><td>Structure visualization</td></tr>
+            <tr><td><strong>HADDOCK3</strong></td><td>2024</td><td>haddock.org</td><td><span class="hl-green">Free</span></td><td>Peptide-protein docking</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title teal">C.5 — Down-Selection Criteria</div>
+      <p>Variants advancing to synthesis and in vitro testing must meet ALL of the following computational criteria:</p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Criterion</th><th>Threshold</th><th>Rationale</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Predicted Kd at GLP-1R</td><td>&lt; 100 nM</td><td>~10× above human retatrutide, allows for MD prediction uncertainty</td></tr>
+            <tr><td>Predicted Kd at GIPR</td><td>&lt; 100 nM</td><td>GIPR superagonism headroom provides buffer</td></tr>
+            <tr><td>Predicted Kd at GCGR</td><td>&lt; 100 nM</td><td>GCGR 95.7% conserved, confidence high</td></tr>
+            <tr><td>MD RMSD over 10 ns</td><td>&lt; 2.5 Å</td><td>Stable binding pose; avoids false-positive docking</td></tr>
+            <tr><td>Aggregation propensity</td><td>CamSol score &lt; 60</td><td>Injectable formulation requires adequate solubility</td></tr>
+            <tr><td>ADMET flags</td><td>Zero red flags</td><td>hERG, hepatotox, cardiotox</td></tr>
+            <tr><td>SPPS feasibility</td><td>Confirmed</td><td>No known synthesis-incompatible sequences</td></tr>
+            <tr><td>Patentability</td><td>Distinct from retatrutide</td><td>≥2 amino acid substitutions vs. parent</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section D: In Vitro Strategy -->
+  <section class="section" id="section-d">
+    <div class="section-header amber">
+      <span class="section-label amber">Section D</span>
+      <span class="section-title">In Vitro Validation Strategy (Overview)</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title amber">Assay Cascade</div>
+      <p>Following down-selection from computation, 6–8 synthesized variants (+ 3–4 controls) undergo the following in vitro assay cascade. <em>Full detail: see in-vitro-testing-plan.html</em></p>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Stage</th><th>Assay</th><th>Readout</th><th>Go/No-Go</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1</td><td>cAMP accumulation dose-response (canine GLP-1R, GIPR, GCGR)</td><td>EC50</td><td>EC50 &lt; 10 nM at ≥2/3 receptors</td></tr>
+            <tr><td>2</td><td>Radioligand binding competition (all 3 receptors)</td><td>Ki</td><td>Ki &lt; 100 nM at all receptors</td></tr>
+            <tr><td>3</td><td>β-arrestin recruitment (BRET)</td><td>Bias factor</td><td>No pronounced arrestin bias</td></tr>
+            <tr><td>4</td><td>GCGR Gs/Gi BRET</td><td>Gs vs. Gi coupling ratio</td><td>Gs-dominant signaling preserved despite H339R</td></tr>
+            <tr><td>5</td><td>Canine plasma stability</td><td>% intact at 24h</td><td>&gt; 70% intact at 24h</td></tr>
+            <tr><td>6</td><td>DPP-4 resistance (canine DPP-4)</td><td>t½ &gt; 24h</td><td>DPP-4 t½ &gt; 48h</td></tr>
+            <tr><td>7</td><td>Canine serum albumin binding (SPR)</td><td>Kd for CSA</td><td>Kd (CSA) &lt; 10 µM</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="gate-box">
+      <h3>Go/No-Go Gate (Gate 2)</h3>
+      <p><span class="hl-green">✅ GO:</span> ≥1 variant with EC50 &lt; 10 nM at GLP-1R AND EC50 &lt; 50 nM at GIPR AND EC50 &lt; 50 nM at GCGR</p>
+      <p><span class="hl-amber">⚠️ PARTIAL GO:</span> EC50 &lt; 100 nM at all 3 receptors → enter optimization round (add $8–12K, 4–6 weeks)</p>
+      <p><span class="hl-red">❌ NO-GO:</span> No variant with EC50 &lt; 1 µM at any receptor → redesign computational pipeline; re-evaluate scaffold choice</p>
+    </div>
+
+    <div class="card">
+      <div class="card-title amber">Decision Matrix</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Outcome</th><th>Action</th><th>Cost Implication</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>V8 or V5 meets GO criteria</strong></td>
+              <td>Designate as TRT-001 lead; proceed to preclinical</td>
+              <td>+$100–200K (preclinical)</td>
+            </tr>
+            <tr>
+              <td><strong>Partial success, optimization needed</strong></td>
+              <td>Synthesize 2–3 additional variants</td>
+              <td>+$4–8K synthesis, +4 wks</td>
+            </tr>
+            <tr>
+              <td><strong>GIPR weak but GLP-1R/GCGR strong</strong></td>
+              <td>Consider dual agonist fallback position</td>
+              <td>Pivot to dual program</td>
+            </tr>
+            <tr>
+              <td><strong>All variants fail</strong></td>
+              <td>Re-evaluate GIPR ECL1 strategy; consider alternative scaffolds</td>
+              <td>Decision point with investors</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section E: IP Strategy -->
+  <section class="section" id="section-e">
+    <div class="section-header blue">
+      <span class="section-label blue">Section E</span>
+      <span class="section-title">IP Strategy During Discovery</span>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title blue">E.1 — Provisional Filing Timing</div>
+        <div class="info-box green">
+          <strong>File BEFORE synthesis begins</strong> (~Week 6, end of computational phase). Cost: $2,500–5,000.
+        </div>
+        <p>The provisional establishes priority date for all claims. The 12-month window allows synthesis and in vitro data to strengthen the non-provisional application. <strong>Target filing date: Week 6.</strong></p>
+      </div>
+      <div class="card">
+        <div class="card-title blue">E.2 — What to Include</div>
+        <ul>
+          <li>Composition of matter: Each specific TRT-001 variant sequence</li>
+          <li>Method of use: Treatment of canine obesity, overweight, or metabolic syndrome</li>
+          <li>Method of treating canine diabetes mellitus (broader claim)</li>
+          <li>Method of reducing body fat in companion animals</li>
+          <li>Pharmaceutical composition: Injectable formulation</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title blue">E.4 — Freedom-to-Operate Summary</div>
+      <div class="info-box amber">
+        <em>Assumptions — full FTO analysis by patent counsel recommended before synthesis</em>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>IP Landscape Area</th><th>FTO Status</th><th>Action</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Triple incretin agonist for canines</td>
+              <td><span class="risk-low">Likely clear</span></td>
+              <td>Confirm with patent attorney</td>
+            </tr>
+            <tr>
+              <td>Retatrutide sequence per se</td>
+              <td><span class="risk-high">Lilly composition claims apply</span></td>
+              <td>Design TRT-001 variants with ≥2 substitutions</td>
+            </tr>
+            <tr>
+              <td>Canine incretin method of use</td>
+              <td><span class="risk-low">Likely clear</span></td>
+              <td>File broad method claims</td>
+            </tr>
+            <tr>
+              <td>GIPR ECL1 optimization sequences</td>
+              <td><span class="risk-low">Novel — no precedent</span></td>
+              <td>Core patentable claim</td>
+            </tr>
+            <tr>
+              <td>Canine albumin-binding lipidation</td>
+              <td><span class="risk-low">Likely clear</span></td>
+              <td>Include in composition claims</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section F: Risk Register -->
+  <section class="section" id="section-f">
+    <div class="section-header red">
+      <span class="section-label red">Section F</span>
+      <span class="section-title">Risk Register</span>
+    </div>
+
+    <div class="card">
+      <div class="card-title red">F.1 — Technical Risks</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Risk</th><th>Probability</th><th>Impact</th><th>Mitigation</th></tr>
+          </thead>
+          <tbody>
+            <tr class="risk-mod-row">
+              <td>GIPR ECL1 optimization fails — TRT-001 variants achieve no improvement over unmodified retatrutide at canine GIPR</td>
+              <td><span class="pill pill-amber">25%</span></td>
+              <td><span class="risk-mod">Moderate</span></td>
+              <td>Unmodified retatrutide may still be adequate (GIPR superagonism provides headroom); fallback to GLP-1R/GCGR dual agonist</td>
+            </tr>
+            <tr class="risk-low-row">
+              <td>AlphaFold3 model of canine GIPR ECL1 is inaccurate</td>
+              <td><span class="pill pill-amber">20%</span></td>
+              <td><span class="risk-mod">Moderate</span></td>
+              <td>Supplement with MD simulation; include structure-agnostic variants in panel</td>
+            </tr>
+            <tr class="risk-low-row">
+              <td>Retatrutide-based scaffold has poor canine DPP-4 resistance</td>
+              <td><span class="pill pill-green">5%</span></td>
+              <td><span class="risk-low">Low</span></td>
+              <td>Aib2 is highly effective; canine DPP-4 specificity conserved; low actual risk</td>
+            </tr>
+            <tr class="risk-mod-row">
+              <td>Canine albumin binding inadequate (C20 fatty diacid not optimal for canine serum albumin)</td>
+              <td><span class="pill pill-amber">40%</span></td>
+              <td><span class="risk-mod">Moderate</span></td>
+              <td>Include albumin optimization variants in panel (TRT-001-V4); quantify in vitro with SPR</td>
+            </tr>
+            <tr class="risk-low-row">
+              <td>Peptide synthesis fails or yields impure product</td>
+              <td><span class="pill pill-green">10%</span></td>
+              <td><span class="risk-low">Low</span></td>
+              <td>Use established CDMO; &gt;95% purity specification; backup CDMO identified</td>
+            </tr>
+            <tr class="risk-mod-row">
+              <td>Stable canine receptor cell lines cannot be generated</td>
+              <td><span class="pill pill-amber">15%</span></td>
+              <td><span class="risk-mod">Moderate</span></td>
+              <td>Use CRO (DiscoverX, Eurofins) to provide pre-made lines or transiently transfect</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title red">F.2 — Competitive Risks</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Risk</th><th>Probability</th><th>Impact</th><th>Mitigation</th></tr>
+          </thead>
+          <tbody>
+            <tr class="risk-high-row">
+              <td>Okava Pharmaceuticals MEOW-1 results (summer 2026) trigger entry by Zoetis or Elanco into canine GLP-1 space</td>
+              <td><span class="pill pill-amber">35%</span></td>
+              <td><span class="risk-high">High</span></td>
+              <td>Accelerate to provisional patent and in vitro data before MEOW-1 results; dog program is &gt;1 year behind even if they announce</td>
+            </tr>
+            <tr class="risk-mod-row">
+              <td>Zoetis or Elanco announces canine GLP-1 program</td>
+              <td><span class="pill pill-amber">15%</span></td>
+              <td><span class="risk-mod">Moderate</span></td>
+              <td>First-to-file patent (provisional) establishes priority; canine-specific triple agonism is differentiated from single agonist programs</td>
+            </tr>
+            <tr class="risk-low-row">
+              <td>Academic lab publishes canine GLP-1 analog sequence</td>
+              <td><span class="pill pill-green">10%</span></td>
+              <td><span class="risk-low">Low</span></td>
+              <td>Filing provisional patent before any synthesis mitigates; academic publications create prior art but not blocking IP</td>
+            </tr>
+            <tr class="risk-mod-row">
+              <td>Okava dog version enters clinical before TRT-001</td>
+              <td><span class="pill pill-amber">30%</span></td>
+              <td><span class="risk-mod">Moderate</span></td>
+              <td>TRT-001 is triple agonist vs. single; distinct IP space; regulatory pathway independent</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title red">F.3 — IP Risks</div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Risk</th><th>Probability</th><th>Impact</th><th>Mitigation</th></tr>
+          </thead>
+          <tbody>
+            <tr class="risk-high-row">
+              <td>Lilly composition claims block TRT-001 variants</td>
+              <td><span class="pill pill-green">10%</span></td>
+              <td><span class="risk-high">High</span></td>
+              <td>Design variants with ≥2 substitutions; FTO analysis by counsel before filing</td>
+            </tr>
+            <tr class="risk-high-row">
+              <td>Canine GIPR ECL1 optimization publishes in academic literature before filing</td>
+              <td><span class="pill pill-green">5%</span></td>
+              <td><span class="risk-high">High</span></td>
+              <td>File provisional at Week 6 before any public disclosure</td>
+            </tr>
+            <tr class="risk-mod-row">
+              <td>Triple incretin agonism for veterinary use found to be prior art</td>
+              <td><span class="pill pill-green">5%</span></td>
+              <td><span class="risk-mod">Moderate</span></td>
+              <td>Conduct thorough literature search before filing; method-of-use claims are robust even if composition claims are challenged</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section G: References -->
+  <section class="section" id="section-g">
+    <div class="section-header">
+      <span class="section-label">Section G</span>
+      <span class="section-title">References</span>
+    </div>
+
+    <div class="card references">
+      <ol>
+        <li>Wilding JPH, et al. Once-Weekly Semaglutide in Adults with Overweight or Obesity. <em>N Engl J Med</em> 2021;384:989–1002. DOI: <a href="https://doi.org/10.1056/NEJMoa2032183" target="_blank">10.1056/NEJMoa2032183</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/33567185/" target="_blank">33567185</a>.</li>
+
+        <li>Jastreboff AM, et al. Tirzepatide Once Weekly for the Treatment of Obesity. <em>N Engl J Med</em> 2022;387:205–216. DOI: <a href="https://doi.org/10.1056/NEJMoa2206038" target="_blank">10.1056/NEJMoa2206038</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/35658024/" target="_blank">35658024</a>.</li>
+
+        <li>Jastreboff AM, et al. Triple–Hormone-Receptor Agonist Retatrutide for Obesity — A Phase 2 Trial. <em>N Engl J Med</em> 2023;389:514–526. DOI: <a href="https://doi.org/10.1056/NEJMoa2301972" target="_blank">10.1056/NEJMoa2301972</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/37351564/" target="_blank">37351564</a>.</li>
+
+        <li>Drucker DJ. The Biology of Incretin Hormones. <em>Cell Metab</em> 2006;3:153–165. DOI: <a href="https://doi.org/10.1016/j.cmet.2006.01.004" target="_blank">10.1016/j.cmet.2006.01.004</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/16517403/" target="_blank">16517403</a>.</li>
+
+        <li>Dik B, et al. Effects of liraglutide on glucose-metabolism parameters in healthy and type 1 diabetic dogs. <em>Res Vet Sci</em> 2013;95:299–305. DOI: <a href="https://doi.org/10.1016/j.rvsc.2013.02.008" target="_blank">10.1016/j.rvsc.2013.02.008</a>.</li>
+
+        <li>Dik B, et al. Liraglutide in obese Golden Retrievers. <em>Res Vet Sci</em> 2025. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/40436366/" target="_blank">40436366</a>.</li>
+
+        <li>Underwood CR, et al. Crystal Structure of GLP-1 in Complex with the Extracellular Domain of the GLP-1 Receptor. <em>J Biol Chem</em> 2010;285:723–730. DOI: <a href="https://doi.org/10.1074/jbc.M109.033829" target="_blank">10.1074/jbc.M109.033829</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/19861722/" target="_blank">19861722</a>.</li>
+
+        <li>Song G, et al. Human GLP-1 receptor transmembrane domain structure in complex with a peptide agonist. <em>Nature</em> 2017;546:312–315. DOI: <a href="https://doi.org/10.1038/nature22399" target="_blank">10.1038/nature22399</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/28514449/" target="_blank">28514449</a>.</li>
+
+        <li>Coskun T, et al. LY3437943, a novel triple GIP, GLP-1 and glucagon receptor agonist. <em>Cell Metab</em> 2022;34:1234–1247. DOI: <a href="https://doi.org/10.1016/j.cmet.2022.07.013" target="_blank">10.1016/j.cmet.2022.07.013</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/35931026/" target="_blank">35931026</a>.</li>
+
+        <li>Qiao A, et al. Structural basis of Gs and Gi recognition by the human glucagon receptor. <em>Science</em> 2020;367:1346–1352. DOI: <a href="https://doi.org/10.1126/science.aaz5346" target="_blank">10.1126/science.aaz5346</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/32193360/" target="_blank">32193360</a>.</li>
+
+        <li>Model JFA, et al. Physiological and pharmacological actions of glucagon-like peptide-1 in domestic animals. <em>Vet Anim Sci</em> 2022;16:100245. DOI: <a href="https://doi.org/10.1016/j.vas.2022.100245" target="_blank">10.1016/j.vas.2022.100245</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/35372707/" target="_blank">35372707</a>.</li>
+
+        <li>Andersen JT, et al. Structural basis for extended half-life of the albumin-binding domain. <em>J Mol Biol</em> 2012;415:93–101. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/22100253/" target="_blank">22100253</a>.</li>
+
+        <li>Xu Y, et al. Structural basis of the triple agonism of retatrutide at GLP-1R, GIPR, and GCGR. <em>Cell Discovery</em> 2024;10:100. DOI: <a href="https://doi.org/10.1038/s41421-024-00729-3" target="_blank">10.1038/s41421-024-00729-3</a>.</li>
+
+        <li>Zhao LH, et al. Differential requirement of the extracellular domain in activation of class B G protein-coupled receptors. <em>J Biol Chem</em> 2020;295:3325–3336. [PDB: 6X18]. DOI: <a href="https://doi.org/10.1074/jbc.RA119.012153" target="_blank">10.1074/jbc.RA119.012153</a>.</li>
+
+        <li>Wang J, et al. Molecular basis of the tirzepatide-GIPR interactions. <em>Nat Commun</em> 2021. [PDB: 7KI1].</li>
+
+        <li>Zhang H, et al. Structure of the full-length glucagon class B G-protein-coupled receptor. <em>Nature</em> 2017;546:259–264. DOI: <a href="https://doi.org/10.1038/nature22363" target="_blank">10.1038/nature22363</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/28514451/" target="_blank">28514451</a>. [PDB: 5YQZ].</li>
+
+        <li>Zhao LH, et al. Structure and dynamics of the active human GIP receptor. <em>Nat Commun</em> 2021;12. DOI: <a href="https://doi.org/10.1038/s41467-021-24243-2" target="_blank">10.1038/s41467-021-24243-2</a>. [PDB: 7DTY].</li>
+
+        <li>Jumper J, et al. Highly accurate protein structure prediction with AlphaFold. <em>Nature</em> 2021;596:583–589. DOI: <a href="https://doi.org/10.1038/s41586-021-03819-2" target="_blank">10.1038/s41586-021-03819-2</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/34265844/" target="_blank">34265844</a>.</li>
+
+        <li>Raveh B, et al. Sub-angstrom Modeling of Complexes between Flexible Peptides and Globular Proteins. <em>Proteins</em> 2010;78:2029–2040. DOI: <a href="https://doi.org/10.1002/prot.22716" target="_blank">10.1002/prot.22716</a>. [Rosetta FlexPepDock].</li>
+
+        <li>Eastman P, et al. OpenMM 7: Rapid Development of High-Performance Algorithms for Molecular Dynamics. <em>PLOS Comput Biol</em> 2017;13:e1005659. DOI: <a href="https://doi.org/10.1371/journal.pcbi.1005659" target="_blank">10.1371/journal.pcbi.1005659</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/28746339/" target="_blank">28746339</a>.</li>
+
+        <li>Huang J, et al. CHARMM36m: an improved force field for folded and intrinsically disordered proteins. <em>Nat Methods</em> 2017;14:71–73. DOI: <a href="https://doi.org/10.1038/nmeth.4067" target="_blank">10.1038/nmeth.4067</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/27819658/" target="_blank">27819658</a>.</li>
+
+        <li>Wang E, et al. End-Point Binding Free Energy Calculation with MM/PBSA and MM/GBSA. <em>Chem Rev</em> 2019;119:9478–9508. DOI: <a href="https://doi.org/10.1021/acs.chemrev.9b00055" target="_blank">10.1021/acs.chemrev.9b00055</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/31172712/" target="_blank">31172712</a>.</li>
+
+        <li>Daina A, et al. SwissADME: A Free Web Tool to Evaluate Pharmacokinetics, Drug-likeness and Medicinal Chemistry Friendliness. <em>Sci Rep</em> 2017;7:42717. DOI: <a href="https://doi.org/10.1038/srep42717" target="_blank">10.1038/srep42717</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/28256516/" target="_blank">28256516</a>.</li>
+
+        <li>Pires DE, et al. pkCSM: Predicting Small-Molecule Pharmacokinetic and Toxicity Properties. <em>J Med Chem</em> 2015;58:4066–4072. DOI: <a href="https://doi.org/10.1021/acs.jmedchem.5b00104" target="_blank">10.1021/acs.jmedchem.5b00104</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/25860834/" target="_blank">25860834</a>.</li>
+
+        <li>Xiong G, et al. ADMETlab 2.0: an integrated online platform for accurate and comprehensive predictions of ADMET properties. <em>Nucleic Acids Res</em> 2021;49:W5–W14. DOI: <a href="https://doi.org/10.1093/nar/gkab255" target="_blank">10.1093/nar/gkab255</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/33893803/" target="_blank">33893803</a>.</li>
+
+        <li>Siu FY, et al. Structure of the human glucagon class B G-protein-coupled receptor. <em>Nature</em> 2013;499:444–449. DOI: <a href="https://doi.org/10.1038/nature12393" target="_blank">10.1038/nature12393</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/23863937/" target="_blank">23863937</a>.</li>
+
+        <li>Xu Y, et al. Structural insights into multiplexed pharmacological actions of tirzepatide and peptide 20. <em>Nat Commun</em> 2022;13. DOI: <a href="https://doi.org/10.1038/s41467-022-28625-8" target="_blank">10.1038/s41467-022-28625-8</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/35217653/" target="_blank">35217653</a>.</li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="doc-footer">
+    <div>Treat Biosciences — Confidential / Pre-Patent — Version 1.0 — 2026-03-19</div>
+    <div>
+      <a href="one-pager-investor-v2.html">Investor One-Pager</a> ·
+      <a href="in-vitro-testing-plan.html">In Vitro Testing Plan</a> ·
+      <a href="preclinical-testing-plan.html">Preclinical Testing Plan</a>
+    </div>
+    <div>David Kingsley, PhD — davemkingsley@gmail.com</div>
+  </footer>
+
+</div>
+</body>
+</html>

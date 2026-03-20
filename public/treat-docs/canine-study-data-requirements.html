@@ -1,0 +1,1796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canine Study Data Requirements — TRT-001 CNADA | Treat Biosciences</title>
+<style>
+:root {
+  --bg: #080812;
+  --surface: #0d0d1f;
+  --surface2: #111124;
+  --border: #1e1e38;
+  --border2: #2a2a48;
+  --text: #e2e2f0;
+  --muted: #7070a0;
+  --green: #22c55e;
+  --green-light: #86efac;
+  --green-vivid: #00ff88;
+  --amber: #f59e0b;
+  --amber-light: #fde68a;
+  --red: #ef4444;
+  --red-light: #fca5a5;
+  --blue: #818cf8;
+  --blue-dark: #4f46e5;
+  --teal: #14b8a6;
+  --font: -apple-system, 'Segoe UI', system-ui, Helvetica, sans-serif;
+  --font-mono: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+/* Confidential Watermark */
+body::before {
+  content: 'CONFIDENTIAL';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-35deg);
+  font-size: 120px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.018);
+  pointer-events: none;
+  z-index: 9999;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  user-select: none;
+}
+/* Top Banner */
+.top-banner {
+  background: #ef4444;
+  color: #fff;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  padding: 6px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+/* Report Nav */
+.report-nav {
+  display: flex; gap: 8px; padding: 12px 32px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 29px;
+  z-index: 99;
+}
+.report-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 4px 12px;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.report-nav a:hover { color: var(--text); background: var(--surface2); border-color: var(--blue); }
+.report-nav a.active { color: var(--green); background: var(--surface2); border-color: var(--green); }
+
+/* Section Nav */
+.section-nav {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 10px 40px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.section-nav span {
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-right: 4px;
+}
+.section-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  transition: all 0.2s;
+}
+.section-nav a:hover { color: var(--text); border-color: var(--border2); }
+
+/* Main layout */
+.doc-wrapper {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 32px 40px 60px;
+}
+
+/* Document Header */
+.doc-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 20px;
+  border-bottom: 2px solid var(--green);
+  padding-bottom: 20px;
+  margin-bottom: 28px;
+}
+.logo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.logo-mark {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, #22c55e, #14b8a6);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 17px; color: #080812;
+  flex-shrink: 0;
+}
+.logo-text { font-size: 18px; font-weight: 800; }
+.doc-title { font-size: 22px; font-weight: 800; line-height: 1.2; margin-bottom: 6px; }
+.doc-subtitle { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.doc-meta { text-align: right; font-size: 11px; color: var(--muted); }
+.doc-meta div { margin-bottom: 3px; }
+.meta-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+}
+.badge-conf { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.badge-v1 { background: rgba(129,140,248,0.15); color: var(--blue); border: 1px solid rgba(129,140,248,0.3); }
+.badge-cnada { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+
+/* Key metrics strip */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 14px 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-card.green::before { background: var(--green); }
+.stat-card.amber::before { background: var(--amber); }
+.stat-card.blue::before { background: var(--blue); }
+.stat-card.teal::before { background: var(--teal); }
+.stat-num {
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 4px;
+  font-family: var(--font-mono);
+}
+.stat-card.green .stat-num { color: var(--green); }
+.stat-card.amber .stat-num { color: var(--amber); }
+.stat-card.blue .stat-num { color: var(--blue); }
+.stat-card.teal .stat-num { color: var(--teal); }
+.stat-label { font-size: 10px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+.stat-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+/* Section */
+.doc-section {
+  margin-bottom: 44px;
+  scroll-margin-top: 110px;
+}
+.section-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--blue);
+  border-left: 3px solid var(--blue);
+  padding-left: 12px;
+  margin-bottom: 16px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.section-title.red { color: var(--red); border-color: var(--red); }
+.section-title.green { color: var(--green); border-color: var(--green); }
+.section-title.amber { color: var(--amber); border-color: var(--amber); }
+.section-title.teal { color: var(--teal); border-color: var(--teal); }
+.section-title.muted { color: var(--muted); border-color: var(--border2); }
+
+.subsection-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 20px 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+p { font-size: 13.5px; line-height: 1.65; margin-bottom: 12px; }
+p:last-child { margin-bottom: 0; }
+
+/* Tables */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  margin-bottom: 16px;
+}
+.data-table th {
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 2px solid var(--border2);
+}
+.data-table td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:nth-child(even) td { background: rgba(255,255,255,0.018); }
+.data-table tr:hover td { background: rgba(129,140,248,0.04); }
+.data-table tr.highlight td { background: rgba(245,158,11,0.06); }
+.data-table tr.highlight-green td { background: rgba(34,197,94,0.06); }
+.data-table tr.highlight-red td { background: rgba(239,68,68,0.06); }
+.data-table tr.critical td:first-child::before {
+  content: '⚑ ';
+  color: var(--red);
+}
+
+/* Pills */
+.pill {
+  display: inline-block; padding: 2px 8px;
+  border-radius: 99px; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.05em; white-space: nowrap;
+}
+.pill-green { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.pill-red { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+.pill-amber { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+.pill-blue { background: rgba(129,140,248,0.15); color: var(--blue); border: 1px solid rgba(129,140,248,0.3); }
+.pill-teal { background: rgba(20,184,166,0.15); color: var(--teal); border: 1px solid rgba(20,184,166,0.3); }
+.pill-muted { background: rgba(112,112,160,0.12); color: var(--muted); border: 1px solid rgba(112,112,160,0.3); }
+
+/* Callouts */
+.callout {
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin: 14px 0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.callout.warn { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.3); color: var(--amber-light); }
+.callout.danger { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3); color: var(--red-light); }
+.callout.info { background: rgba(129,140,248,0.08); border: 1px solid rgba(129,140,248,0.3); color: var(--blue); }
+.callout.success { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.3); color: var(--green-light); }
+.callout.critical {
+  background: rgba(239,68,68,0.12);
+  border: 2px solid var(--red);
+  color: var(--text);
+  display: flex; gap: 12px; align-items: flex-start;
+}
+.callout.critical .ci { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+.callout strong { font-weight: 700; }
+
+/* Statute quote */
+.statute-quote {
+  background: var(--surface2);
+  border-left: 3px solid var(--teal);
+  border-radius: 0 8px 8px 0;
+  padding: 14px 18px;
+  font-size: 13px;
+  font-style: italic;
+  color: var(--text);
+  margin: 14px 0;
+  line-height: 1.65;
+}
+.statute-quote cite {
+  display: block;
+  margin-top: 8px;
+  font-style: normal;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+/* CNADA Checklist */
+.checklist-section {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.checklist-header {
+  background: var(--surface2);
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--border2);
+}
+.checklist-header-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.checklist-header-title.green { color: var(--green); }
+.checklist-header-title.amber { color: var(--amber); }
+.checklist-header-title.blue { color: var(--blue); }
+.checklist-header-title.red { color: var(--red); }
+.checklist-item {
+  display: flex;
+  gap: 14px;
+  padding: 10px 18px;
+  border-bottom: 1px solid var(--border);
+  align-items: flex-start;
+  font-size: 13px;
+}
+.checklist-item:last-child { border-bottom: none; }
+.checklist-item:hover { background: rgba(255,255,255,0.02); }
+.check-box {
+  width: 18px; height: 18px;
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+.check-box.pending { background: rgba(112,112,160,0.15); border: 1px solid var(--muted); color: var(--muted); }
+.check-box.critical-badge { background: rgba(239,68,68,0.2); border: 1px solid var(--red); color: var(--red); }
+.check-box.supporting { background: rgba(129,140,248,0.15); border: 1px solid var(--blue); color: var(--blue); }
+.checklist-item-label { font-weight: 600; flex: 1; }
+.checklist-item-note { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+
+/* Timeline */
+.timeline {
+  position: relative;
+  padding-left: 28px;
+  margin-bottom: 16px;
+}
+.timeline::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--green), var(--teal), var(--blue));
+}
+.timeline-item {
+  position: relative;
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 12.5px;
+}
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  left: -24px;
+  top: 14px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--green);
+  border: 2px solid var(--bg);
+}
+.timeline-month {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+}
+.timeline-event { color: var(--text); line-height: 1.5; }
+.timeline-milestone .timeline-item {
+  border-color: rgba(34,197,94,0.4);
+  background: rgba(34,197,94,0.05);
+}
+.timeline-milestone .timeline-item::before { background: var(--green-vivid); }
+
+/* Power analysis */
+.power-table { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 16px; }
+.power-table th {
+  background: var(--surface2); color: var(--muted); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 12px;
+  text-align: left; border-bottom: 2px solid var(--border2);
+}
+.power-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; font-family: var(--font-mono); }
+.power-table tr:last-child td { border-bottom: none; }
+.power-table tr.recommended td { background: rgba(34,197,94,0.07); font-weight: 600; }
+.power-table tr.recommended td:first-child { color: var(--green); }
+
+/* Code block for timeline */
+.code-block {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 18px 20px;
+  font-family: var(--font-mono);
+  font-size: 11.5px;
+  line-height: 1.7;
+  color: var(--text);
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+.code-block .cb-month { color: var(--green); font-weight: 700; }
+.code-block .cb-milestone { color: var(--amber); font-weight: 700; }
+.code-block .cb-gate { color: var(--blue); }
+.code-block .cb-comment { color: var(--muted); }
+
+/* Two-col grid */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+
+/* Section card */
+.op-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+  margin-bottom: 14px;
+}
+.op-card-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.op-card-title.green { color: var(--green); }
+.op-card-title.amber { color: var(--amber); }
+.op-card-title.blue { color: var(--blue); }
+.op-card-title.teal { color: var(--teal); }
+.op-card-title.red { color: var(--red); }
+
+/* References */
+.ref-list { list-style: none; padding: 0; counter-reset: ref-counter; }
+.ref-list li {
+  counter-increment: ref-counter;
+  display: flex; gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 12px; color: var(--muted); line-height: 1.55;
+}
+.ref-list li:last-child { border-bottom: none; }
+.ref-list li::before {
+  content: '[' counter(ref-counter) ']';
+  color: var(--blue); font-family: var(--font-mono); font-size: 11px;
+  flex-shrink: 0; min-width: 28px; padding-top: 1px;
+}
+.ref-list a { color: var(--blue); text-decoration: none; }
+.ref-list a:hover { text-decoration: underline; }
+
+/* Color helpers */
+.hl-green { color: var(--green); font-weight: 600; }
+.hl-amber { color: var(--amber); font-weight: 600; }
+.hl-red { color: var(--red); font-weight: 700; }
+.hl-blue { color: var(--blue); font-weight: 600; }
+.hl-teal { color: var(--teal); font-weight: 600; }
+.mono { font-family: var(--font-mono); }
+
+/* Footer */
+.doc-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 16px;
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 40px;
+}
+
+/* Print */
+@media print {
+  .top-banner { position: static; }
+  .report-nav, .section-nav { display: none; }
+  body { background: #fff; color: #111; }
+  .doc-wrapper { padding: 10px 20px; }
+}
+
+@media (max-width: 768px) {
+  .doc-header { grid-template-columns: 1fr; }
+  .stat-strip { grid-template-columns: 1fr 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .doc-wrapper { padding: 20px 16px 40px; }
+  .report-nav { padding: 10px 16px; }
+  .section-nav { padding: 10px 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="top-banner">CONFIDENTIAL — TREAT BIOSCIENCES — PRE-PATENT — DO NOT DISTRIBUTE</div>
+
+<nav class="report-nav">
+  <a href="one-pager-investor-v2.html">Investor One-Pager</a>
+  <a href="canine-study-data-requirements.html" class="active">Canine Study Requirements</a>
+  <a href="mums-act-analysis.html">MUMS Act Analysis</a>
+</nav>
+
+<nav class="section-nav">
+  <span>Sections:</span>
+  <a href="#exec-summary">Summary</a>
+  <a href="#regulatory-framework">1. Regulatory Framework</a>
+  <a href="#data-package">2. Data Package Checklist</a>
+  <a href="#clinical-trial">3. Clinical Trial Design</a>
+  <a href="#gmp-manufacturing">4. GMP Manufacturing</a>
+  <a href="#site-requirements">5. Site Requirements</a>
+  <a href="#conditional-approval">6. Conditional Approval</a>
+  <a href="#timeline">7. Timeline</a>
+  <a href="#references">References</a>
+</nav>
+
+<div class="doc-wrapper">
+
+  <!-- Document Header -->
+  <header class="doc-header">
+    <div>
+      <div class="logo-row">
+        <div class="logo-mark">Tx</div>
+        <div class="logo-text">Treat Biosciences</div>
+      </div>
+      <div class="doc-title">Canine Clinical Study Data Requirements</div>
+      <div class="doc-subtitle">
+        TRT-001 CNADA Submission · Conditional New Animal Drug Application (ADAA 1996)<br>
+        Lead Compound: TRT-001 (Canine-Optimized Triple Incretin Agonist, GLP-1R/GIPR/GCGR)
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div>Regulatory / CMC Document</div>
+      <div>Version 1.0 — March 2026</div>
+      <div>Pathway: CNADA | 21 CFR Part 514</div>
+      <div style="margin-top:6px">
+        <span class="meta-badge badge-conf">CONFIDENTIAL</span>
+        <span class="meta-badge badge-cnada">CNADA</span>
+        <span class="meta-badge badge-v1">PRE-PATENT</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Key Metrics -->
+  <div class="stat-strip">
+    <div class="stat-card green">
+      <div class="stat-num">18–24</div>
+      <div class="stat-label">Months to Conditional Approval</div>
+      <div class="stat-sub">From first preclinical data</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-num">$500–700K</div>
+      <div class="stat-label">Estimated Total Cost</div>
+      <div class="stat-sub">Preclinical + GMP + clinical</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-num">40–60</div>
+      <div class="stat-label">Dogs — Clinical Study</div>
+      <div class="stat-sub">20–30/group, 12-week RCT</div>
+    </div>
+    <div class="stat-card teal">
+      <div class="stat-num">30–36mo</div>
+      <div class="stat-label">First Revenue</div>
+      <div class="stat-sub">From computational start</div>
+    </div>
+  </div>
+
+  <!-- Executive Summary -->
+  <section id="exec-summary" class="doc-section">
+    <div class="section-title green">Executive Summary</div>
+
+    <p>This document defines the complete data package required to (1) conduct a clinical study in client-owned obese dogs and (2) submit a Conditional New Animal Drug Application (CNADA) to FDA CVM for TRT-001. The CNADA pathway — established by the Animal Drug Availability Act of 1996 (ADAA) — permits approval on a <strong>"reasonable expectation of effectiveness"</strong> standard, enabling commercial sales during the conditional period while full effectiveness studies are completed. This lower evidentiary threshold is the primary regulatory advantage of the CNADA route over a full NADA. From first INAD-supporting data to conditional approval is estimated at <strong class="hl-green">18–24 months</strong>.</p>
+
+    <div class="callout critical">
+      <div class="ci">⚠️</div>
+      <div>
+        <strong>Single Highest-Priority Regulatory Action:</strong> Request a pre-submission meeting with FDA CVM immediately. This is free ($0) and potentially saves months of rework. Submit request to ADE-PreSubMeeting@fda.hhs.gov. Allow 4–8 weeks from request to meeting date. See §1.3 for full prep guidance.
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 1: Regulatory Framework -->
+  <section id="regulatory-framework" class="doc-section">
+    <div class="section-title">1. Regulatory Framework</div>
+
+    <!-- 1.1 Agency Classification -->
+    <div class="subsection-title">1.1 Agency Classification: FDA CVM vs. USDA CVB</div>
+    <p>Canine therapeutics are regulated by one of two federal agencies depending on product classification:</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>FDA CVM (Drug)</th>
+          <th>USDA CVB (Biologic)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Statutory authority</td>
+          <td class="mono">21 U.S.C. §321 et seq. (FD&C Act)</td>
+          <td class="mono">21 U.S.C. §151 et seq. (Virus-Serum-Toxin Act)</td>
+        </tr>
+        <tr>
+          <td>Pathway</td>
+          <td>NADA or CNADA</td>
+          <td>Veterinary Biological License</td>
+        </tr>
+        <tr>
+          <td>Product type</td>
+          <td>Small molecules, peptides, synthetic peptides</td>
+          <td>Vaccines, antibodies, blood products, certain proteins</td>
+        </tr>
+        <tr>
+          <td>Peptide threshold</td>
+          <td>&lt;40 amino acids → Drug (FDA)</td>
+          <td>&gt;40 amino acids → likely Biologic (USDA)</td>
+        </tr>
+        <tr>
+          <td>Conditional approval</td>
+          <td><span class="pill pill-green">✅ Yes (ADAA 1996)</span></td>
+          <td><span class="pill pill-red">❌ No equivalent pathway</span></td>
+        </tr>
+        <tr>
+          <td>Approval examples</td>
+          <td>Apoquel, Galliprant, Entyce, Slentrol</td>
+          <td>Cytopoint, Librela, Trutect</td>
+        </tr>
+        <tr class="highlight-green">
+          <td><strong>TRT-001 Classification</strong></td>
+          <td colspan="2"><strong class="hl-green">FDA CVM (Drug)</strong> — ~39 aa synthetic peptide; BPCIA ≥40 aa threshold for biologics not met; CNADA pathway available</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <strong>⚠️ Action Required:</strong> Formally confirm drug vs. biologic classification at the pre-submission meeting (see §1.4). This is the single highest-priority early regulatory question for TRT-001.
+    </div>
+
+    <!-- 1.2 INAD Requirements -->
+    <div class="subsection-title">1.2 INAD Requirements — Investigational New Animal Drug (21 CFR Part 511)</div>
+    <p>An INAD exemption is required before conducting any clinical investigation in animals intended to support a CNADA submission.</p>
+
+    <div class="two-col">
+      <div>
+        <div class="op-card">
+          <div class="op-card-title red">When INAD IS Required</div>
+          <ul style="font-size: 12.5px; padding-left: 16px; line-height: 1.8;">
+            <li>Any study in target species (dogs) where data will be submitted to FDA CVM <span class="mono">[21 CFR §511.1(a)]</span></li>
+            <li>Import of investigational drug across state lines <span class="mono">[21 CFR §511.1(c)]</span></li>
+            <li>Studies at multiple investigator sites <span class="mono">[21 CFR §511.1(b)(4)(ii)]</span></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="op-card">
+          <div class="op-card-title green">When INAD is NOT Required</div>
+          <ul style="font-size: 12.5px; padding-left: 16px; line-height: 1.8;">
+            <li>In vitro studies (cell lines, biochemical assays)</li>
+            <li>Exploratory, non-GLP rodent studies not intended for submission</li>
+            <li>Preliminary, non-GLP single-dose tolerance studies in beagles if solely for internal decision-making (confirm with regulatory counsel)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <p><strong>INAD Content Requirements</strong> (Notice of Claimed Investigational Exemption, 21 CFR §511.1(b)(4)):</p>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Required Element</th>
+          <th>TRT-001 Content</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Identity of the new animal drug</td>
+          <td>TRT-001: chemical name, sequence (IUPAC), molecular weight, CAS number (if assigned); describe Aib modifications and lipid anchor</td>
+        </tr>
+        <tr>
+          <td>Labeling and pertinent information</td>
+          <td>Draft preclinical label; summary of in vitro pharmacology; any published literature on mechanism (GLP-1, GIP, glucagon agonism in dogs)</td>
+        </tr>
+        <tr>
+          <td>Name and address of each clinical investigator</td>
+          <td>Texas A&M CVM PI; any additional site PIs; CRO contact</td>
+        </tr>
+        <tr>
+          <td>Approximate number of animals to be treated</td>
+          <td>PK study: 18–24 beagles; 28-day tox: 16 beagles; body comp pilot: 3–5 obese client-owned dogs; clinical study: 40–60 obese client-owned dogs</td>
+        </tr>
+        <tr>
+          <td>CRO information (if applicable)</td>
+          <td>Name and address per §511.1(f); signed CRO transfer-of-obligations agreement</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout info">
+      <strong>INAD Costs:</strong> No FDA user fee for INAD filing [21 CFR §511.1]. Regulatory consultant preparation fee: $3,000–8,000. Filing date: Month 5 (see Timeline, §7). <strong>Annual progress reports</strong> required once INAD is active [21 CFR §511.1(d)(4)].
+    </div>
+
+    <!-- 1.3 Pre-Submission Conference -->
+    <div class="subsection-title">1.3 Pre-Submission Conference Process</div>
+    <p>FDA CVM offers free pre-submission meetings through the Division of Animal Drugs and Feeds. This is arguably <strong>the single highest-value regulatory action Treat can take</strong>, costing $0 and potentially saving months of rework.</p>
+
+    <div class="two-col">
+      <div class="op-card">
+        <div class="op-card-title teal">How to Request</div>
+        <ul style="font-size: 12.5px; padding-left: 16px; line-height: 1.8;">
+          <li>Submit written request to FDA CVM ONADE via the pre-submission meeting request form at fda.gov/cvm</li>
+          <li>Email: <strong>ADE-PreSubMeeting@fda.hhs.gov</strong></li>
+          <li>Include: company name, product name/code, proposed indication, 1–2 page background summary, and 5–10 specific questions</li>
+          <li>Scheduling: Allow <strong>4–8 weeks</strong> from request to meeting date</li>
+        </ul>
+      </div>
+      <div class="op-card">
+        <div class="op-card-title amber">What to Prepare</div>
+        <ol style="font-size: 12.5px; padding-left: 16px; line-height: 1.8;">
+          <li>One-page product overview: TRT-001 structure, mechanism, proposed indication, peptide length (~39 aa), route (SC injection)</li>
+          <li>Draft development plan: Phase 0 (computational) → Phase 1 (in vitro) → Phase 2 (preclinical) → Phase 3 (clinical) → CNADA</li>
+          <li>Specific questions list (see below)</li>
+        </ol>
+      </div>
+    </div>
+
+    <p><strong>Questions to Ask at Pre-Submission Meeting:</strong></p>
+    <ol style="font-size: 13.5px; padding-left: 22px; line-height: 1.9; margin-bottom: 16px;">
+      <li>Is TRT-001 (~39 aa synthetic peptide) classified as a drug (FDA CVM) or a biologic (USDA CVB)?</li>
+      <li>Does canine obesity qualify as a "minor use in a major species" for CNADA purposes under ADAA 1996? <em>(Note: MUMS Act qualification is separate and unlikely — see mums-act-analysis.html)</em></li>
+      <li>What is the minimum safety data package required for CNADA (is a 28-day repeat-dose study in beagles sufficient, or is a 90-day study required)?</li>
+      <li>Will FDA CVM accept a non-GLP pilot PK study (4 dogs) followed by a GLP-compliant 28-day study, or must the PK study also be GLP-compliant?</li>
+      <li>What constitutes "reasonable expectation of effectiveness" for a canine weight loss drug — will in vitro receptor engagement data plus published GLP-1 data in obese dogs (Dik et al. 2025, PMID 40436366) be sufficient without a formal pilot efficacy study?</li>
+      <li>Are there specific FDA CVM GFIs that address safety pharmacology requirements for GLP-1 class agonists in dogs?</li>
+      <li>What analytical methods does FDA CVM require for identity/purity of a ~39 aa modified peptide?</li>
+    </ol>
+
+    <!-- 1.4 GLP vs Non-GLP -->
+    <div class="subsection-title">1.4 GLP vs. Non-GLP Study Requirements</div>
+    <p>Good Laboratory Practice (GLP) requirements under 21 CFR Part 58 apply to nonclinical laboratory studies intended to support safety submissions to FDA. The following matrix governs TRT-001:</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Study</th>
+          <th>GLP Required?</th>
+          <th>Rationale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>In vitro cAMP/binding assays</td>
+          <td><span class="pill pill-muted">No</span></td>
+          <td>Not a nonclinical laboratory safety study</td>
+        </tr>
+        <tr>
+          <td>Plasma stability, DPP-4 resistance</td>
+          <td><span class="pill pill-muted">No</span></td>
+          <td>Exploratory; not directly submitted as safety data</td>
+        </tr>
+        <tr>
+          <td>PK study (single-dose, 18–24 beagles)</td>
+          <td><span class="pill pill-amber">Recommended</span></td>
+          <td>If PK data will be submitted to FDA, GLP preferred; non-GLP PK acceptable for early INAD with GLP follow-up (confirm with FDA)</td>
+        </tr>
+        <tr class="highlight-red">
+          <td><strong>28-day repeat-dose toxicology</strong></td>
+          <td><span class="pill pill-red">✅ REQUIRED</span></td>
+          <td>Core safety study for CNADA; must be GLP-compliant (21 CFR Part 58)</td>
+        </tr>
+        <tr class="highlight-red">
+          <td><strong>Safety pharmacology (CV, CNS, resp)</strong></td>
+          <td><span class="pill pill-red">✅ REQUIRED</span></td>
+          <td>ICH S7A adapted for veterinary; required for CNADA submission (may be embedded in tox study)</td>
+        </tr>
+        <tr>
+          <td>Body composition pilot (3–5 obese dogs)</td>
+          <td><span class="pill pill-muted">Non-GLP acceptable</span></td>
+          <td>Pilot; data submitted as supporting information, not primary safety/effectiveness evidence</td>
+        </tr>
+        <tr>
+          <td>CNADA clinical study (40–60 dogs)</td>
+          <td><span class="pill pill-amber">GLP-compliant preferred; GCP-equivalent required</span></td>
+          <td>Principal effectiveness study supporting conditional approval</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout warn">
+      <strong>Practical Note:</strong> The distinction between GLP and non-GLP matters for both FDA submission and CRO cost. GLP studies at KEVA Animal Health or BRT cost <strong>30–50% more</strong> than equivalent non-GLP studies. Plan carefully which studies must be GLP from the outset; retrofitting non-GLP studies to GLP status is generally impossible.
+    </div>
+
+    <!-- 1.5 GFI Numbers -->
+    <div class="subsection-title">1.5 Relevant FDA CVM Guidance for Industry (GFI) Numbers</div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>GFI #</th>
+          <th>Title</th>
+          <th>Relevance to TRT-001</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="mono"><strong>#3</strong></td>
+          <td>General Principles for Evaluating the Safety of Compounds Used in Food-Producing Animals</td>
+          <td>Limited (companion animal); general safety principles applicable</td>
+        </tr>
+        <tr>
+          <td class="mono"><strong>#33</strong></td>
+          <td>Target Animal Safety Studies for Veterinary Drugs</td>
+          <td><span class="pill pill-red">Primary Reference</span> for TAS study design — defines study types, animal numbers, duration, endpoints</td>
+        </tr>
+        <tr>
+          <td class="mono"><strong>#36</strong></td>
+          <td>Target Animal Safety — Considerations for Specific Animal Populations</td>
+          <td>Companion animal-specific guidance; addresses client-owned dog studies</td>
+        </tr>
+        <tr>
+          <td class="mono"><strong>#61</strong></td>
+          <td>Minor Use and Minor Species Animal Drug Availability — MUMS Act Implementation</td>
+          <td>Relevant for MUMS designation assessment (see mums-act-analysis.html); also references CNADA pathway</td>
+        </tr>
+        <tr>
+          <td class="mono"><strong>#185</strong></td>
+          <td>Recommendations for Sponsors of Naturally Occurring Animal Models of Human Disease</td>
+          <td><span class="pill pill-red">Key Reference</span> for client-owned dog study design; governs owner consent, IACUC, inclusion/exclusion criteria</td>
+        </tr>
+        <tr>
+          <td class="mono"><strong>#216</strong></td>
+          <td>Bioanalytical Method Validation for Animal Drugs</td>
+          <td>Required reference for LC-MS/MS validation (PK study)</td>
+        </tr>
+        <tr>
+          <td class="mono"><strong>#240</strong></td>
+          <td>Preparation, Filing, and Review of an INAD Application</td>
+          <td><span class="pill pill-amber">Required Reading</span> for INAD submission</td>
+        </tr>
+        <tr>
+          <td class="mono"><strong>#257</strong></td>
+          <td>Development of Target Animal Safety Data to Support NADA/CNADA Submissions</td>
+          <td><span class="pill pill-red">Most Current</span> safety study guidance; defines acceptable TAS study designs</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Section 2: Data Package Checklist -->
+  <section id="data-package" class="doc-section">
+    <div class="section-title amber">2. Complete Data Package Checklist for CNADA</div>
+
+    <p>The following checklist represents all components of a complete CNADA application (21 CFR §514.1(b)). Items marked <span class="pill pill-red">[CRITICAL]</span> are gate-limiting for conditional approval; items marked <span class="pill pill-blue">[SUPPORTING]</span> strengthen but do not gate the application.</p>
+
+    <!-- 2.1 CMC -->
+    <div class="checklist-section">
+      <div class="checklist-header">
+        <div class="checklist-header-title blue">2.1 Chemistry, Manufacturing &amp; Controls (CMC)</div>
+      </div>
+
+      <div class="checklist-item">
+        <div class="check-box critical-badge">!</div>
+        <div>
+          <div class="checklist-item-label">Drug Substance Identity — Full sequence, Aib positions, fatty acid chain (C20 diacid), linker (γGlu-miniPEG₂), lipidation site (K17 or K20)</div>
+          <div class="checklist-item-note"><span class="pill pill-red">CRITICAL</span> RP-HPLC + LC-MS/MS; ≥95% purity; no single impurity &gt;0.5%</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box critical-badge">!</div>
+        <div>
+          <div class="checklist-item-label">Drug Substance Purity &amp; Potency — Cell-based bioassay at canine GLP-1R; EC50 from cAMP assay (CV ≤30%)</div>
+          <div class="checklist-item-note"><span class="pill pill-red">CRITICAL</span> Potency relative to reference standard</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box critical-badge">!</div>
+        <div>
+          <div class="checklist-item-label">GMP Compliance — 21 CFR Part 211; batch manufactured at GMP-certified CDMO (Bachem, PolyPeptide Group, or equivalent)</div>
+          <div class="checklist-item-note"><span class="pill pill-red">CRITICAL</span> Certificate of Analysis for each batch required</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box critical-badge">!</div>
+        <div>
+          <div class="checklist-item-label">API Stability — Accelerated (40°C/75% RH, 6 months); Real-time (5°C, study duration +6 months); Intermediate (25°C/60% RH)</div>
+          <div class="checklist-item-note"><span class="pill pill-red">CRITICAL</span> Per ICH Q1A(R2)-adapted; initiate with GMP batch manufacture</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box pending">○</div>
+        <div>
+          <div class="checklist-item-label">Structural Characterization — Peptide mapping, MS/MS sequencing; full tryptic digest; confirm all modifications</div>
+          <div class="checklist-item-note"><span class="pill pill-amber">Supporting</span></div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box critical-badge">!</div>
+        <div>
+          <div class="checklist-item-label">Drug Product (Sterile SC Injection) — Aseptic manufacture; 0.22 µm PVDF filtration; validated fill-finish at GMP facility</div>
+          <div class="checklist-item-note"><span class="pill pill-red">CRITICAL</span> USP &lt;71&gt; sterility; USP &lt;788&gt; particulates; Type I borosilicate glass vials</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box pending">○</div>
+        <div>
+          <div class="checklist-item-label">Container/Closure System — Bromobutyl stoppers; validated CCIT; extractables/leachables study</div>
+          <div class="checklist-item-note">Compatibility with stainless steel, glass, LDPE; endotoxin ≤10 EU/mg API</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box critical-badge">!</div>
+        <div>
+          <div class="checklist-item-label">Drug Product Stability — Accelerated + Real-time + photostability + in-use (24h at room temperature after first puncture)</div>
+          <div class="checklist-item-note"><span class="pill pill-red">CRITICAL</span> Must be initiated at same time as clinical batch manufacture</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.2 Nonclinical Safety -->
+    <div class="checklist-section">
+      <div class="checklist-header">
+        <div class="checklist-header-title red">2.2 Nonclinical Safety Data</div>
+      </div>
+
+      <div class="checklist-item">
+        <div class="check-box pending">○</div>
+        <div>
+          <div class="checklist-item-label">Single-Dose Acute Toxicology — 18–24 beagles; 3 dose levels (0.1×, 1×, 5× therapeutic); clinical signs, ECG, clinical chemistry at Days 7 and 28</div>
+          <div class="checklist-item-note">May be incorporated into ascending dose PK study</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box critical-badge">!</div>
+        <div>
+          <div class="checklist-item-label">28-Day Repeat-Dose GLP Toxicology — 16 beagles (4 groups × 4); 4 dose levels; full necropsy + H&amp;E panel; NOAEL ≥ 3× therapeutic dose required</div>
+          <div class="checklist-item-note"><span class="pill pill-red">CRITICAL · GLP Required (21 CFR Part 58)</span> Study Director + QAU oversight; raw data retention ≥5 years</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box critical-badge">!</div>
+        <div>
+          <div class="checklist-item-label">Safety Pharmacology Core Battery — CV (24h ECG telemetry); Respiratory (plethysmography); CNS (modified Irwin test); GI (emesis monitoring, GI transit)</div>
+          <div class="checklist-item-note"><span class="pill pill-red">CRITICAL</span> Per ICH S7A adapted for veterinary use (FDA CVM GFI #257)</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box critical-badge">!</div>
+        <div>
+          <div class="checklist-item-label">GI Tolerability — Dogs are significantly more sensitive to GLP-1 agonist-induced emesis than humans. Grade ≤2 emesis (≤3 episodes) in ≤2/4 animals at therapeutic dose is acceptable threshold</div>
+          <div class="checklist-item-note"><span class="pill pill-red">Class Effect — Must Characterize Comprehensively</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.3 PK Data -->
+    <div class="checklist-section">
+      <div class="checklist-header">
+        <div class="checklist-header-title teal">2.3 Pharmacokinetics (ADME Profile in Target Species)</div>
+      </div>
+
+      <div class="checklist-item">
+        <div class="check-box critical-badge">!</div>
+        <div>
+          <div class="checklist-item-label">PK Parameters — Cmax, Tmax, AUC₀-∞, terminal t½ (target ≥96h for monthly dosing), Vd, CL, Bioavailability F (target ≥50%)</div>
+          <div class="checklist-item-note"><span class="pill pill-red">CRITICAL</span> LC-MS/MS; n=6–8 dogs/dose level; NCA using Phoenix WinNonlin</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box pending">○</div>
+        <div>
+          <div class="checklist-item-label">Canine Albumin Binding — SPR (Biacore); Kd (CSA) &lt; 10 µM for extended half-life</div>
+          <div class="checklist-item-note">DPP-4 resistance &lt;5% cleavage at 60 min; plasma stability ≥70% intact at 24h</div>
+        </div>
+      </div>
+
+      <table class="data-table" style="margin: 8px 18px 14px; width: calc(100% - 36px);">
+        <thead>
+          <tr>
+            <th>PK Parameter</th>
+            <th>Method</th>
+            <th>Target Value for TRT-001</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Cmax (SC)</td><td>LC-MS/MS plasma samples</td><td>Calibrated to therapeutic dose</td></tr>
+          <tr><td>Tmax (SC)</td><td>Direct observation</td><td>Expected: 4–12h (SC peptide)</td></tr>
+          <tr><td>Terminal t½</td><td>Log-linear regression</td><td class="hl-green"><strong>Target: ≥96h (4 days)</strong> for monthly dosing</td></tr>
+          <tr><td>Bioavailability (F)</td><td>AUCSC/AUCIV</td><td class="hl-green"><strong>Target: ≥50%</strong></td></tr>
+          <tr><td>Canine albumin binding</td><td>SPR (Biacore)</td><td>Kd (CSA) &lt; 10 µM</td></tr>
+          <tr><td>DPP-4 resistance</td><td>In vitro DPP-4 cleavage assay</td><td>&lt;5% cleavage at 60 min</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 2.4 TAS -->
+    <div class="checklist-section">
+      <div class="checklist-header">
+        <div class="checklist-header-title red">2.4 Target Animal Safety (TAS) Study [CRITICAL]</div>
+      </div>
+
+      <div class="checklist-item">
+        <div class="check-box critical-badge">!</div>
+        <div>
+          <div class="checklist-item-label">TAS Study — Cornerstone of the CNADA safety package per GFI #33 and GFI #257</div>
+          <div class="checklist-item-note"><span class="pill pill-red">CRITICAL · GLP Required</span> Healthy beagles (6–10/group); 1×, 3×, 5× therapeutic dose multiples; 28-day minimum; NOAEL determination with statistical support</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box supporting">i</div>
+        <div>
+          <div class="checklist-item-label">Combined PK/TAS Design — Collect PK samples during TAS study; most cost-efficient approach. Texas A&amp;M CVM or KEVA Animal Health can execute.</div>
+          <div class="checklist-item-note"><span class="pill pill-blue">Cost Optimization</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.5 EA -->
+    <div class="checklist-section">
+      <div class="checklist-header">
+        <div class="checklist-header-title green">2.5 Environmental Assessment (EA) / Categorical Exclusion</div>
+      </div>
+
+      <div class="checklist-item">
+        <div class="check-box supporting">i</div>
+        <div>
+          <div class="checklist-item-label">Categorical Exclusion Claim — TRT-001 likely qualifies under 21 CFR §25.33(a)(1): synthetic peptide; companion animal; minimal environmental release; rapid peptidase degradation</div>
+          <div class="checklist-item-note"><span class="pill pill-green">Likely Available</span> File Form FDA 3744a with CNADA submission; max ~1 kg peptide released annually at projected peak sales</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.6 Effectiveness -->
+    <div class="checklist-section">
+      <div class="checklist-header">
+        <div class="checklist-header-title amber">2.6 Effectiveness Data — "Reasonable Expectation" Standard</div>
+      </div>
+
+      <table class="data-table" style="margin: 0; border-radius: 0;">
+        <thead>
+          <tr>
+            <th>Evidence Component</th>
+            <th>Status</th>
+            <th>Strength</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>GLP-1/GIP/glucagon receptors expressed in dogs; mediate metabolic regulation</td>
+            <td><span class="pill pill-green">Existing literature</span></td>
+            <td><span class="pill pill-green">HIGH</span></td>
+          </tr>
+          <tr>
+            <td>Receptor conservation: GLP-1R 89.6%, GCGR 83.5%, GIPR 86.7% with critical binding pocket conservation</td>
+            <td><span class="pill pill-green">Verified (receptor-conservation-report)</span></td>
+            <td><span class="pill pill-green">HIGH</span></td>
+          </tr>
+          <tr>
+            <td>PoC: liraglutide causes significant weight loss in obese dogs (Dik et al. 2025, PMID 40436366)</td>
+            <td><span class="pill pill-green">Published</span></td>
+            <td><span class="pill pill-green">HIGH</span></td>
+          </tr>
+          <tr class="highlight-red">
+            <td><strong>TRT-001 in vitro activity: EC50 at canine GLP-1R, GIPR, GCGR (Gate 2 data)</strong></td>
+            <td><span class="pill pill-amber">To be generated</span></td>
+            <td><span class="pill pill-red">REQUIRED</span></td>
+          </tr>
+          <tr class="highlight-red">
+            <td><strong>Preclinical PK: systemic exposure achieved with SC injection in dogs</strong></td>
+            <td><span class="pill pill-amber">To be generated</span></td>
+            <td><span class="pill pill-red">REQUIRED</span></td>
+          </tr>
+          <tr>
+            <td>Preliminary efficacy: body weight or DEXA body composition change in 3–5 obese dogs (pilot)</td>
+            <td><span class="pill pill-amber">To be generated (optional)</span></td>
+            <td><span class="pill pill-blue">SUPPORTING</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="checklist-item">
+        <div class="check-box supporting">i</div>
+        <div>
+          <div class="checklist-item-label">ProZinc Precedent — FDA CVM granted CNADA for feline diabetes (widely prevalent, major species) on mechanism + limited pilot data. Low risk of CNADA rejection on effectiveness grounds if Gate 2 in vitro data confirm receptor engagement.</div>
+          <div class="checklist-item-note"><span class="pill pill-blue">[ASSUMPTION]</span> Confirm interpretation at pre-submission meeting</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.7 Labeling -->
+    <div class="checklist-section">
+      <div class="checklist-header">
+        <div class="checklist-header-title amber">2.7 Proposed Labeling (21 CFR §514.1(b)(5))</div>
+      </div>
+
+      <div class="checklist-item">
+        <div class="check-box critical-badge">!</div>
+        <div>
+          <div class="checklist-item-label">Conditional Approval Statement — Label must include: <em>"CONDITIONALLY APPROVED BY FDA PENDING A FULL DEMONSTRATION OF EFFECTIVENESS UNDER FEDERAL LAW."</em></div>
+          <div class="checklist-item-note"><span class="pill pill-red">REQUIRED</span> Per ADAA 1996</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box pending">○</div>
+        <div>
+          <div class="checklist-item-label">Indication — Treatment of obesity in dogs (defined as BCS ≥7/9). Dosage and administration, contraindications, warnings (GI side effects, pancreatitis history), adverse reactions</div>
+          <div class="checklist-item-note">Prescription-only (Rx) under 21 CFR §530</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2.8 Investigator Qualifications -->
+    <div class="checklist-section">
+      <div class="checklist-header">
+        <div class="checklist-header-title blue">2.8 Investigator Qualifications &amp; 2.9 FOI Summary</div>
+      </div>
+
+      <div class="checklist-item">
+        <div class="check-box pending">○</div>
+        <div>
+          <div class="checklist-item-label">Investigator Qualifications — CV documenting veterinary clinical research experience; current USDA Accreditation or equivalent; signed Form FDA 1572 equivalent; DACVIM or DACVN board certification recommended</div>
+          <div class="checklist-item-note">Lead investigator: licensed DVM/VMD; experience with clinical trial management; DEXA scanning capability required</div>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <div class="check-box pending">○</div>
+        <div>
+          <div class="checklist-item-label">FOI Summary (21 CFR §514.1(b)(12)) — Concise public version of approval package: drug description, effectiveness summary, safety summary, manufacturing summary (non-proprietary)</div>
+          <div class="checklist-item-note">Published on FDA CVM website upon approval; protects proprietary IP details</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 3: Clinical Trial Design -->
+  <section id="clinical-trial" class="doc-section">
+    <div class="section-title teal">3. Clinical Trial Design — Conditional Approval Study</div>
+
+    <!-- 3.1 Study Overview -->
+    <div class="subsection-title">3.1 Study Overview</div>
+    <table class="data-table">
+      <thead><tr><th>Parameter</th><th>Specification</th></tr></thead>
+      <tbody>
+        <tr><td>Study type</td><td>Randomized, double-blind, placebo-controlled clinical trial</td></tr>
+        <tr><td>Population</td><td>Client-owned obese dogs (BCS ≥7/9)</td></tr>
+        <tr><td>Setting</td><td>University veterinary teaching hospitals ± specialty referral practices</td></tr>
+        <tr class="highlight-green"><td><strong>Primary endpoint</strong></td><td>% change in body weight from baseline at 12 weeks</td></tr>
+        <tr><td>Secondary endpoints</td><td>BCS, DEXA body composition, metabolic panel, owner-reported outcomes</td></tr>
+        <tr><td>Duration</td><td>12 weeks (primary); 24-week extension</td></tr>
+        <tr><td>Blinding</td><td>Double-blind; investigators, owners, and assessors blinded</td></tr>
+        <tr><td>Randomization</td><td>Block randomization by weight class (permuted blocks of 4 and 6)</td></tr>
+        <tr><td>Target enrollment</td><td>40–60 dogs (20–30 per group)</td></tr>
+      </tbody>
+    </table>
+
+    <!-- 3.2 Inclusion Criteria -->
+    <div class="subsection-title">3.2 Inclusion Criteria</div>
+    <div class="two-col">
+      <div class="op-card">
+        <div class="op-card-title green">Obesity Definition (All Must Be Met)</div>
+        <ul style="font-size: 12.5px; padding-left: 16px; line-height: 1.8;">
+          <li>BCS ≥ 7/9 on standardized 9-point scale [3]</li>
+          <li>Body weight ≥ 120% of breed-specific ideal body weight (IBW)</li>
+          <li>DEXA-confirmed fat mass ≥ 35% of total body mass at screening</li>
+        </ul>
+      </div>
+      <div class="op-card">
+        <div class="op-card-title blue">Other Inclusion</div>
+        <ul style="font-size: 12.5px; padding-left: 16px; line-height: 1.8;">
+          <li>Species: Canis lupus familiaris; all breeds acceptable</li>
+          <li>Age: 1–10 years (exclude puppies with open growth plates)</li>
+          <li>Weight: 5–50 kg (exclude toy breeds &lt;5 kg)</li>
+          <li>Owner consent + commitment to maintain constant caloric intake</li>
+          <li>Ability to present for follow-up at Weeks 0, 4, 8, 12, 24</li>
+        </ul>
+      </div>
+    </div>
+
+    <p><strong>Preferred breeds for recruitment</strong> (high obesity prevalence): Labrador Retriever, Beagle, Golden Retriever, Cocker Spaniel, Basset Hound, mixed breed.</p>
+
+    <!-- 3.3 Exclusion Criteria -->
+    <div class="subsection-title">3.3 Exclusion Criteria</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Condition / Drug Class</th>
+          <th>Exclusion Rationale</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Hypothyroidism (T4 &lt; reference range)</td><td>Secondary obesity confound; medication interaction</td></tr>
+        <tr><td>Diabetes mellitus (fasted glucose &gt; 200 mg/dL)</td><td>GLP-1/GCGR metabolic effects on glucose; safety concern</td></tr>
+        <tr><td>Hyperadrenocorticism (Cushing's)</td><td>Steroid-driven obesity; confound</td></tr>
+        <tr class="highlight-red"><td><strong>Active pancreatitis (current or within 12 months)</strong></td><td>GLP-1R class effect concern — CRITICAL exclusion</td></tr>
+        <tr><td>Hepatopathy (ALT &gt; 3× ULN at screening)</td><td>Liver safety monitoring concern</td></tr>
+        <tr><td>Severe renal insufficiency (creatinine &gt; 2.5× ULN)</td><td>Unknown renal elimination profile</td></tr>
+        <tr><td>Uncontrolled cardiac disease</td><td>GCGR cardiac effects; arrhythmia risk</td></tr>
+        <tr class="highlight-red"><td><strong>Thyroid neoplasia (any history)</strong></td><td>GLP-1R class effect: C-cell changes</td></tr>
+        <tr><td>Active neoplasia</td><td>Confound; immunologic effects</td></tr>
+        <tr><td>Pregnancy or lactation</td><td>Safety unknown</td></tr>
+        <tr><td>Corticosteroids (systemic, within 30 days)</td><td>Weight-promoting; confound</td></tr>
+        <tr><td>Exogenous insulin (within 30 days)</td><td>Glucose homeostasis interaction</td></tr>
+        <tr><td>Appetite stimulants / Entyce (within 30 days)</td><td>Direct pharmacologic interaction</td></tr>
+        <tr><td>Other investigational drugs</td><td>No concurrent trials</td></tr>
+        <tr><td>Owner plans travel &gt; 2 weeks during study</td><td>Cannot maintain study compliance</td></tr>
+      </tbody>
+    </table>
+
+    <!-- 3.4 Power Analysis -->
+    <div class="subsection-title">3.4 Sample Size and Power Analysis</div>
+    <p><strong>Primary Endpoint:</strong> % change in body weight from baseline at 12 weeks</p>
+
+    <div class="op-card">
+      <div class="op-card-title teal">Assumptions</div>
+      <ul style="font-size: 12.5px; padding-left: 16px; line-height: 1.8;">
+        <li><strong>Expected treatment effect:</strong> −10% body weight in TRT-001 group (conservative; based on liraglutide in obese Golden Retrievers, Dik et al. 2025; human retatrutide Phase 2: ~22–28% at max dose)</li>
+        <li><strong>Expected placebo effect:</strong> −1 to −2% (mild caloric awareness effect in monitored animals)</li>
+        <li><strong>Δ (group difference) = 8–10%</strong></li>
+        <li><strong>Standard deviation (σ) = 8–10%</strong> (based on intra-group variability from liraglutide studies in dogs [4])</li>
+        <li><strong>Type I error (α) = 0.05</strong> (two-sided) | <strong>Power (1-β) = 0.80</strong></li>
+      </ul>
+    </div>
+
+    <div class="stat-quote" style="background: var(--surface2); border: 1px solid var(--border2); border-radius: 8px; padding: 12px 16px; font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin: 12px 0;">
+      n per group = 2σ²(z₀.₀₂₅ + z₀.₂₀)² / δ²&nbsp;&nbsp;&nbsp;where z₀.₀₂₅ = 1.96, z₀.₂₀ = 0.842, (z sum)² = 7.85
+    </div>
+
+    <table class="power-table">
+      <thead>
+        <tr>
+          <th>Scenario</th>
+          <th>σ</th>
+          <th>δ</th>
+          <th>n per group</th>
+          <th>n with 20% dropout</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Conservative</td>
+          <td>10%</td>
+          <td>8%</td>
+          <td>24</td>
+          <td><strong>30</strong></td>
+        </tr>
+        <tr class="recommended">
+          <td>✅ Base case (recommended)</td>
+          <td>8%</td>
+          <td>10%</td>
+          <td>13</td>
+          <td><strong>16</strong></td>
+        </tr>
+        <tr>
+          <td>Pessimistic</td>
+          <td>12%</td>
+          <td>8%</td>
+          <td>35</td>
+          <td><strong>44</strong></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout success">
+      <strong>Recommended target enrollment: 30 dogs per group (60 total)</strong>, providing ≥80% power under the conservative scenario with 20% dropout accommodation. Consistent with FDA CVM's expectation for "reasonable expectation of effectiveness" conditional approval. Stratify by weight class (5–15 kg, 16–30 kg, 31–50 kg) and sex; permuted block randomization.
+    </div>
+
+    <!-- 3.5 Blinding -->
+    <div class="subsection-title">3.5 Blinding</div>
+    <p><strong>Double-blind:</strong> Owner, treating veterinarian, and outcome assessors are all blinded. Only the unblinded pharmacist/dispensary and data manager see treatment assignment. The placebo injection must be visually identical to TRT-001 — same formulation vehicle, same pH, same osmolality, same injection volume, same color. Requires a matched placebo manufacturing batch at the same CDMO.</p>
+
+    <!-- 3.6 Dosing Regimen -->
+    <div class="subsection-title">3.6 Dosing Regimen (Pending Gate 3 PK Data)</div>
+    <table class="data-table">
+      <thead><tr><th>Parameter</th><th>Preclinical Target</th><th>Clinical Implementation</th></tr></thead>
+      <tbody>
+        <tr><td>Route</td><td>SC injection</td><td>SC injection by veterinarian or trained owner</td></tr>
+        <tr><td>Dose (initial)</td><td>Estimated 1–5 mg/dog flat dose or 0.1–0.25 mg/kg</td><td>Flat dose preferred (reduces volume calculation error)</td></tr>
+        <tr><td>Dose escalation</td><td>25–50% increments every 4 weeks</td><td>Start at 25% of projected therapeutic dose; escalate at Weeks 4 and 8</td></tr>
+        <tr><td>Frequency</td><td>Weekly or monthly (per PK t½)</td><td>If t½ ≥96h: monthly; if t½ 24–96h: bi-weekly; if &lt;24h: weekly</td></tr>
+        <tr><td>Injection volume</td><td>≤1 mL per injection</td><td>Manufacture at appropriate concentration</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout info"><strong>Dose escalation rationale:</strong> GLP-1 agonist-induced GI side effects (nausea, vomiting) are the primary cause of early discontinuation. Incremental dose escalation — as used with semaglutide (Ozempic/Wegovy) and liraglutide — significantly reduces GI adverse events. This is particularly critical in dogs, which vomit more readily than humans in response to GLP-1 class drugs.</div>
+
+    <!-- 3.7 Endpoints -->
+    <div class="subsection-title">3.7 Endpoints</div>
+    <p><strong>Primary:</strong> % change in body weight from baseline to Week 12 (calibrated veterinary scale; dogs fasted ≥4 hours; same scale per site per individual dog).</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Secondary Endpoint</th>
+          <th>Assessment</th>
+          <th>Timepoints</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Body Condition Score (BCS, 9-point)</td><td>Blinded veterinary assessment</td><td>Weeks 0, 4, 8, 12, 24</td></tr>
+        <tr class="highlight-green"><td><strong>DEXA body composition: lean mass &amp; fat mass (kg and % BW)</strong></td><td>DEXA scan under sedation; same unit per site</td><td><strong>Weeks 0, 12, 24 — Critical Differentiator</strong></td></tr>
+        <tr><td>Lean:fat mass ratio</td><td>Calculated from DEXA</td><td>Weeks 0, 12, 24</td></tr>
+        <tr><td>Fasted glucose (mg/dL)</td><td>Venipuncture (4h fast)</td><td>Weeks 0, 4, 8, 12, 24</td></tr>
+        <tr><td>Fasted insulin (µIU/mL)</td><td>Species-validated canine insulin ELISA</td><td>Weeks 0, 8, 12, 24</td></tr>
+        <tr><td>Total cholesterol, LDL-C, HDL-C, triglycerides</td><td>Standard lipid panel</td><td>Weeks 0, 4, 8, 12, 24</td></tr>
+        <tr><td>HbA1c (%)</td><td>Glycosylated hemoglobin (canine-validated assay)</td><td>Weeks 0, 12, 24</td></tr>
+        <tr><td>Safety chemistry (ALT, AST, ALP, creatinine, BUN)</td><td>Standard panels</td><td>Weeks 0, 4, 8, 12</td></tr>
+        <tr><td>Food intake (kcal/day)</td><td>Owner-recorded daily caloric intake log</td><td>Weeks 0–12 weekly average</td></tr>
+        <tr><td>Physical activity (steps/day)</td><td>Commercially validated accelerometer (FitBark or equivalent)</td><td>Continuous Weeks 0–12</td></tr>
+        <tr><td>Owner QoL (CBPI adapted for obesity/mobility)</td><td>Validated questionnaire composite score</td><td>Weeks 0, 4, 8, 12</td></tr>
+        <tr><td>Appetite (owner-reported VAS or Likert scale)</td><td>Structured questionnaire</td><td>Weeks 0, 2, 4, 6, 8, 10, 12</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout success">
+      <strong>Why DEXA is the Critical Differentiator:</strong> GLP-1 agonists in humans cause 25–40% of their total weight loss from lean mass (muscle) [5]. TRT-001's triple agonism — particularly the GCGR thermogenic component — may preferentially drive fat loss while preserving lean mass. DEXA-documented lean:fat mass ratio change distinguishes a weight-loss drug that causes cachexia from one that selectively reduces fat. This data will be pivotal for marketing positioning vs. any future single-agent GLP-1 competitor.
+    </div>
+
+    <!-- 3.8 Safety Monitoring -->
+    <div class="subsection-title">3.8 Safety Monitoring</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Grade</th>
+          <th>Definition</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="pill pill-green">Grade 1 (Mild)</span></td><td>Transient; does not interfere with normal activity</td><td>Continue dosing; document</td></tr>
+        <tr><td><span class="pill pill-amber">Grade 2 (Moderate)</span></td><td>Interferes with normal activity; does not require intervention</td><td>Continue dosing; veterinarian assessment at next visit; may reduce dose</td></tr>
+        <tr><td><span class="pill pill-amber">Grade 3 (Severe)</span></td><td>Significantly interferes with normal activity; requires intervention</td><td>Suspend dosing; veterinarian assessment within 24h; dose modification per protocol</td></tr>
+        <tr><td><span class="pill pill-red">Grade 4 (Life-threatening)</span></td><td>Immediately life-threatening</td><td>Discontinue permanently; emergency veterinary care; <strong>SAE report within 24h</strong></td></tr>
+      </tbody>
+    </table>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Event</th>
+          <th>Protocol Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Grade 2 emesis (≥2 episodes/day) at any dose level</td><td>Hold dose escalation for 4 weeks; anti-emetic pretreatment (maropitant, ondansetron) at investigator discretion</td></tr>
+        <tr><td>Grade 3 emesis or anorexia (&gt;48h)</td><td>Reduce to previous dose level; anti-emetic treatment; contact medical monitor</td></tr>
+        <tr class="highlight-red"><td>Grade 4 (any event)</td><td>Permanently discontinue; report as SAE within 24h [21 CFR §514.80(b)(2)]</td></tr>
+        <tr class="highlight-red"><td>BW decrease &gt;20% of baseline</td><td>Dose reduction; nutritional assessment; consult medical monitor</td></tr>
+        <tr class="highlight-red"><td>ALT or AST &gt; 5× ULN</td><td>Suspend dosing; repeat LFTs within 72h; permanent discontinuation if confirmed</td></tr>
+        <tr class="highlight-red"><td>Pancreatitis confirmed (lipase + imaging)</td><td>Permanently discontinue; SAE report</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout info">
+      <strong>Medical Monitor:</strong> Independent DACVIM board-certified internist (not affiliated with study) reviews all Grade 3–4 events and SAEs. <strong>DSMB:</strong> Lightweight 2–3 member board (veterinary internist, biostatistician, pharmacologist) for pre-specified interim safety review at 25% enrollment.
+    </div>
+
+    <!-- 3.9 Statistical Analysis -->
+    <div class="subsection-title">3.9 Statistical Analysis Plan</div>
+    <table class="data-table">
+      <thead><tr><th>Analysis</th><th>Population</th><th>Method</th></tr></thead>
+      <tbody>
+        <tr class="highlight-green">
+          <td><strong>Primary (ITT)</strong></td>
+          <td>All randomized dogs with ≥1 post-baseline assessment</td>
+          <td>ANCOVA: % BW change ~ Treatment + Baseline BW + Sex + Weight Strata; two-sided α = 0.05</td>
+        </tr>
+        <tr>
+          <td>Per-Protocol (PP)</td>
+          <td>Dogs completing ≥80% of planned doses without major protocol deviation</td>
+          <td>Same ANCOVA model as ITT</td>
+        </tr>
+        <tr>
+          <td>Missing Data (Primary)</td>
+          <td>All available data</td>
+          <td>MMRM with unstructured covariance matrix (MAR assumption)</td>
+        </tr>
+        <tr>
+          <td>Sensitivity analyses</td>
+          <td>—</td>
+          <td>LOCF (conservative); Multiple imputation (50 imputations, FCS)</td>
+        </tr>
+        <tr>
+          <td>Responder analysis</td>
+          <td>Supplemental</td>
+          <td>Proportion achieving ≥5% and ≥10% BW reduction; Fisher's exact test</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Section 4: GMP Manufacturing -->
+  <section id="gmp-manufacturing" class="doc-section">
+    <div class="section-title blue">4. GMP Manufacturing for Clinical Supply</div>
+
+    <div class="subsection-title">4.1 Batch Size Requirements</div>
+    <ul style="font-size: 13.5px; padding-left: 20px; line-height: 1.8; margin-bottom: 16px;">
+      <li>60 dogs × 3 doses (monthly × 3 months for 12-week primary endpoint) = 180 doses</li>
+      <li>2× overage for assay, retain samples, stability = 360 doses</li>
+      <li>24-week extension: additional 180 doses</li>
+      <li>Preclinical (PK, tox, pilot): estimated 100–200 doses equivalent</li>
+      <li><strong>Total: ~540 doses minimum</strong> → Recommended single GMP batch of <strong>10–20 mg API</strong></li>
+    </ul>
+
+    <div class="subsection-title">4.2 CDMO Qualification</div>
+    <p>TRT-001 complexity (39 aa, Aib modifications, C20 fatty acid lipidation) requires a specialist CDMO with SPPS capability for long modified peptides. Research-grade synthesis (CPC Scientific, LifeTein) is acceptable through Gate 2; GMP synthesis for clinical supply requires a full GMP CDMO:</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>CDMO</th>
+          <th>Location</th>
+          <th>Relevant Capability</th>
+          <th>Est. Cost (10 mg GMP API)</th>
+          <th>Timeline</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="highlight-green">
+          <td><strong>Bachem</strong></td>
+          <td>Bubendorf, Switzerland + US sites</td>
+          <td>World leader GMP peptide synthesis; Aib and lipidation expertise; semaglutide/liraglutide manufacturer</td>
+          <td>$80,000–150,000</td>
+          <td>6–10 months</td>
+        </tr>
+        <tr class="highlight-green">
+          <td><strong>PolyPeptide Group</strong></td>
+          <td>Multiple EU + US sites</td>
+          <td>GMP peptide; established track record with complex modified peptides</td>
+          <td>$75,000–130,000</td>
+          <td>6–10 months</td>
+        </tr>
+        <tr>
+          <td>CPC Scientific</td>
+          <td>Sunnyvale, CA</td>
+          <td>Modified peptides (research→GMP transition); less established GMP track record</td>
+          <td>$40,000–80,000</td>
+          <td>4–7 months</td>
+        </tr>
+        <tr>
+          <td>Peptide Solutions</td>
+          <td>UK</td>
+          <td>GMP peptides up to 50 aa; Aib experienced</td>
+          <td>$70,000–120,000</td>
+          <td>5–8 months</td>
+        </tr>
+        <tr>
+          <td>AmbioPharm</td>
+          <td>North Augusta, SC</td>
+          <td>US-based GMP peptide synthesis; FDA-compliant</td>
+          <td>$70,000–130,000</td>
+          <td>6–9 months</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout success">
+      <strong>Recommendation:</strong> Bachem or PolyPeptide Group for the first GMP batch; both have established FDA CVM submissions experience and CMC documentation templates. Initiate CDMO qualification at <strong>Month 8</strong> (after Gate 3 clearance) to ensure GMP supply available by Month 13 for clinical study.
+    </div>
+
+    <div class="subsection-title">4.3 Analytical Methods</div>
+    <p>All analytical methods for GMP drug substance and drug product must be validated per ICH Q2(R1) (adapted for veterinary drugs per FDA CVM GFI #216):</p>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Parameter</th>
+          <th>Specification</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>RP-HPLC (identity + purity)</td><td>Identity (retention time); purity (% by area)</td><td>Identity: ±2% RT vs. reference standard; Purity: ≥95.0%</td></tr>
+        <tr><td>LC-MS/MS</td><td>Molecular weight; peptide map</td><td>Observed MW within 5 ppm of theoretical; all amino acids confirmed</td></tr>
+        <tr><td>Amino acid analysis (AAA)</td><td>Composition</td><td>Matches theoretical sequence; quantitative per mole</td></tr>
+        <tr><td>Bioassay (cell-based potency)</td><td>EC50 at canine GLP-1R cell line</td><td>Potency 70–130% of reference standard; CV ≤30%</td></tr>
+        <tr><td>Endotoxin (LAL)</td><td>Bacterial endotoxin</td><td>≤10 EU/mg API; ≤5 EU/kg/dose</td></tr>
+        <tr><td>Residual solvents (GC headspace)</td><td>ICH Q3C compliance</td><td>Per ICH Q3C limits (acetonitrile, DMF, DMSO, NMP)</td></tr>
+        <tr><td>Osmolality</td><td>Drug product tonicity</td><td>280–320 mOsm/kg</td></tr>
+        <tr><td>pH</td><td>Drug product</td><td>6.0 ± 0.5</td></tr>
+        <tr><td>Particulates</td><td>Subvisible particles</td><td>USP &lt;788&gt; compliant</td></tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title">4.4 Stability Program</div>
+    <div class="two-col">
+      <div>
+        <p style="font-weight: 600; margin-bottom: 8px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;">Drug Substance (API)</p>
+        <table class="data-table">
+          <thead><tr><th>Condition</th><th>Duration</th><th>Acceptance</th></tr></thead>
+          <tbody>
+            <tr><td>Accelerated (40°C/75% RH)</td><td>6 months</td><td>≥90% purity; no new impurity &gt;0.1%</td></tr>
+            <tr><td>Intermediate (25°C/60% RH)</td><td>12 months</td><td>≥93% purity</td></tr>
+            <tr><td>Real-time (5°C ± 3°C)</td><td>Study duration +6 mo</td><td>≥95% purity</td></tr>
+            <tr><td>Freeze-thaw cycling (5 cycles)</td><td>Per ICH Q1A</td><td>≤2% purity loss per cycle</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <p style="font-weight: 600; margin-bottom: 8px; font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em;">Drug Product (SC Injection)</p>
+        <table class="data-table">
+          <thead><tr><th>Condition</th><th>Duration</th><th>Acceptance</th></tr></thead>
+          <tbody>
+            <tr><td>Accelerated (40°C/75% RH)</td><td>6 months</td><td>≥90% purity; endotoxin ≤5 EU/kg/dose</td></tr>
+            <tr><td>Real-time (5°C ± 3°C)</td><td>Study duration +6 mo</td><td>≥95% purity; all QA within spec</td></tr>
+            <tr><td>Photostability (ICH Q1B)</td><td>—</td><td>No significant change after light exposure</td></tr>
+            <tr><td>In-use (25°C after first puncture)</td><td>24h</td><td>≥95% purity; sterility maintained</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="subsection-title">4.5 Clinical Label Requirements (21 CFR §511.1(b)(1))</div>
+    <div class="statute-quote">
+      "Caution. Contains a new animal drug for use only in investigational animals in clinical trials. Not for use in humans."
+      <cite>Required language per 21 CFR §511.1(b)(1)</cite>
+    </div>
+    <p>Additional required elements: protocol number, dog ID/randomization number, dose level (blinded), batch/lot number, storage conditions (<em>Refrigerate at 2–8°C; do not freeze; protect from light</em>), expiry date. All dispensed study drug must be tracked through an accountability log.</p>
+  </section>
+
+  <!-- Section 5: Site Requirements -->
+  <section id="site-requirements" class="doc-section">
+    <div class="section-title">5. Site Requirements</div>
+
+    <div class="subsection-title">5.1 IACUC Approval</div>
+    <div class="callout warn">
+      <strong>⚠️ NOT the IRB:</strong> Studies in veterinary animals at US institutions are governed by the Institutional Animal Care and Use Committee (IACUC) under the Animal Welfare Act (9 CFR Parts 1–4) and the PHS Policy on Humane Care and Use of Laboratory Animals — not the IRB (which governs human subjects under 45 CFR Part 46). Plan IACUC submission ≥8 weeks before first dog enrollment.
+    </div>
+
+    <table class="data-table">
+      <thead><tr><th>IACUC Requirement</th><th>Details</th></tr></thead>
+      <tbody>
+        <tr><td>Full protocol submission at each institution</td><td>Texas A&M CVM, NC State CVM, or clinical practice sites; describe animal welfare provisions: enrichment, housing, pain assessment, humane endpoints</td></tr>
+        <tr><td>For client-owned dog studies (per GFI #185)</td><td>IACUC approval still required; IACUC reviews research protocol, not standard of care; animals must receive standard of care regardless of study drug assignment</td></tr>
+        <tr><td>Review timeline</td><td>Full committee review: 4–8 weeks; expedited review (7–10 days) if protocol meets minimal risk criteria</td></tr>
+        <tr><td>SAE reporting</td><td>Adverse events must be reported to IACUC per institutional policy</td></tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title">5.2 Informed Client Consent</div>
+    <p><strong>Minimum Consent Elements:</strong></p>
+    <ol style="font-size: 13.5px; padding-left: 20px; line-height: 1.8; margin-bottom: 16px;">
+      <li>Description of the study purpose in lay language</li>
+      <li>Experimental nature of TRT-001 (not yet approved; investigational new animal drug)</li>
+      <li>Potential risks: GI side effects (nausea, vomiting), injection site reactions, unknown long-term effects</li>
+      <li>Expected benefits: potential for significant weight loss (10–25%) with metabolic improvement</li>
+      <li>Alternative treatments available (diet, exercise — no approved drugs)</li>
+      <li>Right to withdraw at any time without penalty to the dog's standard of care</li>
+      <li>Statement that dog's medical records related to the study will be reviewed by FDA</li>
+    </ol>
+    <p>Written (not verbal only); signed by legal owner of record; copy provided to owner; must be IACUC-approved at each site. Spanish version recommended for Texas sites.</p>
+
+    <div class="subsection-title">5.3 Veterinary Investigator Qualifications</div>
+    <table class="data-table">
+      <thead><tr><th>Requirement</th><th>Specification</th></tr></thead>
+      <tbody>
+        <tr><td>Degree</td><td>DVM or VMD</td></tr>
+        <tr><td>Licensure</td><td>Currently licensed in the state where study is conducted</td></tr>
+        <tr><td>Board certification (recommended)</td><td>DACVIM (internal medicine) or DACVN (veterinary nutrition); not legally required but strongly supported by FDA</td></tr>
+        <tr><td>Research experience</td><td>≥1 prior clinical trial as principal or sub-investigator; GCP-equivalent training; IACUC training</td></tr>
+        <tr><td>Financial disclosure</td><td>Signed conflict-of-interest disclosure; investigators with Treat Biosciences equity should serve as sub-investigators, not PI</td></tr>
+      </tbody>
+    </table>
+
+    <p><strong>Preferred sites and lead investigators:</strong></p>
+    <ol style="font-size: 13.5px; padding-left: 20px; line-height: 1.8;">
+      <li><strong>Texas A&M CVM</strong> (College Station, TX) — primary site; internal medicine faculty with canine clinical trial experience; DEXA capability</li>
+      <li><strong>NC State College of Veterinary Medicine</strong> (Raleigh, NC) — companion animal clinical trials program; established body composition research</li>
+      <li><strong>University of Tennessee CVM</strong> (Knoxville, TN) or <strong>UC Davis School of Veterinary Medicine</strong> (Davis, CA) — backup expansion sites</li>
+    </ol>
+
+    <div class="subsection-title">5.4 Data Management and 21 CFR Part 11 Compliance</div>
+    <div class="callout info">
+      <strong>Recommended EDC:</strong> REDCap (Research Electronic Data Capture) — free, validated for 21 CFR Part 11 compliance, hosted by most US academic medical centers. Electronic records must have access controls, audit trails, and system validation documentation. Digital signatures must be linked to the signer and cannot be repudiated.
+    </div>
+
+    <div class="subsection-title">5.5 Record Retention</div>
+    <p>Per 21 CFR §514.3 and §514.80, CNADA records must be retained for the longer of: (a) 2 years after the drug is no longer marketed, or (b) 5 years after approval/conditional approval. INAD records per 21 CFR §511.1(d)(3) must be retained for the duration of the INAD + 5 years. <strong>Practical implication: Plan for ≥7 years minimum record retention from completion of the clinical study.</strong></p>
+  </section>
+
+  <!-- Section 6: Conditional Approval Specifics -->
+  <section id="conditional-approval" class="doc-section">
+    <div class="section-title green">6. Conditional Approval Specifics</div>
+
+    <div class="subsection-title">6.1 CNADA vs. Full NADA Comparison</div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>CNADA (Conditional Approval, ADAA 1996)</th>
+          <th>Full NADA</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Statutory authority</td>
+          <td class="mono">21 U.S.C. §360b(n); ADAA 1996</td>
+          <td class="mono">21 U.S.C. §360b(b)</td>
+        </tr>
+        <tr>
+          <td>Effectiveness standard</td>
+          <td><span class="pill pill-green">"Reasonable expectation of effectiveness"</span></td>
+          <td><span class="pill pill-amber">"Substantial evidence" (adequate well-controlled studies)</span></td>
+        </tr>
+        <tr class="highlight-green">
+          <td><strong>Revenue during approval period</strong></td>
+          <td><strong class="hl-green">✅ YES — commercial sales permitted immediately upon conditional approval</strong></td>
+          <td><strong class="hl-red">❌ No pre-approval sales</strong></td>
+        </tr>
+        <tr>
+          <td>Initial approval period</td>
+          <td>5 years (with annual renewal)</td>
+          <td>Permanent (until withdrawal)</td>
+        </tr>
+        <tr>
+          <td>FDA CVM review time</td>
+          <td>~6–12 months</td>
+          <td>~1–3 years</td>
+        </tr>
+        <tr>
+          <td>Estimated time to first sales</td>
+          <td><span class="pill pill-green">18–24 months from first preclinical data</span></td>
+          <td>3–5 years</td>
+        </tr>
+        <tr>
+          <td>Estimated total cost to approval</td>
+          <td><span class="pill pill-green">$300–500K</span></td>
+          <td>$2–10M</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="subsection-title">6.2 Eligibility Confirmation: "Minor Use in a Major Species"</div>
+    <div class="callout success">
+      <strong>Critical distinction:</strong> The "minor use" concept for CNADA eligibility under ADAA 1996 is DISTINCT from "minor use" under the MUMS Act of 2004. Under ADAA 1996, "minor use" is interpreted more broadly to include any indication for which there is no currently approved treatment. Because there are currently <strong>no FDA-approved drugs for canine obesity</strong> (Slentrol was withdrawn in 2010), canine obesity DOES qualify as a "minor use" under ADAA 1996 for CNADA purposes.
+    </div>
+    <div class="callout warn"><strong>[IMPORTANT]</strong> Confirm this interpretation explicitly at the FDA CVM pre-submission meeting. See mums-act-analysis.html for full MUMS vs. ADAA 1996 analysis.</div>
+
+    <div class="subsection-title">6.3 Annual Renewal Requirements</div>
+    <p>Under 21 CFR §514.1(b)(8)(ii), the conditionally approved drug must be renewed annually:</p>
+    <ol style="font-size: 13.5px; padding-left: 20px; line-height: 1.8; margin-bottom: 16px;">
+      <li>Submit annual report demonstrating progress toward full effectiveness demonstration</li>
+      <li>Include: status of ongoing effectiveness studies; any new safety information; manufacturing/quality update</li>
+      <li>Renewal fee: ~$750–1,500/year (confirm current ADUFA rates)</li>
+      <li>FDA CVM reviews renewal and either renews conditional approval or requires additional data</li>
+    </ol>
+    <p><strong>Maximum conditional approval period: 10 years</strong> (initial 5 years + one 5-year extension under ADAA 1996). At year 5: submit full effectiveness data converting to full NADA, apply for extension, or withdraw.</p>
+
+    <div class="subsection-title">6.4 Generating Revenue During Conditional Approval</div>
+    <div class="callout success">
+      <strong>Primary Commercial Advantage:</strong> Product can be sold to licensed veterinarians (Rx drug) upon conditional approval. Revenue begins at approximately Month 30 from start (~Month 21 if faster execution). Veterinary drug prices are unregulated by FDA. The CNADA pathway enables Treat to generate revenue while still conducting full-scale effectiveness studies — dramatically changing the financing model vs. the 3–5 year pre-revenue period of a full NADA strategy.
+    </div>
+  </section>
+
+  <!-- Section 7: Timeline -->
+  <section id="timeline" class="doc-section">
+    <div class="section-title amber">7. Milestone Timeline: First Preclinical Data to CNADA Submission</div>
+
+    <div class="code-block">
+<span class="cb-month">Month 1–3:</span>   Computational design + provisional patent filing (Phase 0)
+<span class="cb-month">Month 2–4:</span>   Peptide synthesis and cell line generation (Phase 1 in vitro)
+<span class="cb-month">Month 3–4:</span>   Pre-submission meeting request submitted to FDA CVM
+<span class="cb-month">Month 4–5:</span>   Pre-submission meeting with FDA CVM; confirm drug/biologic, CNADA eligibility
+<span class="cb-month">Month 5:</span>     INAD filing (after pre-sub meeting confirms strategy)
+             <span class="cb-gate">Gate 2: In vitro cAMP EC50 data confirmed at all three canine receptors</span>
+<span class="cb-month">Month 5–6:</span>   PK study preparation: CRO onboarding, IACUC approval, beagle acquisition
+<span class="cb-month">Month 6–7:</span>   PK study execution (4-week sampling, n=18–24 beagles; non-GLP or GLP)
+<span class="cb-month">Month 7–8:</span>   PK data analysis; dose selection for clinical study
+             Formulation optimization (albumin binding data from Gate 2 informs this)
+<span class="cb-month">Month 7–8:</span>   28-day repeat-dose GLP toxicology study (parallel with formulation work)
+<span class="cb-month">Month 8:</span>     Begin GMP CDMO contracting and batch record development
+<span class="cb-month">Month 8–11:</span>  Body composition pilot (3–5 obese dogs, 8–12 weeks; Texas A&amp;M or NC State)
+<span class="cb-month">Month 10:</span>    28-day tox final GLP study report issued
+             <span class="cb-gate">Gate 3: PK adequacy + safety tolerance + clinical signal confirmed</span>
+<span class="cb-month">Month 11–12:</span> Clinical study protocol finalization; IACUC submissions at sites
+<span class="cb-month">Month 12:</span>    IACUC approvals received
+<span class="cb-month">Month 13:</span>    GMP clinical batch manufactured (parallel with IACUC process)
+             GMP analytical testing and release
+<span class="cb-month">Month 13–14:</span> Site activation: investigator training, EDC setup, supply distribution
+<span class="cb-milestone">Month 14:</span>    <span class="cb-milestone">FIRST PATIENT FIRST VISIT (FPFV) ★</span>
+<span class="cb-month">Month 14–21:</span> Clinical study execution (12-week treatment, continuous enrollment)
+<span class="cb-month">Month 22:</span>    Clinical database lock; unblinding; statistical analysis
+<span class="cb-month">Month 22–23:</span> CNADA application compilation and quality review
+<span class="cb-month">Month 23–24:</span> CNADA submission to FDA CVM
+<span class="cb-month">Month 24–30:</span> FDA CVM review period (6–12 months)
+<span class="cb-milestone">Month 30–36:</span> <span class="cb-milestone">★ CONDITIONAL APPROVAL GRANTED → COMMERCIAL SALES BEGIN ★</span>
+<span class="cb-month">Month 30–60:</span> Full effectiveness studies ongoing; annual renewals
+<span class="cb-milestone">Month 60:</span>    Full NADA submission (or conditional renewal extension)
+    </div>
+
+    <div class="stat-strip" style="grid-template-columns: repeat(3,1fr);">
+      <div class="stat-card green">
+        <div class="stat-num">30–36mo</div>
+        <div class="stat-label">Computational start → Conditional approval</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-num">~Month 30</div>
+        <div class="stat-label">First revenue from conditional approval</div>
+      </div>
+      <div class="stat-card blue">
+        <div class="stat-num">$500–700K</div>
+        <div class="stat-label">Total cost to conditional approval</div>
+        <div class="stat-sub">Adjusted for GMP manufacturing</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- References -->
+  <section id="references" class="doc-section">
+    <div class="section-title muted">8. References</div>
+    <ol class="ref-list">
+      <li>FDA Guidance for Industry: Questions and Answers Regarding Implementation of BPCIA (2012); adapted for veterinary context from FDA CVM internal classification practice.</li>
+      <li>FDA CVM Pre-Submission Meeting Request Process: <a href="https://www.fda.gov/animal-veterinary/development-approval-process/pre-submission-program" target="_blank">fda.gov/cvm pre-submission program</a>. Email: ADE-PreSubMeeting@fda.hhs.gov</li>
+      <li>Laflamme D. Development and validation of a body condition score system for dogs. <em>Canine Practice</em> 1997;22:10–15. (9-point BCS scale; veterinary standard reference)</li>
+      <li>Dik B, et al. Liraglutide reduces body weight and improves metabolic parameters in obese Golden Retrievers. <em>Res Vet Sci</em> 2025. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/40436366/" target="_blank">40436366</a></li>
+      <li>Wilding JPH, et al. Once-weekly semaglutide in adults with overweight or obesity. <em>N Engl J Med</em> 2021;384:989–1002. DOI: <a href="https://doi.org/10.1056/NEJMoa2032183" target="_blank">10.1056/NEJMoa2032183</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/33567185/" target="_blank">33567185</a>. [Lean mass loss: 25–40% of total weight loss]</li>
+      <li>German AJ, et al. Obesity in dogs. Part 1: Exploring the causes and consequences. <em>Vet J</em> 2010;185:4–12. DOI: <a href="https://doi.org/10.1016/j.tvjl.2010.04.023" target="_blank">10.1016/j.tvjl.2010.04.023</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/20493729/" target="_blank">20493729</a>. [5% BW loss threshold]</li>
+      <li>21 CFR Part 511: New Animal Drugs for Investigational Use. <a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-E/part-511" target="_blank">ecfr.gov</a></li>
+      <li>21 CFR Part 514: New Animal Drug Applications. <a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-E/part-514" target="_blank">ecfr.gov</a></li>
+      <li>21 CFR Part 58: Good Laboratory Practice for Nonclinical Laboratory Studies. <a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-A/part-58" target="_blank">ecfr.gov</a></li>
+      <li>21 CFR Part 25: Environmental Impact Considerations. <a href="https://www.ecfr.gov/current/title-21/chapter-I/subchapter-A/part-25" target="_blank">ecfr.gov</a></li>
+      <li>Animal Drug Availability Act of 1996 (ADAA 1996), Public Law 104-250. <a href="https://www.congress.gov/bill/104th-congress/senate-bill/1665" target="_blank">congress.gov</a></li>
+      <li>FDA CVM Guidance for Industry #33: Target Animal Safety Studies for Veterinary Drugs. <a href="https://www.fda.gov/media/73693/download" target="_blank">fda.gov/media/73693/download</a></li>
+      <li>FDA CVM Guidance for Industry #185: Recommendations for Sponsors of Naturally Occurring Animal Models of Human Disease. FDA Center for Veterinary Medicine.</li>
+      <li>FDA CVM Guidance for Industry #216: Bioanalytical Method Validation for Animal Drugs. FDA Center for Veterinary Medicine, 2022.</li>
+      <li>FDA CVM Guidance for Industry #257: Development of Target Animal Safety Data to Support NADA/CNADA Submissions. FDA Center for Veterinary Medicine.</li>
+      <li>ICH Q1A(R2): Stability Testing of New Drug Substances and Products. ICH, 2003.</li>
+      <li>ICH Q2(R1): Validation of Analytical Procedures. ICH, 2005.</li>
+      <li>ICH S7A: Safety Pharmacology Studies for Human Pharmaceuticals. ICH, 2000. (applied to veterinary drugs by FDA CVM GFI #257)</li>
+      <li>VICH GL43: Target Animal Safety for Veterinary Pharmaceutical Products (Non-Immunologicals). VICH, 2008.</li>
+      <li>Coskun T, et al. LY3437943, a novel triple GIP, GLP-1 and glucagon receptor agonist. <em>Cell Metab</em> 2022;34:1234–1247. DOI: <a href="https://doi.org/10.1016/j.cmet.2022.07.013" target="_blank">10.1016/j.cmet.2022.07.013</a>. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/35931026/" target="_blank">35931026</a>.</li>
+      <li>Model JFA et al. Physiological and pharmacological actions of GLP-1 in domestic animals. <em>Vet Anim Sci</em> 2022;16:100245. PMID: <a href="https://pubmed.ncbi.nlm.nih.gov/35372707/" target="_blank">35372707</a>.</li>
+      <li>FDA CVM Guidance for Industry #240: Preparation, Filing, and Review of an INAD Application. FDA Center for Veterinary Medicine.</li>
+    </ol>
+  </section>
+
+  <!-- Footer -->
+  <footer class="doc-footer">
+    <div>Document v1.0 · 2026-03-19 · Treat Biosciences · Confidential / Pre-Patent</div>
+    <div>Next review: upon Gate 2 clearance or FDA CVM pre-submission meeting</div>
+  </footer>
+
+</div><!-- /doc-wrapper -->
+</body>
+</html>

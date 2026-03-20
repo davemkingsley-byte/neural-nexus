@@ -64,6 +64,18 @@ app.use('/pm-charters', (req, res, next) => {
   res.redirect('/dashboard');
 }, express.static(path.join(__dirname, 'public', 'pm-charters')));
 
+// Treat Biosciences research documents (password-protected)
+app.use('/treat-docs', (req, res, next) => {
+  const cookies = req.headers.cookie || '';
+  const match = cookies.match(/dash_auth=([^;]+)/);
+  if (match && match[1] === DASHBOARD_PASS) return next();
+  if (req.query.key === DASHBOARD_PASS) {
+    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' });
+    return res.redirect(req.path);
+  }
+  res.redirect('/dashboard');
+}, express.static(path.join(__dirname, 'public', 'treat-docs')));
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Health check

@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Investor One-Pager — v2 | Treat Biosciences</title>
+<style>
+:root {
+  --bg: #080812;
+  --surface: #0d0d1f;
+  --surface2: #111124;
+  --border: #1e1e38;
+  --border2: #2a2a48;
+  --text: #e2e2f0;
+  --muted: #7070a0;
+  --green: #22c55e;
+  --green-light: #86efac;
+  --green-vivid: #00ff88;
+  --amber: #f59e0b;
+  --amber-light: #fde68a;
+  --red: #ef4444;
+  --red-light: #fca5a5;
+  --blue: #818cf8;
+  --blue-dark: #4f46e5;
+  --teal: #14b8a6;
+  --font: -apple-system, 'Segoe UI', system-ui, Helvetica, sans-serif;
+  --font-mono: 'SF Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  line-height: 1.55;
+  min-height: 100vh;
+}
+/* Confidential Watermark */
+body::before {
+  content: 'CONFIDENTIAL';
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-35deg);
+  font-size: 120px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.018);
+  pointer-events: none;
+  z-index: 9999;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  user-select: none;
+}
+/* Top Banner */
+.top-banner {
+  background: #ef4444;
+  color: #fff;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  padding: 6px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+/* Report Nav */
+.report-nav {
+  display: flex; gap: 8px; padding: 12px 32px;
+  flex-wrap: wrap;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+.report-nav a {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 4px 12px;
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+.report-nav a:hover { color: var(--text); background: var(--surface2); border-color: var(--blue); }
+.report-nav a.active { color: var(--green); background: var(--surface2); border-color: var(--green); }
+
+/* Main layout: two-column dense grid */
+.one-pager {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 28px 40px;
+}
+
+/* Header */
+.op-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  gap: 20px;
+  border-bottom: 2px solid var(--green);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+.op-logo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+.logo-mark {
+  width: 38px; height: 38px;
+  background: linear-gradient(135deg, #22c55e, #14b8a6);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 17px; color: #080812;
+}
+.logo-text { font-size: 18px; font-weight: 800; letter-spacing: 0.01em; }
+.op-tagline { font-size: 13px; color: var(--muted); margin-top: 2px; }
+.op-header-meta { text-align: right; font-size: 11px; color: var(--muted); }
+.op-header-meta div { margin-bottom: 3px; }
+.meta-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+}
+.badge-conf { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+.badge-v2 { background: rgba(129,140,248,0.15); color: var(--blue); border: 1px solid rgba(129,140,248,0.3); }
+
+/* Headline Stat Strip */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  padding: 14px 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+}
+.stat-card.green::before { background: var(--green); }
+.stat-card.amber::before { background: var(--amber); }
+.stat-card.blue::before { background: var(--blue); }
+.stat-card.teal::before { background: var(--teal); }
+.stat-num {
+  font-size: 26px;
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 4px;
+}
+.stat-card.green .stat-num { color: var(--green); }
+.stat-card.amber .stat-num { color: var(--amber); }
+.stat-card.blue .stat-num { color: var(--blue); }
+.stat-card.teal .stat-num { color: var(--teal); }
+.stat-label { font-size: 10px; color: var(--muted); letter-spacing: 0.06em; text-transform: uppercase; }
+
+/* Body Grid: Two columns */
+.body-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.body-grid.three-col { grid-template-columns: 1fr 1fr 1fr; }
+.body-grid.wide-left { grid-template-columns: 3fr 2fr; }
+
+/* Section Cards */
+.op-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+.op-card-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.op-card-title.green { color: var(--green); border-color: rgba(34,197,94,0.2); }
+.op-card-title.amber { color: var(--amber); border-color: rgba(245,158,11,0.2); }
+.op-card-title.blue { color: var(--blue); border-color: rgba(129,140,248,0.2); }
+.op-card-title.teal { color: var(--teal); border-color: rgba(20,184,166,0.2); }
+.op-card-title.red { color: var(--red); border-color: rgba(239,68,68,0.2); }
+.op-card p { font-size: 13px; margin-bottom: 8px; color: var(--text); }
+.op-card p:last-child { margin-bottom: 0; }
+.op-card ul { font-size: 12.5px; padding-left: 16px; }
+.op-card li { margin-bottom: 5px; }
+
+/* Mini tables */
+.mini-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.mini-table th {
+  background: var(--surface2);
+  color: var(--muted);
+  font-size: 10px; font-weight: 600; letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid var(--border2);
+}
+.mini-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.mini-table tr:last-child td { border-bottom: none; }
+.mini-table tr:nth-child(even) td { background: rgba(255,255,255,0.018); }
+
+/* Bullet check items */
+.check-list { list-style: none; padding: 0; font-size: 12.5px; }
+.check-list li { display: flex; gap: 8px; margin-bottom: 6px; align-items: flex-start; }
+.check-list li::before { content: '✓'; color: var(--green); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+/* Highlight text */
+.hl-green { color: var(--green); font-weight: 600; }
+.hl-amber { color: var(--amber); font-weight: 600; }
+.hl-blue { color: var(--blue); font-weight: 600; }
+.hl-red { color: var(--red); font-weight: 700; }
+.hl-teal { color: var(--teal); font-weight: 600; }
+
+/* The Ask / CTA section */
+.cta-section {
+  background: linear-gradient(135deg, rgba(34,197,94,0.07), rgba(20,184,166,0.07));
+  border: 1px solid rgba(34,197,94,0.25);
+  border-radius: 10px;
+  padding: 18px 22px;
+  margin-bottom: 14px;
+}
+.cta-section h2 {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--green);
+  margin-bottom: 6px;
+}
+.cta-section p { font-size: 13px; margin-bottom: 0; }
+
+/* Investor Quote */
+.investor-quote {
+  background: var(--surface2);
+  border-left: 3px solid var(--teal);
+  border-radius: 0 6px 6px 0;
+  padding: 12px 16px;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--text);
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+
+/* Full-width spanning card */
+.full-width { grid-column: 1 / -1; }
+
+/* Comparable exits inline */
+.exits-strip {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px;
+}
+.exit-chip {
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  flex: 1;
+  min-width: 100px;
+}
+.exit-chip .ex-val { font-size: 14px; font-weight: 800; color: var(--green); }
+.exit-chip .ex-name { font-size: 10px; color: var(--muted); }
+.exit-chip .ex-deal { font-size: 9px; color: var(--muted); }
+
+/* Footer */
+.op-footer {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  font-size: 11px;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.op-footer a { color: var(--blue); text-decoration: none; }
+
+/* Print optimization */
+@media print {
+  .top-banner { position: static; }
+  .report-nav { display: none; }
+  body { background: #fff; color: #111; }
+  .one-pager { padding: 10px 20px; }
+}
+
+/* Pipeline status badges */
+.pill {
+  display: inline-block; padding: 2px 8px;
+  border-radius: 99px; font-size: 10px; font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.pill-green { background: rgba(34,197,94,0.15); color: var(--green); border: 1px solid rgba(34,197,94,0.3); }
+.pill-blue { background: rgba(129,140,248,0.15); color: var(--blue); border: 1px solid rgba(129,140,248,0.3); }
+.pill-amber { background: rgba(245,158,11,0.15); color: var(--amber); border: 1px solid rgba(245,158,11,0.3); }
+</style>
+</head>
+<body>
+
+<div class="top-banner">CONFIDENTIAL — TREAT BIOSCIENCES — MARCH 2026 — DO NOT DISTRIBUTE</div>
+
+<nav class="report-nav">
+  <a href="receptor-conservation-report.html">Receptor Conservation Report</a>
+  <a href="incretin-thesis-v2.html">Incretin Thesis v2</a>
+  <a href="one-pager-investor-v2.html" class="active">Investor One-Pager</a>
+</nav>
+
+<div class="one-pager">
+
+  <!-- Header -->
+  <header class="op-header">
+    <div>
+      <div class="op-logo-row">
+        <div class="logo-mark">Tx</div>
+        <div class="logo-text">Treat Biosciences</div>
+      </div>
+      <div class="op-tagline">First canine-optimized triple incretin agonist — "Retatrutide for dogs"</div>
+    </div>
+    <div class="op-header-meta">
+      <div>Investor One-Pager</div>
+      <div>Version 2 — March 2026</div>
+      <div style="margin-top:6px"><span class="meta-badge badge-conf">CONFIDENTIAL</span> <span class="meta-badge badge-v2">v2</span></div>
+    </div>
+  </header>
+
+  <!-- Stat Strip -->
+  <div class="stat-strip">
+    <div class="stat-card green">
+      <div class="stat-num">$63.6B</div>
+      <div class="stat-label">Total Addressable Market</div>
+    </div>
+    <div class="stat-card amber">
+      <div class="stat-num">ZERO</div>
+      <div class="stat-label">Competitors in Canine Incretin Space</div>
+    </div>
+    <div class="stat-card blue">
+      <div class="stat-num">$500K</div>
+      <div class="stat-label">Total Capital to Approval</div>
+    </div>
+    <div class="stat-card teal">
+      <div class="stat-num">95%+</div>
+      <div class="stat-label">Gross Margin at Scale</div>
+    </div>
+  </div>
+
+  <!-- Investor Quote -->
+  <div class="investor-quote">
+    "60% of American dogs are overweight. There are zero approved drugs — the last one was pulled 16 years ago. Using AI-guided computational design and verified receptor conservation data, we've built the first canine-optimized triple incretin agonist — targeting the same three receptors as Eli Lilly's retatrutide, the most potent weight-loss drug ever tested in humans. The $63 billion pet obesity market has been waiting 16 years for a real drug. We're building it."
+  </div>
+
+  <!-- Body Grid Row 1: Problem + Solution + Why It Works -->
+  <div class="body-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 14px;">
+
+    <div class="op-card">
+      <div class="op-card-title red">The Problem</div>
+      <p><span class="hl-green">60%</span> of US dogs — <span class="hl-green">54 million animals</span> — are overweight or obese.</p>
+      <p><span class="hl-red">Zero FDA-approved</span> weight loss drugs on the market. The last one (Slentrol) was pulled by Pfizer in 2010 — <span class="hl-amber">16 years ago</span>.</p>
+      <ul class="check-list">
+        <li>Obesity reduces canine lifespan by <strong>2.5 years</strong></li>
+        <li>#1 health concern among veterinarians</li>
+        <li>Dog owners spend $7,000+/year on pet care</li>
+        <li>Cytopoint (itching drug) earns $800M+/yr — proving price tolerance</li>
+        <li>Dec 2025 paper (PMID 40882685) confirms 16-year unmet need</li>
+      </ul>
+    </div>
+
+    <div class="op-card">
+      <div class="op-card-title green">The Solution</div>
+      <p>Treat Biosciences is developing <strong>TRT-001</strong>: a single injectable peptide targeting <span class="hl-green">GLP-1R, GIPR, and GCGR</span> — the same three receptors as Eli Lilly's retatrutide.</p>
+      <p>Retatrutide is the most potent weight-loss drug ever tested in humans: <span class="hl-green">24–28% body weight loss</span> in Phase 2 (vs ~15% for semaglutide/Wegovy).</p>
+      <p>We're designing it from scratch, canine-optimized, before anyone else does it in any species commercially.</p>
+      <p style="margin-top:10px; font-size:11px; color:var(--muted)">Route: Subcutaneous injection, monthly. COGS: $2–5/dose at scale.</p>
+    </div>
+
+    <div class="op-card">
+      <div class="op-card-title teal">Why It Works</div>
+      <ul class="check-list">
+        <li><strong>100%</strong> of mutagenesis-validated binding contacts conserved at canine GLP-1R</li>
+        <li><strong>95.7%</strong> binding pocket conservation at canine GCGR</li>
+        <li>Human GLP-1 drugs already work in dogs (Dik et al. 2025, <em>Res Vet Sci</em>, PMID 40436366)</li>
+        <li>Canine glucagon is <strong>identical</strong> to human glucagon (zero aa differences)</li>
+        <li>GIPR ECL1 (63.6% conserved) = primary optimization target — our inventive step</li>
+        <li>FTO clear — no blocking patents for canine peptide incretins</li>
+        <li>Triple agonism: appetite suppression + insulin sensitization + thermogenesis</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Row 2: Pipeline + Market -->
+  <div class="body-grid wide-left" style="margin-bottom: 14px;">
+
+    <div class="op-card">
+      <div class="op-card-title blue">Pipeline</div>
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>Product</th>
+            <th>Target</th>
+            <th>Stage</th>
+            <th>Timeline</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>TRT-001</strong> <span class="pill pill-green">LEAD</span></td>
+            <td>Triple incretin (GLP-1R / GIPR / GCGR)</td>
+            <td>Computational design → in vitro</td>
+            <td>6–8 mo to EC50 data</td>
+          </tr>
+          <tr>
+            <td><strong>TRT-002</strong> <span class="pill pill-blue">v2</span></td>
+            <td>+ Activin receptor blockade (ActRIIB) — muscle preservation</td>
+            <td>Preclinical</td>
+            <td>12–18 months</td>
+          </tr>
+        </tbody>
+      </table>
+      <p style="font-size:11.5px; margin-top:10px; color:var(--muted)">
+        ActRIIB conservation: 99.8% (1 aa in 495). TRT-002 trigger: Lilly bimagrumab + tirzepatide Phase 2 data (Jan 2027). Combination patent filed now; approach TBD (caninized mAb vs. de novo peptide).
+      </p>
+    </div>
+
+    <div class="op-card">
+      <div class="op-card-title green">Market</div>
+      <div style="margin-bottom:10px">
+        <div style="font-size:11px; color:var(--muted); margin-bottom:4px">MARKET SIZING</div>
+        <table class="mini-table">
+          <tbody>
+            <tr><td style="color:var(--muted)">US Dogs</td><td style="font-weight:600">~90 million</td></tr>
+            <tr><td style="color:var(--muted)">Overweight/Obese</td><td style="font-weight:600">54 million (60%)</td></tr>
+            <tr><td style="color:var(--muted)">Target Price</td><td style="font-weight:600">$75–200/month</td></tr>
+            <tr><td style="color:var(--muted)">TAM at $100/mo</td><td class="hl-green" style="font-size:14px; font-weight:800">$63.6B/year</td></tr>
+            <tr><td style="color:var(--muted)">SOM Year 5 (2%)</td><td class="hl-amber" style="font-size:14px; font-weight:800">$216M/year</td></tr>
+            <tr><td style="color:var(--muted)">Gross Margin</td><td class="hl-teal" style="font-weight:700">95%+ at scale</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="font-size:11px; color:var(--muted); margin-bottom:4px; margin-top:10px">PRICING COMPARABLES</div>
+      <table class="mini-table">
+        <tbody>
+          <tr><td style="color:var(--muted)">Cytopoint (Zoetis)</td><td>$50–150 / 4–8 wks</td></tr>
+          <tr><td style="color:var(--muted)">Librela (Zoetis)</td><td>$50–250 / month</td></tr>
+          <tr><td style="color:var(--muted)">Wegovy (human)</td><td>$1,300 / week</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Row 3: Competition + Regulatory + Team -->
+  <div class="body-grid" style="grid-template-columns: 1fr 1fr 1fr; margin-bottom: 14px;">
+
+    <div class="op-card">
+      <div class="op-card-title amber">Competition</div>
+      <p style="font-size:20px; font-weight:900; color:var(--red); text-align:center; margin:6px 0 4px">ZERO</p>
+      <p style="text-align:center; font-size:11px; color:var(--muted); margin-bottom:12px">competitors in canine GLP-1, dual, or triple incretin</p>
+      <table class="mini-table">
+        <thead><tr><th>Company</th><th>Focus</th><th>Threat</th></tr></thead>
+        <tbody>
+          <tr><td>Okava Pharma</td><td>Implant, <em>cats</em></td><td style="color:var(--muted); font-size:10px">Low</td></tr>
+          <tr><td>Better Choice</td><td>GLP-1 treats (nutraceutical)</td><td style="color:var(--muted); font-size:10px">None</td></tr>
+          <tr><td>Loyal</td><td>IGF/longevity RNA</td><td style="color:var(--muted); font-size:10px">Different</td></tr>
+          <tr><td>Zoetis / Elanco</td><td>Derm/pain only</td><td style="color:var(--muted); font-size:10px">None</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:11px; color:var(--muted); margin-top:8px">Nutraceutical "GLP-1 treats" prove demand without real efficacy — we bring the real thing.</p>
+    </div>
+
+    <div class="op-card">
+      <div class="op-card-title teal">Regulatory Path</div>
+      <p><strong style="color:var(--teal)">FDA CVM Conditional Approval (CNADA)</strong></p>
+      <ul class="check-list" style="margin-top: 8px;">
+        <li>~21 months to first revenue</li>
+        <li>Can sell product during full efficacy studies</li>
+        <li>Faster and cheaper than human FDA path</li>
+        <li>No new regulatory science needed</li>
+      </ul>
+      <div style="margin-top: 12px; padding: 10px 12px; background: var(--surface2); border-radius: 6px; border: 1px solid var(--border);">
+        <div style="font-size:10px; color:var(--muted); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.07em">Phase Timeline</div>
+        <div style="font-size:11.5px; display:grid; gap:4px;">
+          <div><span class="hl-blue">Ph.0:</span> Wks 1–6 → Computational + Patent (~$500)</div>
+          <div><span class="hl-blue">Ph.1:</span> Mo. 2–4 → Synthesis + In Vitro ($29–44K)</div>
+          <div><span class="hl-blue">Ph.2:</span> Mo. 4–8 → Preclinical PK/Safety ($100–200K)</div>
+          <div><span class="hl-blue">Ph.3:</span> Mo. 8–18 → Clinical Trial ($300–500K)</div>
+          <div style="color:var(--green); font-weight:600; margin-top:4px">→ CNADA Application</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="op-card">
+      <div class="op-card-title blue">Team</div>
+      <div style="margin-bottom:12px; padding:10px 12px; background:var(--surface2); border-radius:6px; border:1px solid var(--border);">
+        <div style="font-weight:700; font-size:13px; color:var(--text)">David Kingsley, PhD</div>
+        <div style="font-size:11px; color:var(--green); font-weight:600; margin-bottom:4px">Chief Science Officer</div>
+        <div style="font-size:11.5px; color:var(--muted)">Synthetic biologist. Colossal Biosciences. Expertise: protein engineering, computational biology, de-extinction technology.</div>
+      </div>
+      <div style="padding:10px 12px; background:var(--surface2); border-radius:6px; border:1px solid var(--border); margin-bottom:8px;">
+        <div style="font-weight:600; font-size:12px; color:var(--muted)">CEO — <span style="color:var(--amber)">Seeking</span></div>
+        <div style="font-weight:600; font-size:12px; color:var(--muted); margin-top:4px">CFO — <span style="color:var(--amber)">Seeking</span></div>
+      </div>
+      <div style="font-size:11px; color:var(--muted)">Advisory board targets: veterinary pharmacology/oncology faculty, pet health industry executives</div>
+    </div>
+
+  </div>
+
+  <!-- The Ask (CTA) + Use of Funds side by side -->
+  <div class="body-grid wide-left" style="margin-bottom: 14px;">
+
+    <div class="cta-section">
+      <h2>The Ask: $500K Seed Round</h2>
+      <p>Full capitalization from computational design through clinical proof-of-concept in obese dogs and conditional FDA CVM approval application. <span class="hl-green">Total capital to approval: ~$500K. Timeline: 18–21 months.</span></p>
+      <p style="margin-top:10px; font-size:13px; color:var(--muted)">Comparable exits: Arantana → Elanco <span class="hl-green">$238M</span> · Kindred Bio → Elanco <span class="hl-green">$440M</span> · Loyal (private) <span class="hl-amber">$500M+</span></p>
+    </div>
+
+    <div class="op-card">
+      <div class="op-card-title green">Use of Funds</div>
+      <table class="mini-table">
+        <thead>
+          <tr>
+            <th>Allocation</th>
+            <th>Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Peptide synthesis + in vitro assays</td>
+            <td class="hl-blue">$30–45K</td>
+          </tr>
+          <tr>
+            <td>Cell line generation (3 canine receptors)</td>
+            <td class="hl-blue">$10–15K</td>
+          </tr>
+          <tr>
+            <td>Preclinical PK / safety (dogs)</td>
+            <td class="hl-blue">$100–200K</td>
+          </tr>
+          <tr>
+            <td>Clinical trial (20–40 obese dogs, 12 wks)</td>
+            <td class="hl-amber">$200–300K</td>
+          </tr>
+          <tr>
+            <td>Patent filing + legal</td>
+            <td class="hl-blue">$25–30K</td>
+          </tr>
+          <tr>
+            <td>Operating reserve</td>
+            <td class="hl-blue">$50K</td>
+          </tr>
+          <tr style="border-top: 2px solid var(--border2);">
+            <td style="font-weight:700">Total</td>
+            <td style="font-weight:800; color:var(--green); font-size:14px">~$500K</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Comparable Exits Full Width -->
+  <div class="op-card" style="margin-bottom: 14px;">
+    <div class="op-card-title green">Comparable Exits — Veterinary Biotech</div>
+    <div class="exits-strip">
+      <div class="exit-chip">
+        <div class="ex-val">$85M</div>
+        <div class="ex-name">Nexvet</div>
+        <div class="ex-deal">→ Zoetis, 2017</div>
+      </div>
+      <div class="exit-chip">
+        <div class="ex-val">$238M</div>
+        <div class="ex-name">Arantana</div>
+        <div class="ex-deal">→ Elanco, 2019</div>
+      </div>
+      <div class="exit-chip">
+        <div class="ex-val">~$50M</div>
+        <div class="ex-name">Petmedix</div>
+        <div class="ex-deal">→ Zoetis, 2022</div>
+      </div>
+      <div class="exit-chip">
+        <div class="ex-val">$440M</div>
+        <div class="ex-name">Kindred Bio</div>
+        <div class="ex-deal">→ Elanco, 2021</div>
+      </div>
+      <div class="exit-chip" style="border-color: rgba(245,158,11,0.4);">
+        <div class="ex-val" style="color:var(--amber)">$500M+</div>
+        <div class="ex-name">Loyal</div>
+        <div class="ex-deal">Private, 2024</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="op-footer">
+    <div>Treat Biosciences — Confidential — March 2026</div>
+    <div>
+      <a href="receptor-conservation-report.html">Receptor Conservation Report</a> ·
+      <a href="incretin-thesis-v2.html">Incretin Thesis v2</a>
+    </div>
+    <div>David Kingsley, PhD — davemkingsley@gmail.com</div>
+  </footer>
+
+</div>
+</body>
+</html>
