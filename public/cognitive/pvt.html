@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Psychomotor Vigilance Test | Neural Nexus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #06060b;
+  --card: rgba(255,255,255,0.03);
+  --border: rgba(255,255,255,0.08);
+  --gold: #d4a853;
+  --gold-dim: rgba(212,168,83,0.15);
+  --red: #e74c3c;
+  --text: #e0e0e0;
+  --text-dim: rgba(255,255,255,0.3);
+  --text-mid: rgba(255,255,255,0.55);
+}
+
+html, body {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-mid);
+  text-decoration: none;
+  font-size: 14px;
+  padding: 20px 24px;
+  transition: color 0.2s;
+}
+.back-link:hover { color: var(--gold); }
+
+/* ── Setup Screen ── */
+.screen { display: none; }
+.screen.active { display: flex; }
+
+#setup-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - 60px);
+  padding: 24px;
+  text-align: center;
+}
+
+#setup-screen h1 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(32px, 6vw, 48px);
+  color: #fff;
+  margin-bottom: 20px;
+  line-height: 1.15;
+}
+
+#setup-screen .description {
+  max-width: 480px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-mid);
+  margin-bottom: 40px;
+}
+
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gold);
+  color: #06060b;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 40px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,168,83,0.3); }
+.btn-gold:active { transform: translateY(0); }
+
+/* ── Test Screen ── */
+#test-screen {
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.test-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.trial-counter {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-mid);
+}
+.trial-counter span { color: var(--gold); }
+
+.stimulus-zone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  -webkit-user-select: none;
+  user-select: none;
+  overflow: hidden;
+}
+
+.stimulus-prompt {
+  font-size: 18px;
+  color: var(--text-dim);
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.red-circle {
+  width: clamp(100px, 25vw, 140px);
+  height: clamp(100px, 25vw, 140px);
+  background: var(--red);
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: none;
+  pointer-events: none;
+  animation: pulse-glow 1.2s ease-in-out infinite;
+}
+.red-circle.visible { display: block; }
+
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 30px rgba(231,76,60,0.4); }
+  50% { box-shadow: 0 0 60px rgba(231,76,60,0.65), 0 0 90px rgba(231,76,60,0.2); }
+}
+
+.rt-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: clamp(40px, 10vw, 72px);
+  font-weight: 600;
+  color: var(--gold);
+  pointer-events: none;
+  display: none;
+}
+
+.feedback-text {
+  position: absolute;
+  top: calc(50% + 70px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 15px;
+  pointer-events: none;
+  white-space: nowrap;
+  display: none;
+}
+
+.elapsed-timer {
+  position: absolute;
+  top: calc(50% + 80px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 28px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.6);
+  pointer-events: none;
+  display: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Results Screen ── */
+#results-screen {
+  flex-direction: column;
+  align-items: center;
+  min-height: 100dvh;
+  padding: 24px;
+  padding-bottom: 60px;
+}
+
+.results-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(28px, 5vw, 40px);
+  color: #fff;
+  margin: 20px 0 8px;
+}
+
+.pb-badge {
+  display: none;
+  background: var(--gold-dim);
+  color: var(--gold);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  margin-bottom: 24px;
+}
+.pb-badge.show { display: inline-block; }
+
+.primary-stat {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.primary-stat .value {
+  font-size: clamp(48px, 12vw, 80px);
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+}
+.primary-stat .label {
+  font-size: 14px;
+  color: var(--text-mid);
+  margin-top: 6px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+  margin-bottom: 36px;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.stat-card .stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+}
+.stat-card .stat-label {
+  font-size: 12px;
+  color: var(--text-mid);
+  margin-top: 4px;
+}
+
+.histogram-section {
+  width: 100%;
+  max-width: 560px;
+  margin-bottom: 36px;
+}
+.histogram-section h3 {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-mid);
+  margin-bottom: 12px;
+}
+.histogram-wrapper {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+}
+#histogram-canvas {
+  width: 100%;
+  height: 180px;
+  display: block;
+}
+
+.personal-best-section {
+  width: 100%;
+  max-width: 560px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+.personal-best-section .pb-label {
+  font-size: 13px;
+  color: var(--text-mid);
+  margin-bottom: 4px;
+}
+.personal-best-section .pb-value {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+/* ── Confetti Canvas ── */
+#confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+</style>
+</head>
+<body>
+
+<a href="/cognitive/" class="back-link">&larr; Back to Dashboard</a>
+
+<!-- Setup Screen -->
+<div id="setup-screen" class="screen active">
+  <h1>Psychomotor Vigilance Test</h1>
+  <p class="description">Measure your reaction time and alertness. A red circle will appear at random intervals. Click or tap it as quickly as possible.</p>
+  <button class="btn-gold" id="btn-begin">Begin Test</button>
+</div>
+
+<!-- Test Screen -->
+<div id="test-screen" class="screen">
+  <div class="test-header">
+    <span class="trial-counter">Trial <span id="trial-current">1</span> of 30</span>
+    <a href="/cognitive/" class="back-link" style="padding:0;font-size:13px;">&larr; Exit</a>
+  </div>
+  <div class="stimulus-zone" id="stimulus-zone">
+    <span class="stimulus-prompt" id="stimulus-prompt">Wait for the red circle...</span>
+    <div class="red-circle" id="red-circle"></div>
+    <div class="rt-display" id="rt-display"></div>
+    <div class="feedback-text" id="feedback-text"></div>
+    <div class="elapsed-timer" id="elapsed-timer"></div>
+  </div>
+</div>
+
+<!-- Results Screen -->
+<div id="results-screen" class="screen">
+  <h1 class="results-title">Results</h1>
+  <span class="pb-badge" id="pb-badge">New Personal Best!</span>
+
+  <div class="primary-stat">
+    <div class="value" id="res-median">—</div>
+    <div class="label">Median Reaction Time (ms)</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="res-mean">—</div>
+      <div class="stat-label">Mean RT</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-fastest">—</div>
+      <div class="stat-label">Fastest RT</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-slowest">—</div>
+      <div class="stat-label">Slowest RT</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-lapses">—</div>
+      <div class="stat-label">Lapses (&gt;500ms)</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-false">—</div>
+      <div class="stat-label">False Starts</div>
+    </div>
+  </div>
+
+  <div class="histogram-section">
+    <h3>Reaction Time Distribution</h3>
+    <div class="histogram-wrapper">
+      <canvas id="histogram-canvas"></canvas>
+    </div>
+  </div>
+
+  <div class="personal-best-section" id="pb-section" style="display:none;">
+    <div class="pb-label">Personal Best Median RT (past year)</div>
+    <div class="pb-value" id="pb-value">—</div>
+  </div>
+
+  <button class="btn-gold" id="btn-save">Save &amp; Return</button>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── State ──
+  const TOTAL_TRIALS = 30;
+  let currentTrial = 0;
+  let reactionTimes = [];
+  let falseStarts = 0;
+  let stimulusShowing = false;
+  let stimulusTime = 0;
+  let waitTimeout = null;
+  let elapsedRAF = null;
+  let locked = false; // prevent double-taps during feedback
+  let previousBestMedian = null;
+
+  // ── DOM refs ──
+  const setupScreen = document.getElementById('setup-screen');
+  const testScreen = document.getElementById('test-screen');
+  const resultsScreen = document.getElementById('results-screen');
+  const btnBegin = document.getElementById('btn-begin');
+  const btnSave = document.getElementById('btn-save');
+  const trialCounter = document.getElementById('trial-current');
+  const stimulusZone = document.getElementById('stimulus-zone');
+  const stimulusPrompt = document.getElementById('stimulus-prompt');
+  const redCircle = document.getElementById('red-circle');
+  const rtDisplay = document.getElementById('rt-display');
+  const feedbackText = document.getElementById('feedback-text');
+  const elapsedTimer = document.getElementById('elapsed-timer');
+
+  function showScreen(screen) {
+    [setupScreen, testScreen, resultsScreen].forEach(s => s.classList.remove('active'));
+    screen.classList.add('active');
+  }
+
+  // ── Helpers ──
+  function randomDelay() {
+    return 2000 + Math.random() * 8000; // 2000-10000ms
+  }
+
+  function median(arr) {
+    const sorted = [...arr].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 !== 0 ? sorted[mid] : Math.round((sorted[mid - 1] + sorted[mid]) / 2);
+  }
+
+  function mean(arr) {
+    return Math.round(arr.reduce((s, v) => s + v, 0) / arr.length);
+  }
+
+  // ── Begin Test ──
+  btnBegin.addEventListener('click', () => {
+    currentTrial = 0;
+    reactionTimes = [];
+    falseStarts = 0;
+    showScreen(testScreen);
+    trialCounter.textContent = '1';
+    scheduleStimulus();
+  });
+
+  function scheduleStimulus() {
+    resetStimulus();
+    stimulusPrompt.style.opacity = '1';
+    stimulusPrompt.textContent = 'Wait for the red circle...';
+    const delay = randomDelay();
+    waitTimeout = setTimeout(showStimulus, delay);
+  }
+
+  function resetStimulus() {
+    stimulusShowing = false;
+    locked = false;
+    redCircle.classList.remove('visible');
+    rtDisplay.style.display = 'none';
+    feedbackText.style.display = 'none';
+    elapsedTimer.style.display = 'none';
+    if (elapsedRAF) { cancelAnimationFrame(elapsedRAF); elapsedRAF = null; }
+  }
+
+  function showStimulus() {
+    stimulusShowing = true;
+    stimulusTime = performance.now();
+    stimulusPrompt.style.opacity = '0';
+    redCircle.classList.add('visible');
+    elapsedTimer.style.display = 'block';
+    elapsedTimer.textContent = '0 ms';
+
+    function tick() {
+      if (!stimulusShowing) return;
+      const elapsed = Math.round(performance.now() - stimulusTime);
+      elapsedTimer.textContent = elapsed + ' ms';
+      elapsedRAF = requestAnimationFrame(tick);
+    }
+    elapsedRAF = requestAnimationFrame(tick);
+  }
+
+  // ── Click handler ──
+  stimulusZone.addEventListener('click', (e) => {
+    if (locked) return;
+
+    // Too early — stimulus not showing
+    if (!stimulusShowing) {
+      if (waitTimeout) { clearTimeout(waitTimeout); waitTimeout = null; }
+      locked = true;
+      falseStarts++;
+      stimulusPrompt.style.opacity = '0';
+      feedbackText.textContent = 'Too early! Wait for the circle.';
+      feedbackText.style.color = var_red();
+      feedbackText.style.display = 'block';
+      setTimeout(() => {
+        feedbackText.style.display = 'none';
+        scheduleStimulus();
+      }, 1500);
+      return;
+    }
+
+    // Stimulus is showing — compute RT
+    const rt = Math.round(performance.now() - stimulusTime);
+    stimulusShowing = false;
+    if (elapsedRAF) { cancelAnimationFrame(elapsedRAF); elapsedRAF = null; }
+    redCircle.classList.remove('visible');
+    elapsedTimer.style.display = 'none';
+    locked = true;
+
+    if (rt < 100) {
+      // Too fast — false start
+      falseStarts++;
+      feedbackText.textContent = 'Too fast \u2014 false start';
+      feedbackText.style.color = var_red();
+      feedbackText.style.display = 'block';
+      rtDisplay.style.display = 'none';
+      setTimeout(() => {
+        feedbackText.style.display = 'none';
+        scheduleStimulus();
+      }, 1500);
+      return;
+    }
+
+    // Valid reaction
+    currentTrial++;
+    reactionTimes.push(rt);
+    trialCounter.textContent = Math.min(currentTrial + 1, TOTAL_TRIALS);
+
+    rtDisplay.textContent = rt + ' ms';
+    rtDisplay.style.display = 'block';
+
+    if (rt > 500) {
+      feedbackText.textContent = 'Lapse';
+      feedbackText.style.color = 'rgba(255,255,255,0.4)';
+      feedbackText.style.display = 'block';
+    }
+
+    if (currentTrial >= TOTAL_TRIALS) {
+      setTimeout(showResults, 1200);
+    } else {
+      setTimeout(scheduleStimulus, 1500);
+    }
+  });
+
+  function var_red() { return '#e74c3c'; }
+
+  // ── Results ──
+  async function showResults() {
+    showScreen(resultsScreen);
+
+    const med = median(reactionTimes);
+    const avg = mean(reactionTimes);
+    const fastest = Math.min(...reactionTimes);
+    const slowest = Math.max(...reactionTimes);
+    const lapses = reactionTimes.filter(r => r > 500).length;
+
+    document.getElementById('res-median').textContent = med + ' ms';
+    document.getElementById('res-mean').textContent = avg + ' ms';
+    document.getElementById('res-fastest').textContent = fastest + ' ms';
+    document.getElementById('res-slowest').textContent = slowest + ' ms';
+    document.getElementById('res-lapses').textContent = lapses;
+    document.getElementById('res-false').textContent = falseStarts;
+
+    drawHistogram(reactionTimes);
+
+    // Fetch personal best
+    try {
+      const resp = await fetch('/api/cognitive/results?days=365');
+      if (resp.ok) {
+        const data = await resp.json();
+        const pvtResults = (data.results || data || []).filter(r => r.test_type === 'pvt');
+        if (pvtResults.length > 0) {
+          const bestMedian = Math.min(...pvtResults.map(r => (r.scores && r.scores.median_rt) || Infinity));
+          if (bestMedian < Infinity) {
+            previousBestMedian = bestMedian;
+            document.getElementById('pb-section').style.display = '';
+            document.getElementById('pb-value').textContent = bestMedian + ' ms';
+
+            if (med < bestMedian) {
+              document.getElementById('pb-badge').classList.add('show');
+              launchConfetti();
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // API not available — no personal best comparison
+    }
+  }
+
+  // ── Histogram ──
+  function drawHistogram(rts) {
+    const canvas = document.getElementById('histogram-canvas');
+    const rect = canvas.parentElement.getBoundingClientRect();
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = rect.width * dpr;
+    canvas.height = 180 * dpr;
+    canvas.style.width = rect.width + 'px';
+    canvas.style.height = '180px';
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    const W = rect.width;
+    const H = 180;
+
+    // Bucket into bins
+    const binSize = 50;
+    const minRT = Math.floor(Math.min(...rts) / binSize) * binSize;
+    const maxRT = Math.ceil(Math.max(...rts) / binSize) * binSize;
+    const bins = [];
+    for (let b = minRT; b < maxRT; b += binSize) {
+      bins.push({ start: b, end: b + binSize, count: 0 });
+    }
+    if (bins.length === 0) bins.push({ start: minRT, end: minRT + binSize, count: 0 });
+    rts.forEach(rt => {
+      const idx = Math.min(Math.floor((rt - minRT) / binSize), bins.length - 1);
+      bins[idx].count++;
+    });
+
+    const maxCount = Math.max(...bins.map(b => b.count), 1);
+    const pad = { top: 10, bottom: 28, left: 8, right: 8 };
+    const chartW = W - pad.left - pad.right;
+    const chartH = H - pad.top - pad.bottom;
+    const barW = Math.max(chartW / bins.length - 4, 6);
+    const gap = (chartW - barW * bins.length) / (bins.length + 1);
+
+    ctx.fillStyle = 'rgba(255,255,255,0.04)';
+    ctx.fillRect(0, 0, W, H);
+
+    bins.forEach((bin, i) => {
+      const x = pad.left + gap + i * (barW + gap);
+      const barH = (bin.count / maxCount) * chartH;
+      const y = pad.top + chartH - barH;
+
+      const isLapse = bin.start >= 500;
+      ctx.fillStyle = isLapse ? 'rgba(231,76,60,0.6)' : 'rgba(212,168,83,0.7)';
+      ctx.beginPath();
+      const r = 3;
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + barW - r, y);
+      ctx.quadraticCurveTo(x + barW, y, x + barW, y + r);
+      ctx.lineTo(x + barW, y + barH);
+      ctx.lineTo(x, y + barH);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.fill();
+
+      // Label
+      if (i % Math.ceil(bins.length / 6) === 0 || i === bins.length - 1) {
+        ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        ctx.font = '11px DM Sans, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(bin.start + '', x + barW / 2, H - 6);
+      }
+    });
+  }
+
+  // ── Save ──
+  btnSave.addEventListener('click', async () => {
+    const med = median(reactionTimes);
+    const avg = mean(reactionTimes);
+    const fastest = Math.min(...reactionTimes);
+    const slowest = Math.max(...reactionTimes);
+    const lapses = reactionTimes.filter(r => r > 500).length;
+
+    const payload = {
+      test_type: 'pvt',
+      scores: {
+        median_rt: med,
+        mean_rt: avg,
+        fastest_rt: fastest,
+        slowest_rt: slowest,
+        lapses: lapses,
+        false_starts: falseStarts,
+        all_rts: reactionTimes
+      }
+    };
+
+    try {
+      await fetch('/api/cognitive/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch (e) {
+      // Silently continue — navigate back regardless
+    }
+
+    window.location.href = '/cognitive/';
+  });
+
+  // ── Confetti ──
+  function launchConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    canvas.style.width = window.innerWidth + 'px';
+    canvas.style.height = window.innerHeight + 'px';
+    ctx.scale(dpr, dpr);
+
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const particles = [];
+    const colors = ['#d4a853', '#e8c97a', '#ffffff', '#fff8e7', '#c9973b'];
+
+    for (let i = 0; i < 120; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * -H,
+        w: 4 + Math.random() * 6,
+        h: 6 + Math.random() * 8,
+        vx: (Math.random() - 0.5) * 3,
+        vy: 2 + Math.random() * 4,
+        rot: Math.random() * Math.PI * 2,
+        rotV: (Math.random() - 0.5) * 0.15,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        opacity: 0.8 + Math.random() * 0.2
+      });
+    }
+
+    let frame = 0;
+    const maxFrames = 180;
+
+    function animate() {
+      frame++;
+      if (frame > maxFrames) {
+        ctx.clearRect(0, 0, W, H);
+        return;
+      }
+      ctx.clearRect(0, 0, W, H);
+
+      const fadeOut = frame > maxFrames - 40 ? (maxFrames - frame) / 40 : 1;
+
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.04;
+        p.rot += p.rotV;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.globalAlpha = p.opacity * fadeOut;
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      });
+
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+  }
+
+  // Prevent accidental pull-to-refresh on mobile
+  document.addEventListener('touchmove', (e) => {
+    if (testScreen.classList.contains('active')) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+})();
+</script>
+</body>
+</html>

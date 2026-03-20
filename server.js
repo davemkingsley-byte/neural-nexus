@@ -5,6 +5,18 @@ const fs = require('fs');
 let spellDB, generatePuzzle, validateWord;
 let dbReady = false;
 
+// Cognitive performance testing DB
+let cogDB;
+let cogDBReady = false;
+try {
+  cogDB = require('./src/cognitive-db');
+  cogDB.initDB();
+  cogDBReady = true;
+  console.log('Cognitive DB loaded successfully');
+} catch (err) {
+  console.error('Failed to load cognitive DB:', err.message);
+}
+
 try {
   spellDB = require('./src/database');
   const pg = require('./src/puzzle-generator');
@@ -75,6 +87,18 @@ app.use('/treat-docs', (req, res, next) => {
   }
   res.redirect('/dashboard');
 }, express.static(path.join(__dirname, 'public', 'treat-docs')));
+
+// Cognitive performance dashboard (password-protected)
+app.use('/cognitive', (req, res, next) => {
+  const cookies = req.headers.cookie || '';
+  const match = cookies.match(/dash_auth=([^;]+)/);
+  if (match && match[1] === DASHBOARD_PASS) return next();
+  if (req.query.key === DASHBOARD_PASS) {
+    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' });
+    return res.redirect(req.path);
+  }
+  res.redirect('/dashboard');
+}, express.static(path.join(__dirname, 'public', 'cognitive')));
 
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -602,6 +626,152 @@ app.get('/api/crossword/archive/:date', (req, res) => {
   } catch (err) {
     console.error('Error getting crossword archive date:', err);
     res.status(500).json({ error: 'Failed to get data' });
+  }
+});
+
+// ── Cognitive Performance API ─────────────────────────────────────────────────
+function checkCogDB(res) {
+  if (!cogDBReady) { res.status(503).json({ error: 'Cognitive database not available' }); return false; }
+  return true;
+}
+
+// Save test results
+app.post('/api/cognitive/results', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const { test_type, scores } = req.body;
+    if (!test_type || !scores) return res.status(400).json({ error: 'Missing test_type or scores' });
+    if (!['nback', 'pvt', 'dsst'].includes(test_type)) return res.status(400).json({ error: 'Invalid test_type' });
+    const now = new Date();
+    const date = now.toISOString().split('T')[0];
+    const time = now.toTimeString().split(' ')[0];
+    cogDB.saveResult(test_type, date, time, JSON.stringify(scores));
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Error saving cognitive result:', err);
+    res.status(500).json({ error: 'Failed to save result' });
+  }
+});
+
+// Get test results
+app.get('/api/cognitive/results', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const days = parseInt(req.query.days) || 30;
+    const type = req.query.type;
+    const results = type ? cogDB.getResultsByType(type, days) : cogDB.getResults(days);
+    const bests = cogDB.getPersonalBests();
+    res.json({ results, bests });
+  } catch (err) {
+    console.error('Error getting cognitive results:', err);
+    res.status(500).json({ error: 'Failed to get results' });
+  }
+});
+
+// Chess.com integration — fetch latest stats
+app.get('/api/cognitive/chess', dashboardAuth, async (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const https = require('https');
+    const data = await new Promise((resolve, reject) => {
+      const options = {
+        hostname: 'api.chess.com',
+        path: '/pub/player/dmk101890/stats',
+        headers: { 'User-Agent': 'NeuralNeXus/1.0' }
+      };
+      https.get(options, (r) => {
+        let body = '';
+        r.on('data', chunk => body += chunk);
+        r.on('end', () => {
+          try { resolve(JSON.parse(body)); } catch { reject(new Error('Invalid JSON from chess.com')); }
+        });
+      }).on('error', reject);
+    });
+    const blitz = data.chess_blitz?.last?.rating || null;
+    const rapid = data.chess_rapid?.last?.rating || null;
+    const bullet = data.chess_bullet?.last?.rating || null;
+    // Also return stored history
+    const history = cogDB.getChessElo(90);
+    res.json({ current: { blitz, rapid, bullet }, history });
+  } catch (err) {
+    console.error('Error fetching chess.com data:', err);
+    res.status(500).json({ error: 'Failed to fetch chess data' });
+  }
+});
+
+// Sync chess.com ratings to DB
+app.post('/api/cognitive/chess/sync', dashboardAuth, async (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const https = require('https');
+    const data = await new Promise((resolve, reject) => {
+      const options = {
+        hostname: 'api.chess.com',
+        path: '/pub/player/dmk101890/stats',
+        headers: { 'User-Agent': 'NeuralNeXus/1.0' }
+      };
+      https.get(options, (r) => {
+        let body = '';
+        r.on('data', chunk => body += chunk);
+        r.on('end', () => {
+          try { resolve(JSON.parse(body)); } catch { reject(new Error('Invalid JSON')); }
+        });
+      }).on('error', reject);
+    });
+    const date = new Date().toISOString().split('T')[0];
+    const blitz = data.chess_blitz?.last?.rating || null;
+    const rapid = data.chess_rapid?.last?.rating || null;
+    const bullet = data.chess_bullet?.last?.rating || null;
+    cogDB.saveChessElo(date, blitz, rapid, bullet);
+    res.json({ ok: true, date, blitz, rapid, bullet });
+  } catch (err) {
+    console.error('Error syncing chess.com data:', err);
+    res.status(500).json({ error: 'Failed to sync chess data' });
+  }
+});
+
+// Supplements
+app.get('/api/cognitive/supplements', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    res.json({ supplements: cogDB.getSupplements() });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get supplements' });
+  }
+});
+
+app.post('/api/cognitive/supplements', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const { compound_name, start_date, notes } = req.body;
+    if (!compound_name || !start_date) return res.status(400).json({ error: 'Missing compound_name or start_date' });
+    cogDB.addSupplement(compound_name, start_date, notes);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to add supplement' });
+  }
+});
+
+// Daily subjective ratings
+app.post('/api/cognitive/daily', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const { date, subjective_energy, subjective_focus, sleep_hours, notes } = req.body;
+    const d = date || new Date().toISOString().split('T')[0];
+    cogDB.saveDailyNote(d, subjective_energy, subjective_focus, sleep_hours, notes);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save daily note' });
+  }
+});
+
+app.get('/api/cognitive/daily', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const days = parseInt(req.query.days) || 30;
+    res.json({ notes: cogDB.getDailyNotes(days) });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get daily notes' });
   }
 });
 

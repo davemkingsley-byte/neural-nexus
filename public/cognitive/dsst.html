@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Digit Symbol Substitution Test | Neural Nexus</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #06060b;
+  color: #e0e0e0;
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+a { color: #d4a853; text-decoration: none; }
+a:hover { opacity: 0.85; }
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  transition: color 0.2s;
+}
+.back-link:hover { color: #d4a853; opacity: 1; }
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+}
+
+h1 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  color: #fff;
+}
+
+.gold { color: #d4a853; }
+
+.card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 32px;
+}
+
+/* Symbol Key */
+.symbol-key {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 24px 0;
+}
+
+.key-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.02);
+  overflow: hidden;
+}
+
+.key-digit {
+  font-size: 18px;
+  font-weight: 600;
+  color: #d4a853;
+  padding: 8px 0 4px;
+  width: 100%;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.key-symbol {
+  font-size: 22px;
+  padding: 8px 0;
+  color: #fff;
+}
+
+/* Setup Screen */
+#setup-screen { text-align: center; }
+#setup-screen h1 { font-size: 36px; margin-bottom: 16px; }
+#setup-screen p.desc {
+  color: rgba(255,255,255,0.55);
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0 auto 32px;
+}
+
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #d4a853;
+  color: #06060b;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  border-radius: 12px;
+  padding: 16px 48px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 30px rgba(212,168,83,0.25);
+}
+.btn-gold:active { transform: translateY(0); }
+
+/* Test Screen */
+#test-screen { display: none; }
+
+.test-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.timer {
+  font-size: 28px;
+  font-weight: 600;
+  color: #d4a853;
+  font-variant-numeric: tabular-nums;
+}
+.timer.warning { color: #e05555; }
+
+.score-bar {
+  display: flex;
+  gap: 24px;
+  justify-content: center;
+  font-size: 15px;
+  color: rgba(255,255,255,0.6);
+  margin: 12px 0 8px;
+}
+.score-bar .correct-count { color: #5ce08a; font-weight: 600; }
+.score-bar .error-count { color: #e05555; font-weight: 600; }
+
+.digit-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 24px auto;
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  border: 3px solid rgba(212,168,83,0.4);
+  background: rgba(212,168,83,0.06);
+  font-size: 72px;
+  font-weight: 600;
+  color: #d4a853;
+  transition: transform 0.15s;
+}
+.digit-display.pop {
+  animation: popIn 0.2s ease-out;
+}
+
+@keyframes popIn {
+  0% { transform: scale(0.7); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.symbol-buttons {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 8px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.sym-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  min-width: 48px;
+  min-height: 48px;
+  font-size: 28px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.1s, border-color 0.1s, transform 0.1s;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.sym-btn:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: rgba(255,255,255,0.2);
+}
+.sym-btn:active { transform: scale(0.93); }
+.sym-btn.flash-correct {
+  background: rgba(92,224,138,0.2);
+  border-color: #5ce08a;
+}
+.sym-btn.flash-incorrect {
+  background: rgba(224,85,85,0.2);
+  border-color: #e05555;
+}
+
+/* Results Screen */
+#results-screen { display: none; text-align: center; }
+#results-screen h1 { font-size: 32px; margin-bottom: 8px; }
+
+.big-score {
+  font-size: 80px;
+  font-weight: 600;
+  color: #d4a853;
+  line-height: 1;
+  margin: 16px 0 4px;
+}
+.big-score-label {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 32px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.stat-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 20px 12px;
+}
+.stat-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: #fff;
+}
+.stat-label {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 4px;
+}
+
+.digit-breakdown {
+  margin: 0 auto 32px;
+  border-collapse: collapse;
+  width: 100%;
+  max-width: 500px;
+}
+.digit-breakdown th {
+  font-size: 12px;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  text-align: center;
+}
+.digit-breakdown td {
+  padding: 10px 6px;
+  text-align: center;
+  font-size: 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.digit-breakdown .digit-col { color: #d4a853; font-weight: 600; font-size: 16px; }
+.digit-breakdown .symbol-col { font-size: 18px; }
+
+.personal-best-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(212,168,83,0.12);
+  border: 1px solid rgba(212,168,83,0.3);
+  border-radius: 999px;
+  padding: 8px 20px;
+  color: #d4a853;
+  font-weight: 600;
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.prev-best {
+  font-size: 14px;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 24px;
+}
+
+/* Confetti Canvas */
+#confetti-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .container { padding: 0 12px 40px; }
+  .card { padding: 20px 16px; }
+  #setup-screen h1 { font-size: 28px; }
+
+  .symbol-key { gap: 3px; }
+  .key-cell { width: 36px; border-radius: 6px; }
+  .key-digit { font-size: 13px; padding: 5px 0 3px; }
+  .key-symbol { font-size: 16px; padding: 5px 0; }
+
+  .digit-display { width: 110px; height: 110px; font-size: 56px; }
+
+  .symbol-buttons {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    max-width: 280px;
+  }
+  .sym-btn {
+    font-size: 32px;
+    min-height: 64px;
+    border-radius: 14px;
+  }
+
+  .timer { font-size: 22px; }
+  .big-score { font-size: 60px; }
+
+  .stats-grid { grid-template-columns: 1fr; gap: 8px; }
+  .stat-card { padding: 14px 12px; }
+
+  .digit-breakdown td, .digit-breakdown th { padding: 6px 3px; font-size: 12px; }
+}
+</style>
+</head>
+<body>
+
+<a href="/cognitive/" class="back-link">&larr; Back to Dashboard</a>
+
+<div class="container">
+
+  <!-- SETUP SCREEN -->
+  <div id="setup-screen">
+    <h1>Digit Symbol Substitution Test</h1>
+    <p class="desc">Match digits to their symbols as quickly and accurately as possible. You have <strong class="gold">90 seconds</strong>.</p>
+
+    <div class="card">
+      <div style="font-size:13px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Symbol Key</div>
+      <div class="symbol-key" id="setup-key"></div>
+    </div>
+
+    <br>
+    <button class="btn-gold" id="btn-begin">Begin Test</button>
+  </div>
+
+  <!-- TEST SCREEN -->
+  <div id="test-screen">
+    <div class="test-header">
+      <div style="font-size:13px; color:rgba(255,255,255,0.35);">DSST</div>
+      <div class="timer" id="timer">1:30</div>
+    </div>
+
+    <div class="card" style="padding:16px;">
+      <div class="symbol-key" id="test-key"></div>
+    </div>
+
+    <div class="score-bar">
+      <span>Correct: <span class="correct-count" id="correct-count">0</span></span>
+      <span>Errors: <span class="error-count" id="error-count">0</span></span>
+    </div>
+
+    <div class="digit-display" id="digit-display">5</div>
+
+    <div class="symbol-buttons" id="symbol-buttons"></div>
+  </div>
+
+  <!-- RESULTS SCREEN -->
+  <div id="results-screen">
+    <h1>Test Complete</h1>
+    <div id="pb-badge" class="personal-best-badge" style="display:none;">&#9733; New Personal Best!</div>
+    <div class="big-score" id="result-correct">0</div>
+    <div class="big-score-label">Correct Responses</div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value" id="result-attempted">0</div>
+        <div class="stat-label">Attempted</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="result-accuracy">0%</div>
+        <div class="stat-label">Accuracy</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="result-avg-rt">0ms</div>
+        <div class="stat-label">Avg Response Time</div>
+      </div>
+    </div>
+
+    <div id="prev-best-line" class="prev-best" style="display:none;"></div>
+
+    <div class="card" style="margin-bottom:32px;">
+      <div style="font-size:13px; color:rgba(255,255,255,0.4); text-transform:uppercase; letter-spacing:1px; margin-bottom:12px;">Per-Digit Breakdown</div>
+      <table class="digit-breakdown" id="breakdown-table">
+        <thead>
+          <tr>
+            <th>Digit</th><th>Symbol</th><th>Correct</th><th>Total</th><th>Accuracy</th>
+          </tr>
+        </thead>
+        <tbody id="breakdown-body"></tbody>
+      </table>
+    </div>
+
+    <button class="btn-gold" id="btn-save">Save &amp; Return</button>
+  </div>
+
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+(function() {
+  // --- Constants ---
+  const DURATION = 90;
+  const DIGIT_SYMBOLS = { 1:'▲', 2:'●', 3:'■', 4:'★', 5:'◆', 6:'♠', 7:'♣', 8:'♥', 9:'◎' };
+  const DIGITS = [1,2,3,4,5,6,7,8,9];
+  const SYMBOLS_ORDERED = DIGITS.map(d => DIGIT_SYMBOLS[d]);
+
+  // --- Audio ---
+  let audioCtx = null;
+  function ensureAudio() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  function playTone(freq, dur, vol) {
+    try {
+      ensureAudio();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.frequency.value = freq;
+      osc.type = 'sine';
+      gain.gain.setValueAtTime(vol || 0.08, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.start();
+      osc.stop(audioCtx.currentTime + dur);
+    } catch(e) {}
+  }
+  function playCorrect() { playTone(880, 0.08, 0.07); }
+  function playIncorrect() { playTone(280, 0.15, 0.06); }
+
+  // --- Shuffle ---
+  function shuffle(arr) {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // --- Build Symbol Key ---
+  function buildKey(containerId) {
+    const el = document.getElementById(containerId);
+    el.innerHTML = '';
+    DIGITS.forEach(d => {
+      const cell = document.createElement('div');
+      cell.className = 'key-cell';
+      cell.innerHTML = '<div class="key-digit">' + d + '</div><div class="key-symbol">' + DIGIT_SYMBOLS[d] + '</div>';
+      el.appendChild(cell);
+    });
+  }
+
+  buildKey('setup-key');
+  buildKey('test-key');
+
+  // --- State ---
+  let correct = 0, errors = 0, attempted = 0;
+  let currentDigit = 0;
+  let timeLeft = DURATION;
+  let timerInterval = null;
+  let digitTimestamp = 0;
+  let responseTimes = [];
+  let perDigit = {};
+  let buttonOrder = [];
+
+  DIGITS.forEach(d => { perDigit[d] = { correct: 0, total: 0 }; });
+
+  // --- DOM ---
+  const setupScreen = document.getElementById('setup-screen');
+  const testScreen = document.getElementById('test-screen');
+  const resultsScreen = document.getElementById('results-screen');
+  const timerEl = document.getElementById('timer');
+  const digitDisplay = document.getElementById('digit-display');
+  const correctCountEl = document.getElementById('correct-count');
+  const errorCountEl = document.getElementById('error-count');
+  const symbolButtonsEl = document.getElementById('symbol-buttons');
+
+  // --- Build symbol buttons (shuffled order) ---
+  function buildButtons() {
+    buttonOrder = shuffle(DIGITS);
+    symbolButtonsEl.innerHTML = '';
+    buttonOrder.forEach(d => {
+      const btn = document.createElement('button');
+      btn.className = 'sym-btn';
+      btn.textContent = DIGIT_SYMBOLS[d];
+      btn.setAttribute('data-digit', d);
+      btn.addEventListener('click', handleAnswer);
+      // Prevent double-tap zoom on mobile
+      btn.addEventListener('touchend', function(e) {
+        e.preventDefault();
+        handleAnswer.call(this, e);
+      });
+      symbolButtonsEl.appendChild(btn);
+    });
+  }
+
+  // --- Pick next digit (no immediate repeat) ---
+  function nextDigit() {
+    let d;
+    do { d = DIGITS[Math.floor(Math.random() * 9)]; } while (d === currentDigit);
+    currentDigit = d;
+    digitDisplay.textContent = d;
+    digitDisplay.classList.remove('pop');
+    // Force reflow
+    void digitDisplay.offsetWidth;
+    digitDisplay.classList.add('pop');
+    digitTimestamp = performance.now();
+  }
+
+  // --- Handle answer ---
+  function handleAnswer(e) {
+    if (timeLeft <= 0) return;
+    const btn = e.currentTarget || this;
+    const chosen = parseInt(btn.getAttribute('data-digit'), 10);
+    const rt = performance.now() - digitTimestamp;
+
+    attempted++;
+    perDigit[currentDigit].total++;
+
+    if (chosen === currentDigit) {
+      correct++;
+      perDigit[currentDigit].correct++;
+      responseTimes.push(rt);
+      correctCountEl.textContent = correct;
+      btn.classList.add('flash-correct');
+      playCorrect();
+      setTimeout(() => btn.classList.remove('flash-correct'), 150);
+    } else {
+      errors++;
+      errorCountEl.textContent = errors;
+      btn.classList.add('flash-incorrect');
+      playIncorrect();
+      setTimeout(() => btn.classList.remove('flash-incorrect'), 150);
+    }
+
+    nextDigit();
+  }
+
+  // --- Timer ---
+  function formatTime(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return m + ':' + (sec < 10 ? '0' : '') + sec;
+  }
+
+  function startTimer() {
+    timeLeft = DURATION;
+    timerEl.textContent = formatTime(timeLeft);
+    timerEl.classList.remove('warning');
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerEl.textContent = formatTime(timeLeft);
+      if (timeLeft <= 10) timerEl.classList.add('warning');
+      if (timeLeft <= 0) {
+        clearInterval(timerInterval);
+        endTest();
+      }
+    }, 1000);
+  }
+
+  // --- Begin ---
+  document.getElementById('btn-begin').addEventListener('click', () => {
+    ensureAudio();
+    setupScreen.style.display = 'none';
+    testScreen.style.display = 'block';
+
+    correct = 0; errors = 0; attempted = 0;
+    responseTimes = [];
+    DIGITS.forEach(d => { perDigit[d] = { correct: 0, total: 0 }; });
+    correctCountEl.textContent = '0';
+    errorCountEl.textContent = '0';
+
+    buildButtons();
+    nextDigit();
+    startTimer();
+  });
+
+  // --- End Test ---
+  function endTest() {
+    testScreen.style.display = 'none';
+    resultsScreen.style.display = 'block';
+
+    const accuracy = attempted > 0 ? (correct / attempted * 100) : 0;
+    const avgRt = responseTimes.length > 0
+      ? Math.round(responseTimes.reduce((a,b) => a+b, 0) / responseTimes.length)
+      : 0;
+
+    document.getElementById('result-correct').textContent = correct;
+    document.getElementById('result-attempted').textContent = attempted;
+    document.getElementById('result-accuracy').textContent = accuracy.toFixed(1) + '%';
+    document.getElementById('result-avg-rt').textContent = avgRt + 'ms';
+
+    // Breakdown table
+    const tbody = document.getElementById('breakdown-body');
+    tbody.innerHTML = '';
+    DIGITS.forEach(d => {
+      const pd = perDigit[d];
+      const acc = pd.total > 0 ? (pd.correct / pd.total * 100).toFixed(0) : '-';
+      const tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td class="digit-col">' + d + '</td>' +
+        '<td class="symbol-col">' + DIGIT_SYMBOLS[d] + '</td>' +
+        '<td>' + pd.correct + '</td>' +
+        '<td>' + pd.total + '</td>' +
+        '<td>' + (acc === '-' ? '-' : acc + '%') + '</td>';
+      tbody.appendChild(tr);
+    });
+
+    // Check personal best
+    checkPersonalBest(correct);
+
+    // Prepare payload
+    const pdPayload = {};
+    DIGITS.forEach(d => { pdPayload[String(d)] = { correct: perDigit[d].correct, total: perDigit[d].total }; });
+
+    window._dsstPayload = {
+      test_type: 'dsst',
+      scores: {
+        correct: correct,
+        attempted: attempted,
+        accuracy: parseFloat(accuracy.toFixed(1)),
+        avg_response_time: avgRt,
+        per_digit: pdPayload,
+        duration: DURATION
+      }
+    };
+  }
+
+  // --- Personal Best ---
+  function checkPersonalBest(currentScore) {
+    fetch('/api/cognitive/results')
+      .then(r => r.json())
+      .then(data => {
+        const results = Array.isArray(data) ? data : (data.results || []);
+        const dsstResults = results.filter(r => r.test_type === 'dsst');
+        let prevBest = 0;
+        dsstResults.forEach(r => {
+          const c = r.scores && r.scores.correct ? r.scores.correct : 0;
+          if (c > prevBest) prevBest = c;
+        });
+
+        if (prevBest > 0) {
+          const prevLine = document.getElementById('prev-best-line');
+          prevLine.style.display = 'block';
+          prevLine.textContent = 'Previous best: ' + prevBest + ' correct';
+        }
+
+        if (currentScore > prevBest && currentScore > 0) {
+          document.getElementById('pb-badge').style.display = 'inline-flex';
+          launchConfetti();
+        }
+      })
+      .catch(() => {
+        // If no previous results, any score > 0 is a personal best
+        if (currentScore > 0) {
+          document.getElementById('pb-badge').style.display = 'inline-flex';
+          launchConfetti();
+        }
+      });
+  }
+
+  // --- Save ---
+  document.getElementById('btn-save').addEventListener('click', () => {
+    const payload = window._dsstPayload;
+    if (!payload) { window.location.href = '/cognitive/'; return; }
+
+    fetch('/api/cognitive/results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    .then(() => { window.location.href = '/cognitive/'; })
+    .catch(() => { window.location.href = '/cognitive/'; });
+  });
+
+  // --- Confetti ---
+  function launchConfetti() {
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const COLORS = ['#d4a853', '#e8c96e', '#ffffff', '#f5e6c4', '#c49a3c'];
+    const COUNT = 120;
+
+    for (let i = 0; i < COUNT; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height * -1,
+        w: Math.random() * 8 + 4,
+        h: Math.random() * 6 + 3,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        vx: (Math.random() - 0.5) * 4,
+        vy: Math.random() * 3 + 2,
+        rot: Math.random() * Math.PI * 2,
+        rv: (Math.random() - 0.5) * 0.15,
+        opacity: 1
+      });
+    }
+
+    let frame = 0;
+    const maxFrames = 180;
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      frame++;
+
+      const fadeFactor = frame > maxFrames - 40 ? (maxFrames - frame) / 40 : 1;
+
+      particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.rv;
+        p.vy += 0.04;
+        p.vx *= 0.99;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.globalAlpha = Math.max(0, p.opacity * fadeFactor);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      });
+
+      if (frame < maxFrames) {
+        requestAnimationFrame(draw);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  // Handle resize for confetti canvas
+  window.addEventListener('resize', () => {
+    const canvas = document.getElementById('confetti-canvas');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  });
+})();
+</script>
+</body>
+</html>

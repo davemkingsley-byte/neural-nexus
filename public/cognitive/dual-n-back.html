@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dual N-Back — Neural Nexus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #06060b;
+  color: #e0e0e0;
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 20px 24px;
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  transition: color 0.2s;
+}
+.back-link:hover { color: #d4a853; }
+
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 20px 40px;
+}
+
+/* ── Setup Screen ── */
+#setup-screen, #game-screen, #results-screen { display: none; }
+#setup-screen.active, #game-screen.active, #results-screen.active { display: block; }
+
+.card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  padding: 32px 28px;
+}
+
+h1 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: 40px;
+  color: #fff;
+  margin-bottom: 8px;
+}
+
+h2 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: 28px;
+  color: #fff;
+  margin-bottom: 16px;
+}
+
+.subtitle {
+  color: rgba(255,255,255,0.45);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.gold { color: #d4a853; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #d4a853;
+  color: #06060b;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 32px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+  width: 100%;
+}
+.btn:hover { background: #e0b96a; }
+.btn:active { transform: scale(0.97); }
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #e0e0e0;
+}
+.btn-outline:hover { background: rgba(255,255,255,0.05); }
+
+/* ── Countdown ── */
+#countdown-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(6,6,11,0.92);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+#countdown-overlay.active { display: flex; }
+
+#countdown-number {
+  font-family: 'Instrument Serif', serif;
+  font-size: 120px;
+  color: #d4a853;
+  animation: countPulse 0.6s ease-out;
+}
+
+@keyframes countPulse {
+  0% { transform: scale(1.4); opacity: 0.3; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Game Screen ── */
+.game-hud {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+}
+
+.game-hud .n-level {
+  font-family: 'Instrument Serif', serif;
+  font-size: 22px;
+  color: #d4a853;
+}
+
+.grid-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  width: min(280px, 70vw);
+  height: min(280px, 70vw);
+}
+
+.grid-cell {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.grid-cell.lit {
+  background: rgba(212,168,83,0.25);
+  border-color: #d4a853;
+  box-shadow: 0 0 20px rgba(212,168,83,0.15);
+}
+
+.letter-indicator {
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255,255,255,0.3);
+  margin-bottom: 20px;
+  height: 20px;
+}
+
+.match-buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.match-btn {
+  flex: 1;
+  padding: 18px 12px;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: #e0e0e0;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.match-btn:active { transform: scale(0.95); }
+
+.match-btn.pressed {
+  background: rgba(212,168,83,0.2);
+  border-color: #d4a853;
+  color: #d4a853;
+}
+
+.match-btn .key-hint {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.25);
+  margin-top: 4px;
+}
+
+.trial-feedback {
+  text-align: center;
+  height: 24px;
+  margin-top: 12px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.trial-feedback.correct { color: #5cb85c; }
+.trial-feedback.wrong { color: #d9534f; }
+
+/* ── Results Screen ── */
+.results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.result-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 20px 16px;
+  text-align: center;
+}
+
+.result-card.featured {
+  grid-column: 1 / -1;
+  border-color: rgba(212,168,83,0.3);
+  background: rgba(212,168,83,0.05);
+}
+
+.result-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.4);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.result-value {
+  font-family: 'Instrument Serif', serif;
+  font-size: 36px;
+  color: #fff;
+}
+
+.result-card.featured .result-value {
+  font-size: 52px;
+  color: #d4a853;
+}
+
+.personal-best-badge {
+  display: none;
+  margin: 0 auto 20px;
+  padding: 8px 20px;
+  border-radius: 20px;
+  background: rgba(212,168,83,0.12);
+  border: 1px solid rgba(212,168,83,0.3);
+  color: #d4a853;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: center;
+  width: fit-content;
+}
+.personal-best-badge.show { display: block; }
+
+.results-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* ── Confetti Canvas ── */
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 200;
+  pointer-events: none;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  h1 { font-size: 32px; }
+  .card { padding: 24px 20px; }
+  .match-btn { padding: 22px 10px; font-size: 13px; }
+  .match-btn .key-hint { display: none; }
+}
+</style>
+</head>
+<body>
+
+<a href="/cognitive/" class="back-link">&larr; Back to Dashboard</a>
+
+<div class="container">
+
+  <!-- ── Setup Screen ── -->
+  <div id="setup-screen" class="active">
+    <h1>Dual N-Back</h1>
+    <p class="subtitle">
+      A demanding working memory task that trains two channels simultaneously.
+      On each trial you see a position on a grid and hear a letter. Your job is
+      to identify when either the <strong class="gold">position</strong> or the
+      <strong class="gold">sound</strong> matches what appeared <em>N</em> trials ago.
+      The difficulty adapts as you play &mdash; the better you do, the higher N climbs.
+    </p>
+    <div class="card" style="margin-bottom:24px;">
+      <p style="font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7;">
+        <strong style="color:#e0e0e0;">How it works:</strong><br>
+        &bull; A square lights up on a 3&times;3 grid &mdash; press <strong class="gold">A</strong> or tap
+        <strong class="gold">Position Match</strong> if it matches N steps back.<br>
+        &bull; A letter is spoken &mdash; press <strong class="gold">L</strong> or tap
+        <strong class="gold">Sound Match</strong> if it matches N steps back.<br>
+        &bull; You start at <strong class="gold">2-back</strong>. Three correct in a row levels you up;
+        three wrong drops you down.<br>
+        &bull; 20 trials. Stay sharp.
+      </p>
+    </div>
+    <button class="btn" id="begin-btn">Begin Test</button>
+  </div>
+
+  <!-- ── Countdown Overlay ── -->
+  <div id="countdown-overlay">
+    <div id="countdown-number">3</div>
+  </div>
+
+  <!-- ── Game Screen ── -->
+  <div id="game-screen">
+    <div class="game-hud">
+      <span id="hud-trial">Trial 1 / 20</span>
+      <span class="n-level" id="hud-n">2-Back</span>
+    </div>
+    <div class="grid-wrapper">
+      <div class="grid" id="grid"></div>
+    </div>
+    <div class="letter-indicator" id="letter-indicator"></div>
+    <div class="match-buttons">
+      <button class="match-btn" id="btn-position" ontouchstart="">
+        Position Match
+        <span class="key-hint">Press A</span>
+      </button>
+      <button class="match-btn" id="btn-sound" ontouchstart="">
+        Sound Match
+        <span class="key-hint">Press L</span>
+      </button>
+    </div>
+    <div class="trial-feedback" id="trial-feedback"></div>
+  </div>
+
+  <!-- ── Results Screen ── -->
+  <div id="results-screen">
+    <h2>Results</h2>
+
+    <div class="personal-best-badge" id="pb-badge">New Personal Best!</div>
+
+    <div class="results-grid">
+      <div class="result-card featured">
+        <div class="result-label">Max N Level</div>
+        <div class="result-value" id="res-max-n">—</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">Final N</div>
+        <div class="result-value" id="res-final-n">—</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">Combined</div>
+        <div class="result-value" id="res-combined">—</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">Visual Accuracy</div>
+        <div class="result-value" id="res-visual">—</div>
+      </div>
+      <div class="result-card">
+        <div class="result-label">Audio Accuracy</div>
+        <div class="result-value" id="res-audio">—</div>
+      </div>
+    </div>
+
+    <div class="results-btns">
+      <button class="btn" id="save-btn">Save &amp; Return</button>
+      <button class="btn btn-outline" id="retry-btn">Try Again</button>
+    </div>
+  </div>
+
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── Elements ──
+  const setupScreen   = document.getElementById('setup-screen');
+  const gameScreen     = document.getElementById('game-screen');
+  const resultsScreen  = document.getElementById('results-screen');
+  const countdownOvl   = document.getElementById('countdown-overlay');
+  const countdownNum   = document.getElementById('countdown-number');
+  const grid           = document.getElementById('grid');
+  const hudTrial       = document.getElementById('hud-trial');
+  const hudN           = document.getElementById('hud-n');
+  const letterInd      = document.getElementById('letter-indicator');
+  const btnPosition    = document.getElementById('btn-position');
+  const btnSound       = document.getElementById('btn-sound');
+  const trialFeedback  = document.getElementById('trial-feedback');
+  const beginBtn       = document.getElementById('begin-btn');
+  const saveBtn        = document.getElementById('save-btn');
+  const retryBtn       = document.getElementById('retry-btn');
+  const pbBadge        = document.getElementById('pb-badge');
+  const confettiCanvas = document.getElementById('confetti-canvas');
+
+  // ── Constants ──
+  const LETTERS        = ['C','H','K','L','Q','R','S','T'];
+  const TOTAL_TRIALS   = 20;
+  const STIMULUS_MS    = 500;
+  const TRIAL_MS       = 2500;
+  const TONE_FREQS     = [261.6, 293.7, 329.6, 349.2, 392.0, 440.0, 493.9, 523.3];
+
+  // ── State ──
+  let nLevel = 2;
+  let maxN   = 2;
+  let currentTrial = 0;
+  let consecutiveCorrect = 0;
+  let consecutiveErrors  = 0;
+  let positionHistory = [];
+  let letterHistory   = [];
+  let results         = []; // { visualCorrect, audioCorrect }
+  let positionPressed = false;
+  let soundPressed    = false;
+  let trialActive     = false;
+  let speechAvailable = false;
+  let audioCtx        = null;
+
+  // ── Build Grid ──
+  const cells = [];
+  for (let i = 0; i < 9; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'grid-cell';
+    grid.appendChild(cell);
+    cells.push(cell);
+  }
+
+  // ── Audio Setup ──
+  try {
+    if (window.speechSynthesis && speechSynthesis.getVoices) {
+      speechAvailable = true;
+      speechSynthesis.getVoices(); // warm up
+    }
+  } catch(e) { speechAvailable = false; }
+
+  function getAudioCtx() {
+    if (!audioCtx) {
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtx;
+  }
+
+  function speakLetter(letter) {
+    const idx = LETTERS.indexOf(letter);
+
+    if (speechAvailable) {
+      try {
+        const u = new SpeechSynthesisUtterance(letter);
+        u.rate = 1.1;
+        u.pitch = 1;
+        u.volume = 0.8;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+        return;
+      } catch(e) { /* fall through to tone */ }
+    }
+
+    // Fallback: tone
+    try {
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = TONE_FREQS[idx] || 440;
+      gain.gain.setValueAtTime(0.3, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.4);
+    } catch(e) { /* silent */ }
+
+    // Show letter indicator as fallback hint
+    letterInd.textContent = letter;
+  }
+
+  // ── Screen Navigation ──
+  function showScreen(screen) {
+    setupScreen.classList.remove('active');
+    gameScreen.classList.remove('active');
+    resultsScreen.classList.remove('active');
+    screen.classList.add('active');
+  }
+
+  // ── Countdown ──
+  function runCountdown() {
+    return new Promise(resolve => {
+      countdownOvl.classList.add('active');
+      let count = 3;
+      countdownNum.textContent = count;
+      const iv = setInterval(() => {
+        count--;
+        if (count <= 0) {
+          clearInterval(iv);
+          countdownOvl.classList.remove('active');
+          resolve();
+        } else {
+          countdownNum.textContent = count;
+          // re-trigger animation
+          countdownNum.style.animation = 'none';
+          void countdownNum.offsetWidth;
+          countdownNum.style.animation = '';
+        }
+      }, 800);
+    });
+  }
+
+  // ── Generate Trial Stimuli ──
+  function pickPosition() {
+    // 30% chance of match if we have enough history
+    if (positionHistory.length >= nLevel && Math.random() < 0.30) {
+      return positionHistory[positionHistory.length - nLevel];
+    }
+    return Math.floor(Math.random() * 9);
+  }
+
+  function pickLetter() {
+    if (letterHistory.length >= nLevel && Math.random() < 0.30) {
+      return letterHistory[letterHistory.length - nLevel];
+    }
+    return LETTERS[Math.floor(Math.random() * LETTERS.length)];
+  }
+
+  // ── Run Single Trial ──
+  function runTrial() {
+    return new Promise(resolve => {
+      trialActive = true;
+      positionPressed = false;
+      soundPressed = false;
+      btnPosition.classList.remove('pressed');
+      btnSound.classList.remove('pressed');
+      trialFeedback.textContent = '';
+      trialFeedback.className = 'trial-feedback';
+
+      hudTrial.textContent = `Trial ${currentTrial + 1} / ${TOTAL_TRIALS}`;
+      hudN.textContent = `${nLevel}-Back`;
+
+      const pos = pickPosition();
+      const letter = pickLetter();
+      positionHistory.push(pos);
+      letterHistory.push(letter);
+
+      // Light up cell
+      cells[pos].classList.add('lit');
+      letterInd.textContent = '';
+
+      // Speak / play letter
+      speakLetter(letter);
+
+      // If speech not available, show letter
+      if (!speechAvailable) {
+        letterInd.textContent = letter;
+      }
+
+      // Turn off stimulus after STIMULUS_MS
+      setTimeout(() => {
+        cells[pos].classList.remove('lit');
+      }, STIMULUS_MS);
+
+      // End trial after TRIAL_MS
+      setTimeout(() => {
+        trialActive = false;
+
+        // Determine correct answers
+        const hasNBack = currentTrial >= nLevel;
+        const posMatch = hasNBack && positionHistory[currentTrial] === positionHistory[currentTrial - nLevel];
+        const sndMatch = hasNBack && letterHistory[currentTrial]   === letterHistory[currentTrial - nLevel];
+
+        const visualCorrect = positionPressed === posMatch;
+        const audioCorrect  = soundPressed === sndMatch;
+        const bothCorrect   = visualCorrect && audioCorrect;
+
+        results.push({ visualCorrect, audioCorrect });
+
+        // Feedback
+        if (bothCorrect) {
+          trialFeedback.textContent = 'Correct';
+          trialFeedback.className = 'trial-feedback correct';
+        } else {
+          let parts = [];
+          if (!visualCorrect) parts.push('Position');
+          if (!audioCorrect) parts.push('Sound');
+          trialFeedback.textContent = parts.join(' & ') + ' wrong';
+          trialFeedback.className = 'trial-feedback wrong';
+        }
+
+        // Adaptive difficulty
+        if (bothCorrect) {
+          consecutiveCorrect++;
+          consecutiveErrors = 0;
+          if (consecutiveCorrect >= 3) {
+            nLevel++;
+            if (nLevel > maxN) maxN = nLevel;
+            consecutiveCorrect = 0;
+          }
+        } else {
+          consecutiveErrors++;
+          consecutiveCorrect = 0;
+          if (consecutiveErrors >= 3) {
+            nLevel = Math.max(1, nLevel - 1);
+            consecutiveErrors = 0;
+          }
+        }
+
+        currentTrial++;
+
+        // Short pause to see feedback, then resolve
+        setTimeout(resolve, 400);
+      }, TRIAL_MS);
+    });
+  }
+
+  // ── Run Full Game ──
+  async function runGame() {
+    // Reset state
+    nLevel = 2;
+    maxN = 2;
+    currentTrial = 0;
+    consecutiveCorrect = 0;
+    consecutiveErrors = 0;
+    positionHistory = [];
+    letterHistory = [];
+    results = [];
+    trialFeedback.textContent = '';
+
+    // Resume audio context if suspended (mobile requirement)
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+
+    showScreen(gameScreen);
+    await runCountdown();
+
+    for (let i = 0; i < TOTAL_TRIALS; i++) {
+      await runTrial();
+    }
+
+    showResults();
+  }
+
+  // ── Compute & Show Results ──
+  function showResults() {
+    const visualAcc = Math.round(results.filter(r => r.visualCorrect).length / TOTAL_TRIALS * 100);
+    const audioAcc  = Math.round(results.filter(r => r.audioCorrect).length / TOTAL_TRIALS * 100);
+    const combinedAcc = Math.round(results.filter(r => r.visualCorrect && r.audioCorrect).length / TOTAL_TRIALS * 100);
+
+    document.getElementById('res-max-n').textContent = maxN;
+    document.getElementById('res-final-n').textContent = nLevel;
+    document.getElementById('res-combined').textContent = combinedAcc + '%';
+    document.getElementById('res-visual').textContent = visualAcc + '%';
+    document.getElementById('res-audio').textContent = audioAcc + '%';
+
+    showScreen(resultsScreen);
+
+    // Check personal best
+    checkPersonalBest(maxN);
+
+    // Store scores for saving
+    resultsScreen.dataset.scores = JSON.stringify({
+      visual_accuracy: visualAcc,
+      audio_accuracy: audioAcc,
+      combined_accuracy: combinedAcc,
+      max_n: maxN,
+      final_n: nLevel,
+      trials: TOTAL_TRIALS
+    });
+  }
+
+  async function checkPersonalBest(currentMaxN) {
+    try {
+      const resp = await fetch('/api/cognitive/results?days=365');
+      if (!resp.ok) return;
+      const data = await resp.json();
+      const nbackResults = (data.results || data || []).filter(r => r.test_type === 'nback');
+      const prevBest = nbackResults.reduce((best, r) => {
+        const n = (r.scores && r.scores.max_n) || 0;
+        return n > best ? n : best;
+      }, 0);
+
+      if (currentMaxN > prevBest) {
+        pbBadge.classList.add('show');
+        launchConfetti();
+      }
+    } catch(e) {
+      // If API unavailable, skip PB check
+    }
+  }
+
+  // ── Save Results ──
+  async function saveResults() {
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+    try {
+      const scores = JSON.parse(resultsScreen.dataset.scores || '{}');
+      await fetch('/api/cognitive/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ test_type: 'nback', scores })
+      });
+    } catch(e) { /* best effort */ }
+    window.location.href = '/cognitive/';
+  }
+
+  // ── Confetti ──
+  function launchConfetti() {
+    const canvas = confettiCanvas;
+    const ctx2d = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const COLORS = ['#d4a853','#e0c97a','#ffffff','#f5e6c4','#c49a3c'];
+
+    for (let i = 0; i < 120; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height * -1,
+        w: Math.random() * 8 + 4,
+        h: Math.random() * 6 + 3,
+        vx: (Math.random() - 0.5) * 3,
+        vy: Math.random() * 3 + 2,
+        rot: Math.random() * Math.PI * 2,
+        vr: (Math.random() - 0.5) * 0.1,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        shape: Math.random() > 0.5 ? 'rect' : 'circle'
+      });
+    }
+
+    let frame = 0;
+    const maxFrames = 180;
+
+    function draw() {
+      ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+      const alpha = frame > maxFrames - 30 ? (maxFrames - frame) / 30 : 1;
+      ctx2d.globalAlpha = alpha;
+
+      for (const p of particles) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vy += 0.05; // gravity
+        p.rot += p.vr;
+
+        ctx2d.save();
+        ctx2d.translate(p.x, p.y);
+        ctx2d.rotate(p.rot);
+        ctx2d.fillStyle = p.color;
+
+        if (p.shape === 'rect') {
+          ctx2d.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        } else {
+          ctx2d.beginPath();
+          ctx2d.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+          ctx2d.fill();
+        }
+
+        ctx2d.restore();
+      }
+
+      frame++;
+      if (frame < maxFrames) {
+        requestAnimationFrame(draw);
+      } else {
+        ctx2d.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    requestAnimationFrame(draw);
+  }
+
+  // ── Input Handlers ──
+  function pressPosition() {
+    if (!trialActive) return;
+    positionPressed = true;
+    btnPosition.classList.add('pressed');
+  }
+
+  function pressSound() {
+    if (!trialActive) return;
+    soundPressed = true;
+    btnSound.classList.add('pressed');
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'a' || e.key === 'A') { e.preventDefault(); pressPosition(); }
+    if (e.key === 'l' || e.key === 'L') { e.preventDefault(); pressSound(); }
+  });
+
+  btnPosition.addEventListener('click', pressPosition);
+  btnSound.addEventListener('click', pressSound);
+
+  // ── Button Handlers ──
+  beginBtn.addEventListener('click', () => {
+    // Warm up audio on user gesture
+    try { getAudioCtx(); } catch(e) {}
+    runGame();
+  });
+
+  saveBtn.addEventListener('click', saveResults);
+
+  retryBtn.addEventListener('click', () => {
+    pbBadge.classList.remove('show');
+    runGame();
+  });
+
+})();
+</script>
+</body>
+</html>
