@@ -66,14 +66,14 @@ h1{font-size:1.6rem;margin-bottom:6px;color:#fff}
 <!-- Status & Phase -->
 <div class="card">
 <div class="card-title">Current Status</div>
-<div style="margin-bottom:16px"><span class="status-badge">🟡 Data Collection — Baseline Prep</span></div>
+<div style="margin-bottom:16px"><span class="status-badge" style="background:#10b98122;color:#10b981;border:1px solid #10b98144">🟢 Live — Baseline Collection Active</span></div>
 <div class="phase-tracker">
 <div class="phase done">📝 Requirements ✓</div>
-<div class="phase active">🎨 Design</div>
-<div class="phase upcoming">⚙️ Implementation</div>
-<div class="phase upcoming">🧪 Testing</div>
-<div class="phase upcoming">🚀 Deployment</div>
-<div class="phase upcoming">🔧 Maintenance</div>
+<div class="phase done">🎨 Design ✓</div>
+<div class="phase done">⚙️ Implementation ✓</div>
+<div class="phase done">🧪 Testing ✓</div>
+<div class="phase done">🚀 Deployment ✓</div>
+<div class="phase active">🔧 Baseline Collection</div>
 </div>
 </div>
 
@@ -146,25 +146,30 @@ Build a longitudinal cognitive performance measurement system combining standard
 <!-- Phases -->
 <div class="card">
 <div class="card-title">Execution Phases</div>
-<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">1. Design</span><span class="phase-row-desc">Finalize test specs, Chess.com API research, data schema</span></div>
-<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">2. Standardized Battery</span><span class="phase-row-desc">Build dual n-back, PVT, DSST as web pages on neuralnexus.press</span></div>
-<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">3. Game Logging</span><span class="phase-row-desc">Add server-side score logging to Spelling Bee, Wordle, Crossword</span></div>
-<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">4. Chess Integration</span><span class="phase-row-desc">Chess.com API pull, ELO + accuracy tracking</span></div>
-<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">5. Dashboard</span><span class="phase-row-desc">Trends, phase markers, summary cards</span></div>
-<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">6. Baseline</span><span class="phase-row-desc">2-week baseline measurement before any new intervention</span></div>
-<div class="phase-row"><span class="phase-row-status">⬜</span><span class="phase-row-name">7. Deployment</span><span class="phase-row-desc">Push to production, begin longitudinal tracking</span></div>
+<div class="phase-row"><span class="phase-row-status">✅</span><span class="phase-row-name">1. Design</span><span class="phase-row-desc">Test specs, data schema, AM/PM session protocol finalized</span></div>
+<div class="phase-row"><span class="phase-row-status">✅</span><span class="phase-row-name">2. Standardized Battery</span><span class="phase-row-desc">Dual N-Back (adaptive), PVT (10 trials), DSST (90s) — live at /cognitive/</span></div>
+<div class="phase-row"><span class="phase-row-status">✅</span><span class="phase-row-name">3. Game Logging</span><span class="phase-row-desc">Spelling Bee, Wordle scores tracked in SQLite</span></div>
+<div class="phase-row"><span class="phase-row-status">✅</span><span class="phase-row-name">4. Chess Integration</span><span class="phase-row-desc">Chess.com API (Dmk101890) — blitz/rapid/bullet auto-sync</span></div>
+<div class="phase-row"><span class="phase-row-status">✅</span><span class="phase-row-name">5. Dashboard</span><span class="phase-row-desc">Main dashboard + analytics page with 7 longitudinal charts, Cohen's d effect sizes</span></div>
+<div class="phase-row"><span class="phase-row-status">🔄</span><span class="phase-row-name">6. Baseline</span><span class="phase-row-desc">1-week baseline started 2026-03-20 (AM + PM sessions daily)</span></div>
+<div class="phase-row"><span class="phase-row-status">✅</span><span class="phase-row-name">7. Deployment</span><span class="phase-row-desc">Live at neuralnexus.press/cognitive/ (password protected)</span></div>
 </div>
 
 <!-- Outstanding Items -->
 <div class="card">
 <div class="card-title">Outstanding Items</div>
-<div class="outstanding-item"><input type="checkbox"> Confirm dashboard URL path (/brain-lab, /cognitive, or /tracker)</div>
-<div class="outstanding-item"><input type="checkbox"> Finalize test specs and data schema (Phase 1)</div>
-<div class="outstanding-item"><input type="checkbox"> Build standardized battery web pages (Phase 2)</div>
-<div class="outstanding-item"><input type="checkbox"> Add server-side game logging (Phase 3)</div>
-<div class="outstanding-item"><input type="checkbox"> Integrate Chess.com API (Phase 4)</div>
-<div class="outstanding-item"><input type="checkbox"> Build dashboard with phase markers (Phase 5)</div>
-<div class="outstanding-item"><input type="checkbox"> Complete 2-week baseline before starting Charter 201 protocol (Phase 6)</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Confirm dashboard URL path → /cognitive/</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Finalize test specs and data schema</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Build standardized battery (N-Back, PVT, DSST)</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Chess.com API integration (Dmk101890)</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Build dashboard + analytics with longitudinal charts</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> AM/PM session tracking + supplement timeline</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Data export (CSV + JSON)</div>
+<div class="outstanding-item"><input type="checkbox" checked disabled> Deploy to production</div>
+<div class="outstanding-item"><input type="checkbox"> Complete 1-week baseline (started 2026-03-20)</div>
+<div class="outstanding-item"><input type="checkbox"> WHOOP API integration (sleep/HRV tracking)</div>
+<div class="outstanding-item"><input type="checkbox"> Add Stroop test (inhibitory control)</div>
+<div class="outstanding-item"><input type="checkbox"> Public-facing version for Neural NeXus readers</div>
 </div>
 
 <!-- Risk & Decisions -->
@@ -185,6 +190,13 @@ Build a longitudinal cognitive performance measurement system combining standard
 <div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">Battery: dual n-back + PVT + DSST (3 domains)</span></div>
 <div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">2-week baseline required before any intervention</span></div>
 <div class="decision-item"><span class="decision-date">2026-03-17</span><span class="decision-text">Chess platform: Chess.com (confirmed)</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-20</span><span class="decision-text">Dashboard built and deployed at /cognitive/</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-20</span><span class="decision-text">AM/PM dual session protocol adopted (test morning + evening)</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-20</span><span class="decision-text">PVT reduced to 10 trials (brief PVT-B protocol)</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-20</span><span class="decision-text">Adaptive N-Back (starts 2-back, adjusts based on performance)</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-20</span><span class="decision-text">1-week baseline (not 2) — mild compounds starting simultaneously</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-20</span><span class="decision-text">Cohen's d for effect sizes (not p-values with small N)</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-20</span><span class="decision-text">WHOOP integration planned for sleep/HRV confound control</span></div>
 </div>
 </div>
 

@@ -953,10 +953,10 @@
       "charters": [
         {
           "id": "501",
-          "title": "Treat Biosciences Restart & Pivot",
+          "title": "Triple Incretin Program (TRT-001)",
           "status": "\ud83d\udfe1 In Progress",
           "statusClean": "In Progress",
-          "phase": "\ud83d\udccb Requirements \u2014 Research complete, awaiting team alignment",
+          "phase": "\ud83d\udccb Requirements \u2192 Design \u2014 Research complete, discovery program defined",
           "phaseIndex": 0,
           "liveUrl": null,
           "dateInitiated": "2026-03-19",
@@ -969,7 +969,7 @@
           "assignee": "David Kingsley / Morpheus",
           "priority": "Critical",
           "program": "Treat Biosciences",
-          "budget": "$500K (full to conditional approval; Phase 0 = $500)",
+          "budget": "$500K (full); Discovery = $29-44K",
           "actualSpend": "$0",
           "dependencies": [
             "None"
@@ -978,7 +978,7 @@
             "502 (future: Clinical Trials)"
           ],
           "progress": 0,
-          "objective": "Restart Treat Biosciences with a pivot from monoclonal antibodies to AI-designed **canine-optimized triple incretin agonist (GLP-1R/GIPR/GCGR)** targeting canine obesity. Lead compound: TRT-001. Pipeline v2: activin receptor blockade for muscle preservation. Validate computationally, confirm in vitro binding, and position for accelerator/SBIR funding.",
+          "objective": "Develop TRT-001, the first canine-optimized triple incretin agonist (GLP-1R/GIPR/GCGR) for canine obesity. $29-44K discovery budget. CNADA pathway to conditional approval.",
           "successCriteria": "- [x] Competitive landscape analysis complete (updated 2026-03-19 with Okava, Teva generic, APOP)",
           "blockers": [
             "David: Call Frank to discuss pivot and restart",
@@ -1040,7 +1040,8 @@
           ],
           "milestones": []
         }
-      ]
+      ],
+      "description": "Canine therapeutic development \u2014 TRT-001 triple incretin agonist for canine obesity. AI-designed peptide therapeutics."
     },
     {
       "name": "Physical Health",

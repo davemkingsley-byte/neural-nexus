@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Charter 501 — Treat Biosciences Restart & Pivot</title>
+  <title>Charter 501 — Treat Biosciences: Triple Incretin Program</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #06060b; color: #f0f0f5; font-family: 'DM Sans', sans-serif; padding: 2rem; max-width: 900px; margin: 0 auto; }
@@ -19,6 +19,7 @@
     .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
     .badge-critical { background: rgba(239,68,68,0.2); color: #ef4444; }
     .badge-progress { background: rgba(234,179,8,0.2); color: #eab308; }
+    .badge-done { background: rgba(34,197,94,0.2); color: #22c55e; }
     ul { padding-left: 1.5rem; }
     li { margin-bottom: 0.4rem; line-height: 1.5; }
     .checked { color: #22c55e; }
@@ -27,87 +28,135 @@
     .risk-row { display: flex; gap: 1rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
     .risk-label { min-width: 120px; color: #888; }
     .doc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
-    .doc-card { background: rgba(212,168,83,0.05); border: 1px solid rgba(212,168,83,0.15); border-radius: 8px; padding: 0.75rem 1rem; }
-    .doc-card .title { font-weight: 600; font-size: 0.9rem; }
+    .doc-card { background: rgba(212,168,83,0.05); border: 1px solid rgba(212,168,83,0.15); border-radius: 8px; padding: 0.75rem 1rem; text-decoration: none; display: block; transition: border-color 0.2s; }
+    .doc-card:hover { border-color: rgba(212,168,83,0.5); }
+    .doc-card .title { font-weight: 600; font-size: 0.9rem; color: #f0f0f5; }
     .doc-card .desc { font-size: 0.8rem; color: #888; margin-top: 0.25rem; }
+    .highlight { background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2); border-radius: 8px; padding: 1rem; margin: 1rem 0; }
+    .highlight strong { color: #22c55e; }
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem; text-align: center; }
+    .stat-value { font-size: 1.6rem; font-weight: 700; color: #d4a853; }
+    .stat-label { font-size: 0.75rem; color: #888; margin-top: 0.25rem; }
   </style>
 </head>
 <body>
   <a href="treat-biosciences.html" class="back">← Treat Biosciences</a>
-  <h1>Charter 501 — Treat Biosciences Restart & Pivot</h1>
-  <p style="color:#888; margin-bottom: 1.5rem;">AI-designed peptide therapeutics for canine obesity</p>
+  <h1>Charter 501 — Treat Biosciences: Triple Incretin Program</h1>
+  <p style="color:#888; margin-bottom: 1.5rem;">TRT-001: Canine-optimized triple incretin agonist (GLP-1R/GIPR/GCGR) for canine obesity</p>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="stat-value">30+</div><div class="stat-label">Documents</div></div>
+    <div class="stat-box"><div class="stat-value">$0</div><div class="stat-label">Spent (Phase 0)</div></div>
+    <div class="stat-box"><div class="stat-value">$29-44K</div><div class="stat-label">Discovery Budget</div></div>
+  </div>
 
   <div class="section-card">
     <h2 style="margin-top:0;">Sign-Off</h2>
     <table>
       <tr><th>Project ID</th><td>501</td></tr>
-      <tr><th>Owner</th><td>David Kingsley</td></tr>
+      <tr><th>Lead Compound</th><td><strong>TRT-001</strong> — canine-optimized triple incretin agonist (~39 aa, retatrutide scaffold)</td></tr>
+      <tr><th>Owner</th><td>David Kingsley, PhD (CSO)</td></tr>
       <tr><th>Assignee</th><td>David Kingsley / Morpheus</td></tr>
       <tr><th>Priority</th><td><span class="badge badge-critical">Critical</span></td></tr>
       <tr><th>Status</th><td><span class="badge badge-progress">In Progress</span></td></tr>
-      <tr><th>Phase</th><td>📋 Requirements — Research complete, awaiting team alignment</td></tr>
+      <tr><th>Phase</th><td>📋 Requirements → Design — Research complete, discovery program defined</td></tr>
       <tr><th>Date Initiated</th><td>2026-03-19</td></tr>
       <tr><th>Target Date</th><td>2026-06-19 (90 days)</td></tr>
-      <tr><th>Budget</th><td>$500K (full); Phase 0 = $500</td></tr>
+      <tr><th>Budget</th><td>$500K (full conditional approval); Phase 0 = $500 compute; Discovery = $29-44K</td></tr>
       <tr><th>Actual Spend</th><td>$0</td></tr>
+      <tr><th>Regulatory Path</th><td>CNADA under ADAA 1996 (conditional approval, ~21 months to revenue)</td></tr>
       <tr><th>Program</th><td>Treat Biosciences</td></tr>
     </table>
   </div>
 
   <div class="section-card">
     <h2 style="margin-top:0;">Objective</h2>
-    <p>Restart Treat Biosciences with a pivot from monoclonal antibodies to AI-designed peptide therapeutics targeting canine obesity (GLP-1 + ActRII combination). Validate the thesis computationally, confirm in vitro binding, and position for accelerator/SBIR funding.</p>
+    <p>Develop TRT-001, the first canine-optimized triple incretin agonist targeting GLP-1R, GIPR, and GCGR simultaneously for canine obesity. Validate computationally, confirm in vitro binding at all three canine receptors, and position for FDA CVM conditional approval (CNADA). Pipeline v2: ActRIIB blockade for muscle preservation during weight loss.</p>
+    <div class="highlight">
+      <strong>The Play:</strong> 60% of US dogs (54 million) are overweight. Zero approved treatments since 2010. Retatrutide (Eli Lilly) achieved 24.2% weight loss in humans — the highest ever recorded. We're building the canine-optimized version. Lilly is spending $100M+ validating the exact combination (incretin + ActRII) in humans. We ride the validation wave into the veterinary market.
+    </div>
   </div>
 
   <div class="section-card">
-    <h2 style="margin-top:0;">Key Science</h2>
+    <h2 style="margin-top:0;">Key Science (Verified)</h2>
     <table>
-      <tr><th>Canine GLP-1R Identity</th><td><strong>90.7%</strong> identical to human (41 substitutions / 441 residues)</td></tr>
-      <tr><th>Canine ActRIIB Identity</th><td><strong>99.8%</strong> identical to human (1 substitution / 495 residues)</td></tr>
-      <tr><th>Competition</th><td>ZERO — no canine GLP-1 or ActRII therapeutics exist</td></tr>
-      <tr><th>Human Validation</th><td>Eli Lilly Phase 2 trial (NCT06643728) — bimagrumab + tirzepatide, 240 patients</td></tr>
-      <tr><th>Canine PoC</th><td>Dik et al. 2025 — liraglutide achieved 13% weight loss in obese dogs</td></tr>
-      <tr><th>Patent Landscape</th><td>FTO clear — no blocking patents for canine peptide combination</td></tr>
+      <tr><th>Canine GLP-1R</th><td><strong>89.6%</strong> identity to human — <span class="badge badge-done">13/13 contacts 100%</span></td></tr>
+      <tr><th>Canine GIPR</th><td><strong>86.7%</strong> identity — ECL1 63.6% (primary optimization target), TM5/6 100%</td></tr>
+      <tr><th>Canine GCGR</th><td><strong>83.5%</strong> identity — <span class="badge badge-done">22/23 contacts 95.7%</span></td></tr>
+      <tr><th>Canine ActRIIB</th><td><strong>99.8%</strong> identity — only 1 amino acid different in 495 residues</td></tr>
+      <tr><th>Canine Glucagon</th><td><strong>100% identical</strong> to human glucagon</td></tr>
+      <tr><th>Proof of Concept</th><td>Dik et al. 2025 — liraglutide achieved <strong>13% weight loss</strong> in obese Golden Retrievers (PMID 40436366)</td></tr>
+      <tr><th>Human Validation</th><td>Eli Lilly Phase 1 coformulation COMPLETED (NCT06890611); Phase 2 active, 240 patients (NCT06643728)</td></tr>
+      <tr><th>Retatrutide Potency</th><td>GIPR 8.9× superagonist, GLP-1R 2.5× lower, GCGR 2.9× lower vs native ligands (Coskun 2022)</td></tr>
+      <tr><th>Competition</th><td>ZERO approved canine obesity drugs (Slentrol pulled 2010, market empty 16 years)</td></tr>
+      <tr><th>Patent Landscape</th><td>FTO clear — no blocking patents for canine peptide triple incretin</td></tr>
+      <tr><th>MUMS Act</th><td>Does NOT qualify (54M dogs vs 80K threshold). CNADA pathway is correct.</td></tr>
     </table>
   </div>
 
   <div class="section-card">
     <h2 style="margin-top:0;">Progress</h2>
     <ul>
-      <li class="checked">✅ Competitive landscape analysis (mAb + peptide)</li>
-      <li class="checked">✅ Canine GLP-1R and ActRIIB sequences retrieved and aligned</li>
-      <li class="checked">✅ Sequence identity confirmed</li>
-      <li class="checked">✅ Patent landscape assessed</li>
-      <li class="checked">✅ Market sizing model ($63B TAM)</li>
-      <li class="checked">✅ Investor materials drafted (pitch deck v4, one-pager)</li>
-      <li class="checked">✅ Regulatory pathway mapped (FDA CVM conditional approval)</li>
-      <li class="checked">✅ Lilly clinical trials documented</li>
-      <li class="checked">✅ Key literature identified</li>
+      <li class="checked">✅ Competitive landscape analysis (mAb + peptide + updates Mar 19)</li>
+      <li class="checked">✅ All four canine receptor sequences retrieved, aligned, and verified</li>
+      <li class="checked">✅ Receptor conservation verified — GLP-1R, GIPR, GCGR, ActRIIB</li>
+      <li class="checked">✅ Binding site analysis — contact residues mapped across species</li>
+      <li class="checked">✅ Patent landscape assessed — FTO clear</li>
+      <li class="checked">✅ Market sizing model ($63B TAM, $216M SOM Year 5)</li>
+      <li class="checked">✅ Investor materials (pitch deck v4, one-pager v2)</li>
+      <li class="checked">✅ Regulatory pathway mapped (FDA CVM CNADA)</li>
+      <li class="checked">✅ MUMS Act analysis — definitively does not qualify (675× over threshold)</li>
+      <li class="checked">✅ Lilly clinical trials documented (Phase 1 complete, Phase 2 active)</li>
+      <li class="checked">✅ Key literature review (Dik 2025, Coskun 2022, Jastreboff 2023, Xu 2024)</li>
+      <li class="checked">✅ André's retatrutide canine analysis integrated</li>
+      <li class="checked">✅ Triple incretin thesis v2 written (TRT-001 designation)</li>
+      <li class="checked">✅ Discovery Program document (computational pipeline, variant panel, IP strategy)</li>
+      <li class="checked">✅ In Vitro Testing Plan (8-assay cascade, CROs, go/no-go gates)</li>
+      <li class="checked">✅ Preclinical Testing Plan (PK, safety, tox, formulation)</li>
+      <li class="checked">✅ Canine Study Data Requirements (CNADA package, clinical trial design)</li>
+      <li class="checked">✅ Competitor update — Okava MEOW-1, Teva generic liraglutide, APOP prediction</li>
+      <li class="checked">✅ AI drug design feasibility assessment</li>
+      <li class="checked">✅ Financial model ($500K to conditional approval)</li>
+      <li class="checked">✅ 90-day restart plan with phased milestones</li>
+      <li class="checked">✅ All documents converted to styled HTML and deployed</li>
       <li class="unchecked">⬜ David: Confirm Frank and Niki availability</li>
       <li class="unchecked">⬜ David: Confirm company legal status</li>
-      <li class="unchecked">⬜ David: Align on pivot decision with co-founders</li>
-      <li class="unchecked">⬜ Run AlphaFold3 on canine GLP-1R</li>
-      <li class="unchecked">⬜ Design GLP-1 analog panel (20 variants)</li>
-      <li class="unchecked">⬜ Design ActRII peptide binders (50 scaffolds)</li>
+      <li class="unchecked">⬜ Run AlphaFold3 on canine receptors (needs GPU access)</li>
+      <li class="unchecked">⬜ Design TRT-001 variant panel (8 candidates — spec complete)</li>
       <li class="unchecked">⬜ File provisional patent</li>
+      <li class="unchecked">⬜ Pre-submission meeting with FDA CVM (free)</li>
       <li class="unchecked">⬜ Apply to IndieBio / Y Combinator</li>
       <li class="unchecked">⬜ Apply to SBIR Phase I</li>
     </ul>
   </div>
 
   <div class="section-card">
-    <h2 style="margin-top:0;">Documents (22 files)</h2>
+    <h2 style="margin-top:0;">Research Documents</h2>
+    <p style="color:#888; margin-bottom:1rem;">Full styled HTML documents — click to view</p>
     <div class="doc-grid">
-      <div class="doc-card"><div class="title">🧬 Sequence Analysis</div><div class="desc">GLP-1R 90.7%, ActRIIB 99.8%</div></div>
-      <div class="doc-card"><div class="title">🎯 GLP-1 + ActRII Thesis</div><div class="desc">The core play — combination strategy</div></div>
-      <div class="doc-card"><div class="title">📊 mAb Landscape</div><div class="desc">54KB comprehensive report</div></div>
+      <a href="/treat-docs/discovery-program.html" class="doc-card"><div class="title">🔬 Discovery Program</div><div class="desc">Target biology, computational pipeline, 8-variant panel, IP strategy, risk register</div></a>
+      <a href="/treat-docs/incretin-thesis-v2.html" class="doc-card"><div class="title">🎯 Triple Incretin Thesis v2</div><div class="desc">Core thesis — retatrutide scaffold, receptor conservation, market analysis</div></a>
+      <a href="/treat-docs/in-vitro-testing-plan.html" class="doc-card"><div class="title">🧪 In Vitro Testing Plan</div><div class="desc">8-assay cascade, canine cell lines, CROs, go/no-go gates, $29-44K budget</div></a>
+      <a href="/treat-docs/preclinical-testing-plan.html" class="doc-card"><div class="title">💉 Preclinical Testing Plan</div><div class="desc">PK in beagles, safety pharmacology, 28-day tox, formulation, INAD filing</div></a>
+      <a href="/treat-docs/canine-study-data-requirements.html" class="doc-card"><div class="title">📋 CNADA Data Requirements</div><div class="desc">Complete data package, clinical trial design (n=60), GMP manufacturing</div></a>
+      <a href="/treat-docs/mums-act-analysis.html" class="doc-card"><div class="title">⚖️ MUMS Act Analysis</div><div class="desc">Does NOT qualify — 675× over threshold. CNADA is the path.</div></a>
+      <a href="/treat-docs/receptor-conservation-report.html" class="doc-card"><div class="title">🧬 Receptor Conservation</div><div class="desc">Verified sequence analysis — GLP-1R, GIPR, GCGR, ActRIIB</div></a>
+      <a href="/treat-docs/one-pager-investor-v2.html" class="doc-card"><div class="title">📄 Investor One-Pager v2</div><div class="desc">Single-page investor summary — market, science, ask</div></a>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Supporting Documents (Markdown)</h2>
+    <div class="doc-grid">
+      <div class="doc-card"><div class="title">🧬 Sequence Analysis</div><div class="desc">Full receptor alignments + canonical accessions</div></div>
+      <div class="doc-card"><div class="title">🔍 Binding Site Analysis</div><div class="desc">Contact residue mapping across species</div></div>
+      <div class="doc-card"><div class="title">📊 mAb Landscape</div><div class="desc">Comprehensive competitive report (54KB)</div></div>
       <div class="doc-card"><div class="title">💊 Peptide Landscape</div><div class="desc">Market gaps + opportunities</div></div>
-      <div class="doc-card"><div class="title">🏢 Competitive Deep Dives</div><div class="desc">Vetigenics, Loyal, Zoetis, Elanco</div></div>
+      <div class="doc-card"><div class="title">🏢 Competitive Deep Dives</div><div class="desc">Vetigenics, Loyal, Zoetis, Elanco, Okava</div></div>
       <div class="doc-card"><div class="title">📈 Market Sizing</div><div class="desc">$63B TAM, exit comps $85-500M</div></div>
       <div class="doc-card"><div class="title">💰 Financial Model</div><div class="desc">$500K to conditional approval</div></div>
       <div class="doc-card"><div class="title">📋 Pitch Deck v4</div><div class="desc">12 slides, pivot version</div></div>
-      <div class="doc-card"><div class="title">📄 Investor One-Pager</div><div class="desc">Single page summary</div></div>
-      <div class="doc-card"><div class="title">⚖️ Patent Landscape</div><div class="desc">FTO clear, combination patent opportunity</div></div>
       <div class="doc-card"><div class="title">🏛️ Regulatory Strategy</div><div class="desc">FDA CVM conditional approval pathway</div></div>
       <div class="doc-card"><div class="title">🚀 SBIR/Accelerators</div><div class="desc">IndieBio, YC, USDA NIFA deadlines</div></div>
       <div class="doc-card"><div class="title">👥 Team & Advisory</div><div class="desc">Gap analysis, SAB strategy</div></div>
@@ -116,27 +165,50 @@
       <div class="doc-card"><div class="title">📚 Literature Review</div><div class="desc">Key papers + Lilly trials</div></div>
       <div class="doc-card"><div class="title">🤖 AI Drug Design</div><div class="desc">Feasibility + cost analysis</div></div>
       <div class="doc-card"><div class="title">📅 90-Day Restart Plan</div><div class="desc">Phased milestones</div></div>
+      <div class="doc-card"><div class="title">📊 Competitor Update</div><div class="desc">Okava MEOW-1, Teva, APOP (Mar 19)</div></div>
+      <div class="doc-card"><div class="title">🧬 André's Analysis</div><div class="desc">Retatrutide canine pharmacology review</div></div>
     </div>
   </div>
 
   <div class="section-card">
+    <h2 style="margin-top:0;">Market</h2>
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-value">$63.6B</div><div class="stat-label">US TAM</div></div>
+      <div class="stat-box"><div class="stat-value">$216M</div><div class="stat-label">SOM Year 5 (2%)</div></div>
+      <div class="stat-box"><div class="stat-value">54M</div><div class="stat-label">Overweight Dogs</div></div>
+    </div>
+    <table>
+      <tr><th>Comparable Exits</th><td>Arantana→Elanco $238M, Nexvet→Zoetis $85M, Loyal valued ~$500M+</td></tr>
+      <tr><th>Peptide COGS</th><td>$2-5/dose at scale → 95%+ gross margin at $100/month</td></tr>
+      <tr><th>Key Competitors</th><td>Zoetis (Cytopoint/Librela, different indications), Loyal ($114M raised, longevity), Okava (cats first, dogs TBD)</td></tr>
+    </table>
+  </div>
+
+  <div class="section-card">
     <h2 style="margin-top:0;">Risk Register</h2>
-    <div class="risk-row"><div class="risk-label">⚠️ 20%</div><div>Peptide doesn't bind target — mitigate with diverse candidates</div></div>
-    <div class="risk-row"><div class="risk-label">⚠️ 30%</div><div>Co-founders unavailable — David can do Phase 0 solo</div></div>
+    <div class="risk-row"><div class="risk-label">⚠️ 25%</div><div>GIPR ECL1 optimization fails — fallback: dual GLP-1R/GCGR agonist (still differentiated)</div></div>
+    <div class="risk-row"><div class="risk-label">⚠️ 40%</div><div>Canine albumin binding suboptimal — mitigate: include albumin variants in panel (V4, V7)</div></div>
+    <div class="risk-row"><div class="risk-label">⚠️ 30%</div><div>Co-founders unavailable — David can execute Phase 0 solo</div></div>
+    <div class="risk-row"><div class="risk-label">⚠️ 35%</div><div>Okava MEOW-1 results (summer 2026) catalyze competitor entry — speed to patent + in vitro data</div></div>
     <div class="risk-row"><div class="risk-label">⚠️ 25%</div><div>Fundraising fails — multiple paths (accelerator + SBIR + angels)</div></div>
-    <div class="risk-row"><div class="risk-label">⚠️ 15%</div><div>Competitor enters space — speed to patent + conditional approval</div></div>
+    <div class="risk-row"><div class="risk-label">⚠️ 15%</div><div>Lilly composition patents block TRT-001 — mitigate: ≥2 amino acid substitutions + FTO analysis</div></div>
     <div class="risk-row"><div class="risk-label">⚠️ 20%</div><div>Company legal status lapsed — re-file if needed (~$500)</div></div>
   </div>
 
   <div class="section-card">
     <h2 style="margin-top:0;">Key Decisions</h2>
     <ul>
-      <li><strong>2026-03-19:</strong> GLP-1 + ActRII combination identified as primary thesis</li>
-      <li><strong>2026-03-19:</strong> Confirmed canine ActRIIB 99.8% identical to human</li>
-      <li><strong>2026-03-19:</strong> Patent landscape clear — no blocking patents</li>
+      <li><strong>2026-03-19:</strong> Triple incretin agonist (GLP-1R/GIPR/GCGR) identified as primary thesis — TRT-001 designation</li>
+      <li><strong>2026-03-19:</strong> Retatrutide scaffold selected as starting point (best-in-class human data, 24.2% weight loss)</li>
+      <li><strong>2026-03-19:</strong> All four canine receptor sequences verified (GLP-1R, GIPR, GCGR, ActRIIB)</li>
+      <li><strong>2026-03-19:</strong> GIPR ECL1 (63.6% conserved) identified as primary optimization target</li>
+      <li><strong>2026-03-19:</strong> Patent landscape clear — composition of matter patent (20 years) is primary IP tool</li>
+      <li><strong>2026-03-19:</strong> MUMS Act does NOT qualify (675× over threshold) — CNADA under ADAA 1996 is the path</li>
       <li><strong>2026-03-19:</strong> Lilly Phase 1 coformulation validated single-injection approach</li>
       <li><strong>2026-03-19:</strong> FDA CVM conditional approval recommended (~21 months to revenue)</li>
       <li><strong>2026-03-19:</strong> Estimated $500K to conditional approval (vs $2.6M original mAb plan)</li>
+      <li><strong>2026-03-19:</strong> Discovery budget: $29-44K (computational $500, synthesis + in vitro $29-44K)</li>
+      <li><strong>2026-03-19:</strong> Use "incretin" not "GLP-1" — David's correction on field terminology</li>
     </ul>
   </div>
 </body>
