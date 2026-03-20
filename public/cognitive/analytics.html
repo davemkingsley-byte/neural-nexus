@@ -499,7 +499,10 @@ body {
         <h3>Chess ELO</h3>
         <div class="chart-legend">
           <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span> Blitz</span>
-          <span class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span> Rapid</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--teal)"></span> Rapid</span>
+          <span class="legend-item"><span class="legend-dot" style="background:rgba(255,255,255,0.4)"></span> Bullet</span>
+          <span class="legend-item"><span class="legend-dot" style="background:rgba(255,255,255,0.15);border:1px dashed var(--gold)"></span> 7d MA</span>
+          <span class="legend-item"><span class="legend-dot" style="background:rgba(255,255,255,0.08);border:1px dashed var(--teal)"></span> 30d MA</span>
         </div>
         <div class="chart-wrap"><canvas id="chartChess"></canvas></div>
       </div>
@@ -521,6 +524,33 @@ body {
           <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span> Score (50 = personal mean)</span>
         </div>
         <div class="chart-wrap"><canvas id="chartComposite"></canvas></div>
+      </div>
+    </div>
+
+    <!-- WHOOP Charts -->
+    <h2 class="section-title" id="whoopChartsTitle" style="display:none;">WHOOP Biometrics</h2>
+    <div class="charts-grid" id="whoopChartsGrid" style="display:none;">
+      <div class="card chart-card">
+        <h3>Sleep Architecture</h3>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span> Deep</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span> REM</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#2dd4bf"></span> Light</span>
+          <span class="legend-item"><span class="legend-dot" style="background:rgba(248,113,113,0.6)"></span> Awake</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chartSleepArch"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <h3>Recovery &amp; HRV</h3>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--green)"></span> Recovery %</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--blue)"></span> HRV RMSSD</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chartRecoveryHRV"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <h3>Resting Heart Rate</h3>
+        <div class="chart-wrap"><canvas id="chartRHR"></canvas></div>
       </div>
     </div>
 
@@ -822,24 +852,36 @@ async function init() {
     $('#chartDSST').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">No DSST data yet</p>';
   }
 
-  // Chess chart
+  // Chess chart — enhanced with 3 rating types + moving averages
   if (analytics.chess && analytics.chess.length > 0) {
     const chessLabels = analytics.chess.map(d => shortDate(d.date));
     const opts = baseChartOpts('ELO');
-    opts.plugins.legend = { display: true, labels: { boxWidth: 10, padding: 12 } };
+    opts.plugins.legend = { display: true, labels: { boxWidth: 10, padding: 12, filter: item => !item.text.includes('MA') } };
     opts.plugins.supplementLines = { supplements, labels: chessLabels, baselineEnd };
+
+    function movingAvg(data, window) {
+      return data.map((_, i) => {
+        const slice = data.slice(Math.max(0, i - window + 1), i + 1).filter(v => v != null);
+        return slice.length > 0 ? slice.reduce((a, b) => a + b, 0) / slice.length : null;
+      });
+    }
+
+    const blitzData = analytics.chess.map(d => d.blitz);
+    const rapidData = analytics.chess.map(d => d.rapid);
+    const bulletData = analytics.chess.map(d => d.bullet);
+
+    const datasets = [
+      { ...lineDataset('Blitz', '#d4a853', blitzData), pointRadius: 3 },
+      { ...lineDataset('Blitz 7d MA', '#d4a853', movingAvg(blitzData, 7)), borderWidth: 3, pointRadius: 0, borderDash: [], fill: false },
+      { ...lineDataset('Blitz 30d MA', '#d4a853', movingAvg(blitzData, 30)), borderWidth: 2, pointRadius: 0, borderDash: [6, 4], fill: false, borderColor: 'rgba(212,168,83,0.4)' },
+      { ...lineDataset('Rapid', '#2dd4bf', rapidData), pointRadius: 3 },
+      { ...lineDataset('Rapid 7d MA', '#2dd4bf', movingAvg(rapidData, 7)), borderWidth: 3, pointRadius: 0, borderDash: [], fill: false },
+      { ...lineDataset('Rapid 30d MA', '#2dd4bf', movingAvg(rapidData, 30)), borderWidth: 2, pointRadius: 0, borderDash: [6, 4], fill: false, borderColor: 'rgba(45,212,191,0.4)' },
+      { ...lineDataset('Bullet', 'rgba(255,255,255,0.4)', bulletData), pointRadius: 3 },
+    ];
+
     const ctx = document.getElementById('chartChess').getContext('2d');
-    new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: chessLabels,
-        datasets: [
-          lineDataset('Blitz', '#d4a853', analytics.chess.map(d => d.blitz)),
-          lineDataset('Rapid', '#60a5fa', analytics.chess.map(d => d.rapid)),
-        ]
-      },
-      options: opts
-    });
+    new Chart(ctx, { type: 'line', data: { labels: chessLabels, datasets }, options: opts });
   } else {
     $('#chartChess').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">No chess data yet</p>';
   }
@@ -906,6 +948,71 @@ async function init() {
     });
   } else {
     $('#chartComposite').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">Need data for all 3 tests on the same day for composite score</p>';
+  }
+
+  // ── WHOOP Charts ──
+  if (analytics.whoop && analytics.whoop.length > 0) {
+    $('#whoopChartsTitle').style.display = '';
+    $('#whoopChartsGrid').style.display = '';
+    const whoopData = analytics.whoop;
+    const whoopLabels = whoopData.map(d => shortDate(d.date));
+
+    // Sleep Architecture — stacked area chart
+    const sleepCtx = document.getElementById('chartSleepArch').getContext('2d');
+    const sleepOpts = baseChartOpts('Minutes');
+    sleepOpts.plugins.supplementLines = { supplements, labels: whoopLabels, baselineEnd };
+    sleepOpts.scales.y.stacked = true;
+    new Chart(sleepCtx, {
+      type: 'line',
+      data: {
+        labels: whoopLabels,
+        datasets: [
+          { ...lineDataset('Deep', '#7c3aed', whoopData.map(d => d.deep_sleep_min)), fill: true, backgroundColor: 'rgba(124,58,237,0.25)' },
+          { ...lineDataset('REM', '#60a5fa', whoopData.map(d => d.rem_sleep_min)), fill: true, backgroundColor: 'rgba(96,165,250,0.2)' },
+          { ...lineDataset('Light', '#2dd4bf', whoopData.map(d => d.light_sleep_min)), fill: true, backgroundColor: 'rgba(45,212,191,0.15)' },
+          { ...lineDataset('Awake', 'rgba(248,113,113,0.6)', whoopData.map(d => d.awake_min)), fill: true, backgroundColor: 'rgba(248,113,113,0.1)' },
+        ]
+      },
+      options: sleepOpts
+    });
+
+    // Recovery & HRV — dual Y-axis
+    const recCtx = document.getElementById('chartRecoveryHRV').getContext('2d');
+    const recOpts = baseChartOpts('Recovery %');
+    recOpts.plugins.supplementLines = { supplements, labels: whoopLabels, baselineEnd };
+    recOpts.scales.y.position = 'left';
+    recOpts.scales.y.title.text = 'Recovery %';
+    recOpts.scales.y2 = {
+      type: 'linear',
+      position: 'right',
+      grid: { drawOnChartArea: false },
+      ticks: { maxTicksLimit: 6 },
+      title: { display: true, text: 'HRV (ms)', color: 'rgba(255,255,255,0.3)', font: { size: 10 } }
+    };
+    new Chart(recCtx, {
+      type: 'line',
+      data: {
+        labels: whoopLabels,
+        datasets: [
+          { ...lineDataset('Recovery', '#34d399', whoopData.map(d => d.recovery_score)), yAxisID: 'y' },
+          { ...lineDataset('HRV RMSSD', '#60a5fa', whoopData.map(d => d.hrv_rmssd)), yAxisID: 'y2' },
+        ]
+      },
+      options: recOpts
+    });
+
+    // RHR Trend
+    const rhrCtx = document.getElementById('chartRHR').getContext('2d');
+    const rhrOpts = baseChartOpts('BPM');
+    rhrOpts.plugins.supplementLines = { supplements, labels: whoopLabels, baselineEnd };
+    new Chart(rhrCtx, {
+      type: 'line',
+      data: {
+        labels: whoopLabels,
+        datasets: [lineDataset('Resting HR', '#f87171', whoopData.map(d => d.resting_hr))]
+      },
+      options: rhrOpts
+    });
   }
 
   // ── Statistical Analysis Table ──

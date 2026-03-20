@@ -536,6 +536,65 @@ body {
     </div>
   </div>
 
+  <!-- Chess ELO Detail Cards -->
+  <div id="chessDetailSection" style="display:none;">
+    <h2 class="section-title">Chess.com Ratings</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;">
+      <div class="card summary-card">
+        <div class="label">Blitz</div>
+        <div class="value" id="chessBlitz" style="color:#d4a853;">--</div>
+        <div class="trend neutral" id="chessBlitzTrend">&mdash;</div>
+        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;" id="chessBlitz7d"></div>
+      </div>
+      <div class="card summary-card">
+        <div class="label">Rapid</div>
+        <div class="value" id="chessRapid" style="color:#2dd4bf;">--</div>
+        <div class="trend neutral" id="chessRapidTrend">&mdash;</div>
+        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;" id="chessRapid7d"></div>
+      </div>
+      <div class="card summary-card">
+        <div class="label">Bullet</div>
+        <div class="value" id="chessBullet" style="color:rgba(255,255,255,0.5);">--</div>
+        <div class="trend neutral" id="chessBulletTrend">&mdash;</div>
+        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;" id="chessBullet7d"></div>
+      </div>
+    </div>
+    <div style="margin-bottom:28px;"><button class="btn-gold" id="btnSyncChess" onclick="syncChess()" style="font-size:0.82rem;padding:8px 18px;">Sync Chess.com</button> <span id="chessSyncStatus" style="font-size:0.82rem;color:var(--text-dim);margin-left:8px;"></span></div>
+  </div>
+
+  <!-- WHOOP Section -->
+  <div id="whoopSection">
+    <h2 class="section-title">WHOOP Biometrics</h2>
+    <div id="whoopNotConnected" class="card" style="padding:20px;text-align:center;margin-bottom:28px;display:none;">
+      <p style="color:var(--text-mid);margin-bottom:12px;">Connect your WHOOP to track sleep, recovery, and HRV</p>
+      <a href="/api/whoop/connect" class="btn-gold">Connect WHOOP</a>
+    </div>
+    <div id="whoopConnected" style="display:none;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <span style="display:inline-flex;align-items:center;gap:6px;background:rgba(52,211,153,0.12);border:1px solid rgba(52,211,153,0.25);border-radius:20px;padding:4px 14px;font-size:0.78rem;font-weight:600;color:var(--green);">WHOOP Connected</span>
+        <button class="btn-gold" id="btnSyncWhoop" onclick="syncWhoop()" style="font-size:0.82rem;padding:8px 18px;">Sync Now</button>
+        <span id="whoopSyncStatus" style="font-size:0.82rem;color:var(--text-dim);"></span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;">
+        <div class="card summary-card">
+          <div class="label">Recovery</div>
+          <div class="value" id="whoopRecovery" style="color:var(--green);">--</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">% score</div>
+        </div>
+        <div class="card summary-card">
+          <div class="label">HRV (RMSSD)</div>
+          <div class="value" id="whoopHRV">--</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">ms</div>
+        </div>
+        <div class="card summary-card">
+          <div class="label">Sleep Performance</div>
+          <div class="value" id="whoopSleepPerf">--</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Test Buttons -->
   <div class="tests-grid">
     <a href="dual-n-back.html" class="card test-card">
@@ -907,23 +966,63 @@ async function init() {
   updateCard('#valRT', '#trendRT', pvtResults, ' ms', true);
   updateCard('#valDSST', '#trendDSST', dsstResults);
 
-  // Chess summary
+  // Chess summary — enhanced with 3 rating types + 7-day MA + trend arrows
   const chessHistory = chessData && chessData.history ? chessData.history : (Array.isArray(chessData) ? chessData : []);
   const chessCurrent = chessData && chessData.current ? chessData.current : null;
-  if (chessCurrent && chessCurrent.blitz) {
-    $('#valChess').textContent = Math.round(chessCurrent.blitz);
-    if (chessHistory.length > 0) {
-      const sorted = [...chessHistory].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-      const prev = sorted[sorted.length - 1];
-      const prevElo = prev.blitz_rating || prev.blitz || 0;
-      const t = trendHTML(chessCurrent.blitz, prevElo);
+  const sortedChess = [...chessHistory].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+
+  function chess7DayMA(history, field) {
+    const last7 = history.slice(-7).map(r => r[field]).filter(v => v != null);
+    return last7.length > 0 ? Math.round(last7.reduce((a, b) => a + b, 0) / last7.length) : null;
+  }
+
+  function chessTrendArrow(current, sevenDaysAgo) {
+    if (current == null || sevenDaysAgo == null) return { arrow: '', cls: 'neutral' };
+    const diff = current - sevenDaysAgo;
+    if (Math.abs(diff) < 5) return { arrow: '\u2192', cls: 'neutral' };
+    if (diff > 30) return { arrow: '\u2191', cls: 'up' };
+    if (diff > 0) return { arrow: '\u2197', cls: 'up' };
+    if (diff < -30) return { arrow: '\u2193', cls: 'down' };
+    return { arrow: '\u2198', cls: 'down' };
+  }
+
+  if (chessCurrent) {
+    // Show blitz in main summary
+    const mainElo = chessCurrent.blitz || chessCurrent.rapid || chessCurrent.bullet;
+    if (mainElo) $('#valChess').textContent = Math.round(mainElo);
+    else $('#valChess').textContent = '--';
+
+    // Trend for main summary card
+    if (sortedChess.length > 0) {
+      const prevElo = sortedChess[sortedChess.length - 1].blitz_rating || sortedChess[sortedChess.length - 1].rapid_rating || 0;
+      const t = trendHTML(mainElo, prevElo);
       $('#trendChess').innerHTML = t.html;
       $('#trendChess').className = 'trend ' + t.cls;
     }
-  } else if (chessHistory.length > 0) {
-    const sorted = [...chessHistory].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
-    const latest = sorted[sorted.length - 1];
-    const elo = latest.blitz_rating || latest.blitz || 0;
+
+    // Populate detail cards
+    $('#chessDetailSection').style.display = '';
+    const ratingTypes = [
+      { key: 'blitz', field: 'blitz_rating', el: 'chessBlitz', trendEl: 'chessBlitzTrend', maEl: 'chessBlitz7d' },
+      { key: 'rapid', field: 'rapid_rating', el: 'chessRapid', trendEl: 'chessRapidTrend', maEl: 'chessRapid7d' },
+      { key: 'bullet', field: 'bullet_rating', el: 'chessBullet', trendEl: 'chessBulletTrend', maEl: 'chessBullet7d' },
+    ];
+
+    ratingTypes.forEach(rt => {
+      const val = chessCurrent[rt.key];
+      if (val) {
+        document.getElementById(rt.el).textContent = Math.round(val);
+        const ma = chess7DayMA(sortedChess, rt.field);
+        if (ma) document.getElementById(rt.maEl).textContent = '7d avg: ' + ma;
+        const sevenAgo = sortedChess.length >= 7 ? sortedChess[sortedChess.length - 7][rt.field] : (sortedChess[0] ? sortedChess[0][rt.field] : null);
+        const trend = chessTrendArrow(val, sevenAgo);
+        document.getElementById(rt.trendEl).textContent = trend.arrow;
+        document.getElementById(rt.trendEl).className = 'trend ' + trend.cls;
+      }
+    });
+  } else if (sortedChess.length > 0) {
+    const latest = sortedChess[sortedChess.length - 1];
+    const elo = latest.blitz_rating || latest.rapid_rating || 0;
     $('#valChess').textContent = Math.round(elo);
   } else {
     $('#valChess').textContent = '--';
@@ -993,6 +1092,39 @@ async function init() {
     $('#chartChess').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:40px 0">No Chess data yet</p>';
   }
 
+  // ── WHOOP status ──
+  try {
+    const whoopStatus = await apiFetch('/api/whoop/status');
+    if (whoopStatus && whoopStatus.connected) {
+      $('#whoopNotConnected').style.display = 'none';
+      $('#whoopConnected').style.display = '';
+      // Load latest WHOOP data
+      const whoopData = await apiFetch('/api/whoop/data?days=7');
+      if (whoopData && whoopData.data && whoopData.data.length > 0) {
+        const latest = whoopData.data[0]; // most recent (sorted DESC)
+        if (latest.recovery_score != null) $('#whoopRecovery').textContent = Math.round(latest.recovery_score);
+        if (latest.hrv_rmssd != null) $('#whoopHRV').textContent = Math.round(latest.hrv_rmssd);
+        if (latest.sleep_performance != null) $('#whoopSleepPerf').textContent = Math.round(latest.sleep_performance);
+      }
+    } else {
+      $('#whoopNotConnected').style.display = '';
+      $('#whoopConnected').style.display = 'none';
+    }
+  } catch(e) {
+    $('#whoopNotConnected').style.display = '';
+    $('#whoopConnected').style.display = 'none';
+  }
+
+  // Check URL for whoop connection result
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('whoop') === 'connected') {
+    $('#whoopNotConnected').style.display = 'none';
+    $('#whoopConnected').style.display = '';
+    // Auto-sync on first connect
+    syncWhoop();
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+
   // ── Load today's daily check-in if exists ──
   const dailyNotes = dailyData && dailyData.notes ? dailyData.notes : (Array.isArray(dailyData) ? dailyData : []);
   if (dailyNotes.length > 0) {
@@ -1046,6 +1178,54 @@ $('#checkinForm').addEventListener('submit', async (e) => {
     statusEl.textContent = 'Network error. Try again.';
   }
 });
+
+// ── WHOOP sync ──
+async function syncWhoop() {
+  const btn = document.getElementById('btnSyncWhoop');
+  const status = document.getElementById('whoopSyncStatus');
+  if (btn) btn.disabled = true;
+  if (status) status.textContent = 'Syncing...';
+  try {
+    const r = await fetch('/api/whoop/sync', { method: 'POST', credentials: 'same-origin' });
+    const data = await r.json();
+    if (r.ok) {
+      if (status) status.textContent = `Synced ${data.synced} records`;
+      // Refresh WHOOP cards
+      const whoopData = await apiFetch('/api/whoop/data?days=7');
+      if (whoopData && whoopData.data && whoopData.data.length > 0) {
+        const latest = whoopData.data[0];
+        if (latest.recovery_score != null) document.getElementById('whoopRecovery').textContent = Math.round(latest.recovery_score);
+        if (latest.hrv_rmssd != null) document.getElementById('whoopHRV').textContent = Math.round(latest.hrv_rmssd);
+        if (latest.sleep_performance != null) document.getElementById('whoopSleepPerf').textContent = Math.round(latest.sleep_performance);
+      }
+    } else {
+      if (status) status.textContent = data.error || 'Sync failed';
+    }
+  } catch {
+    if (status) status.textContent = 'Network error';
+  }
+  if (btn) btn.disabled = false;
+}
+
+// ── Chess sync ──
+async function syncChess() {
+  const btn = document.getElementById('btnSyncChess');
+  const status = document.getElementById('chessSyncStatus');
+  if (btn) btn.disabled = true;
+  if (status) status.textContent = 'Syncing...';
+  try {
+    const r = await fetch('/api/cognitive/chess/sync', { method: 'POST', credentials: 'same-origin' });
+    const data = await r.json();
+    if (r.ok) {
+      if (status) status.textContent = `Synced (Blitz: ${data.blitz || '--'})`;
+    } else {
+      if (status) status.textContent = 'Sync failed';
+    }
+  } catch {
+    if (status) status.textContent = 'Network error';
+  }
+  if (btn) btn.disabled = false;
+}
 
 // ── Init ──
 init();

@@ -66,10 +66,43 @@ function initDB() {
         value TEXT
       );
 
+      CREATE TABLE IF NOT EXISTS whoop_data (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL UNIQUE,
+        sleep_duration_min REAL,
+        deep_sleep_min REAL,
+        rem_sleep_min REAL,
+        light_sleep_min REAL,
+        awake_min REAL,
+        sleep_cycles INTEGER,
+        disturbances INTEGER,
+        respiratory_rate REAL,
+        sleep_performance REAL,
+        sleep_consistency REAL,
+        sleep_efficiency REAL,
+        recovery_score REAL,
+        resting_hr REAL,
+        hrv_rmssd REAL,
+        spo2 REAL,
+        skin_temp REAL,
+        raw_sleep_json TEXT,
+        raw_recovery_json TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS whoop_tokens (
+        id INTEGER PRIMARY KEY CHECK (id = 1),
+        access_token TEXT,
+        refresh_token TEXT,
+        expires_at TEXT,
+        updated_at TEXT DEFAULT (datetime('now'))
+      );
+
       CREATE INDEX IF NOT EXISTS idx_test_results_date ON test_results(date);
       CREATE INDEX IF NOT EXISTS idx_test_results_type ON test_results(test_type);
       CREATE INDEX IF NOT EXISTS idx_chess_elo_date ON chess_elo(date);
       CREATE INDEX IF NOT EXISTS idx_daily_notes_date ON daily_notes(date);
+      CREATE INDEX IF NOT EXISTS idx_whoop_data_date ON whoop_data(date);
     `);
 
     // Add session column to existing test_results if missing
@@ -186,6 +219,45 @@ function prepareStatements() {
      ON CONFLICT(key) DO UPDATE SET value = excluded.value`
   );
   stmts.getAllSettings = db.prepare('SELECT * FROM settings');
+
+  // WHOOP statements
+  stmts.upsertWhoopData = db.prepare(
+    `INSERT INTO whoop_data (date, sleep_duration_min, deep_sleep_min, rem_sleep_min, light_sleep_min, awake_min, sleep_cycles, disturbances, respiratory_rate, sleep_performance, sleep_consistency, sleep_efficiency, recovery_score, resting_hr, hrv_rmssd, spo2, skin_temp, raw_sleep_json, raw_recovery_json)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+     ON CONFLICT(date) DO UPDATE SET
+       sleep_duration_min = excluded.sleep_duration_min,
+       deep_sleep_min = excluded.deep_sleep_min,
+       rem_sleep_min = excluded.rem_sleep_min,
+       light_sleep_min = excluded.light_sleep_min,
+       awake_min = excluded.awake_min,
+       sleep_cycles = excluded.sleep_cycles,
+       disturbances = excluded.disturbances,
+       respiratory_rate = excluded.respiratory_rate,
+       sleep_performance = excluded.sleep_performance,
+       sleep_consistency = excluded.sleep_consistency,
+       sleep_efficiency = excluded.sleep_efficiency,
+       recovery_score = excluded.recovery_score,
+       resting_hr = excluded.resting_hr,
+       hrv_rmssd = excluded.hrv_rmssd,
+       spo2 = excluded.spo2,
+       skin_temp = excluded.skin_temp,
+       raw_sleep_json = excluded.raw_sleep_json,
+       raw_recovery_json = excluded.raw_recovery_json`
+  );
+  stmts.getWhoopData = db.prepare(
+    `SELECT * FROM whoop_data WHERE date >= date('now', '-' || ? || ' days') ORDER BY date DESC`
+  );
+  stmts.getAllWhoopData = db.prepare('SELECT * FROM whoop_data ORDER BY date ASC');
+  stmts.upsertWhoopTokens = db.prepare(
+    `INSERT INTO whoop_tokens (id, access_token, refresh_token, expires_at, updated_at)
+     VALUES (1, ?, ?, ?, datetime('now'))
+     ON CONFLICT(id) DO UPDATE SET
+       access_token = excluded.access_token,
+       refresh_token = excluded.refresh_token,
+       expires_at = excluded.expires_at,
+       updated_at = datetime('now')`
+  );
+  stmts.getWhoopTokens = db.prepare('SELECT * FROM whoop_tokens WHERE id = 1');
 }
 
 // chess_elo needs a unique constraint on date for upsert to work
@@ -301,6 +373,32 @@ module.exports = {
     const obj = {};
     rows.forEach(r => { obj[r.key] = r.value; });
     return obj;
+  },
+
+  saveWhoopData(data) {
+    return stmts.upsertWhoopData.run(
+      data.date, data.sleep_duration_min, data.deep_sleep_min, data.rem_sleep_min,
+      data.light_sleep_min, data.awake_min, data.sleep_cycles, data.disturbances,
+      data.respiratory_rate, data.sleep_performance, data.sleep_consistency,
+      data.sleep_efficiency, data.recovery_score, data.resting_hr, data.hrv_rmssd,
+      data.spo2, data.skin_temp, data.raw_sleep_json, data.raw_recovery_json
+    );
+  },
+
+  getWhoopData(days = 30) {
+    return stmts.getWhoopData.all(days);
+  },
+
+  getAllWhoopData() {
+    return stmts.getAllWhoopData.all();
+  },
+
+  saveWhoopTokens(access_token, refresh_token, expires_at) {
+    return stmts.upsertWhoopTokens.run(access_token, refresh_token, expires_at);
+  },
+
+  getWhoopTokens() {
+    return stmts.getWhoopTokens.get() || null;
   },
 
   close() {
