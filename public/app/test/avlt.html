@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#06060b">
+<link rel="manifest" href="/app/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>AVLT — Neural NeXus</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+:root{--bg:#06060b;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--text:#e0e0e0;--heading:#ffffff;--gold:#d4a853;--green:#4ade80;--red:#ef4444;--radius:16px}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:16px;min-height:100vh;min-height:100dvh;overflow:hidden;touch-action:manipulation}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.screen.hidden{display:none}
+h1{color:var(--heading);font-size:24px;margin-bottom:8px}
+h2{color:var(--heading);font-size:20px;margin-bottom:16px}
+p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:340px;margin-bottom:12px}
+.btn{display:inline-block;padding:16px 48px;background:linear-gradient(135deg,#d4a853,#c49a48);color:#06060b;font-size:18px;font-weight:700;border:none;border-radius:12px;cursor:pointer;font-family:inherit;transition:transform .2s;min-height:48px;text-decoration:none}
+.btn:active{transform:scale(0.95)}
+.btn-outline{background:none;border:1px solid rgba(255,255,255,0.2);color:#e0e0e0;font-size:15px;padding:12px 24px;margin:6px}
+/* Game layout */
+.game-screen{position:fixed;inset:0;display:flex;flex-direction:column}
+.game-screen.hidden{display:none}
+.game-top{padding:calc(12px + env(safe-area-inset-top)) 16px 8px;text-align:center;flex-shrink:0}
+.trial-info{color:rgba(255,255,255,0.4);font-size:13px}
+.trial-info span{color:var(--gold)}
+.phase-label{color:var(--gold);font-size:14px;font-weight:600;margin-bottom:4px}
+/* Timer */
+.timer{font-size:32px;font-weight:700;color:var(--heading);margin:4px 0}
+.timer.warning{color:var(--red)}
+/* Word display (presentation) */
+.word-area{flex:1;display:flex;align-items:center;justify-content:center}
+.display-word{font-size:clamp(36px,10vw,64px);font-weight:700;color:var(--heading);letter-spacing:2px;text-transform:lowercase;opacity:0;transition:opacity .3s}
+.display-word.visible{opacity:1}
+/* Recall interface */
+.recall-area{flex:1;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.recall-count{color:rgba(255,255,255,0.4);font-size:13px;text-align:center;padding:4px 0}
+.chips-container{flex:1;overflow-y:auto;padding:8px 16px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);border-radius:20px;padding:8px 14px;font-size:15px;color:var(--heading);font-family:inherit}
+.chip .chip-x{width:20px;height:20px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;font-size:12px;color:rgba(255,255,255,0.5);cursor:pointer}
+.chip .chip-x:active{background:rgba(239,68,68,0.3);color:var(--red)}
+.recall-input-wrap{flex-shrink:0;padding:8px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--border)}
+.recall-input{width:100%;padding:16px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:12px;color:var(--heading);font-size:18px;font-family:inherit;-webkit-user-select:text;user-select:text;outline:none}
+.recall-input::placeholder{color:rgba(255,255,255,0.25)}
+.recall-input:focus{border-color:var(--gold)}
+.recall-submit-row{display:flex;gap:8px;margin-top:8px}
+.recall-submit-row .btn-done{flex:1;padding:14px;background:var(--gold);color:#06060b;font-weight:700;border:none;border-radius:12px;font-size:16px;cursor:pointer;font-family:inherit;min-height:48px}
+/* Recognition */
+.recog-word{font-size:clamp(32px,9vw,56px);font-weight:700;color:var(--heading);text-transform:lowercase}
+.recog-count{color:rgba(255,255,255,0.4);font-size:13px;margin-top:8px}
+.recog-buttons{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 16px calc(24px + env(safe-area-inset-bottom));flex-shrink:0}
+.recog-btn{min-height:64px;border:none;border-radius:14px;font-size:18px;font-weight:700;cursor:pointer;font-family:inherit;transition:transform .1s;display:flex;align-items:center;justify-content:center}
+.recog-btn:active{transform:scale(0.95)}
+.recog-btn.yes{background:var(--green);color:#06060b}
+.recog-btn.no{background:rgba(255,255,255,0.1);color:var(--text);border:1px solid rgba(255,255,255,0.15)}
+/* Transition screen */
+.transition-msg{font-size:18px;color:var(--heading);font-weight:600;margin-bottom:8px}
+.transition-sub{font-size:14px;color:rgba(255,255,255,0.4);margin-bottom:20px;max-width:300px;text-align:center}
+/* Results */
+.results-scroll{position:fixed;inset:0;overflow-y:auto;padding:calc(24px + env(safe-area-inset-top)) 24px calc(24px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center}
+.results-scroll.hidden{display:none}
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:320px;width:100%;margin:20px 0}
+.result-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;text-align:center}
+.result-item .val{font-size:28px;font-weight:700;color:#fff}
+.result-item .lab{font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px}
+.result-item.highlight .val{color:var(--gold)}
+.result-item.wide{grid-column:1/-1}
+.btns{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;justify-content:center;padding-bottom:20px}
+.auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-box{text-align:center;max-width:300px;width:100%}
+.auth-box h2{color:var(--heading);margin-bottom:16px}
+.auth-box input{width:100%;padding:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;color:var(--heading);font-size:16px;font-family:inherit;text-align:center;margin-bottom:12px}
+.auth-box button{width:100%;padding:14px;background:var(--gold);color:#06060b;font-weight:700;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+
+<!-- Instructions -->
+<div class="screen" id="instrScreen">
+  <h1>&#128221; Verbal Learning</h1>
+  <h2>AVLT</h2>
+  <p>You'll hear and see 15 words, then recall as many as you can. This repeats for <strong style="color:var(--gold)">3 learning trials</strong>, followed by an interference list, immediate recall, and recognition.</p>
+  <p style="color:rgba(255,255,255,0.3)">~10 min</p>
+  <button class="btn" onclick="startTest()">Start</button>
+</div>
+
+<!-- Word Presentation -->
+<div class="game-screen hidden" id="presentScreen">
+  <div class="game-top">
+    <div class="phase-label" id="presentPhase">Learning Trial 1 of 3</div>
+    <div class="trial-info">Word <span id="wordNum">1</span>/15</div>
+  </div>
+  <div class="word-area">
+    <div class="display-word" id="displayWord"></div>
+  </div>
+</div>
+
+<!-- Recall -->
+<div class="game-screen hidden" id="recallScreen">
+  <div class="game-top">
+    <div class="phase-label" id="recallPhase">Recall — Trial 1</div>
+    <div class="timer" id="recallTimer">60</div>
+    <div class="recall-count" id="recallCount">0 words</div>
+  </div>
+  <div class="recall-area">
+    <div class="chips-container" id="chipsContainer"></div>
+    <div class="recall-input-wrap">
+      <input type="text" class="recall-input" id="recallInput" placeholder="Type a word..." autocomplete="off" autocapitalize="none" spellcheck="false">
+      <div class="recall-submit-row">
+        <button class="btn-done" id="recallDone">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Transition -->
+<div class="screen hidden" id="transitionScreen">
+  <div class="transition-msg" id="transitionMsg"></div>
+  <div class="transition-sub" id="transitionSub"></div>
+  <button class="btn" id="transitionBtn" onclick="continueFlow()">Continue</button>
+</div>
+
+<!-- Recognition -->
+<div class="game-screen hidden" id="recogScreen">
+  <div class="game-top">
+    <div class="phase-label">Recognition</div>
+    <div class="trial-info">Word <span id="recogNum">1</span>/30</div>
+  </div>
+  <div class="word-area" style="flex-direction:column">
+    <div class="recog-word" id="recogWord"></div>
+    <div class="recog-count" id="recogCount"></div>
+  </div>
+  <div class="recog-buttons">
+    <button class="recog-btn yes" onclick="recogAnswer(true)">Yes</button>
+    <button class="recog-btn no" onclick="recogAnswer(false)">No</button>
+  </div>
+</div>
+
+<!-- Results -->
+<div class="results-scroll hidden" id="resultsScreen">
+  <h2>Results</h2>
+  <div class="results-grid" id="resultsGrid"></div>
+  <div class="btns">
+    <a href="/app/test/" class="btn btn-outline">Back to Tests</a>
+    <a href="/app/" class="btn">Done</a>
+  </div>
+</div>
+
+<!-- Auth -->
+<div class="auth-overlay" id="authOverlay" style="display:none">
+  <div class="auth-box">
+    <h2>Neural NeXus</h2>
+    <p style="color:rgba(255,255,255,0.4);margin-bottom:20px;font-size:14px">Enter password</p>
+    <input type="password" id="authPass" placeholder="Password" autocomplete="current-password">
+    <button onclick="doAuth()">Enter</button>
+  </div>
+</div>
+
+<script>
+function checkAuth(){if(!document.cookie.includes('dash_auth=nexus2026')){document.getElementById('authOverlay').style.display='flex';return false}return true}
+function doAuth(){const p=document.getElementById('authPass').value;if(p){document.cookie=`dash_auth=${p};max-age=2592000;path=/`;location.reload()}}
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!checkAuth())return;
+  const ap=document.getElementById('authPass');if(ap)ap.addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
+});
+
+const WORD_LISTS = [
+  ["drum","curtain","bell","coffee","school","parent","moon","garden","hat","farmer","nose","turkey","color","house","river"],
+  ["desk","ranger","bird","shoe","mountain","finger","lamp","cloud","chair","picture","boat","corner","forest","window","bottle"],
+  ["table","flower","hammer","winter","pencil","rabbit","shadow","candle","butter","doctor","pillow","sunset","marker","ladder","silver"],
+  ["apple","blanket","church","dancer","elbow","feather","garden","honey","island","jacket","kitchen","letter","mirror","needle","orange"],
+  ["basket","carpet","dolphin","engine","falcon","gravel","helmet","insect","journey","kitten","lemon","marble","napkin","olive","pepper"],
+  ["anchor","barrel","cabin","donkey","eagle","fabric","ginger","harbor","iron","jungle","kettle","lumber","mango","nickel","oyster"],
+  ["badge","canvas","daisy","ember","fiddle","garlic","hiker","ivory","jelly","kite","lobster","muffin","noodle","otter","pebble"],
+  ["button","camel","dagger","elbow","fossil","glacier","hatchet","igloo","jasmine","kennel","lantern","moose","nugget","orchid","parrot"],
+  ["acorn","bamboo","chapel","desert","eraser","funnel","goblet","harness","icicle","journal","ketchup","lizard","meadow","nettle","pocket"],
+  ["arrow","biscuit","castle","donkey","engine","flannel","garnet","hermit","inkwell","jewel","kernel","locket","magnet","nectar","paddle"],
+  ["banner","cherry","dimple","emerald","fidget","grotto","hollow","infant","jumper","kayak","lentil","mortar","nestle","oasis","piston"],
+  ["basket","cactus","denim","falcon","goblin","helmet","iguana","jigsaw","kindle","lesson","mitten","novel","osprey","pastel","radish"],
+  ["beaver","cobalt","dahlia","falcon","gadget","harrow","indent","jersey","kimono","locket","minnow","noggin","octave","pliers","ribbon"],
+  ["bishop","crater","dongle","ermine","fossil","glacier","hornet","island","jostle","kernel","locker","musket","nimble","outlaw","pencil"],
+  ["bonnet","cellar","dipper","eyelet","fender","gravel","hobbit","insole","jacket","kipper","litmus","mongrel","nutmeg","oracle","plover"],
+  ["bridle","cement","dimmer","falcon","garret","huddle","impala","jumble","kibble","lentil","morsel","nimbus","obsess","pallet","quarry"],
+  ["buckle","clover","duster","falcon","gibbon","hackle","inning","jumble","kindle","lintel","muzzle","nougat","outcry","piglet","quiver"],
+  ["bunker","copper","dorsal","falcon","gutter","hamper","inward","jostle","kipper","lizard","monkey","napkin","orange","puddle","riddle"],
+  ["cactus","dandle","falcon","giblet","hamper","insect","juggle","kennel","lather","mitten","nugget","osprey","parcel","rabbit","saddle"],
+  ["canvas","darken","falcon","goblet","harbor","indent","jiggle","kettle","ladder","minnow","nettle","oyster","pebble","racket","socket"],
+  ["timber","walnut","saddle","pliers","donkey","vessel","ribbon","funnel","kitten","goblet","chapel","magnet","biscuit","oyster","pebble"],
+  ["tunnel","basket","falcon","gravel","helmet","jacket","locket","marble","napkin","paddle","rabbit","saddle","vessel","walnut","zipper"],
+  ["anchor","button","candle","dimple","engine","flower","garnet","hollow","insect","jumper","kernel","lizard","meadow","nickel","orchid"],
+  ["bamboo","carpet","dagger","emerald","falcon","goblin","hermit","iguana","jigsaw","kettle","lentil","mortar","nugget","outlaw","pepper"],
+  ["beaver","cellar","donkey","falcon","glacier","harness","indent","jersey","kindle","lobster","mitten","nestle","oracle","plover","quiver"],
+  ["bonnet","copper","desert","falcon","grotto","hatchet","insole","jumble","kipper","lantern","minnow","nougat","osprey","piglet","riddle"],
+  ["buckle","crater","dahlia","eraser","fiddle","garlic","hobbit","ivory","jostle","kimono","lintel","mongrel","nimbus","outcry","pallet"],
+  ["bunker","clover","dimmer","eyelet","fossil","gadget","hamper","inning","jumble","kibble","litmus","morsel","nutmeg","oyster","quarry"],
+  ["bridle","cement","dongle","falcon","garret","helmet","impala","jacket","kennel","locket","monkey","napkin","orange","puddle","saddle"],
+  ["timber","cherry","duster","falcon","gibbon","harbor","insect","jiggle","kernel","ladder","muffin","needle","olive","parrot","racket"]
+];
+
+function getListForDate(dateStr) {
+  const hash = dateStr.split('').reduce((acc, c) => ((acc << 5) - acc + c.charCodeAt(0)) | 0, 0);
+  return Math.abs(hash) % WORD_LISTS.length;
+}
+
+// State
+let wakeLock = null;
+let synth = null;
+let listIndex = 0;
+let listA = [];
+let listB = [];
+let currentTrial = 0; // 0-2 for learning, then interference, then immediate
+let recalledWords = [];
+let recallTimerId = null;
+let recallTimeLeft = 0;
+let trialScores = [0, 0, 0]; // trial_1, trial_2, trial_3
+let interferenceScore = 0;
+let immediateScore = 0;
+let recognitionAnswers = [];
+let recogIndex = 0;
+let recogList = [];
+let phase = 'instructions'; // instructions, learning-present, learning-recall, interference-present, interference-recall, immediate-transition, immediate-recall, recognition, results
+let flowStep = 0;
+
+function show(id) {
+  document.querySelectorAll('.screen,.game-screen,.results-scroll').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function generateInterferenceList(mainList) {
+  // Pick a different list as interference
+  let idx;
+  do { idx = Math.floor(Math.random() * WORD_LISTS.length); } while (idx === listIndex);
+  return WORD_LISTS[idx];
+}
+
+function buildRecognitionList(listA, listB) {
+  // 15 from list A (targets) + 15 distractors (mix of listB and novel)
+  const targets = listA.map(w => ({ word: w, isTarget: true }));
+  // Use interference list words as some distractors, plus novel words
+  const distractors = [];
+  // Add interference words not in listA
+  for (const w of listB) {
+    if (!listA.includes(w) && distractors.length < 10) {
+      distractors.push({ word: w, isTarget: false });
+    }
+  }
+  // Fill remaining with novel words from other lists
+  const allWords = WORD_LISTS.flat();
+  const usedWords = new Set([...listA, ...listB, ...distractors.map(d => d.word)]);
+  const novelPool = [...new Set(allWords)].filter(w => !usedWords.has(w));
+  shuffle(novelPool);
+  while (distractors.length < 15 && novelPool.length) {
+    distractors.push({ word: novelPool.pop(), isTarget: false });
+  }
+  const combined = [...targets, ...distractors];
+  shuffle(combined);
+  return combined;
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+async function startTest() {
+  synth = window.speechSynthesis;
+  try { wakeLock = await navigator.wakeLock.request('screen'); } catch {}
+
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  listIndex = getListForDate(dateStr);
+  listA = WORD_LISTS[listIndex];
+  listB = generateInterferenceList(listA);
+
+  currentTrial = 0;
+  trialScores = [0, 0, 0];
+  interferenceScore = 0;
+  immediateScore = 0;
+  recognitionAnswers = [];
+
+  startLearningPresentation();
+}
+
+// --- Learning Phase ---
+
+function startLearningPresentation() {
+  phase = 'learning-present';
+  document.getElementById('presentPhase').textContent = `Learning Trial ${currentTrial + 1} of 3`;
+  show('presentScreen');
+  presentWords(listA, () => {
+    startRecall(`Recall — Trial ${currentTrial + 1}`, 60);
+  });
+}
+
+function presentWords(words, onDone) {
+  let idx = 0;
+  const wordEl = document.getElementById('displayWord');
+  const numEl = document.getElementById('wordNum');
+
+  function showNext() {
+    if (idx >= words.length) {
+      wordEl.classList.remove('visible');
+      setTimeout(onDone, 500);
+      return;
+    }
+    wordEl.classList.remove('visible');
+    setTimeout(() => {
+      wordEl.textContent = words[idx];
+      numEl.textContent = idx + 1;
+      wordEl.classList.add('visible');
+      // Speak the word
+      if (synth) {
+        synth.cancel();
+        const u = new SpeechSynthesisUtterance(words[idx]);
+        u.rate = 0.9;
+        u.pitch = 1;
+        u.volume = 0.8;
+        synth.speak(u);
+      }
+      idx++;
+      setTimeout(showNext, 1800);
+    }, 200);
+  }
+  showNext();
+}
+
+// --- Recall Phase ---
+
+function startRecall(label, seconds) {
+  phase = 'recall';
+  recalledWords = [];
+  recallTimeLeft = seconds;
+  document.getElementById('recallPhase').textContent = label;
+  document.getElementById('recallTimer').textContent = seconds;
+  document.getElementById('recallTimer').classList.remove('warning');
+  document.getElementById('recallCount').textContent = '0 words';
+  document.getElementById('chipsContainer').innerHTML = '';
+  document.getElementById('recallInput').value = '';
+  show('recallScreen');
+
+  // Focus input after a short delay to let screen render
+  setTimeout(() => {
+    document.getElementById('recallInput').focus();
+  }, 300);
+
+  recallTimerId = setInterval(() => {
+    recallTimeLeft--;
+    document.getElementById('recallTimer').textContent = recallTimeLeft;
+    if (recallTimeLeft <= 10) document.getElementById('recallTimer').classList.add('warning');
+    if (recallTimeLeft <= 0) {
+      finishRecall();
+    }
+  }, 1000);
+}
+
+function addRecalledWord(word) {
+  word = word.trim().toLowerCase();
+  if (!word || recalledWords.includes(word)) return;
+  recalledWords.push(word);
+  updateChips();
+  document.getElementById('recallInput').value = '';
+  document.getElementById('recallCount').textContent = `${recalledWords.length} word${recalledWords.length !== 1 ? 's' : ''}`;
+}
+
+function removeChip(index) {
+  recalledWords.splice(index, 1);
+  updateChips();
+  document.getElementById('recallCount').textContent = `${recalledWords.length} word${recalledWords.length !== 1 ? 's' : ''}`;
+}
+
+function updateChips() {
+  const container = document.getElementById('chipsContainer');
+  container.innerHTML = recalledWords.map((w, i) =>
+    `<div class="chip">${w}<span class="chip-x" onclick="removeChip(${i})">&times;</span></div>`
+  ).join('');
+  // Scroll to bottom
+  container.scrollTop = container.scrollHeight;
+}
+
+function finishRecall() {
+  if (recallTimerId) { clearInterval(recallTimerId); recallTimerId = null; }
+
+  // Count correct words (words that are in the target list)
+  if (phase === 'recall') {
+    // Determine which list we're recalling
+    if (flowStep <= 3) {
+      // Learning trials or immediate recall: count against listA
+      if (flowStep <= 2) {
+        // Learning trial
+        const correct = recalledWords.filter(w => listA.includes(w)).length;
+        trialScores[currentTrial] = correct;
+        currentTrial++;
+        if (currentTrial < 3) {
+          // Next learning trial
+          showTransition(`Trial ${currentTrial} complete`, `${correct}/15 correct. Next: Trial ${currentTrial + 1} — same words again.`, () => {
+            startLearningPresentation();
+          });
+        } else {
+          // Move to interference
+          showTransition('Learning complete', `Now you\'ll see a NEW list of words once, then recall them.`, () => {
+            startInterferencePresentation();
+          });
+        }
+      } else {
+        // Immediate recall of list A
+        immediateScore = recalledWords.filter(w => listA.includes(w)).length;
+        startRecognition();
+      }
+    } else if (flowStep === 4) {
+      // Interference recall
+      interferenceScore = recalledWords.filter(w => listB.includes(w)).length;
+      showTransition('Interference complete', `Now recall words from the FIRST list (List A) — no presentation this time.`, () => {
+        flowStep = 3;
+        startRecall('Immediate Recall — List A', 60);
+      });
+    }
+  }
+}
+
+function showTransition(msg, sub, onContinue) {
+  document.getElementById('transitionMsg').textContent = msg;
+  document.getElementById('transitionSub').textContent = sub;
+  show('transitionScreen');
+  window._transitionCallback = onContinue;
+}
+
+function continueFlow() {
+  if (window._transitionCallback) {
+    window._transitionCallback();
+    window._transitionCallback = null;
+  }
+}
+
+// --- Interference Phase ---
+
+function startInterferencePresentation() {
+  flowStep = 4;
+  phase = 'interference-present';
+  document.getElementById('presentPhase').textContent = 'Interference List';
+  show('presentScreen');
+  presentWords(listB, () => {
+    startRecall('Recall — Interference', 45);
+  });
+}
+
+// --- Recognition Phase ---
+
+function startRecognition() {
+  phase = 'recognition';
+  recogList = buildRecognitionList(listA, listB);
+  recogIndex = 0;
+  recognitionAnswers = [];
+  show('recogScreen');
+  showRecogWord();
+}
+
+function showRecogWord() {
+  if (recogIndex >= recogList.length) {
+    showResults();
+    return;
+  }
+  document.getElementById('recogWord').textContent = recogList[recogIndex].word;
+  document.getElementById('recogNum').textContent = recogIndex + 1;
+  document.getElementById('recogCount').textContent = `Was this word in the first list?`;
+}
+
+function recogAnswer(saidYes) {
+  if (recogIndex >= recogList.length) return;
+  const item = recogList[recogIndex];
+  recognitionAnswers.push({
+    word: item.word,
+    isTarget: item.isTarget,
+    saidYes
+  });
+  recogIndex++;
+  showRecogWord();
+}
+
+// --- Results ---
+
+async function showResults() {
+  if (wakeLock) { try { await wakeLock.release(); } catch {} wakeLock = null; }
+
+  const trial_1 = trialScores[0];
+  const trial_2 = trialScores[1];
+  const trial_3 = trialScores[2];
+  const learning_slope = trial_3 - trial_1;
+  const interference_recall = interferenceScore;
+  const immediate_recall = immediateScore;
+
+  const recognition_hits = recognitionAnswers.filter(a => a.isTarget && a.saidYes).length;
+  const recognition_false_alarms = recognitionAnswers.filter(a => !a.isTarget && a.saidYes).length;
+
+  // d-prime calculation
+  const totalTargets = recognitionAnswers.filter(a => a.isTarget).length || 1;
+  const totalDistractors = recognitionAnswers.filter(a => !a.isTarget).length || 1;
+  let hitRate = recognition_hits / totalTargets;
+  let faRate = recognition_false_alarms / totalDistractors;
+  // Clamp to avoid infinite z-scores
+  hitRate = Math.max(0.01, Math.min(0.99, hitRate));
+  faRate = Math.max(0.01, Math.min(0.99, faRate));
+  const zHit = normInv(hitRate);
+  const zFa = normInv(faRate);
+  const d_prime = Math.round((zHit - zFa) * 100) / 100;
+
+  const total_words_recalled = trial_1 + trial_2 + trial_3;
+
+  document.getElementById('resultsGrid').innerHTML = `
+    <div class="result-item highlight"><div class="val">${total_words_recalled}</div><div class="lab">Total Words (3 trials)</div></div>
+    <div class="result-item highlight"><div class="val">${d_prime}</div><div class="lab">d' (Recognition)</div></div>
+    <div class="result-item"><div class="val">${trial_1}</div><div class="lab">Trial 1</div></div>
+    <div class="result-item"><div class="val">${trial_2}</div><div class="lab">Trial 2</div></div>
+    <div class="result-item"><div class="val">${trial_3}</div><div class="lab">Trial 3</div></div>
+    <div class="result-item"><div class="val">${learning_slope >= 0 ? '+' : ''}${learning_slope}</div><div class="lab">Learning Slope</div></div>
+    <div class="result-item"><div class="val">${interference_recall}</div><div class="lab">Interference Recall</div></div>
+    <div class="result-item"><div class="val">${immediate_recall}</div><div class="lab">Immediate Recall</div></div>
+    <div class="result-item"><div class="val">${recognition_hits}/15</div><div class="lab">Recognition Hits</div></div>
+    <div class="result-item"><div class="val">${recognition_false_alarms}</div><div class="lab">False Alarms</div></div>
+  `;
+  show('resultsScreen');
+
+  // Save results
+  const now = new Date();
+  const date = now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  const time = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false });
+  const h = parseInt(now.toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false }));
+  const session = h < 14 ? 'morning' : 'evening';
+  try {
+    await fetch('/api/cognitive/results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        test_type: 'avlt',
+        date, time, session,
+        scores_json: JSON.stringify({
+          trial_1, trial_2, trial_3,
+          learning_slope,
+          interference_recall,
+          immediate_recall,
+          recognition_hits,
+          recognition_false_alarms,
+          d_prime,
+          total_words_recalled,
+          list_id: listIndex
+        })
+      })
+    });
+  } catch {}
+}
+
+// Approximate inverse normal (probit) function for d-prime
+function normInv(p) {
+  // Rational approximation (Abramowitz and Stegun)
+  const a1 = -3.969683028665376e+01;
+  const a2 =  2.209460984245205e+02;
+  const a3 = -2.759285104469687e+02;
+  const a4 =  1.383577518672690e+02;
+  const a5 = -3.066479806614716e+01;
+  const a6 =  2.506628277459239e+00;
+  const b1 = -5.447609879822406e+01;
+  const b2 =  1.615858368580409e+02;
+  const b3 = -1.556989798598866e+02;
+  const b4 =  6.680131188771972e+01;
+  const b5 = -1.328068155288572e+01;
+  const c1 = -7.784894002430293e-03;
+  const c2 = -3.223964580411365e-01;
+  const c3 = -2.400758277161838e+00;
+  const c4 = -2.549732539343734e+00;
+  const c5 =  4.374664141464968e+00;
+  const c6 =  2.938163982698783e+00;
+  const d1 =  7.784695709041462e-03;
+  const d2 =  3.224671290700398e-01;
+  const d3 =  2.445134137142996e+00;
+  const d4 =  3.754408661907416e+00;
+  const pLow = 0.02425;
+  const pHigh = 1 - pLow;
+  let q, r;
+  if (p < pLow) {
+    q = Math.sqrt(-2 * Math.log(p));
+    return (((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6) / ((((d1*q+d2)*q+d3)*q+d4)*q+1);
+  } else if (p <= pHigh) {
+    q = p - 0.5;
+    r = q * q;
+    return (((((a1*r+a2)*r+a3)*r+a4)*r+a5)*r+a6)*q / (((((b1*r+b2)*r+b3)*r+b4)*r+b5)*r+1);
+  } else {
+    q = Math.sqrt(-2 * Math.log(1 - p));
+    return -(((((c1*q+c2)*q+c3)*q+c4)*q+c5)*q+c6) / ((((d1*q+d2)*q+d3)*q+d4)*q+1);
+  }
+}
+
+// --- Input Handling ---
+
+document.getElementById('recallInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const val = document.getElementById('recallInput').value;
+    if (val.trim()) addRecalledWord(val);
+  }
+});
+
+document.getElementById('recallDone').addEventListener('click', () => {
+  // Add any remaining text first
+  const val = document.getElementById('recallInput').value;
+  if (val.trim()) addRecalledWord(val);
+  finishRecall();
+});
+
+// Initialize flow tracking
+flowStep = 0; // 0,1,2 = learning trials; 3 = immediate recall; 4 = interference
+
+// Override startLearningPresentation to track flow
+const _origStartLearning = startLearningPresentation;
+startLearningPresentation = function() {
+  flowStep = currentTrial;
+  _origStartLearning();
+};
+</script>
+</body>
+</html>

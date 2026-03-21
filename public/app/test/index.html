@@ -69,6 +69,13 @@ h1{color:var(--heading);font-size:22px;font-weight:700;margin-bottom:4px}
     <div class="subtitle">Inhibitory Control</div>
     <div class="duration">~3 min</div>
   </a>
+
+  <a href="/app/test/avlt.html" class="test-card" id="card-avlt">
+    <div class="emoji">📝</div>
+    <div class="name">Verbal Memory</div>
+    <div class="subtitle">AVLT Word Recall</div>
+    <div class="duration">~5-7 min</div>
+  </a>
 </div>
 
 <nav class="tab-bar" id="tabBar" style="display:none">
@@ -106,7 +113,7 @@ document.addEventListener('DOMContentLoaded',async()=>{
   try{
     const data=await fetch(`/api/cognitive/results?date=${todayStr()}`).then(r=>r.json());
     const results=data.results||data||[];
-    ['nback','pvt','dsst','stroop'].forEach(type=>{
+    ['nback','pvt','dsst','stroop','avlt'].forEach(type=>{
       const done=results.some(r=>r.test_type===type&&r.session===session);
       if(done){
         const card=document.getElementById('card-'+type);

@@ -100,6 +100,7 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
         <span class="test-chip" data-test="pvt">PVT</span>
         <span class="test-chip" data-test="dsst">DSST</span>
         <span class="test-chip" data-test="stroop">Stroop</span>
+        <span class="test-chip" data-test="avlt">AVLT</span>
       </div>
     </div>
     <div class="session-row">
@@ -109,6 +110,7 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
         <span class="test-chip" data-test="pvt">PVT</span>
         <span class="test-chip" data-test="dsst">DSST</span>
         <span class="test-chip" data-test="stroop">Stroop</span>
+        <span class="test-chip" data-test="avlt">AVLT</span>
       </div>
     </div>
     <a href="/app/test/" class="btn-gold">Start Battery</a>
@@ -317,6 +319,11 @@ function showScores(results) {
   if (stroop) {
     const s = typeof stroop.scores_json === 'string' ? JSON.parse(stroop.scores_json) : stroop.scores_json;
     html += `<div class="score-item"><div class="value">${s.interference_score != null ? s.interference_score : '—'}</div><div class="label">Stroop (ms)</div></div>`;
+  }
+  const avlt = results.find(r => r.test_type === 'avlt');
+  if (avlt) {
+    const s = typeof avlt.scores_json === 'string' ? JSON.parse(avlt.scores_json) : avlt.scores_json;
+    html += `<div class="score-item"><div class="value">${s.trial_3 != null ? s.trial_3 : '—'}/15</div><div class="label">AVLT T3</div></div>`;
   }
   html += '</div>';
   document.getElementById('scoresContent').innerHTML = html;

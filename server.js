@@ -644,7 +644,7 @@ app.post('/api/cognitive/results', dashboardAuth, (req, res) => {
     const { test_type, scores, scores_json, session, date, time } = req.body;
     const resolvedScores = scores || (scores_json ? (typeof scores_json === 'string' ? JSON.parse(scores_json) : scores_json) : null);
     if (!test_type || !resolvedScores) return res.status(400).json({ error: 'Missing test_type or scores' });
-    if (!['nback', 'pvt', 'dsst', 'stroop'].includes(test_type)) return res.status(400).json({ error: 'Invalid test_type' });
+    if (!['nback', 'pvt', 'dsst', 'stroop', 'avlt'].includes(test_type)) return res.status(400).json({ error: 'Invalid test_type' });
     const validSession = (session === 'morning' || session === 'evening') ? session : null;
     const now = new Date();
     const saveDate = date || now.toISOString().split('T')[0];

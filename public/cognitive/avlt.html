@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Verbal Learning Test (AVLT) | Neural Nexus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #06060b;
+  --card: rgba(255,255,255,0.03);
+  --border: rgba(255,255,255,0.08);
+  --gold: #d4a853;
+  --gold-dim: rgba(212,168,83,0.15);
+  --red: #e74c3c;
+  --green: #44ff88;
+  --text: #e0e0e0;
+  --text-dim: rgba(255,255,255,0.35);
+  --text-mid: rgba(255,255,255,0.55);
+}
+
+html, body {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+a { color: inherit; text-decoration: none; }
+
+.cog-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  font-size: 13px;
+  font-weight: 500;
+  flex-wrap: wrap;
+}
+.cog-nav a {
+  color: var(--text-mid);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.cog-nav a:hover, .cog-nav a.cog-nav-active { color: var(--gold); }
+.cog-nav-sep { color: rgba(255,255,255,0.15); }
+.cog-nav-label { color: var(--text-dim); }
+
+.screen { display: none; }
+.screen.active { display: flex; }
+
+/* ── Setup Screen ── */
+#setup-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - 60px);
+  padding: 24px;
+  text-align: center;
+}
+
+#setup-screen h1 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(32px, 6vw, 48px);
+  color: #fff;
+  margin-bottom: 20px;
+  line-height: 1.15;
+}
+
+#setup-screen .description {
+  max-width: 520px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-mid);
+  margin-bottom: 40px;
+}
+
+.session-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.session-toggle .session-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 16px;
+  color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.session-toggle .session-btn.active {
+  background: rgba(212,168,83,0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.session-toggle .session-btn:hover:not(.active) {
+  border-color: rgba(255,255,255,0.2);
+  color: var(--text);
+}
+
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gold);
+  color: #06060b;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 40px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,168,83,0.3); }
+.btn-gold:active { transform: translateY(0); }
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 10px;
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+}
+.btn-outline:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* ── Test Screen (Word Presentation) ── */
+#test-screen {
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.test-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.phase-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-mid);
+}
+.phase-label span { color: var(--gold); }
+
+.word-zone {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  -webkit-user-select: none;
+  user-select: none;
+  padding: 20px;
+}
+
+.word-display {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(48px, 10vw, 88px);
+  font-weight: 400;
+  color: #fff;
+  text-transform: lowercase;
+  letter-spacing: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.word-display.visible { opacity: 1; }
+
+.word-counter {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-top: 24px;
+}
+
+/* ── Recall Screen ── */
+#recall-screen {
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.recall-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.recall-timer {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.recall-timer.urgent { color: var(--red); }
+
+.recall-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.recall-instruction {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(20px, 4vw, 28px);
+  color: #fff;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.recall-sub {
+  font-size: 14px;
+  color: var(--text-dim);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.chips-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-height: 40px;
+  margin-bottom: 20px;
+  flex: 1;
+  align-content: flex-start;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(212,168,83,0.12);
+  border: 1px solid rgba(212,168,83,0.3);
+  border-radius: 20px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--gold);
+  animation: chipIn 0.2s ease-out;
+}
+
+@keyframes chipIn {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.chip .chip-x {
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+.chip .chip-x:hover { opacity: 1; }
+
+.recall-input-area {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.recall-input {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  color: #fff;
+  outline: none;
+  transition: border-color 0.2s;
+}
+.recall-input:focus { border-color: var(--gold); }
+.recall-input::placeholder { color: var(--text-dim); }
+
+.word-count {
+  font-size: 13px;
+  color: var(--text-dim);
+  text-align: center;
+  margin-top: 12px;
+}
+
+.done-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 24px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.done-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* ── Interstitial Screen ── */
+#interstitial-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100dvh;
+  padding: 24px;
+  text-align: center;
+}
+
+.interstitial-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(24px, 5vw, 36px);
+  font-weight: 400;
+  color: #fff;
+  margin-bottom: 12px;
+}
+
+.interstitial-stat {
+  font-size: 48px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+
+.interstitial-sub {
+  font-size: 15px;
+  color: var(--text-mid);
+  margin-bottom: 32px;
+}
+
+/* ── Recognition Screen ── */
+#recognition-screen {
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.recog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.recog-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.recog-instruction {
+  font-size: 14px;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+.recog-word {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(40px, 9vw, 72px);
+  font-weight: 400;
+  color: #fff;
+  margin-bottom: 48px;
+  letter-spacing: 2px;
+}
+
+.recog-buttons {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.recog-btn {
+  flex: 1;
+  padding: 20px 24px;
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 18px;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.15s;
+  -webkit-user-select: none;
+  user-select: none;
+  border: 2px solid transparent;
+}
+.recog-btn:active { transform: scale(0.95); }
+
+.recog-btn.yes {
+  background: rgba(68,255,136,0.15);
+  border-color: rgba(68,255,136,0.4);
+  color: var(--green);
+}
+.recog-btn.yes:hover { background: rgba(68,255,136,0.25); }
+
+.recog-btn.no {
+  background: rgba(255,68,68,0.12);
+  border-color: rgba(255,68,68,0.35);
+  color: #ff6b6b;
+}
+.recog-btn.no:hover { background: rgba(255,68,68,0.2); }
+
+/* ── Results Screen ── */
+#results-screen {
+  flex-direction: column;
+  align-items: center;
+  min-height: 100dvh;
+  padding: 24px;
+  padding-bottom: 60px;
+}
+
+.results-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(28px, 5vw, 40px);
+  color: #fff;
+  margin: 20px 0 8px;
+}
+
+.primary-stat {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.primary-stat .value {
+  font-size: clamp(48px, 12vw, 80px);
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+}
+.primary-stat .label {
+  font-size: 14px;
+  color: var(--text-mid);
+  margin-top: 6px;
+}
+
+.section-label {
+  font-family: 'Instrument Serif', serif;
+  font-size: 20px;
+  color: #fff;
+  margin-bottom: 12px;
+  width: 100%;
+  max-width: 560px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.stat-card .stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+}
+.stat-card .stat-label {
+  font-size: 12px;
+  color: var(--text-mid);
+  margin-top: 4px;
+}
+
+.recognition-section {
+  width: 100%;
+  max-width: 560px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+  text-align: center;
+}
+.recognition-section .rs-label {
+  font-size: 13px;
+  color: var(--text-mid);
+  margin-bottom: 4px;
+}
+.recognition-section .rs-value {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--gold);
+}
+.recognition-section .rs-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.recog-stats-row {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  margin-top: 12px;
+}
+.recog-stats-row .rs-item {
+  text-align: center;
+}
+.recog-stats-row .rs-item .rs-val {
+  font-size: 20px;
+  font-weight: 600;
+  color: #fff;
+}
+.recog-stats-row .rs-item .rs-lbl {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+#confetti-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: repeat(2, 1fr); }
+  .recog-buttons { gap: 10px; }
+  .recog-btn { padding: 16px 16px; font-size: 16px; }
+}
+</style>
+</head>
+<body>
+
+<nav class="cog-nav">
+  <a href="/cognitive/">&larr; Dashboard</a>
+  <span class="cog-nav-sep">|</span>
+  <a href="/cognitive/analytics.html">Analytics</a>
+  <span class="cog-nav-sep">|</span>
+  <span class="cog-nav-label">Tests:</span>
+  <a href="/cognitive/dual-n-back.html">N-Back</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/pvt.html">PVT</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/dsst.html">DSST</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/stroop.html">Stroop</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/avlt.html" class="cog-nav-active">AVLT</a>
+</nav>
+
+<!-- Setup Screen -->
+<div id="setup-screen" class="screen active">
+  <h1>Verbal Learning Test (AVLT)</h1>
+  <p class="description">Assess verbal memory and learning. You will hear and see 15 words across multiple trials. After each presentation, recall as many words as you can. The test measures learning rate, interference resistance, and recognition memory.</p>
+  <div class="session-toggle" id="session-toggle">
+    <button class="session-btn" data-session="morning" id="btn-morning">&#9728;&#65039; Morning</button>
+    <button class="session-btn" data-session="evening" id="btn-evening">&#127769; Evening</button>
+  </div>
+  <button class="btn-gold" id="btn-begin">Begin Test</button>
+</div>
+
+<!-- Test Screen (word presentation) -->
+<div id="test-screen" class="screen">
+  <div class="test-header">
+    <span class="phase-label" id="phase-label">Trial <span>1</span> of 3 &mdash; List A</span>
+    <a href="/cognitive/" style="font-size:13px;color:var(--text-mid);">&larr; Exit</a>
+  </div>
+  <div class="word-zone">
+    <div class="word-display" id="word-display"></div>
+    <div class="word-counter" id="word-counter">Word 1 of 15</div>
+  </div>
+</div>
+
+<!-- Recall Screen -->
+<div id="recall-screen" class="screen">
+  <div class="recall-header">
+    <span class="phase-label" id="recall-phase-label">Recall &mdash; Trial 1</span>
+    <span class="recall-timer" id="recall-timer">60</span>
+  </div>
+  <div class="recall-body">
+    <div class="recall-instruction" id="recall-instruction">Type the words you remember</div>
+    <div class="recall-sub" id="recall-sub">Press Enter after each word</div>
+    <div class="chips-area" id="chips-area"></div>
+    <div class="word-count" id="word-count">0 words entered</div>
+    <div class="recall-input-area">
+      <input type="text" class="recall-input" id="recall-input" placeholder="Type a word..." autocomplete="off" autocapitalize="off" spellcheck="false">
+      <button class="done-btn" id="done-btn">Done</button>
+    </div>
+  </div>
+</div>
+
+<!-- Interstitial Screen -->
+<div id="interstitial-screen" class="screen">
+  <div class="interstitial-title" id="interstitial-title">Trial 1 Complete</div>
+  <div class="interstitial-stat" id="interstitial-stat">0/15</div>
+  <div class="interstitial-sub" id="interstitial-sub">Next trial starting...</div>
+  <button class="btn-gold" id="btn-continue">Continue</button>
+</div>
+
+<!-- Recognition Screen -->
+<div id="recognition-screen" class="screen">
+  <div class="recog-header">
+    <span class="phase-label">Recognition Phase</span>
+    <span class="phase-label" id="recog-counter">1 of 30</span>
+  </div>
+  <div class="recog-body">
+    <div class="recog-instruction">Was this word on List A?</div>
+    <div class="recog-word" id="recog-word"></div>
+    <div class="recog-buttons">
+      <button class="recog-btn yes" id="btn-recog-yes">Yes</button>
+      <button class="recog-btn no" id="btn-recog-no">No</button>
+    </div>
+  </div>
+</div>
+
+<!-- Results Screen -->
+<div id="results-screen" class="screen">
+  <h1 class="results-title">Results</h1>
+
+  <div class="primary-stat">
+    <div class="value" id="res-total">--</div>
+    <div class="label">Total Words Recalled (Best Trial)</div>
+  </div>
+
+  <div class="section-label">Learning Trials</div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="res-t1">--</div>
+      <div class="stat-label">Trial 1</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-t2">--</div>
+      <div class="stat-label">Trial 2</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-t3">--</div>
+      <div class="stat-label">Trial 3</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-slope">--</div>
+      <div class="stat-label">Learning Slope</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-interference">--</div>
+      <div class="stat-label">Interference Recall</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-immediate">--</div>
+      <div class="stat-label">Immediate Recall</div>
+    </div>
+  </div>
+
+  <div class="recognition-section">
+    <div class="rs-label">Recognition d'</div>
+    <div class="rs-value" id="res-dprime">--</div>
+    <div class="rs-desc">Signal detection sensitivity. Higher = better discrimination.<br>Typical range: 1.5 &ndash; 3.5</div>
+    <div class="recog-stats-row">
+      <div class="rs-item">
+        <div class="rs-val" id="res-hits">--</div>
+        <div class="rs-lbl">Hits</div>
+      </div>
+      <div class="rs-item">
+        <div class="rs-val" id="res-fa">--</div>
+        <div class="rs-lbl">False Alarms</div>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-gold" id="btn-save">Save &amp; Return</button>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+(function() {
+  'use strict';
+
+  // ── Word Lists ──
+  const WORD_LISTS = [
+    ["drum", "curtain", "bell", "coffee", "school", "parent", "moon", "garden", "hat", "farmer", "nose", "turkey", "color", "house", "river"],
+    ["desk", "ranger", "bird", "shoe", "mountain", "finger", "lamp", "cloud", "chair", "picture", "boat", "corner", "forest", "window", "bottle"],
+    ["table", "flower", "hammer", "winter", "pencil", "rabbit", "shadow", "candle", "butter", "doctor", "pillow", "sunset", "marker", "ladder", "silver"],
+    ["apple", "blanket", "church", "dancer", "elbow", "feather", "garden", "honey", "island", "jacket", "kitchen", "letter", "mirror", "needle", "orange"],
+    ["basket", "carpet", "dolphin", "engine", "falcon", "gravel", "helmet", "insect", "journey", "kitten", "lemon", "marble", "napkin", "olive", "pepper"],
+    ["anchor", "barrel", "cabin", "donkey", "eagle", "fabric", "ginger", "harbor", "iron", "jungle", "kettle", "lumber", "mango", "nickel", "oyster"],
+    ["badge", "canvas", "daisy", "ember", "fiddle", "garlic", "hiker", "ivory", "jelly", "kite", "lobster", "muffin", "noodle", "otter", "pebble"],
+    ["button", "camel", "dagger", "elbow", "fossil", "glacier", "hatchet", "igloo", "jasmine", "kennel", "lantern", "moose", "nugget", "orchid", "parrot"],
+    ["acorn", "bamboo", "chapel", "desert", "eraser", "funnel", "goblet", "harness", "icicle", "journal", "ketchup", "lizard", "meadow", "nettle", "pocket"],
+    ["arrow", "biscuit", "castle", "donkey", "engine", "flannel", "garnet", "hermit", "inkwell", "jewel", "kernel", "locket", "magnet", "nectar", "paddle"],
+    ["banner", "cherry", "dimple", "emerald", "fidget", "grotto", "hollow", "infant", "jumper", "kayak", "lentil", "mortar", "nestle", "oasis", "piston"],
+    ["basket", "cactus", "denim", "falcon", "goblin", "helmet", "iguana", "jigsaw", "kindle", "lesson", "mitten", "novel", "osprey", "pastel", "radish"],
+    ["beaver", "cobalt", "dahlia", "falcon", "gadget", "harrow", "indent", "jersey", "kimono", "locket", "minnow", "noggin", "octave", "pliers", "ribbon"],
+    ["bishop", "crater", "dongle", "ermine", "fossil", "glacier", "hornet", "island", "jostle", "kernel", "locker", "musket", "nimble", "outlaw", "pencil"],
+    ["bonnet", "cellar", "dipper", "eyelet", "fender", "gravel", "hobbit", "insole", "jacket", "kipper", "litmus", "mongrel", "nutmeg", "oracle", "plover"],
+    ["bridle", "cement", "dimmer", "falcon", "garret", "huddle", "impala", "jumble", "kibble", "lentil", "morsel", "nimbus", "obsess", "pallet", "quarry"],
+    ["buckle", "clover", "duster", "falcon", "gibbon", "hackle", "inning", "jumble", "kindle", "lintel", "muzzle", "nougat", "outcry", "piglet", "quiver"],
+    ["bunker", "copper", "dorsal", "falcon", "gutter", "hamper", "inward", "jostle", "kipper", "lizard", "monkey", "napkin", "orange", "puddle", "riddle"],
+    ["cactus", "dandle", "falcon", "giblet", "hamper", "insect", "juggle", "kennel", "lather", "mitten", "nugget", "osprey", "parcel", "rabbit", "saddle"],
+    ["canvas", "darken", "falcon", "goblet", "harbor", "indent", "jiggle", "kettle", "ladder", "minnow", "nettle", "oyster", "pebble", "racket", "socket"],
+    ["timber", "walnut", "saddle", "pliers", "donkey", "vessel", "ribbon", "funnel", "kitten", "goblet", "chapel", "magnet", "biscuit", "oyster", "pebble"],
+    ["tunnel", "basket", "falcon", "gravel", "helmet", "jacket", "locket", "marble", "napkin", "paddle", "rabbit", "saddle", "vessel", "walnut", "zipper"],
+    ["anchor", "button", "candle", "dimple", "engine", "flower", "garnet", "hollow", "insect", "jumper", "kernel", "lizard", "meadow", "nickel", "orchid"],
+    ["bamboo", "carpet", "dagger", "emerald", "falcon", "goblin", "hermit", "iguana", "jigsaw", "kettle", "lentil", "mortar", "nugget", "outlaw", "pepper"],
+    ["beaver", "cellar", "donkey", "falcon", "glacier", "harness", "indent", "jersey", "kindle", "lobster", "mitten", "nestle", "oracle", "plover", "quiver"],
+    ["bonnet", "copper", "desert", "falcon", "grotto", "hatchet", "insole", "jumble", "kipper", "lantern", "minnow", "nougat", "osprey", "piglet", "riddle"],
+    ["buckle", "crater", "dahlia", "eraser", "fiddle", "garlic", "hobbit", "ivory", "jostle", "kimono", "lintel", "mongrel", "nimbus", "outcry", "pallet"],
+    ["bunker", "clover", "dimmer", "eyelet", "fossil", "gadget", "hamper", "inning", "jumble", "kibble", "litmus", "morsel", "nutmeg", "oyster", "quarry"],
+    ["bridle", "cement", "dongle", "falcon", "garret", "helmet", "impala", "jacket", "kennel", "locket", "monkey", "napkin", "orange", "puddle", "saddle"],
+    ["timber", "cherry", "duster", "falcon", "gibbon", "harbor", "insect", "jiggle", "kernel", "ladder", "muffin", "needle", "olive", "parrot", "racket"]
+  ];
+
+  // Interference lists (List B) - one per main list
+  const INTERFERENCE_LISTS = [
+    ["pencil", "tower", "rabbit", "window", "blanket", "dollar", "thumb", "sunset", "wagon", "marble", "cider", "blanket", "letter", "village", "stamp"],
+    ["spider", "tunnel", "basket", "pillow", "candle", "trophy", "gravel", "sunset", "mirror", "donkey", "pepper", "fabric", "temple", "harbor", "butter"],
+    ["anchor", "saddle", "kitten", "trophy", "barrel", "muffin", "plaza", "jacket", "walnut", "chisel", "funnel", "bronze", "saddle", "magnet", "quarry"],
+    ["falcon", "timber", "copper", "vessel", "piston", "saddle", "nugget", "cobalt", "pliers", "funnel", "jigsaw", "mortar", "harbor", "walnut", "cement"],
+    ["anchor", "button", "chapel", "donkey", "eraser", "funnel", "garnet", "helmet", "ivory", "jostle", "kernel", "lantern", "meadow", "nougat", "orchid"],
+    ["beaver", "carpet", "dimple", "emerald", "fidget", "goblet", "harness", "insect", "jiggle", "kettle", "locket", "minnow", "nestle", "oyster", "paddle"],
+    ["bonnet", "cellar", "dagger", "engine", "flannel", "glacier", "hermit", "indent", "jumble", "kindle", "lintel", "morsel", "nutmeg", "outlaw", "pepper"],
+    ["arrow", "bamboo", "canvas", "dahlia", "eyelet", "falcon", "gravel", "hobbit", "island", "jersey", "kimono", "lobster", "mongrel", "nimbus", "oracle"],
+    ["badge", "copper", "dongle", "falcon", "garret", "hatchet", "impala", "jacket", "kipper", "lentil", "monkey", "napkin", "osprey", "plover", "riddle"],
+    ["buckle", "cement", "dimmer", "ermine", "fossil", "gadget", "hamper", "inning", "jumble", "kennel", "litmus", "muzzle", "nougat", "outcry", "quarry"],
+    ["bridle", "clover", "donkey", "falcon", "gibbon", "helmet", "insole", "jostle", "kibble", "ladder", "mortar", "needle", "olive", "piglet", "racket"],
+    ["bunker", "cherry", "duster", "eyelet", "fiddle", "garlic", "harbor", "ivory", "jigsaw", "kernel", "lantern", "minnow", "nimbus", "oracle", "puddle"],
+    ["acorn", "blanket", "cabin", "desert", "engine", "flower", "grotto", "hamper", "icicle", "jumper", "kettle", "lizard", "marble", "nettle", "oyster"],
+    ["apple", "barrel", "candle", "dancer", "elbow", "fabric", "ginger", "hollow", "insect", "jacket", "kitten", "lemon", "mirror", "nickel", "pebble"],
+    ["basket", "canvas", "dolphin", "ember", "falcon", "goblet", "hiker", "iguana", "jelly", "kindle", "lobster", "muffin", "noodle", "otter", "pepper"],
+    ["anchor", "button", "chapel", "daisy", "eagle", "feather", "garden", "harness", "iron", "journal", "ketchup", "letter", "meadow", "needle", "orange"],
+    ["badge", "camel", "dagger", "dimple", "eraser", "fidget", "garlic", "helmet", "igloo", "jasmine", "kayak", "lentil", "moose", "nestle", "oasis"],
+    ["arrow", "biscuit", "castle", "dahlia", "emerald", "flannel", "gadget", "hermit", "indent", "jewel", "kimono", "locket", "magnet", "noggin", "paddle"],
+    ["banner", "cobalt", "dongle", "ermine", "falcon", "glacier", "harrow", "inkwell", "jersey", "kernel", "lintel", "mortar", "nimble", "octave", "plover"],
+    ["bishop", "crater", "dipper", "eyelet", "fossil", "gravel", "hatchet", "insole", "jostle", "kipper", "litmus", "musket", "nutmeg", "outlaw", "quarry"],
+    ["bonnet", "cellar", "dimmer", "falcon", "fender", "huddle", "impala", "jumble", "kibble", "lentil", "mongrel", "nimbus", "obsess", "pallet", "quiver"],
+    ["bridle", "cement", "duster", "falcon", "garret", "hackle", "inning", "jostle", "kindle", "lizard", "muzzle", "napkin", "orange", "piglet", "riddle"],
+    ["buckle", "clover", "dorsal", "falcon", "gibbon", "hamper", "inward", "jumble", "kennel", "ladder", "monkey", "nougat", "osprey", "puddle", "saddle"],
+    ["bunker", "copper", "falcon", "giblet", "gutter", "insect", "jiggle", "kettle", "lather", "minnow", "nugget", "oyster", "parcel", "rabbit", "socket"],
+    ["cactus", "darken", "falcon", "goblet", "harbor", "indent", "juggle", "kipper", "lantern", "mitten", "nettle", "pebble", "racket", "saddle", "timber"],
+    ["canvas", "dandle", "falcon", "gravel", "hamper", "insect", "jostle", "kennel", "locket", "marble", "napkin", "paddle", "rabbit", "vessel", "walnut"],
+    ["timber", "basket", "falcon", "helmet", "jacket", "kernel", "lentil", "morsel", "nugget", "orchid", "pliers", "saddle", "vessel", "walnut", "zipper"],
+    ["tunnel", "carpet", "donkey", "emerald", "flower", "goblin", "hermit", "iguana", "jigsaw", "kettle", "lobster", "mortar", "outlaw", "pepper", "quiver"],
+    ["anchor", "cellar", "dagger", "falcon", "glacier", "harness", "indent", "jersey", "kindle", "mitten", "nestle", "oracle", "plover", "riddle", "saddle"],
+    ["bonnet", "copper", "desert", "falcon", "grotto", "hatchet", "insole", "jumble", "lantern", "minnow", "nougat", "osprey", "piglet", "quarry", "racket"]
+  ];
+
+  function getListForDate(dateStr) {
+    var hash = dateStr.split('').reduce(function(acc, c) { return ((acc << 5) - acc + c.charCodeAt(0)) | 0; }, 0);
+    return Math.abs(hash) % WORD_LISTS.length;
+  }
+
+  // ── State ──
+  var currentSession = new Date().getHours() < 14 ? 'morning' : 'evening';
+  var listIndex = 0;
+  var listA = [];
+  var listB = [];
+  var currentPhase = ''; // 'learning', 'interference', 'immediate', 'recognition'
+  var currentTrial = 0; // 0-based trial index for learning
+  var trialRecalls = []; // array of arrays: words recalled per trial
+  var interferenceRecall = [];
+  var immediateRecall = [];
+  var recognitionItems = [];
+  var recognitionResponses = [];
+  var recogIndex = 0;
+  var recallTimer = null;
+  var recallSecondsLeft = 0;
+  var enteredWords = [];
+  var speechSynthReady = true;
+
+  // ── DOM Refs ──
+  var setupScreen = document.getElementById('setup-screen');
+  var testScreen = document.getElementById('test-screen');
+  var recallScreen = document.getElementById('recall-screen');
+  var interstitialScreen = document.getElementById('interstitial-screen');
+  var recognitionScreen = document.getElementById('recognition-screen');
+  var resultsScreen = document.getElementById('results-screen');
+
+  var allScreens = [setupScreen, testScreen, recallScreen, interstitialScreen, recognitionScreen, resultsScreen];
+
+  function showScreen(screen) {
+    allScreens.forEach(function(s) { s.classList.remove('active'); });
+    screen.classList.add('active');
+  }
+
+  // ── Session Toggle ──
+  document.getElementById('btn-' + currentSession).classList.add('active');
+  document.querySelectorAll('.session-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.session-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentSession = btn.dataset.session;
+    });
+  });
+
+  // ── Shuffle ──
+  function shuffle(arr) {
+    var a = arr.slice();
+    for (var i = a.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = a[i]; a[i] = a[j]; a[j] = tmp;
+    }
+    return a;
+  }
+
+  // ── Speech ──
+  function speakWord(word) {
+    if (!window.speechSynthesis) return;
+    var u = new SpeechSynthesisUtterance(word);
+    u.rate = 0.9;
+    u.pitch = 1;
+    u.volume = 1;
+    window.speechSynthesis.speak(u);
+  }
+
+  // ── Begin Test ──
+  document.getElementById('btn-begin').addEventListener('click', function() {
+    var today = new Date();
+    var dateStr = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+    listIndex = getListForDate(dateStr);
+    listA = WORD_LISTS[listIndex].slice();
+    listB = INTERFERENCE_LISTS[listIndex].slice();
+    trialRecalls = [];
+    interferenceRecall = [];
+    immediateRecall = [];
+    recognitionResponses = [];
+    currentTrial = 0;
+    currentPhase = 'learning';
+    startWordPresentation(listA, 'Trial 1 of 3 \u2014 List A');
+  });
+
+  // ── Word Presentation ──
+  function startWordPresentation(wordList, phaseText) {
+    showScreen(testScreen);
+    document.getElementById('phase-label').innerHTML = phaseText;
+    var wordDisplay = document.getElementById('word-display');
+    var wordCounter = document.getElementById('word-counter');
+    var idx = 0;
+
+    wordDisplay.classList.remove('visible');
+    wordDisplay.textContent = '';
+    wordCounter.textContent = 'Word 1 of ' + wordList.length;
+
+    // Small delay before starting
+    setTimeout(function() {
+      showNextWord();
+    }, 800);
+
+    function showNextWord() {
+      if (idx >= wordList.length) {
+        // Done presenting, move to recall
+        setTimeout(function() {
+          startRecall();
+        }, 500);
+        return;
+      }
+
+      wordDisplay.classList.remove('visible');
+      setTimeout(function() {
+        wordDisplay.textContent = wordList[idx];
+        wordDisplay.classList.add('visible');
+        wordCounter.textContent = 'Word ' + (idx + 1) + ' of ' + wordList.length;
+        speakWord(wordList[idx]);
+        idx++;
+        setTimeout(function() {
+          wordDisplay.classList.remove('visible');
+          setTimeout(showNextWord, 200);
+        }, 1300);
+      }, 200);
+    }
+  }
+
+  // ── Recall Phase ──
+  function startRecall() {
+    showScreen(recallScreen);
+    enteredWords = [];
+    var chipsArea = document.getElementById('chips-area');
+    var recallInput = document.getElementById('recall-input');
+    var wordCount = document.getElementById('word-count');
+    var timerEl = document.getElementById('recall-timer');
+    var recallPhaseLabel = document.getElementById('recall-phase-label');
+    var recallInstruction = document.getElementById('recall-instruction');
+    var recallSub = document.getElementById('recall-sub');
+
+    chipsArea.innerHTML = '';
+    recallInput.value = '';
+    wordCount.textContent = '0 words entered';
+
+    var timeLimit = 60;
+
+    if (currentPhase === 'learning') {
+      recallPhaseLabel.textContent = 'Recall \u2014 Trial ' + (currentTrial + 1);
+      recallInstruction.textContent = 'Type the words you remember';
+      recallSub.textContent = 'Press Enter after each word';
+    } else if (currentPhase === 'interference') {
+      recallPhaseLabel.textContent = 'Recall \u2014 List B';
+      recallInstruction.textContent = 'Type the words from the list you just saw';
+      recallSub.textContent = 'Press Enter after each word';
+      timeLimit = 45;
+    } else if (currentPhase === 'immediate') {
+      recallPhaseLabel.textContent = 'Recall \u2014 List A (Delayed)';
+      recallInstruction.textContent = 'Now recall the FIRST list of words (List A)';
+      recallSub.textContent = 'Type as many words as you remember from List A';
+    }
+
+    recallSecondsLeft = timeLimit;
+    timerEl.textContent = recallSecondsLeft;
+    timerEl.classList.remove('urgent');
+
+    // Focus input
+    setTimeout(function() { recallInput.focus(); }, 100);
+
+    // Start countdown
+    if (recallTimer) clearInterval(recallTimer);
+    recallTimer = setInterval(function() {
+      recallSecondsLeft--;
+      timerEl.textContent = recallSecondsLeft;
+      if (recallSecondsLeft <= 10) timerEl.classList.add('urgent');
+      if (recallSecondsLeft <= 0) {
+        clearInterval(recallTimer);
+        finishRecall();
+      }
+    }, 1000);
+  }
+
+  // Input handler
+  document.getElementById('recall-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      addWord();
+    }
+  });
+
+  document.getElementById('done-btn').addEventListener('click', function() {
+    addWord(); // add any pending word
+    if (recallTimer) clearInterval(recallTimer);
+    finishRecall();
+  });
+
+  function addWord() {
+    var input = document.getElementById('recall-input');
+    var word = input.value.trim().toLowerCase();
+    input.value = '';
+    if (!word) return;
+    if (enteredWords.indexOf(word) !== -1) return; // no duplicates
+
+    enteredWords.push(word);
+    renderChips();
+    document.getElementById('word-count').textContent = enteredWords.length + ' word' + (enteredWords.length !== 1 ? 's' : '') + ' entered';
+    input.focus();
+  }
+
+  function removeWord(word) {
+    var idx = enteredWords.indexOf(word);
+    if (idx !== -1) enteredWords.splice(idx, 1);
+    renderChips();
+    document.getElementById('word-count').textContent = enteredWords.length + ' word' + (enteredWords.length !== 1 ? 's' : '') + ' entered';
+  }
+
+  function renderChips() {
+    var chipsArea = document.getElementById('chips-area');
+    chipsArea.innerHTML = '';
+    enteredWords.forEach(function(w) {
+      var chip = document.createElement('div');
+      chip.className = 'chip';
+      chip.innerHTML = w + ' <span class="chip-x">&times;</span>';
+      chip.querySelector('.chip-x').addEventListener('click', function() { removeWord(w); });
+      chipsArea.appendChild(chip);
+    });
+  }
+
+  function finishRecall() {
+    if (recallTimer) clearInterval(recallTimer);
+
+    if (currentPhase === 'learning') {
+      trialRecalls.push(enteredWords.slice());
+      var correct = countCorrect(enteredWords, listA);
+      showInterstitial(correct);
+    } else if (currentPhase === 'interference') {
+      interferenceRecall = enteredWords.slice();
+      // Move to immediate recall of List A
+      currentPhase = 'immediate';
+      showScreen(interstitialScreen);
+      document.getElementById('interstitial-title').textContent = 'Interference Complete';
+      var correct = countCorrect(enteredWords, listB);
+      document.getElementById('interstitial-stat').textContent = correct + '/' + listB.length;
+      document.getElementById('interstitial-sub').textContent = 'Now recall the FIRST list (List A) without seeing it again.';
+      document.getElementById('btn-continue').onclick = function() {
+        startRecall();
+      };
+    } else if (currentPhase === 'immediate') {
+      immediateRecall = enteredWords.slice();
+      // Move to recognition
+      currentPhase = 'recognition';
+      startRecognition();
+    }
+  }
+
+  function countCorrect(entered, target) {
+    var targetLower = target.map(function(w) { return w.toLowerCase(); });
+    var count = 0;
+    entered.forEach(function(w) {
+      if (targetLower.indexOf(w.toLowerCase()) !== -1) count++;
+    });
+    return count;
+  }
+
+  function showInterstitial(correct) {
+    showScreen(interstitialScreen);
+    var trialNum = currentTrial + 1;
+
+    if (currentPhase === 'learning' && currentTrial < 2) {
+      document.getElementById('interstitial-title').textContent = 'Trial ' + trialNum + ' Complete';
+      document.getElementById('interstitial-stat').textContent = correct + '/15';
+      document.getElementById('interstitial-sub').textContent = 'Next trial starting\u2026 Same words, try to recall more.';
+      document.getElementById('btn-continue').onclick = function() {
+        currentTrial++;
+        startWordPresentation(listA, 'Trial ' + (currentTrial + 1) + ' of 3 \u2014 List A');
+      };
+    } else if (currentPhase === 'learning' && currentTrial === 2) {
+      // After 3rd learning trial, move to interference
+      document.getElementById('interstitial-title').textContent = 'Trial 3 Complete';
+      document.getElementById('interstitial-stat').textContent = correct + '/15';
+      document.getElementById('interstitial-sub').textContent = 'Now you will see a NEW list of words (List B).';
+      document.getElementById('btn-continue').onclick = function() {
+        currentPhase = 'interference';
+        startWordPresentation(listB, 'Interference \u2014 List B');
+      };
+    }
+  }
+
+  // ── Recognition Phase ──
+  function startRecognition() {
+    // Build recognition items: 15 from List A + 15 distractors
+    var distractors = listB.slice(); // Use List B as distractors
+    recognitionItems = [];
+    listA.forEach(function(w) { recognitionItems.push({ word: w, isTarget: true }); });
+    distractors.forEach(function(w) { recognitionItems.push({ word: w, isTarget: false }); });
+    recognitionItems = shuffle(recognitionItems);
+    recognitionResponses = [];
+    recogIndex = 0;
+
+    showScreen(recognitionScreen);
+    showRecognitionItem();
+  }
+
+  function showRecognitionItem() {
+    if (recogIndex >= recognitionItems.length) {
+      showResults();
+      return;
+    }
+    document.getElementById('recog-word').textContent = recognitionItems[recogIndex].word;
+    document.getElementById('recog-counter').textContent = (recogIndex + 1) + ' of ' + recognitionItems.length;
+  }
+
+  var recogLocked = false;
+
+  document.getElementById('btn-recog-yes').addEventListener('click', function() {
+    if (recogLocked) return;
+    recogRespond(true);
+  });
+  document.getElementById('btn-recog-no').addEventListener('click', function() {
+    if (recogLocked) return;
+    recogRespond(false);
+  });
+
+  function recogRespond(saidYes) {
+    recogLocked = true;
+    var item = recognitionItems[recogIndex];
+    recognitionResponses.push({
+      word: item.word,
+      isTarget: item.isTarget,
+      saidYes: saidYes
+    });
+    recogIndex++;
+    setTimeout(function() {
+      recogLocked = false;
+      showRecognitionItem();
+    }, 300);
+  }
+
+  // Keyboard support for recognition
+  document.addEventListener('keydown', function(e) {
+    if (!recognitionScreen.classList.contains('active')) return;
+    if (recogLocked) return;
+    if (e.key === 'y' || e.key === 'Y' || e.key === 'ArrowLeft') recogRespond(true);
+    if (e.key === 'n' || e.key === 'N' || e.key === 'ArrowRight') recogRespond(false);
+  });
+
+  // ── Results ──
+  function showResults() {
+    showScreen(resultsScreen);
+
+    var t1 = countCorrect(trialRecalls[0] || [], listA);
+    var t2 = countCorrect(trialRecalls[1] || [], listA);
+    var t3 = countCorrect(trialRecalls[2] || [], listA);
+    var slope = t3 - t1;
+    var intRecall = countCorrect(interferenceRecall, listB);
+    var immRecall = countCorrect(immediateRecall, listA);
+    var bestTrial = Math.max(t1, t2, t3);
+
+    // Recognition stats
+    var hits = 0, misses = 0, falseAlarms = 0, correctRejections = 0;
+    recognitionResponses.forEach(function(r) {
+      if (r.isTarget && r.saidYes) hits++;
+      else if (r.isTarget && !r.saidYes) misses++;
+      else if (!r.isTarget && r.saidYes) falseAlarms++;
+      else correctRejections++;
+    });
+
+    var nTargets = recognitionResponses.filter(function(r) { return r.isTarget; }).length;
+    var nDistractors = recognitionResponses.filter(function(r) { return !r.isTarget; }).length;
+
+    // d-prime with floor/ceiling correction
+    var hitRate = nTargets > 0 ? hits / nTargets : 0;
+    var faRate = nDistractors > 0 ? falseAlarms / nDistractors : 0;
+    if (hitRate === 0) hitRate = 1 / (2 * nTargets);
+    if (hitRate === 1) hitRate = 1 - 1 / (2 * nTargets);
+    if (faRate === 0) faRate = 1 / (2 * nDistractors);
+    if (faRate === 1) faRate = 1 - 1 / (2 * nDistractors);
+
+    var dPrime = zScore(hitRate) - zScore(faRate);
+
+    document.getElementById('res-total').textContent = bestTrial + '/15';
+    document.getElementById('res-t1').textContent = t1 + '/15';
+    document.getElementById('res-t2').textContent = t2 + '/15';
+    document.getElementById('res-t3').textContent = t3 + '/15';
+    document.getElementById('res-slope').textContent = (slope >= 0 ? '+' : '') + slope;
+    document.getElementById('res-interference').textContent = intRecall + '/15';
+    document.getElementById('res-immediate').textContent = immRecall + '/15';
+    document.getElementById('res-dprime').textContent = dPrime.toFixed(2);
+    document.getElementById('res-hits').textContent = hits + '/' + nTargets;
+    document.getElementById('res-fa').textContent = falseAlarms + '/' + nDistractors;
+
+    // Store for save
+    resultsScreen.dataset.scores = JSON.stringify({
+      trial_1: t1,
+      trial_2: t2,
+      trial_3: t3,
+      learning_slope: slope,
+      interference_recall: intRecall,
+      immediate_recall: immRecall,
+      recognition_hits: hits,
+      recognition_false_alarms: falseAlarms,
+      d_prime: Math.round(dPrime * 100) / 100,
+      total_words_recalled: t1 + t2 + t3,
+      list_id: listIndex
+    });
+
+    // Confetti
+    launchConfetti();
+  }
+
+  // ── z-score (inverse normal CDF approximation) ──
+  function zScore(p) {
+    // Rational approximation (Abramowitz & Stegun 26.2.23)
+    if (p <= 0) p = 0.0001;
+    if (p >= 1) p = 0.9999;
+    if (p === 0.5) return 0;
+
+    var sign = p < 0.5 ? -1 : 1;
+    var pp = p < 0.5 ? p : 1 - p;
+    var t = Math.sqrt(-2 * Math.log(pp));
+
+    var c0 = 2.515517;
+    var c1 = 0.802853;
+    var c2 = 0.010328;
+    var d1 = 1.432788;
+    var d2 = 0.189269;
+    var d3 = 0.001308;
+
+    var z = t - (c0 + c1 * t + c2 * t * t) / (1 + d1 * t + d2 * t * t + d3 * t * t * t);
+    return sign * z;
+  }
+
+  // ── Save ──
+  document.getElementById('btn-save').addEventListener('click', async function() {
+    var btn = document.getElementById('btn-save');
+    btn.disabled = true;
+    btn.textContent = 'Saving\u2026';
+    try {
+      var now = new Date();
+      var dateStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+      var timeStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0') + ':' + String(now.getSeconds()).padStart(2, '0');
+      var scores = JSON.parse(resultsScreen.dataset.scores || '{}');
+      await fetch('/api/cognitive/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          test_type: 'avlt',
+          session: currentSession,
+          date: dateStr,
+          time: timeStr,
+          scores_json: JSON.stringify(scores)
+        })
+      });
+    } catch (e) { /* best effort */ }
+    window.location.href = '/cognitive/';
+  });
+
+  // ── Confetti ──
+  function launchConfetti() {
+    var canvas = document.getElementById('confetti-canvas');
+    var ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    var particles = [];
+    var colors = ['#d4a853', '#e0b96a', '#fff', '#44ff88', '#4488ff', '#ff6b6b'];
+    for (var i = 0; i < 120; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        w: Math.random() * 8 + 4,
+        h: Math.random() * 6 + 3,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        vy: Math.random() * 3 + 2,
+        vx: (Math.random() - 0.5) * 2,
+        rot: Math.random() * 360,
+        rv: (Math.random() - 0.5) * 8,
+        opacity: 1
+      });
+    }
+
+    var frame = 0;
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      var alive = false;
+      particles.forEach(function(p) {
+        p.y += p.vy;
+        p.x += p.vx;
+        p.rot += p.rv;
+        if (frame > 60) p.opacity -= 0.01;
+        if (p.opacity <= 0) return;
+        alive = true;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot * Math.PI / 180);
+        ctx.globalAlpha = Math.max(0, p.opacity);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      });
+      frame++;
+      if (alive && frame < 200) requestAnimationFrame(draw);
+      else ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    requestAnimationFrame(draw);
+  }
+
+  // ── Prevent pull-to-refresh during test ──
+  document.addEventListener('touchmove', function(e) {
+    if (testScreen.classList.contains('active') || recallScreen.classList.contains('active') || recognitionScreen.classList.contains('active')) {
+      e.preventDefault();
+    }
+  }, { passive: false });
+
+})();
+</script>
+</body>
+</html>

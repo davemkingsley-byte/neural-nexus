@@ -1,12 +1,20 @@
-const CACHE_NAME = 'nexus-pwa-v1';
+const CACHE_NAME = 'nexus-pwa-v2';
 const SHELL_ASSETS = [
   '/app/',
   '/app/index.html',
   '/app/manifest.json',
   '/app/test/',
   '/app/test/index.html',
+  '/app/test/nback.html',
+  '/app/test/pvt.html',
+  '/app/test/dsst.html',
+  '/app/test/stroop.html',
+  '/app/test/avlt.html',
   '/app/analytics.html',
-  '/app/settings.html'
+  '/app/settings.html',
+  '/app/icons/icon-192.png',
+  '/app/icons/icon-512.png',
+  '/app/icons/icon.svg'
 ];
 
 const OFFLINE_PAGE = '/app/offline.html';

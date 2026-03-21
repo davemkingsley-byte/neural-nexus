@@ -129,9 +129,28 @@ async function loadAnalytics() {
         return s?.maxN ?? s?.max_n ?? null;
       });
 
+      const pvtChartData = last14.map(d => {
+        if (!d.pvt) return null;
+        const s = typeof d.pvt.scores_json === 'string' ? JSON.parse(d.pvt.scores_json) : d.pvt.scores_json;
+        return s?.medianRT ?? s?.median_rt ?? null;
+      });
+      const stroopData = last14.map(d => {
+        if (!d.stroop) return null;
+        const s = typeof d.stroop.scores_json === 'string' ? JSON.parse(d.stroop.scores_json) : d.stroop.scores_json;
+        return s?.interference_score ?? null;
+      });
+      const avltData = last14.map(d => {
+        if (!d.avlt) return null;
+        const s = typeof d.avlt.scores_json === 'string' ? JSON.parse(d.avlt.scores_json) : d.avlt.scores_json;
+        return s?.trial_3 ?? null;
+      });
+
       const datasets = [];
       if (dsstData.some(v => v !== null)) datasets.push({ label: 'DSST Accuracy %', data: dsstData, borderColor: '#d4a853', backgroundColor: 'rgba(212,168,83,0.1)', tension: 0.3, spanGaps: true });
       if (nbackData.some(v => v !== null)) datasets.push({ label: 'N-Back Max N', data: nbackData, borderColor: '#4488ff', backgroundColor: 'rgba(68,136,255,0.1)', tension: 0.3, spanGaps: true, yAxisID: 'y1' });
+      if (pvtChartData.some(v => v !== null)) datasets.push({ label: 'PVT RT (ms)', data: pvtChartData, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', tension: 0.3, spanGaps: true });
+      if (stroopData.some(v => v !== null)) datasets.push({ label: 'Stroop (ms)', data: stroopData, borderColor: '#44ff88', backgroundColor: 'rgba(68,255,136,0.1)', tension: 0.3, spanGaps: true });
+      if (avltData.some(v => v !== null)) datasets.push({ label: 'AVLT T3', data: avltData, borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.1)', tension: 0.3, spanGaps: true });
 
       if (datasets.length > 0) {
         const scales = { ...chartDefaults.scales };

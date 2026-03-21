@@ -406,6 +406,8 @@ body {
     <a href="/cognitive/dsst.html">DSST</a>
     <span class="cog-nav-sep">&middot;</span>
     <a href="/cognitive/stroop.html">Stroop</a>
+    <span class="cog-nav-sep">&middot;</span>
+    <a href="/cognitive/avlt.html">AVLT</a>
   </nav>
 
   <header class="page-header">
@@ -465,6 +467,20 @@ body {
         <div class="test-stat-row"><span class="stat-label">PM Mean</span><span class="stat-value pm" id="dsst-pm">—</span></div>
         <div class="test-stat-row"><span class="stat-label">Differential</span><span class="stat-value" id="dsst-diff">—</span></div>
       </div>
+      <div class="card test-summary-card" id="stroopSummary">
+        <h4>Stroop (Interference ms)</h4>
+        <div class="test-stat-row"><span class="stat-label">Overall</span><span class="stat-value" id="stroop-overall">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">AM Mean</span><span class="stat-value am" id="stroop-am">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">PM Mean</span><span class="stat-value pm" id="stroop-pm">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">Differential</span><span class="stat-value" id="stroop-diff">—</span></div>
+      </div>
+      <div class="card test-summary-card" id="avltSummary">
+        <h4>AVLT (Best Trial /15)</h4>
+        <div class="test-stat-row"><span class="stat-label">Overall</span><span class="stat-value" id="avlt-overall">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">AM Mean</span><span class="stat-value am" id="avlt-am">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">PM Mean</span><span class="stat-value pm" id="avlt-pm">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">Differential</span><span class="stat-value" id="avlt-diff">—</span></div>
+      </div>
     </div>
 
     <!-- Longitudinal Charts -->
@@ -496,6 +512,24 @@ body {
           <span class="legend-item"><span class="legend-dot" style="background:rgba(255,255,255,0.3)"></span> 7-day avg</span>
         </div>
         <div class="chart-wrap"><canvas id="chartDSST"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <h3>Stroop Interference</h3>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span> AM</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--teal)"></span> PM</span>
+          <span class="legend-item"><span class="legend-dot" style="background:rgba(255,255,255,0.3)"></span> 7-day avg</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chartStroop"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <h3>AVLT Learning Curve</h3>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--gold)"></span> Trial 3</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--teal)"></span> Trial 1</span>
+          <span class="legend-item"><span class="legend-dot" style="background:rgba(255,255,255,0.3)"></span> 7-day avg</span>
+        </div>
+        <div class="chart-wrap"><canvas id="chartAVLT"></canvas></div>
       </div>
       <div class="card chart-card">
         <h3>Chess ELO</h3>
@@ -834,6 +868,8 @@ async function init() {
   fillTestSummary('#nback', analytics.nback);
   fillTestSummary('#pvt', analytics.pvt, true);
   fillTestSummary('#dsst', analytics.dsst);
+  if (analytics.stroop) fillTestSummary('#stroop', analytics.stroop, true);
+  if (analytics.avlt) fillTestSummary('#avlt', analytics.avlt);
 
   // ── Charts ──
   if (analytics.nback.time_series.length > 0) {
@@ -852,6 +888,20 @@ async function init() {
     buildAMPMChart('chartDSST', 'Correct', analytics.dsst.time_series, supplements, baselineEnd);
   } else {
     $('#chartDSST').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">No DSST data yet</p>';
+  }
+
+  // Stroop chart
+  if (analytics.stroop && analytics.stroop.time_series && analytics.stroop.time_series.length > 0) {
+    buildAMPMChart('chartStroop', 'Interference (ms)', analytics.stroop.time_series, supplements, baselineEnd);
+  } else {
+    $('#chartStroop').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">No Stroop data yet</p>';
+  }
+
+  // AVLT chart
+  if (analytics.avlt && analytics.avlt.time_series && analytics.avlt.time_series.length > 0) {
+    buildAMPMChart('chartAVLT', 'Words Recalled', analytics.avlt.time_series, supplements, baselineEnd);
+  } else {
+    $('#chartAVLT').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:60px 0">No AVLT data yet</p>';
   }
 
   // Chess chart — enhanced with 3 rating types + moving averages
@@ -1025,6 +1075,8 @@ async function init() {
     { name: 'PVT (Median RT ms)', data: analytics.pvt, higher: false },
     { name: 'DSST (Correct)', data: analytics.dsst, higher: true },
   ];
+  if (analytics.stroop) metrics.push({ name: 'Stroop (Interference ms)', data: analytics.stroop, higher: false });
+  if (analytics.avlt) metrics.push({ name: 'AVLT (Best Trial)', data: analytics.avlt, higher: true });
 
   metrics.forEach(m => {
     const d = m.data;
