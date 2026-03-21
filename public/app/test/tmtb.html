@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#06060b">
+<link rel="manifest" href="/app/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>TMT-B — Neural NeXus</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
+:root{--bg:#06060b;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--text:#e0e0e0;--heading:#ffffff;--gold:#d4a853;--green:#4ade80;--red:#ef4444;--radius:16px}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:16px;min-height:100vh;min-height:100dvh;overflow:hidden;touch-action:manipulation}
+.screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+.screen.hidden{display:none}
+h1{color:var(--heading);font-size:24px;margin-bottom:8px}
+h2{color:var(--heading);font-size:20px;margin-bottom:16px}
+p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:340px;margin-bottom:12px}
+.seq-preview{color:var(--gold);font-size:14px;font-weight:600;margin-bottom:20px;letter-spacing:1px}
+.btn{display:inline-block;padding:16px 48px;background:linear-gradient(135deg,#d4a853,#c49a48);color:#06060b;font-size:18px;font-weight:700;border:none;border-radius:12px;cursor:pointer;font-family:inherit;transition:transform .2s;min-height:48px}
+.btn:active{transform:scale(0.95)}
+.btn-outline{background:none;border:1px solid rgba(255,255,255,0.2);color:#e0e0e0;font-size:15px;padding:12px 24px;margin:6px}
+/* Game layout */
+.game-screen{position:fixed;inset:0;display:flex;flex-direction:column}
+.game-screen.hidden{display:none}
+.game-top{padding:calc(12px + env(safe-area-inset-top)) 16px 8px;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+.game-info{font-size:13px;color:rgba(255,255,255,0.4)}
+.game-info span{color:var(--gold);font-weight:600}
+.game-timer{font-size:18px;font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums}
+.game-errors{font-size:13px;color:var(--red)}
+.canvas-area{flex:1;display:flex;align-items:center;justify-content:center;padding:8px;overflow:hidden}
+#trailCanvas{border-radius:12px;border:1px solid var(--border);background:rgba(255,255,255,0.015);touch-action:none}
+.error-overlay{position:fixed;inset:0;background:rgba(239,68,68,0.15);pointer-events:none;opacity:0;transition:opacity .15s;z-index:50}
+.error-overlay.show{opacity:1}
+/* Results */
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:320px;width:100%;margin:20px 0}
+.result-item{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:16px;text-align:center}
+.result-item .val{font-size:28px;font-weight:700;color:#fff}
+.result-item .lab{font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px}
+.result-item.highlight .val{color:var(--gold)}
+.btns{display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;justify-content:center}
+.auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px}
+.auth-box{text-align:center;max-width:300px;width:100%}
+.auth-box h2{color:var(--heading);margin-bottom:16px}
+.auth-box input{width:100%;padding:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;color:var(--heading);font-size:16px;font-family:inherit;text-align:center;margin-bottom:12px}
+.auth-box button{width:100%;padding:14px;background:var(--gold);color:#06060b;font-weight:700;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-family:inherit}
+</style>
+</head>
+<body>
+
+<!-- Instructions -->
+<div class="screen" id="instrScreen">
+  <h1>🔀 Trail Making B</h1>
+  <h2>Cognitive Flexibility</h2>
+  <p>Connect circles in alternating number-letter order. Tap <strong style="color:#d4a853">1→A→2→B→3→C</strong> and so on, as fast as you can!</p>
+  <div class="seq-preview">1 → A → 2 → B → ... → 13</div>
+  <p style="color:rgba(255,255,255,0.3)">25 circles · ~2-3 min</p>
+  <button class="btn" onclick="startTest()">Start</button>
+</div>
+
+<!-- Game -->
+<div class="game-screen hidden" id="gameScreen">
+  <div class="game-top">
+    <div class="game-info">Next: <span id="nextTarget">1</span></div>
+    <div class="game-timer" id="timer">0.00s</div>
+    <div class="game-errors" id="errCount">0 errors</div>
+  </div>
+  <div class="canvas-area">
+    <canvas id="trailCanvas"></canvas>
+  </div>
+</div>
+
+<div class="error-overlay" id="errorOverlay"></div>
+
+<!-- Results -->
+<div class="screen hidden" id="resultsScreen">
+  <h2>Results</h2>
+  <div class="results-grid" id="resultsGrid"></div>
+  <div class="btns">
+    <a href="/app/test/" class="btn btn-outline">Back to Tests</a>
+    <a href="/app/" class="btn">Done</a>
+  </div>
+</div>
+
+<!-- Auth -->
+<div class="auth-overlay" id="authOverlay" style="display:none">
+  <div class="auth-box">
+    <h2>Neural NeXus</h2>
+    <p style="color:rgba(255,255,255,0.4);margin-bottom:20px;font-size:14px">Enter password</p>
+    <input type="password" id="authPass" placeholder="Password" autocomplete="current-password">
+    <button onclick="doAuth()">Enter</button>
+  </div>
+</div>
+
+<script>
+function checkAuth(){if(!document.cookie.includes('dash_auth=nexus2026')){document.getElementById('authOverlay').style.display='flex';return false}return true}
+function doAuth(){const p=document.getElementById('authPass').value;if(p){document.cookie=`dash_auth=${p};max-age=2592000;path=/`;location.reload()}}
+document.addEventListener('DOMContentLoaded',()=>{
+  if(!checkAuth())return;
+  const ap=document.getElementById('authPass');if(ap)ap.addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
+});
+
+// Sequence: 1,A,2,B,...,12,L,13
+const SEQ = [];
+for (let i = 1; i <= 13; i++) {
+  SEQ.push(String(i));
+  if (i <= 12) SEQ.push(String.fromCharCode(64 + i));
+}
+
+const CIRCLE_R = 24; // 48px diameter for mobile
+const MIN_SPACING = 72;
+const HIT_PADDING = 8;
+const DPR = window.devicePixelRatio || 1;
+
+let canvas, ctx, canvasW, canvasH;
+let circles = [];
+let currentIdx = 0;
+let errors = 0;
+let startTime = 0;
+let timerInterval = null;
+let conns = [];
+let wakeLock = null;
+let lastTapTime = 0;
+
+function show(id) {
+  document.querySelectorAll('.screen,.game-screen').forEach(s => s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
+
+function sizeCanvas() {
+  const area = document.querySelector('.canvas-area');
+  if (!area) return;
+  const w = area.clientWidth - 16;
+  const h = area.clientHeight - 16;
+  canvasW = w;
+  canvasH = h;
+  canvas = document.getElementById('trailCanvas');
+  canvas.width = w * DPR;
+  canvas.height = h * DPR;
+  canvas.style.width = w + 'px';
+  canvas.style.height = h + 'px';
+  ctx = canvas.getContext('2d');
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+
+function generateCircles() {
+  circles = [];
+  const pad = CIRCLE_R + 12;
+  for (let i = 0; i < SEQ.length; i++) {
+    let placed = false;
+    for (let a = 0; a < 800; a++) {
+      const x = pad + Math.random() * (canvasW - 2 * pad);
+      const y = pad + Math.random() * (canvasH - 2 * pad);
+      let ok = true;
+      for (const c of circles) {
+        if (Math.hypot(x - c.x, y - c.y) < MIN_SPACING) { ok = false; break; }
+      }
+      if (ok) { circles.push({ x, y, label: SEQ[i], idx: i, done: false }); placed = true; break; }
+    }
+    if (!placed) {
+      circles.push({ x: pad + Math.random() * (canvasW - 2 * pad), y: pad + Math.random() * (canvasH - 2 * pad), label: SEQ[i], idx: i, done: false });
+    }
+  }
+}
+
+function drawCircle(c, state) {
+  ctx.beginPath();
+  ctx.arc(c.x, c.y, CIRCLE_R, 0, Math.PI * 2);
+  if (state === 'done') {
+    ctx.fillStyle = 'rgba(212,168,83,0.3)';
+    ctx.fill();
+    ctx.strokeStyle = '#d4a853';
+    ctx.lineWidth = 2;
+  } else if (state === 'current') {
+    ctx.fillStyle = 'rgba(212,168,83,0.1)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(212,168,83,0.6)';
+    ctx.lineWidth = 2.5;
+  } else {
+    ctx.fillStyle = 'rgba(255,255,255,0.03)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 1.5;
+  }
+  ctx.stroke();
+
+  ctx.fillStyle = state === 'done' ? '#d4a853' : '#fff';
+  ctx.font = `600 ${c.label.length > 1 ? '13' : '15'}px 'DM Sans',sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(c.label, c.x, c.y);
+}
+
+function drawLine(a, b) {
+  const angle = Math.atan2(b.y - a.y, b.x - a.x);
+  ctx.beginPath();
+  ctx.moveTo(a.x + Math.cos(angle) * CIRCLE_R, a.y + Math.sin(angle) * CIRCLE_R);
+  ctx.lineTo(b.x - Math.cos(angle) * CIRCLE_R, b.y - Math.sin(angle) * CIRCLE_R);
+  ctx.strokeStyle = 'rgba(212,168,83,0.5)';
+  ctx.lineWidth = 2;
+  ctx.stroke();
+}
+
+function render() {
+  ctx.clearRect(0, 0, canvasW, canvasH);
+  for (const cn of conns) drawLine(circles[cn.from], circles[cn.to]);
+  for (const c of circles) {
+    drawCircle(c, c.done ? 'done' : c.idx === currentIdx ? 'current' : 'default');
+  }
+}
+
+function getCircleAt(x, y) {
+  for (const c of circles) {
+    if (Math.hypot(x - c.x, y - c.y) <= CIRCLE_R + HIT_PADDING) return c;
+  }
+  return null;
+}
+
+function flashError() {
+  const el = document.getElementById('errorOverlay');
+  el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 200);
+}
+
+async function startTest() {
+  sizeCanvas();
+  generateCircles();
+  currentIdx = 0;
+  errors = 0;
+  conns = [];
+  startTime = 0;
+  document.getElementById('errCount').textContent = '0 errors';
+  document.getElementById('timer').textContent = '0.00s';
+  document.getElementById('nextTarget').textContent = SEQ[0];
+  try { wakeLock = await navigator.wakeLock.request('screen'); } catch {}
+  show('gameScreen');
+  render();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Set up canvas tap handler
+  document.getElementById('trailCanvas').addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    // Prevent double-taps
+    const now = Date.now();
+    if (now - lastTapTime < 150) return;
+    lastTapTime = now;
+
+    const rect = e.target.getBoundingClientRect();
+    const scaleX = canvasW / rect.width;
+    const scaleY = canvasH / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    const circle = getCircleAt(mx, my);
+    if (!circle) return;
+
+    if (currentIdx === 0 && !startTime) {
+      startTime = performance.now();
+      timerInterval = setInterval(() => {
+        document.getElementById('timer').textContent = ((performance.now() - startTime) / 1000).toFixed(2) + 's';
+      }, 50);
+    }
+
+    if (circle.idx === currentIdx) {
+      if (currentIdx > 0) conns.push({ from: currentIdx - 1, to: currentIdx });
+      circle.done = true;
+      currentIdx++;
+      document.getElementById('nextTarget').textContent = currentIdx < SEQ.length ? SEQ[currentIdx] : '✓';
+
+      if (currentIdx >= SEQ.length) {
+        clearInterval(timerInterval);
+        endTest();
+      }
+      render();
+    } else if (!circle.done) {
+      errors++;
+      document.getElementById('errCount').textContent = errors + ' error' + (errors !== 1 ? 's' : '');
+      flashError();
+    }
+  });
+});
+
+async function endTest() {
+  if (wakeLock) { try { await wakeLock.release(); } catch {} }
+
+  const completionMs = performance.now() - startTime;
+  const totalConns = SEQ.length - 1;
+  const avgMs = Math.round(completionMs / totalConns);
+
+  let pathLen = 0;
+  for (const cn of conns) {
+    const a = circles[cn.from], b = circles[cn.to];
+    pathLen += Math.hypot(b.x - a.x, b.y - a.y);
+  }
+
+  document.getElementById('resultsGrid').innerHTML = `
+    <div class="result-item highlight"><div class="val">${(completionMs/1000).toFixed(2)}s</div><div class="lab">Completion Time</div></div>
+    <div class="result-item"><div class="val">${errors}</div><div class="lab">Errors</div></div>
+    <div class="result-item"><div class="val">${avgMs} ms</div><div class="lab">Avg/Connection</div></div>
+    <div class="result-item"><div class="val">${Math.round(pathLen)} px</div><div class="lab">Path Length</div></div>
+  `;
+  show('resultsScreen');
+
+  // Save
+  const now = new Date();
+  const date = now.toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  const time = now.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour12: false });
+  const h = parseInt(now.toLocaleString('en-US', { timeZone: 'America/New_York', hour: 'numeric', hour12: false }));
+  const session = h < 14 ? 'morning' : 'evening';
+  try {
+    await fetch('/api/cognitive/results', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        test_type: 'tmtb',
+        date, time, session,
+        scores_json: JSON.stringify({
+          completion_time_ms: Math.round(completionMs),
+          errors,
+          avg_time_per_connection: avgMs,
+          path_length: Math.round(pathLen)
+        })
+      })
+    });
+  } catch {}
+}
+</script>
+</body>
+</html>

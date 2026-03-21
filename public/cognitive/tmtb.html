@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Trail Making Test Part B | Neural NeXus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --bg: #06060b;
+  --card: rgba(255,255,255,0.03);
+  --border: rgba(255,255,255,0.08);
+  --gold: #d4a853;
+  --gold-dim: rgba(212,168,83,0.15);
+  --red: #e74c3c;
+  --green: #34d399;
+  --text: #e0e0e0;
+  --text-dim: rgba(255,255,255,0.3);
+  --text-mid: rgba(255,255,255,0.55);
+}
+
+html, body {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 400;
+  -webkit-tap-highlight-color: transparent;
+  overflow-x: hidden;
+}
+
+.cog-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 24px;
+  font-size: 13px;
+  font-weight: 500;
+  flex-wrap: wrap;
+}
+.cog-nav a {
+  color: var(--text-mid);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.cog-nav a:hover, .cog-nav a.cog-nav-active { color: var(--gold); }
+.cog-nav-sep { color: rgba(255,255,255,0.15); }
+.cog-nav-label { color: var(--text-dim); }
+
+.screen { display: none; }
+.screen.active { display: flex; }
+
+#setup-screen {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100dvh - 60px);
+  padding: 24px;
+  text-align: center;
+}
+
+#setup-screen h1 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(32px, 6vw, 48px);
+  color: #fff;
+  margin-bottom: 20px;
+  line-height: 1.15;
+}
+
+#setup-screen .description {
+  max-width: 480px;
+  font-size: 15px;
+  line-height: 1.65;
+  color: var(--text-mid);
+  margin-bottom: 40px;
+}
+
+.sequence-preview {
+  font-size: 14px;
+  color: var(--gold);
+  margin-bottom: 24px;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gold);
+  color: #06060b;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  border: none;
+  border-radius: 10px;
+  padding: 14px 40px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(212,168,83,0.3); }
+.btn-gold:active { transform: translateY(0); }
+
+.session-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.session-toggle .session-btn {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 16px;
+  color: var(--text-dim);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.session-toggle .session-btn.active {
+  background: rgba(212,168,83,0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* Test screen */
+#test-screen {
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.test-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.test-header .info {
+  font-size: 14px;
+  color: var(--text-mid);
+}
+.test-header .info span { color: var(--gold); font-weight: 600; }
+.test-header .timer {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--gold);
+  font-variant-numeric: tabular-nums;
+}
+.test-header .errors {
+  font-size: 14px;
+  color: var(--red);
+}
+
+.canvas-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  position: relative;
+}
+
+#trail-canvas {
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.015);
+  cursor: pointer;
+}
+
+.error-flash {
+  position: fixed;
+  inset: 0;
+  background: rgba(231,76,60,0.15);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s;
+  z-index: 50;
+}
+.error-flash.show { opacity: 1; }
+
+/* Results */
+#results-screen {
+  flex-direction: column;
+  align-items: center;
+  min-height: 100dvh;
+  padding: 24px;
+  padding-bottom: 60px;
+}
+
+.results-title {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: clamp(28px, 5vw, 40px);
+  color: #fff;
+  margin: 20px 0 8px;
+}
+
+.primary-stat {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.primary-stat .value {
+  font-size: clamp(48px, 12vw, 80px);
+  font-weight: 600;
+  color: var(--gold);
+  line-height: 1;
+}
+.primary-stat .label {
+  font-size: 14px;
+  color: var(--text-mid);
+  margin-top: 6px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  width: 100%;
+  max-width: 560px;
+  margin-bottom: 36px;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+.stat-card .stat-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+}
+.stat-card .stat-label {
+  font-size: 12px;
+  color: var(--text-mid);
+  margin-top: 4px;
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  border-radius: 10px;
+  padding: 12px 32px;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 10px;
+  text-decoration: none;
+}
+.btn-outline:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+#confetti-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+</style>
+</head>
+<body>
+
+<nav class="cog-nav">
+  <a href="/cognitive/">&larr; Dashboard</a>
+  <span class="cog-nav-sep">|</span>
+  <a href="/cognitive/analytics.html">Analytics</a>
+  <span class="cog-nav-sep">|</span>
+  <span class="cog-nav-label">Tests:</span>
+  <a href="/cognitive/dual-n-back.html">N-Back</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/pvt.html">PVT</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/dsst.html">DSST</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/stroop.html">Stroop</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/avlt.html">AVLT</a>
+  <span class="cog-nav-sep">&middot;</span>
+  <a href="/cognitive/tmtb.html" class="cog-nav-active">TMT-B</a>
+</nav>
+
+<!-- Setup Screen -->
+<div id="setup-screen" class="screen active">
+  <h1>Trail Making Test B</h1>
+  <p class="description">Measure cognitive flexibility and set-shifting. Connect circles in alternating number-letter order: 1→A→2→B→3→C... as fast as you can. Errors are tracked — accuracy matters.</p>
+  <div class="sequence-preview">1 → A → 2 → B → 3 → C → ... → 13</div>
+  <div class="session-toggle" id="session-toggle">
+    <button class="session-btn" data-session="morning" id="btn-morning">&#9728;&#65039; Morning</button>
+    <button class="session-btn" data-session="evening" id="btn-evening">&#127769; Evening</button>
+  </div>
+  <button class="btn-gold" id="btn-begin">Begin Test</button>
+</div>
+
+<!-- Test Screen -->
+<div id="test-screen" class="screen">
+  <div class="test-header">
+    <div class="info">Next: <span id="next-target">1</span></div>
+    <div class="timer" id="timer">0.00s</div>
+    <div class="errors" id="error-count">0 errors</div>
+  </div>
+  <div class="canvas-wrap">
+    <canvas id="trail-canvas" width="700" height="500"></canvas>
+  </div>
+</div>
+
+<div class="error-flash" id="error-flash"></div>
+
+<!-- Results Screen -->
+<div id="results-screen" class="screen">
+  <h1 class="results-title">Results</h1>
+
+  <div class="primary-stat">
+    <div class="value" id="res-time">—</div>
+    <div class="label">Completion Time</div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="res-errors">—</div>
+      <div class="stat-label">Errors</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-avg">—</div>
+      <div class="stat-label">Avg Time/Connection</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-connections">—</div>
+      <div class="stat-label">Connections Made</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="res-path">—</div>
+      <div class="stat-label">Total Path Length</div>
+    </div>
+  </div>
+
+  <button class="btn-gold" id="btn-save">Save &amp; Return</button>
+  <a href="/cognitive/stroop.html" class="btn-outline">Next: Stroop &rarr;</a>
+</div>
+
+<canvas id="confetti-canvas"></canvas>
+
+<script>
+(function() {
+  'use strict';
+
+  // Sequence: 1, A, 2, B, 3, C, ..., 12, L, 13
+  const SEQUENCE = [];
+  for (let i = 1; i <= 13; i++) {
+    SEQUENCE.push(String(i));
+    if (i <= 12) SEQUENCE.push(String.fromCharCode(64 + i)); // A=65
+  }
+  // SEQUENCE = ['1','A','2','B','3','C','4','D','5','E','6','F','7','G','8','H','9','I','10','J','11','K','12','L','13']
+
+  const CANVAS_W = 700, CANVAS_H = 500;
+  const CIRCLE_R = 22; // radius, so diameter = 44px
+  const MIN_SPACING = 70; // minimum distance between circle centers
+  const DPR = window.devicePixelRatio || 1;
+
+  let circles = [];
+  let currentIdx = 0;
+  let errors = 0;
+  let startTime = 0;
+  let timerInterval = null;
+  let connections = []; // [{from, to, time}]
+  let connectionTimes = [];
+
+  // Session
+  let currentSession = new Date().getHours() < 14 ? 'morning' : 'evening';
+  document.getElementById('btn-' + currentSession).classList.add('active');
+  document.querySelectorAll('.session-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.session-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSession = btn.dataset.session;
+    });
+  });
+
+  const canvas = document.getElementById('trail-canvas');
+  const ctx = canvas.getContext('2d');
+
+  // HiDPI setup
+  canvas.width = CANVAS_W * DPR;
+  canvas.height = CANVAS_H * DPR;
+  canvas.style.width = CANVAS_W + 'px';
+  canvas.style.height = CANVAS_H + 'px';
+  ctx.scale(DPR, DPR);
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  // Generate random non-overlapping circle positions
+  function generateCircles() {
+    circles = [];
+    const padding = CIRCLE_R + 10;
+    const maxAttempts = 1000;
+
+    for (let i = 0; i < SEQUENCE.length; i++) {
+      let placed = false;
+      for (let attempt = 0; attempt < maxAttempts; attempt++) {
+        const x = padding + Math.random() * (CANVAS_W - 2 * padding);
+        const y = padding + Math.random() * (CANVAS_H - 2 * padding);
+
+        let tooClose = false;
+        for (const c of circles) {
+          const dist = Math.sqrt((x - c.x) ** 2 + (y - c.y) ** 2);
+          if (dist < MIN_SPACING) { tooClose = true; break; }
+        }
+
+        if (!tooClose) {
+          circles.push({ x, y, label: SEQUENCE[i], idx: i, completed: false });
+          placed = true;
+          break;
+        }
+      }
+
+      if (!placed) {
+        // Fallback: force placement with relaxed spacing
+        const x = padding + Math.random() * (CANVAS_W - 2 * padding);
+        const y = padding + Math.random() * (CANVAS_H - 2 * padding);
+        circles.push({ x, y, label: SEQUENCE[i], idx: i, completed: false });
+      }
+    }
+  }
+
+  function drawCircle(c, state) {
+    ctx.beginPath();
+    ctx.arc(c.x, c.y, CIRCLE_R, 0, Math.PI * 2);
+
+    if (state === 'completed') {
+      ctx.fillStyle = 'rgba(212,168,83,0.3)';
+      ctx.fill();
+      ctx.strokeStyle = '#d4a853';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+    } else if (state === 'current') {
+      ctx.fillStyle = 'rgba(212,168,83,0.1)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(212,168,83,0.6)';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+      // Subtle glow
+      ctx.shadowColor = 'rgba(212,168,83,0.3)';
+      ctx.shadowBlur = 12;
+      ctx.beginPath();
+      ctx.arc(c.x, c.y, CIRCLE_R, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,0.03)';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // Label
+    ctx.fillStyle = state === 'completed' ? '#d4a853' : '#fff';
+    ctx.font = `600 ${c.label.length > 1 ? '13' : '15'}px 'DM Sans', sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(c.label, c.x, c.y);
+  }
+
+  function drawLine(from, to) {
+    ctx.beginPath();
+    // Calculate points on circle edges
+    const angle = Math.atan2(to.y - from.y, to.x - from.x);
+    const x1 = from.x + Math.cos(angle) * CIRCLE_R;
+    const y1 = from.y + Math.sin(angle) * CIRCLE_R;
+    const x2 = to.x - Math.cos(angle) * CIRCLE_R;
+    const y2 = to.y - Math.sin(angle) * CIRCLE_R;
+
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.strokeStyle = 'rgba(212,168,83,0.5)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+  }
+
+  function render() {
+    ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+
+    // Draw connections
+    for (const conn of connections) {
+      drawLine(circles[conn.from], circles[conn.to]);
+    }
+
+    // Draw circles
+    for (const c of circles) {
+      let state = 'default';
+      if (c.completed) state = 'completed';
+      else if (c.idx === currentIdx) state = 'current';
+      drawCircle(c, state);
+    }
+  }
+
+  function getCircleAt(mx, my) {
+    for (const c of circles) {
+      const dist = Math.sqrt((mx - c.x) ** 2 + (my - c.y) ** 2);
+      if (dist <= CIRCLE_R + 4) return c; // small hit margin
+    }
+    return null;
+  }
+
+  function startTimer() {
+    startTime = performance.now();
+    timerInterval = setInterval(() => {
+      const elapsed = (performance.now() - startTime) / 1000;
+      document.getElementById('timer').textContent = elapsed.toFixed(2) + 's';
+    }, 50);
+  }
+
+  function stopTimer() {
+    clearInterval(timerInterval);
+  }
+
+  function flashError() {
+    const el = document.getElementById('error-flash');
+    el.classList.add('show');
+    setTimeout(() => el.classList.remove('show'), 200);
+  }
+
+  // Canvas click handler
+  canvas.addEventListener('click', (e) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = CANVAS_W / rect.width;
+    const scaleY = CANVAS_H / rect.height;
+    const mx = (e.clientX - rect.left) * scaleX;
+    const my = (e.clientY - rect.top) * scaleY;
+
+    const circle = getCircleAt(mx, my);
+    if (!circle) return;
+
+    // Start timer on first tap
+    if (currentIdx === 0 && !startTime) {
+      startTimer();
+    }
+
+    if (circle.idx === currentIdx) {
+      // Correct!
+      const now = performance.now();
+      if (currentIdx > 0) {
+        connectionTimes.push(now - (connectionTimes.length > 0 ? startTime + connectionTimes.reduce((a, b) => a + b, 0) : startTime));
+        connections.push({ from: currentIdx - 1, to: currentIdx });
+      }
+      circle.completed = true;
+      currentIdx++;
+
+      document.getElementById('next-target').textContent = currentIdx < SEQUENCE.length ? SEQUENCE[currentIdx] : '✓';
+
+      if (currentIdx >= SEQUENCE.length) {
+        stopTimer();
+        showResults();
+      }
+
+      render();
+    } else if (!circle.completed) {
+      // Error — wrong circle
+      errors++;
+      document.getElementById('error-count').textContent = errors + ' error' + (errors !== 1 ? 's' : '');
+      flashError();
+    }
+  });
+
+  // Begin
+  document.getElementById('btn-begin').addEventListener('click', () => {
+    currentIdx = 0;
+    errors = 0;
+    startTime = 0;
+    connections = [];
+    connectionTimes = [];
+    document.getElementById('error-count').textContent = '0 errors';
+    document.getElementById('timer').textContent = '0.00s';
+    document.getElementById('next-target').textContent = SEQUENCE[0];
+    generateCircles();
+    showScreen('test-screen');
+    render();
+  });
+
+  // Results
+  function showResults() {
+    const completionMs = performance.now() - startTime;
+    const completionSec = (completionMs / 1000).toFixed(2);
+    const totalConnections = SEQUENCE.length - 1; // 24 connections
+    const avgTimePerConn = (completionMs / totalConnections).toFixed(0);
+
+    // Calculate total path length in pixels
+    let pathLength = 0;
+    for (const conn of connections) {
+      const a = circles[conn.from], b = circles[conn.to];
+      pathLength += Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2);
+    }
+
+    document.getElementById('res-time').textContent = completionSec + 's';
+    document.getElementById('res-errors').textContent = errors;
+    document.getElementById('res-avg').textContent = avgTimePerConn + ' ms';
+    document.getElementById('res-connections').textContent = totalConnections;
+    document.getElementById('res-path').textContent = Math.round(pathLength) + ' px';
+
+    showScreen('results-screen');
+
+    // Store scores for save
+    document.getElementById('results-screen').dataset.scores = JSON.stringify({
+      completion_time_ms: Math.round(completionMs),
+      errors: errors,
+      avg_time_per_connection: parseInt(avgTimePerConn),
+      path_length: Math.round(pathLength)
+    });
+  }
+
+  // Save
+  document.getElementById('btn-save').addEventListener('click', async () => {
+    const btn = document.getElementById('btn-save');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    try {
+      const scores = JSON.parse(document.getElementById('results-screen').dataset.scores || '{}');
+      await fetch('/api/cognitive/results', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ test_type: 'tmtb', session: currentSession, scores })
+      });
+    } catch (e) { /* best effort */ }
+    window.location.href = '/cognitive/';
+  });
+
+  // Responsive canvas
+  function resizeCanvas() {
+    const wrap = document.querySelector('.canvas-wrap');
+    if (!wrap) return;
+    const maxW = Math.min(700, wrap.clientWidth - 40);
+    const maxH = Math.min(500, wrap.clientHeight - 40);
+    const scale = Math.min(maxW / CANVAS_W, maxH / CANVAS_H, 1);
+    canvas.style.width = (CANVAS_W * scale) + 'px';
+    canvas.style.height = (CANVAS_H * scale) + 'px';
+  }
+  window.addEventListener('resize', resizeCanvas);
+  setTimeout(resizeCanvas, 50);
+
+  // Prevent pull-to-refresh during test
+  document.addEventListener('touchmove', (e) => {
+    if (document.getElementById('test-screen').classList.contains('active')) e.preventDefault();
+  }, { passive: false });
+
+})();
+</script>
+</body>
+</html>

@@ -101,6 +101,7 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
         <span class="test-chip" data-test="dsst">DSST</span>
         <span class="test-chip" data-test="stroop">Stroop</span>
         <span class="test-chip" data-test="avlt">AVLT</span>
+        <span class="test-chip" data-test="tmtb">TMT-B</span>
       </div>
     </div>
     <div class="session-row">
@@ -111,9 +112,11 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
         <span class="test-chip" data-test="dsst">DSST</span>
         <span class="test-chip" data-test="stroop">Stroop</span>
         <span class="test-chip" data-test="avlt">AVLT</span>
+        <span class="test-chip" data-test="tmtb">TMT-B</span>
       </div>
     </div>
     <a href="/app/test/" class="btn-gold">Start Battery</a>
+    <a href="/brain-check" style="display:block;text-align:center;margin-top:12px;color:var(--gold);font-size:13px;font-weight:600;text-decoration:none">🧠 Share Brain Check with Friends →</a>
   </div>
 
   <!-- Quick Log Card -->
@@ -324,6 +327,11 @@ function showScores(results) {
   if (avlt) {
     const s = typeof avlt.scores_json === 'string' ? JSON.parse(avlt.scores_json) : avlt.scores_json;
     html += `<div class="score-item"><div class="value">${s.trial_3 != null ? s.trial_3 : '—'}/15</div><div class="label">AVLT T3</div></div>`;
+  }
+  const tmtb = results.find(r => r.test_type === 'tmtb');
+  if (tmtb) {
+    const s = typeof tmtb.scores_json === 'string' ? JSON.parse(tmtb.scores_json) : tmtb.scores_json;
+    html += `<div class="score-item"><div class="value">${s.completion_time_ms ? (s.completion_time_ms/1000).toFixed(1) : '—'}s</div><div class="label">TMT-B</div></div>`;
   }
   html += '</div>';
   document.getElementById('scoresContent').innerHTML = html;

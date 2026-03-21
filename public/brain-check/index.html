@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Free Brain Test — How Sharp Are You Today? | Neural NeXus</title>
+<meta name="description" content="Take a free 3-minute cognitive test based on real neuroscience. Test your reaction time, focus, and processing speed. No signup required.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://www.neuralnexus.press/brain-check/">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Free Brain Test — How Sharp Are You Today? | Neural NeXus">
+<meta property="og:description" content="Take a free 3-minute cognitive test based on real neuroscience. Test your reaction time, focus, and processing speed. No signup required.">
+<meta property="og:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
+<meta property="og:url" content="https://www.neuralnexus.press/brain-check/">
+<meta property="og:site_name" content="Neural NeXus">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Free Brain Test — How Sharp Are You Today? | Neural NeXus">
+<meta name="twitter:description" content="Take a free 3-minute cognitive test based on real neuroscience. Test your reaction time, focus, and processing speed. No signup required.">
+<meta name="twitter:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
+
+<!-- Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Quiz",
+  "name": "Daily Brain Check",
+  "description": "A free 3-minute cognitive test based on real neuroscience. Test your reaction time, focus, and processing speed.",
+  "educationalAlignment": {
+    "@type": "AlignmentObject",
+    "alignmentType": "assesses",
+    "targetName": "Cognitive Function"
+  },
+  "provider": {
+    "@type": "Organization",
+    "name": "Neural NeXus",
+    "url": "https://www.neuralnexus.press"
+  },
+  "about": {
+    "@type": "Thing",
+    "name": "Cognitive Assessment"
+  },
+  "numberOfQuestions": 3,
+  "timeRequired": "PT3M"
+}
+</script>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+
+<!-- GA4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-B0X6HBHKH3"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-B0X6HBHKH3');
+</script>
+
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #06060b;
+  --surface: #0e0e18;
+  --surface2: #161625;
+  --gold: #d4a853;
+  --gold-dark: #c49a48;
+  --text: #e8e8f0;
+  --text-dim: #8888aa;
+  --red: #ff4444;
+  --blue: #4488ff;
+  --green: #44ff88;
+  --yellow: #ffdd44;
+  --radius: 16px;
+  --radius-sm: 10px;
+}
+
+html { font-size: 16px; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100dvh;
+  padding: 24px 20px 40px;
+  position: relative;
+}
+.screen.active { display: flex; }
+
+/* ---- LANDING ---- */
+#landing {
+  justify-content: center;
+  text-align: center;
+  background: radial-gradient(ellipse at 50% 20%, rgba(212,168,83,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 80%, rgba(68,136,255,0.06) 0%, transparent 50%);
+}
+
+.hero-brain {
+  font-size: 96px;
+  line-height: 1;
+  margin-bottom: 24px;
+  animation: pulse-brain 2.5s ease-in-out infinite;
+}
+@keyframes pulse-brain {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 20px rgba(212,168,83,0.3)); }
+  50% { transform: scale(1.08); filter: drop-shadow(0 0 40px rgba(212,168,83,0.5)); }
+}
+
+.hero-title {
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, #fff 30%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: clamp(1rem, 2.5vw, 1.2rem);
+  color: var(--text-dim);
+  margin-bottom: 36px;
+  max-width: 420px;
+}
+
+.btn-gold {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #06060b;
+  border: none;
+  padding: 16px 48px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  font-family: inherit;
+  border-radius: 60px;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  min-height: 54px;
+  box-shadow: 0 4px 24px rgba(212,168,83,0.3);
+}
+.btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 32px rgba(212,168,83,0.45); }
+.btn-gold:active { transform: scale(0.97); }
+
+.hero-note {
+  margin-top: 16px;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+.hero-note span { margin: 0 6px; }
+
+.landing-footer {
+  margin-top: 48px;
+}
+.landing-footer a {
+  color: var(--gold);
+  text-decoration: none;
+  font-size: 0.9rem;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+.landing-footer a:hover { opacity: 1; }
+
+/* ---- PROGRESS BAR ---- */
+.progress-wrap {
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 24px;
+}
+.progress-label {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  display: flex;
+  justify-content: space-between;
+}
+.progress-bar {
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--gold), #f0c060);
+  transition: width 0.4s ease;
+}
+
+/* ---- TEST SHARED ---- */
+.test-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.test-instruction {
+  font-size: 0.95rem;
+  color: var(--text-dim);
+  text-align: center;
+  max-width: 380px;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+/* ---- PVT ---- */
+#pvt-area {
+  width: 100%;
+  max-width: 440px;
+  height: 320px;
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-size: 1.6rem;
+  font-weight: 600;
+  position: relative;
+  overflow: hidden;
+}
+#pvt-area.waiting {
+  background: var(--surface);
+  border: 2px solid var(--surface2);
+}
+#pvt-area.ready {
+  background: #0a6e2a;
+  border: 2px solid var(--green);
+  animation: flash-in 0.15s ease;
+}
+#pvt-area.too-early {
+  background: #6e1a1a;
+  border: 2px solid var(--red);
+}
+#pvt-area.result {
+  background: var(--surface);
+  border: 2px solid var(--gold);
+}
+@keyframes flash-in {
+  from { opacity: 0.5; transform: scale(1.02); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.pvt-trial-counter {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* ---- STROOP ---- */
+.stroop-word {
+  font-size: clamp(2.5rem, 8vw, 4rem);
+  font-weight: 700;
+  margin: 24px 0 32px;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stroop-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: 100%;
+  max-width: 360px;
+}
+
+.stroop-btn {
+  min-height: 56px;
+  border: 2px solid;
+  border-radius: var(--radius-sm);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.1s;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.stroop-btn:active { transform: scale(0.95); }
+.stroop-btn.red    { background: rgba(255,68,68,0.15); border-color: var(--red); }
+.stroop-btn.blue   { background: rgba(68,136,255,0.15); border-color: var(--blue); }
+.stroop-btn.green  { background: rgba(68,255,136,0.15); border-color: var(--green); }
+.stroop-btn.yellow { background: rgba(255,221,68,0.15); border-color: var(--yellow); color: var(--yellow); }
+
+.stroop-feedback {
+  min-height: 28px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-top: 16px;
+}
+
+.stroop-counter {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
+
+/* ---- DSST ---- */
+.dsst-key {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+  gap: 4px;
+  width: 100%;
+  max-width: 440px;
+  margin-bottom: 20px;
+}
+.dsst-key-item {
+  text-align: center;
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 6px 2px;
+  border: 1px solid var(--surface2);
+}
+.dsst-key-digit {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--gold);
+}
+.dsst-key-symbol {
+  font-size: 1.1rem;
+  margin-top: 2px;
+}
+
+.dsst-prompt {
+  font-size: clamp(3rem, 10vw, 5rem);
+  font-weight: 700;
+  margin: 16px 0 20px;
+  background: linear-gradient(135deg, var(--gold), #f0c060);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.dsst-timer {
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-dim);
+}
+.dsst-timer .time-val { color: var(--gold); }
+
+.dsst-correct-count {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+}
+
+.dsst-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.dsst-btn {
+  min-height: 56px;
+  background: var(--surface);
+  border: 2px solid var(--surface2);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 1.5rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.15s, background 0.15s;
+}
+.dsst-btn:active { transform: scale(0.93); }
+.dsst-btn:hover { border-color: rgba(212,168,83,0.4); }
+.dsst-btn.correct-flash { border-color: var(--green); background: rgba(68,255,136,0.1); }
+.dsst-btn.wrong-flash { border-color: var(--red); background: rgba(255,68,68,0.1); }
+
+/* ---- RESULTS ---- */
+#results {
+  text-align: center;
+  background: radial-gradient(ellipse at 50% 10%, rgba(212,168,83,0.1) 0%, transparent 50%),
+              radial-gradient(ellipse at 20% 70%, rgba(68,136,255,0.05) 0%, transparent 40%),
+              radial-gradient(ellipse at 80% 60%, rgba(68,255,136,0.04) 0%, transparent 40%);
+}
+
+#confetti-canvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.result-heading {
+  font-size: 1.2rem;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  margin-top: 12px;
+}
+
+.score-big {
+  font-size: clamp(4rem, 15vw, 7rem);
+  font-weight: 700;
+  line-height: 1;
+  background: linear-gradient(135deg, var(--gold), #f0c060, var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 4px;
+}
+
+.score-label {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+}
+.score-label strong {
+  color: var(--text);
+}
+
+.percentile-badge {
+  display: inline-block;
+  margin: 20px 0;
+  padding: 10px 24px;
+  background: linear-gradient(135deg, rgba(212,168,83,0.15), rgba(212,168,83,0.05));
+  border: 1px solid rgba(212,168,83,0.3);
+  border-radius: 60px;
+  font-size: 0.95rem;
+  color: var(--gold);
+}
+
+.breakdown {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+  margin: 20px 0;
+}
+@media (min-width: 480px) {
+  .breakdown { grid-template-columns: 1fr 1fr 1fr; max-width: 600px; }
+}
+
+.breakdown-card {
+  background: var(--surface);
+  border: 1px solid var(--surface2);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  text-align: center;
+}
+.breakdown-card .card-icon { font-size: 1.6rem; margin-bottom: 8px; }
+.breakdown-card .card-title { font-size: 0.8rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.breakdown-card .card-value { font-size: 1.5rem; font-weight: 700; }
+.breakdown-card .card-label {
+  font-size: 0.8rem;
+  margin-top: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  display: inline-block;
+}
+.label-excellent { color: var(--green); background: rgba(68,255,136,0.1); }
+.label-good { color: var(--gold); background: rgba(212,168,83,0.1); }
+.label-average { color: var(--blue); background: rgba(68,136,255,0.1); }
+.label-below { color: var(--red); background: rgba(255,68,68,0.1); }
+
+.cta-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+  margin: 16px 0;
+}
+@media (min-width: 480px) {
+  .cta-row { grid-template-columns: 1fr 1fr; }
+}
+
+.cta-card {
+  display: block;
+  background: var(--surface);
+  border: 2px solid var(--surface2);
+  border-radius: var(--radius);
+  padding: 20px 16px;
+  text-decoration: none;
+  color: var(--text);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-align: center;
+  transition: transform 0.15s, border-color 0.2s;
+}
+.cta-card:hover { transform: translateY(-2px); }
+.cta-card.gold-border { border-color: rgba(212,168,83,0.4); }
+.cta-card.gold-border:hover { border-color: var(--gold); }
+.cta-card.blue-border { border-color: rgba(68,136,255,0.4); }
+.cta-card.blue-border:hover { border-color: var(--blue); }
+.cta-card small { display: block; margin-top: 6px; font-weight: 400; font-size: 0.8rem; color: var(--text-dim); }
+
+.share-row {
+  display: flex;
+  gap: 12px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.btn-share {
+  background: linear-gradient(135deg, var(--blue), #3366cc);
+  color: #fff;
+  border: none;
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 60px;
+  cursor: pointer;
+  min-height: 48px;
+  transition: transform 0.15s;
+}
+.btn-share:active { transform: scale(0.97); }
+
+.btn-again {
+  background: transparent;
+  border: 2px solid var(--surface2);
+  color: var(--text);
+  padding: 14px 32px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: inherit;
+  border-radius: 60px;
+  cursor: pointer;
+  min-height: 48px;
+  transition: transform 0.15s, border-color 0.2s;
+}
+.btn-again:hover { border-color: var(--text-dim); }
+.btn-again:active { transform: scale(0.97); }
+
+/* ---- UTILITIES ---- */
+.fade-in {
+  animation: fadeIn 0.4s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0,0,0,0); border: 0;
+}
+
+/* prevent iOS zoom on inputs */
+@media (max-width: 480px) {
+  .dsst-key { gap: 2px; }
+  .dsst-key-item { padding: 4px 1px; }
+  .dsst-key-digit { font-size: 0.75rem; }
+  .dsst-key-symbol { font-size: 0.9rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== SCREEN 1: LANDING ==================== -->
+<div id="landing" class="screen active">
+  <div class="hero-brain" aria-hidden="true">&#129504;</div>
+  <h1 class="hero-title">How Sharp Is Your Brain Today?</h1>
+  <p class="hero-sub">A free 3-minute cognitive test based on real neuroscience</p>
+  <button class="btn-gold" id="btn-start">Start Free Test</button>
+  <p class="hero-note">No signup required <span>&middot;</span> Results in 3 minutes</p>
+  <div class="landing-footer">
+    <a href="https://davidkingsley.substack.com" target="_blank" rel="noopener">Subscribe to Neural NeXus</a>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 2: PVT ==================== -->
+<div id="pvt" class="screen">
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Test 1 of 3</span><span>Reaction Time</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:33.3%"></div></div>
+  </div>
+  <h2 class="test-title">Test 1: Reaction Time</h2>
+  <p class="test-instruction">Tap or click as fast as you can when the screen turns <strong style="color:var(--green)">GREEN</strong></p>
+  <div id="pvt-area" class="waiting">
+    <span class="pvt-trial-counter" id="pvt-counter">0 / 5</span>
+    <span id="pvt-msg">Tap to begin</span>
+  </div>
+</div>
+
+<!-- ==================== SCREEN 3: STROOP ==================== -->
+<div id="stroop" class="screen">
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Test 2 of 3</span><span>Focus</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:66.6%"></div></div>
+  </div>
+  <h2 class="test-title">Test 2: Focus</h2>
+  <p class="test-instruction">Tap the <strong>INK COLOR</strong> of the word, not the word itself!</p>
+  <div class="stroop-word" id="stroop-word"></div>
+  <div class="stroop-buttons" id="stroop-buttons">
+    <button class="stroop-btn red" data-color="red">Red</button>
+    <button class="stroop-btn blue" data-color="blue">Blue</button>
+    <button class="stroop-btn green" data-color="green">Green</button>
+    <button class="stroop-btn yellow" data-color="yellow">Yellow</button>
+  </div>
+  <div class="stroop-feedback" id="stroop-feedback"></div>
+  <div class="stroop-counter" id="stroop-counter">0 / 10</div>
+</div>
+
+<!-- ==================== SCREEN 4: DSST ==================== -->
+<div id="dsst" class="screen">
+  <div class="progress-wrap">
+    <div class="progress-label"><span>Test 3 of 3</span><span>Processing Speed</span></div>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+  </div>
+  <h2 class="test-title">Test 3: Processing Speed</h2>
+  <p class="test-instruction">Match each digit to its symbol as fast as you can!</p>
+  <div class="dsst-key" id="dsst-key"></div>
+  <div class="dsst-timer">Time: <span class="time-val" id="dsst-time">30</span>s</div>
+  <div class="dsst-correct-count">Correct: <strong id="dsst-score">0</strong></div>
+  <div class="dsst-prompt" id="dsst-prompt">—</div>
+  <div class="dsst-grid" id="dsst-grid"></div>
+</div>
+
+<!-- ==================== SCREEN 5: RESULTS ==================== -->
+<div id="results" class="screen">
+  <canvas id="confetti-canvas"></canvas>
+  <p class="result-heading">Your Brain Score</p>
+  <div class="score-big" id="score-big">0</div>
+  <p class="score-label">out of <strong>100</strong></p>
+  <div class="percentile-badge" id="percentile-badge"></div>
+
+  <div class="breakdown" id="breakdown"></div>
+
+  <div class="share-row">
+    <button class="btn-share" id="btn-share">Share Result</button>
+    <button class="btn-again" id="btn-again">Take Again</button>
+  </div>
+
+  <div class="cta-row">
+    <a href="/cognitive/" class="cta-card gold-border">
+      Track your brain over time
+      <small>Full cognitive dashboard</small>
+    </a>
+    <a href="https://davidkingsley.substack.com" target="_blank" rel="noopener" class="cta-card blue-border">
+      Subscribe to Neural NeXus
+      <small>Weekly brain science</small>
+    </a>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  // ---- State ----
+  const state = {
+    pvtRTs: [],
+    stroopCorrect: 0,
+    stroopTotal: 0,
+    stroopRTs: [],
+    dsstCorrect: 0
+  };
+
+  let pvtTrialCount = 0;
+  let pvtTimeout = null;
+  let pvtGreenTime = 0;
+  let pvtPhase = 'idle'; // idle, waiting, ready, result, too-early
+
+  let stroopTrial = 0;
+  let stroopStartTime = 0;
+  let stroopCurrentInk = '';
+  let stroopLocked = false;
+
+  let dsstMapping = {};
+  let dsstSymbols = [];
+  let dsstCurrentDigit = 0;
+  let dsstTimerInterval = null;
+  let dsstTimeLeft = 30;
+  let dsstRunning = false;
+
+  // ---- Helpers ----
+  const $ = id => document.getElementById(id);
+  const screens = ['landing', 'pvt', 'stroop', 'dsst', 'results'];
+
+  function showScreen(id) {
+    screens.forEach(s => {
+      const el = $(s);
+      el.classList.remove('active');
+    });
+    const target = $(id);
+    target.classList.add('active');
+    target.classList.add('fade-in');
+    window.scrollTo(0, 0);
+  }
+
+  function median(arr) {
+    if (!arr.length) return 0;
+    const sorted = [...arr].sort((a, b) => a - b);
+    const mid = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  }
+
+  function lerp(value, minVal, maxVal, minScore, maxScore) {
+    if (value <= minVal) return maxScore;
+    if (value >= maxVal) return minScore;
+    return maxScore - ((value - minVal) / (maxVal - minVal)) * (maxScore - minScore);
+  }
+
+  function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
+  // Debounce helper for mobile double-tap prevention
+  let lastTapTime = 0;
+  function debounced() {
+    const now = performance.now();
+    if (now - lastTapTime < 200) return true;
+    lastTapTime = now;
+    return false;
+  }
+
+  // ---- START ----
+  $('btn-start').addEventListener('click', function() {
+    if (debounced()) return;
+    try { gtag('event', 'brain_check_start', {}); } catch(e) {}
+    startPVT();
+  });
+
+  // ==================== PVT ====================
+  function startPVT() {
+    showScreen('pvt');
+    pvtTrialCount = 0;
+    state.pvtRTs = [];
+    pvtPhase = 'idle';
+    updatePVTDisplay();
+  }
+
+  function updatePVTDisplay() {
+    $('pvt-counter').textContent = pvtTrialCount + ' / 5';
+  }
+
+  function pvtStartWaiting() {
+    const area = $('pvt-area');
+    area.className = 'waiting';
+    $('pvt-msg').textContent = 'Wait...';
+    pvtPhase = 'waiting';
+
+    const delay = 2000 + Math.random() * 6000;
+    pvtTimeout = setTimeout(function() {
+      area.className = 'ready';
+      $('pvt-msg').textContent = 'TAP NOW!';
+      pvtGreenTime = performance.now();
+      pvtPhase = 'ready';
+    }, delay);
+  }
+
+  $('pvt-area').addEventListener('click', function() {
+    if (debounced()) return;
+    const area = $('pvt-area');
+
+    if (pvtPhase === 'idle') {
+      pvtStartWaiting();
+      return;
+    }
+
+    if (pvtPhase === 'waiting') {
+      // False start
+      clearTimeout(pvtTimeout);
+      area.className = 'too-early';
+      $('pvt-msg').textContent = 'Too early!';
+      pvtPhase = 'too-early';
+      setTimeout(function() {
+        pvtStartWaiting();
+      }, 1200);
+      return;
+    }
+
+    if (pvtPhase === 'too-early') return;
+
+    if (pvtPhase === 'ready') {
+      const rt = Math.round(performance.now() - pvtGreenTime);
+      state.pvtRTs.push(rt);
+      pvtTrialCount++;
+      updatePVTDisplay();
+
+      area.className = 'result';
+      $('pvt-msg').textContent = rt + ' ms';
+      pvtPhase = 'result';
+
+      if (pvtTrialCount >= 5) {
+        setTimeout(function() { startStroop(); }, 1200);
+      } else {
+        setTimeout(function() { pvtStartWaiting(); }, 1200);
+      }
+      return;
+    }
+
+    if (pvtPhase === 'result') return;
+  });
+
+  // ==================== STROOP ====================
+  const stroopColors = [
+    { name: 'red', hex: '#ff4444' },
+    { name: 'blue', hex: '#4488ff' },
+    { name: 'green', hex: '#44ff88' },
+    { name: 'yellow', hex: '#ffdd44' }
+  ];
+
+  function startStroop() {
+    showScreen('stroop');
+    stroopTrial = 0;
+    state.stroopCorrect = 0;
+    state.stroopTotal = 0;
+    state.stroopRTs = [];
+    stroopLocked = false;
+    nextStroopTrial();
+  }
+
+  function nextStroopTrial() {
+    if (stroopTrial >= 10) {
+      setTimeout(function() { startDSST(); }, 800);
+      return;
+    }
+
+    $('stroop-counter').textContent = stroopTrial + ' / 10';
+    $('stroop-feedback').textContent = '';
+
+    // Pick word and ink color (must be different for incongruent)
+    let wordIdx, inkIdx;
+    do {
+      wordIdx = Math.floor(Math.random() * 4);
+      inkIdx = Math.floor(Math.random() * 4);
+    } while (wordIdx === inkIdx);
+
+    const wordEl = $('stroop-word');
+    wordEl.textContent = stroopColors[wordIdx].name.toUpperCase();
+    wordEl.style.color = stroopColors[inkIdx].hex;
+
+    stroopCurrentInk = stroopColors[inkIdx].name;
+    stroopStartTime = performance.now();
+    stroopLocked = false;
+  }
+
+  $('stroop-buttons').addEventListener('click', function(e) {
+    const btn = e.target.closest('.stroop-btn');
+    if (!btn || stroopLocked) return;
+    if (debounced()) return;
+
+    stroopLocked = true;
+    const chosen = btn.dataset.color;
+    const rt = Math.round(performance.now() - stroopStartTime);
+    state.stroopRTs.push(rt);
+    state.stroopTotal++;
+    stroopTrial++;
+
+    const fb = $('stroop-feedback');
+    if (chosen === stroopCurrentInk) {
+      state.stroopCorrect++;
+      fb.textContent = 'Correct!';
+      fb.style.color = 'var(--green)';
+    } else {
+      fb.textContent = 'Wrong — it was ' + stroopCurrentInk;
+      fb.style.color = 'var(--red)';
+    }
+
+    setTimeout(nextStroopTrial, 800);
+  });
+
+  // ==================== DSST ====================
+  const allSymbols = ['!', '@', '#', '$', '%', '^', '&', '*', '+'];
+
+  function startDSST() {
+    showScreen('dsst');
+    state.dsstCorrect = 0;
+    dsstTimeLeft = 30;
+    dsstRunning = false;
+
+    // Randomize symbol mapping
+    const shuffled = shuffleArray([...allSymbols]);
+    dsstMapping = {};
+    dsstSymbols = shuffled;
+    for (let i = 0; i < 9; i++) {
+      dsstMapping[i + 1] = shuffled[i];
+    }
+
+    // Build key display
+    const keyEl = $('dsst-key');
+    keyEl.innerHTML = '';
+    for (let d = 1; d <= 9; d++) {
+      const item = document.createElement('div');
+      item.className = 'dsst-key-item';
+      item.innerHTML = '<div class="dsst-key-digit">' + d + '</div><div class="dsst-key-symbol">' + dsstMapping[d] + '</div>';
+      keyEl.appendChild(item);
+    }
+
+    // Build button grid
+    const gridEl = $('dsst-grid');
+    gridEl.innerHTML = '';
+    for (let i = 0; i < 9; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'dsst-btn';
+      btn.textContent = shuffled[i];
+      btn.dataset.symbol = shuffled[i];
+      gridEl.appendChild(btn);
+    }
+
+    $('dsst-score').textContent = '0';
+    $('dsst-time').textContent = '30';
+    nextDSSTDigit();
+    startDSSTTimer();
+  }
+
+  function nextDSSTDigit() {
+    dsstCurrentDigit = Math.floor(Math.random() * 9) + 1;
+    $('dsst-prompt').textContent = dsstCurrentDigit;
+  }
+
+  function startDSSTTimer() {
+    dsstRunning = true;
+    dsstTimerInterval = setInterval(function() {
+      dsstTimeLeft--;
+      $('dsst-time').textContent = dsstTimeLeft;
+      if (dsstTimeLeft <= 0) {
+        clearInterval(dsstTimerInterval);
+        dsstRunning = false;
+        setTimeout(showResults, 600);
+      }
+    }, 1000);
+  }
+
+  $('dsst-grid').addEventListener('click', function(e) {
+    const btn = e.target.closest('.dsst-btn');
+    if (!btn || !dsstRunning) return;
+    if (debounced()) return;
+
+    const chosen = btn.dataset.symbol;
+    const correct = dsstMapping[dsstCurrentDigit];
+
+    if (chosen === correct) {
+      state.dsstCorrect++;
+      $('dsst-score').textContent = state.dsstCorrect;
+      btn.classList.add('correct-flash');
+      setTimeout(() => btn.classList.remove('correct-flash'), 200);
+    } else {
+      btn.classList.add('wrong-flash');
+      setTimeout(() => btn.classList.remove('wrong-flash'), 200);
+    }
+
+    nextDSSTDigit();
+  });
+
+  // ==================== RESULTS ====================
+  function calcPVTScore(medianRT) {
+    if (medianRT < 250) return 100;
+    if (medianRT <= 300) return lerp(medianRT, 250, 300, 100, 80);
+    if (medianRT <= 350) return lerp(medianRT, 300, 350, 80, 60);
+    if (medianRT <= 400) return lerp(medianRT, 350, 400, 60, 40);
+    return 20;
+  }
+
+  function calcStroopScore(accuracy) {
+    if (accuracy >= 1.0) return 100;
+    if (accuracy >= 0.9) return lerp(1.0 - accuracy, 0, 0.1, 100, 70);
+    if (accuracy >= 0.8) return lerp(1.0 - accuracy, 0.1, 0.2, 70, 50);
+    if (accuracy >= 0.7) return lerp(1.0 - accuracy, 0.2, 0.3, 50, 20);
+    return 20;
+  }
+
+  function calcDSSTScore(correct) {
+    if (correct > 20) return 100;
+    if (correct >= 15) return lerp(20 - correct, 0, 5, 100, 80);
+    if (correct >= 10) return lerp(15 - correct, 0, 5, 80, 60);
+    if (correct >= 5) return lerp(10 - correct, 0, 5, 60, 40);
+    return 20;
+  }
+
+  function getLabel(score) {
+    if (score >= 80) return { text: 'Excellent', cls: 'label-excellent' };
+    if (score >= 60) return { text: 'Good', cls: 'label-good' };
+    if (score >= 40) return { text: 'Average', cls: 'label-average' };
+    return { text: 'Below Average', cls: 'label-below' };
+  }
+
+  function getPercentile(score) {
+    if (score >= 90) return 95;
+    if (score >= 80) return 85;
+    if (score >= 70) return 70;
+    if (score >= 60) return 50;
+    if (score >= 50) return 35;
+    return 20;
+  }
+
+  function showResults() {
+    showScreen('results');
+
+    const medRT = Math.round(median(state.pvtRTs));
+    const stroopAcc = state.stroopTotal > 0 ? state.stroopCorrect / state.stroopTotal : 0;
+
+    const pvtScore = calcPVTScore(medRT);
+    const stroopScore = calcStroopScore(stroopAcc);
+    const dsstScore = calcDSSTScore(state.dsstCorrect);
+
+    const finalScore = Math.round((pvtScore + stroopScore + dsstScore) / 3);
+
+    try { gtag('event', 'brain_check_complete', { score: finalScore }); } catch(e) {}
+
+    // Animate score
+    const scoreEl = $('score-big');
+    let current = 0;
+    const step = Math.max(1, Math.floor(finalScore / 40));
+    const scoreAnim = setInterval(function() {
+      current += step;
+      if (current >= finalScore) {
+        current = finalScore;
+        clearInterval(scoreAnim);
+      }
+      scoreEl.textContent = current;
+    }, 30);
+
+    // Percentile
+    const pct = getPercentile(finalScore);
+    $('percentile-badge').textContent = 'You scored better than ' + pct + '% of test-takers';
+
+    // Breakdown cards
+    const pvtLabel = getLabel(pvtScore);
+    const stroopLabel = getLabel(stroopScore);
+    const dsstLabel = getLabel(dsstScore);
+
+    $('breakdown').innerHTML =
+      '<div class="breakdown-card fade-in">' +
+        '<div class="card-icon">&#9889;</div>' +
+        '<div class="card-title">Reaction Time</div>' +
+        '<div class="card-value">' + medRT + ' ms</div>' +
+        '<div class="card-label ' + pvtLabel.cls + '">' + pvtLabel.text + '</div>' +
+      '</div>' +
+      '<div class="breakdown-card fade-in">' +
+        '<div class="card-icon">&#127919;</div>' +
+        '<div class="card-title">Focus</div>' +
+        '<div class="card-value">' + Math.round(stroopAcc * 100) + '%</div>' +
+        '<div class="card-label ' + stroopLabel.cls + '">' + stroopLabel.text + '</div>' +
+      '</div>' +
+      '<div class="breakdown-card fade-in">' +
+        '<div class="card-icon">&#9889;</div>' +
+        '<div class="card-title">Processing Speed</div>' +
+        '<div class="card-value">' + state.dsstCorrect + '</div>' +
+        '<div class="card-label ' + dsstLabel.cls + '">' + dsstLabel.text + '</div>' +
+      '</div>';
+
+    // Share data
+    window._shareText = 'I scored ' + finalScore + '/100 on the Neural NeXus Brain Check! How sharp is your brain? \uD83E\uDDE0 https://www.neuralnexus.press/brain-check';
+
+    // Confetti
+    launchConfetti();
+  }
+
+  // ---- Share ----
+  $('btn-share').addEventListener('click', function() {
+    if (debounced()) return;
+    try { gtag('event', 'brain_check_share', {}); } catch(e) {}
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Neural NeXus Brain Check',
+        text: window._shareText
+      }).catch(function() {});
+    } else {
+      navigator.clipboard.writeText(window._shareText).then(function() {
+        const btn = $('btn-share');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = orig; }, 2000);
+      }).catch(function() {
+        prompt('Copy your result:', window._shareText);
+      });
+    }
+  });
+
+  // ---- Take Again ----
+  $('btn-again').addEventListener('click', function() {
+    if (debounced()) return;
+    state.pvtRTs = [];
+    state.stroopCorrect = 0;
+    state.stroopTotal = 0;
+    state.stroopRTs = [];
+    state.dsstCorrect = 0;
+    showScreen('landing');
+  });
+
+  // ==================== CONFETTI ====================
+  function launchConfetti() {
+    const canvas = $('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const colors = ['#d4a853', '#f0c060', '#4488ff', '#44ff88', '#ff4444', '#ffdd44', '#ffffff'];
+
+    for (let i = 0; i < 120; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: -20 - Math.random() * 200,
+        vx: (Math.random() - 0.5) * 4,
+        vy: 2 + Math.random() * 4,
+        size: 4 + Math.random() * 6,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotation: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 10,
+        life: 1
+      });
+    }
+
+    let frame = 0;
+    function animateConfetti() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+
+      particles.forEach(function(p) {
+        if (p.life <= 0) return;
+        alive = true;
+
+        p.x += p.vx;
+        p.vy += 0.08;
+        p.y += p.vy;
+        p.rotation += p.rotSpeed;
+
+        if (p.y > canvas.height + 20) {
+          p.life = 0;
+          return;
+        }
+
+        // Fade after frame 60
+        if (frame > 60) {
+          p.life -= 0.015;
+        }
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.life);
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotation * Math.PI / 180);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        ctx.restore();
+      });
+
+      frame++;
+      if (alive && frame < 200) {
+        requestAnimationFrame(animateConfetti);
+      } else {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    requestAnimationFrame(animateConfetti);
+  }
+
+})();
+</script>
+</body>
+</html>
