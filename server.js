@@ -1221,8 +1221,8 @@ app.post('/api/whoop/sync', dashboardAuth, async (req, res) => {
 
   try {
     const [sleepRes, recoveryRes] = await Promise.all([
-      fetch('https://api.prod.whoop.com/developer/v1/activity/sleep?limit=7', { headers }),
-      fetch('https://api.prod.whoop.com/developer/v1/recovery?limit=7', { headers }),
+      fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=7', { headers }),
+      fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=7', { headers }),
     ]);
 
     // Handle 401 — try refresh once
@@ -1306,7 +1306,7 @@ app.get('/api/whoop/debug', dashboardAuth, async (req, res) => {
   if (!accessToken) return res.json({ error: 'no token', suggestion: 'reconnect' });
   
   try {
-    const sleepRes = await fetch('https://api.prod.whoop.com/developer/v1/activity/sleep?limit=3', {
+    const sleepRes = await fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=3', {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
     const status = sleepRes.status;
