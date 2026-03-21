@@ -581,21 +581,26 @@ body {
         <button class="btn-gold" id="btnSyncWhoop" onclick="syncWhoop()" style="font-size:0.82rem;padding:8px 18px;">Sync Now</button>
         <span id="whoopSyncStatus" style="font-size:0.82rem;color:var(--text-dim);"></span>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;">
         <div class="card summary-card">
           <div class="label">Recovery</div>
           <div class="value" id="whoopRecovery" style="color:var(--green);">--</div>
-          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">% score</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;" id="whoopRecoveryDetail">% score</div>
         </div>
         <div class="card summary-card">
           <div class="label">HRV (RMSSD)</div>
           <div class="value" id="whoopHRV">--</div>
-          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">ms</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;" id="whoopHRVDetail">ms</div>
         </div>
         <div class="card summary-card">
-          <div class="label">Sleep Performance</div>
-          <div class="value" id="whoopSleepPerf">--</div>
-          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">%</div>
+          <div class="label">Sleep Duration</div>
+          <div class="value" id="whoopSleepDur" style="font-size:1.5rem;">--</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;" id="whoopSleepPerfDetail">-- % performance</div>
+        </div>
+        <div class="card summary-card">
+          <div class="label">Resting HR</div>
+          <div class="value" id="whoopRHR">--</div>
+          <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">bpm</div>
         </div>
       </div>
     </div>
@@ -801,7 +806,18 @@ const lineStyle = (color = '#d4a853') => ({
   pointHoverBorderWidth: 2,
   tension: 0.35,
   fill: true,
+  spanGaps: true,
 });
+
+// Format minutes as "Xh Ym"
+function fmtMin(minutes) {
+  if (minutes == null) return '--';
+  const h = Math.floor(minutes / 60);
+  const m = Math.round(minutes % 60);
+  if (h === 0) return m + 'm';
+  if (m === 0) return h + 'h';
+  return h + 'h ' + m + 'm';
+}
 
 // ── Supplement annotation plugin ──
 const supplementAnnotationPlugin = {
@@ -1123,9 +1139,25 @@ async function init() {
       const whoopData = await apiFetch('/api/whoop/data?days=7');
       if (whoopData && whoopData.data && whoopData.data.length > 0) {
         const latest = whoopData.data[0]; // most recent (sorted DESC)
-        if (latest.recovery_score != null) $('#whoopRecovery').textContent = Math.round(latest.recovery_score);
-        if (latest.hrv_rmssd != null) $('#whoopHRV').textContent = Math.round(latest.hrv_rmssd);
-        if (latest.sleep_performance != null) $('#whoopSleepPerf').textContent = Math.round(latest.sleep_performance);
+        if (latest.recovery_score != null) {
+          const score = Math.round(latest.recovery_score);
+          $('#whoopRecovery').textContent = score;
+          // Colour the card by recovery tier
+          const colour = score >= 67 ? 'var(--green)' : score >= 34 ? 'var(--gold)' : 'var(--red)';
+          $('#whoopRecovery').style.color = colour;
+        }
+        if (latest.hrv_rmssd != null) {
+          $('#whoopHRV').textContent = Math.round(latest.hrv_rmssd);
+        }
+        if (latest.sleep_duration_min != null) {
+          $('#whoopSleepDur').textContent = fmtMin(latest.sleep_duration_min);
+        }
+        if (latest.sleep_performance != null) {
+          $('#whoopSleepPerfDetail').textContent = Math.round(latest.sleep_performance) + '% performance';
+        }
+        if (latest.resting_hr != null) {
+          $('#whoopRHR').textContent = Math.round(latest.resting_hr);
+        }
       }
     } else {
       $('#whoopNotConnected').style.display = '';
@@ -1215,9 +1247,16 @@ async function syncWhoop() {
       const whoopData = await apiFetch('/api/whoop/data?days=7');
       if (whoopData && whoopData.data && whoopData.data.length > 0) {
         const latest = whoopData.data[0];
-        if (latest.recovery_score != null) document.getElementById('whoopRecovery').textContent = Math.round(latest.recovery_score);
+        if (latest.recovery_score != null) {
+          const score = Math.round(latest.recovery_score);
+          document.getElementById('whoopRecovery').textContent = score;
+          const colour = score >= 67 ? 'var(--green)' : score >= 34 ? 'var(--gold)' : 'var(--red)';
+          document.getElementById('whoopRecovery').style.color = colour;
+        }
         if (latest.hrv_rmssd != null) document.getElementById('whoopHRV').textContent = Math.round(latest.hrv_rmssd);
-        if (latest.sleep_performance != null) document.getElementById('whoopSleepPerf').textContent = Math.round(latest.sleep_performance);
+        if (latest.sleep_duration_min != null) document.getElementById('whoopSleepDur').textContent = fmtMin(latest.sleep_duration_min);
+        if (latest.sleep_performance != null) document.getElementById('whoopSleepPerfDetail').textContent = Math.round(latest.sleep_performance) + '% performance';
+        if (latest.resting_hr != null) document.getElementById('whoopRHR').textContent = Math.round(latest.resting_hr);
       }
     } else {
       if (status) status.textContent = data.error || 'Sync failed';

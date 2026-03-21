@@ -613,10 +613,12 @@ body {
     <div class="supp-timeline" id="suppTimeline"></div>
 
     <!-- Data Export -->
-    <h2 class="section-title">Data Export</h2>
+    <h2 class="section-title">Data Export &amp; Sync</h2>
     <div class="export-bar">
       <a href="/api/cognitive/export?format=csv" class="btn-outline" id="btn-csv">Export CSV</a>
       <a href="/api/cognitive/export?format=json" class="btn-outline" id="btn-json">Export JSON</a>
+      <button class="btn-outline" id="btn-chess-backfill" onclick="backfillChess()">Backfill Chess History (3 mo)</button>
+      <span id="chess-backfill-status" style="font-size:0.82rem;color:var(--text-dim);align-self:center;"></span>
     </div>
 
   </div>
@@ -625,6 +627,16 @@ body {
 <script>
 const $ = s => document.querySelector(s);
 const $$ = s => document.querySelectorAll(s);
+
+// Format minutes as "Xh Ym"
+function fmtMin(minutes) {
+  if (minutes == null) return '--';
+  const h = Math.floor(minutes / 60);
+  const m = Math.round(minutes % 60);
+  if (h === 0) return m + 'm';
+  if (m === 0) return h + 'h';
+  return h + 'h ' + m + 'm';
+}
 
 async function apiFetch(url) {
   try {
@@ -803,6 +815,26 @@ function buildAMPMChart(canvasId, yLabel, timeSeries, supplements, baselineEnd) 
     },
     options: opts
   });
+}
+
+// ── Chess backfill ──
+async function backfillChess() {
+  const btn = document.getElementById('btn-chess-backfill');
+  const status = document.getElementById('chess-backfill-status');
+  if (btn) btn.disabled = true;
+  if (status) status.textContent = 'Fetching 3 months of games…';
+  try {
+    const r = await fetch('/api/cognitive/chess/backfill', { method: 'POST', credentials: 'same-origin' });
+    const data = await r.json();
+    if (r.ok) {
+      if (status) status.textContent = `Saved ${data.saved} daily snapshots. Reload to see updated chart.`;
+    } else {
+      if (status) status.textContent = data.error || 'Backfill failed';
+    }
+  } catch (e) {
+    if (status) status.textContent = 'Network error';
+  }
+  if (btn) btn.disabled = false;
 }
 
 // ── Init ──
@@ -1011,9 +1043,19 @@ async function init() {
 
     // Sleep Architecture — stacked area chart
     const sleepCtx = document.getElementById('chartSleepArch').getContext('2d');
-    const sleepOpts = baseChartOpts('Minutes');
+    const sleepOpts = baseChartOpts('Duration');
     sleepOpts.plugins.supplementLines = { supplements, labels: whoopLabels, baselineEnd };
     sleepOpts.scales.y.stacked = true;
+    sleepOpts.scales.y.ticks = {
+      maxTicksLimit: 6,
+      callback: v => fmtMin(v),
+    };
+    sleepOpts.plugins.tooltip = {
+      ...sleepOpts.plugins.tooltip,
+      callbacks: {
+        label: ctx => ' ' + ctx.dataset.label + ': ' + fmtMin(ctx.parsed.y),
+      }
+    };
     new Chart(sleepCtx, {
       type: 'line',
       data: {

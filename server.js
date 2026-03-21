@@ -744,6 +744,87 @@ app.post('/api/cognitive/chess/sync', dashboardAuth, async (req, res) => {
   }
 });
 
+// Backfill chess ratings from game archives (last 3 months)
+app.post('/api/cognitive/chess/backfill', dashboardAuth, async (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const https = require('https');
+
+    function httpsGet(urlPath) {
+      return new Promise((resolve, reject) => {
+        const options = {
+          hostname: 'api.chess.com',
+          path: urlPath,
+          headers: { 'User-Agent': 'NeuralNeXus/1.0' }
+        };
+        https.get(options, (r) => {
+          let body = '';
+          r.on('data', chunk => body += chunk);
+          r.on('end', () => {
+            try { resolve(JSON.parse(body)); } catch { reject(new Error('Invalid JSON from chess.com')); }
+          });
+        }).on('error', reject);
+      });
+    }
+
+    // Fetch list of monthly archive URLs
+    const archivesData = await httpsGet('/pub/player/dmk101890/games/archives');
+    const archives = archivesData.archives || [];
+    if (archives.length === 0) return res.json({ ok: true, saved: 0, message: 'No archives found' });
+
+    // Use last 3 months (or fewer if not available)
+    const last3 = archives.slice(-3);
+
+    // dailyRatings[date][timeClass] = last rating for that day
+    const dailyRatings = {};
+    const username = 'dmk101890';
+
+    for (const archiveUrl of last3) {
+      const url = new URL(archiveUrl);
+      const monthData = await httpsGet(url.pathname);
+      const games = monthData.games || [];
+
+      for (const game of games) {
+        if (!game.end_time) continue;
+        const timeClass = game.time_class; // 'blitz', 'rapid', 'bullet'
+        if (!['blitz', 'rapid', 'bullet'].includes(timeClass)) continue;
+
+        const date = new Date(game.end_time * 1000).toISOString().split('T')[0];
+
+        let rating = null;
+        if (game.white && game.white.username && game.white.username.toLowerCase() === username) {
+          rating = game.white.rating;
+        } else if (game.black && game.black.username && game.black.username.toLowerCase() === username) {
+          rating = game.black.rating;
+        }
+
+        if (!rating) continue;
+
+        if (!dailyRatings[date]) dailyRatings[date] = {};
+        // Overwrite to keep the latest game's rating per day
+        dailyRatings[date][timeClass] = rating;
+      }
+    }
+
+    // Persist to DB
+    let saved = 0;
+    for (const [date, ratings] of Object.entries(dailyRatings)) {
+      cogDB.saveChessElo(
+        date,
+        ratings.blitz || null,
+        ratings.rapid || null,
+        ratings.bullet || null
+      );
+      saved++;
+    }
+
+    res.json({ ok: true, saved, totalDates: Object.keys(dailyRatings).length });
+  } catch (err) {
+    console.error('Chess backfill error:', err);
+    res.status(500).json({ error: 'Failed to backfill chess data: ' + err.message });
+  }
+});
+
 // Supplements
 app.get('/api/cognitive/supplements', dashboardAuth, (req, res) => {
   if (!checkCogDB(res)) return;
@@ -1221,8 +1302,8 @@ app.post('/api/whoop/sync', dashboardAuth, async (req, res) => {
 
   try {
     const [sleepRes, recoveryRes] = await Promise.all([
-      fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=7', { headers }),
-      fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=7', { headers }),
+      fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=30', { headers }),
+      fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=30', { headers }),
     ]);
 
     // Handle 401 — try refresh once
@@ -1237,11 +1318,15 @@ app.post('/api/whoop/sync', dashboardAuth, async (req, res) => {
     const sleepRecords = sleepData.records || [];
     const recoveryRecords = recoveryData.records || [];
 
-    // Index recovery by date
+    // Index recovery by sleep_id (most reliable match) and by date as fallback.
+    // WHOOP v2 recovery records carry a sleep_id that maps directly to sleep.id.
+    const recoveryBySleepId = {};
     const recoveryByDate = {};
     recoveryRecords.forEach(r => {
-      const date = r.created_at ? r.created_at.split('T')[0] : (r.cycle?.days?.[0] || null);
-      if (date) recoveryByDate[date] = r;
+      if (r.sleep_id != null) recoveryBySleepId[String(r.sleep_id)] = r;
+      // Fallback: use the sleep start date from score.user_calibration_time or created_at
+      const fallbackDate = r.created_at ? r.created_at.split('T')[0] : null;
+      if (fallbackDate) recoveryByDate[fallbackDate] = r;
     });
 
     let synced = 0;
@@ -1251,7 +1336,8 @@ app.post('/api/whoop/sync', dashboardAuth, async (req, res) => {
 
       const msToMin = ms => ms != null ? ms / 60000 : null;
       const stages = sleep.score?.stage_summary || {};
-      const recovery = recoveryByDate[date] || {};
+      // Match recovery via sleep_id first (exact), then fallback to date index
+      const recovery = recoveryBySleepId[String(sleep.id)] || recoveryByDate[date] || {};
       const recoveryScore = recovery.score?.recovery_score ?? null;
 
       cogDB.saveWhoopData({
