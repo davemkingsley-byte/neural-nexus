@@ -471,6 +471,24 @@ body {
   .summary-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
   .summary-card .value { font-size: 1.5rem; }
 }
+/* Insights */
+.insight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.2s;
+}
+.insight-item:last-child { border-bottom: none; }
+.insight-item:hover { background: var(--surface-hover); }
+.insight-item.sev-info  { border-left: 3px solid var(--green); }
+.insight-item.sev-warning { border-left: 3px solid var(--red); }
+.insight-item.sev-action { border-left: 3px solid var(--gold); }
+.insight-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 1px; }
+.insight-body { flex: 1; }
+.insight-title { font-weight: 600; font-size: 0.92rem; color: var(--text); margin-bottom: 4px; }
+.insight-msg { font-size: 0.84rem; color: var(--text-mid); line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -603,6 +621,14 @@ body {
           <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">bpm</div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Insights Card -->
+  <div id="insightsSection" style="display:none;margin-bottom:32px;">
+    <h2 class="section-title">Actionable Insights</h2>
+    <div class="card" id="insightsCard" style="padding:0;overflow:hidden;">
+      <div id="insightsList" style="display:flex;flex-direction:column;"></div>
     </div>
   </div>
 
@@ -1168,6 +1194,14 @@ async function init() {
     $('#whoopConnected').style.display = 'none';
   }
 
+  // ── Insights Engine ──
+  try {
+    const insightsData = await apiFetch('/api/cognitive/insights');
+    if (insightsData && insightsData.insights && insightsData.insights.length > 0) {
+      renderInsights(insightsData.insights);
+    }
+  } catch(e) { /* insights are non-critical */ }
+
   // Check URL for whoop connection result
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('whoop') === 'connected') {
@@ -1285,6 +1319,26 @@ async function syncChess() {
     if (status) status.textContent = 'Network error';
   }
   if (btn) btn.disabled = false;
+}
+
+// ── Insights renderer ──
+function renderInsights(insights) {
+  const section = $('#insightsSection');
+  const list = $('#insightsList');
+  if (!section || !list) return;
+  list.innerHTML = '';
+  insights.forEach(ins => {
+    const div = document.createElement('div');
+    div.className = `insight-item sev-${ins.severity}`;
+    div.innerHTML = `
+      <div class="insight-icon">${ins.icon}</div>
+      <div class="insight-body">
+        <div class="insight-title">${ins.title}</div>
+        <div class="insight-msg">${ins.message}</div>
+      </div>`;
+    list.appendChild(div);
+  });
+  section.style.display = '';
 }
 
 // ── Init ──

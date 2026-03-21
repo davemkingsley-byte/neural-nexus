@@ -70,6 +70,15 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
 .auth-box h2{color:var(--heading);margin-bottom:16px}
 .auth-box input{width:100%;padding:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;color:var(--heading);font-size:16px;font-family:inherit;text-align:center;margin-bottom:12px}
 .auth-box button{width:100%;padding:14px;background:var(--gold);color:#06060b;font-weight:700;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-family:inherit}
+/* Insights */
+.app-insight{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.app-insight:last-child{border-bottom:none}
+.app-insight.sev-info{border-left:3px solid var(--green);padding-left:10px}
+.app-insight.sev-warning{border-left:3px solid var(--red);padding-left:10px}
+.app-insight.sev-action{border-left:3px solid var(--gold);padding-left:10px}
+.app-insight .ai-icon{font-size:1.1rem;flex-shrink:0;line-height:1.4}
+.app-insight .ai-title{font-size:12px;font-weight:700;color:var(--heading);margin-bottom:2px}
+.app-insight .ai-msg{font-size:11px;color:rgba(255,255,255,0.5);line-height:1.4}
 </style>
 </head>
 <body>
@@ -88,6 +97,12 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
     <div id="whoopContent">
       <div class="whoop-connect"><a href="/app/settings.html">Loading...</a></div>
     </div>
+  </div>
+
+  <!-- Insights Card -->
+  <div class="card" id="insightsCard" style="display:none">
+    <div class="card-title">💡 Insights</div>
+    <div id="insightsList"></div>
   </div>
 
   <!-- Tests Card -->
@@ -252,7 +267,27 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadTests();
   loadStreak();
   loadDaily();
+  loadInsights();
 });
+
+async function loadInsights() {
+  try {
+    const data = await api('/api/cognitive/insights');
+    if (!data || !data.insights || data.insights.length === 0) return;
+    const list = document.getElementById('insightsList');
+    const card = document.getElementById('insightsCard');
+    if (!list || !card) return;
+    list.innerHTML = data.insights.map(ins => `
+      <div class="app-insight sev-${ins.severity}">
+        <div class="ai-icon">${ins.icon}</div>
+        <div>
+          <div class="ai-title">${ins.title}</div>
+          <div class="ai-msg">${ins.message}</div>
+        </div>
+      </div>`).join('');
+    card.style.display = '';
+  } catch(e) {}
+}
 
 async function loadWhoop() {
   try {

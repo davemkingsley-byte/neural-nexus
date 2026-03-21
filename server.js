@@ -1382,6 +1382,232 @@ app.get('/api/whoop/data', dashboardAuth, (req, res) => {
   }
 });
 
+// ── Insights Engine ──────────────────────────────────────────────────────────
+function generateInsights() {
+  const insights = [];
+  const whoopData = cogDB.getWhoopData(14); // last 14 days, sorted DESC
+  const cogResults = cogDB.getAllResults();  // all cognitive test results
+
+  if (!whoopData || whoopData.length === 0) {
+    return [{
+      type: 'whoop_disconnected', severity: 'info',
+      title: 'WHOOP Not Connected',
+      message: 'Connect your WHOOP device to unlock personalized sleep and recovery insights.',
+      icon: '⌚'
+    }];
+  }
+
+  const latest = whoopData[0]; // most recent
+  const last7 = whoopData.slice(0, 7);
+
+  // 1. Sleep Debt
+  const sleepRows = last7.filter(d => d.sleep_duration_min != null);
+  if (sleepRows.length >= 3) {
+    const avgSleep = sleepRows.reduce((s, d) => s + d.sleep_duration_min, 0) / sleepRows.length;
+    let sleepNeeded = 480; // default 8 hours in minutes
+    for (const row of sleepRows) {
+      if (row.raw_sleep_json) {
+        try {
+          const json = JSON.parse(row.raw_sleep_json);
+          // WHOOP structure: single record or records[]
+          const rec = json.score || (json.records && json.records[0] && json.records[0].score);
+          const baseline = rec && rec.sleep_needed && rec.sleep_needed.baseline_milli;
+          if (baseline) { sleepNeeded = baseline / 60000; break; }
+        } catch(e) {}
+      }
+    }
+    const deficit = sleepNeeded - avgSleep;
+    if (deficit > 30) {
+      // Recommend bedtime assuming 6:30 AM wake
+      const wakeMinutes = 6 * 60 + 30;
+      const bedMinutes = ((wakeMinutes - sleepNeeded) % 1440 + 1440) % 1440;
+      const bh = Math.floor(bedMinutes / 60);
+      const bm = Math.floor(bedMinutes % 60);
+      const bedStr = `${bh % 12 || 12}:${bm.toString().padStart(2,'0')} ${bh < 12 ? 'AM' : 'PM'}`;
+      insights.push({
+        type: 'sleep_debt', severity: 'warning',
+        title: 'Sleep Debt Detected',
+        message: `Averaging ${(avgSleep/60).toFixed(1)}h vs your ${(sleepNeeded/60).toFixed(1)}h baseline — a ${(deficit/60).toFixed(1)}h deficit. Target bedtime tonight: ${bedStr}.`,
+        icon: '😴'
+      });
+    }
+  }
+
+  // 2. Recovery Readiness
+  if (latest.recovery_score != null) {
+    const score = Math.round(latest.recovery_score);
+    if (score >= 67) {
+      insights.push({
+        type: 'recovery', severity: 'info',
+        title: 'High Recovery — Green Zone',
+        message: `Recovery at ${score}%. Good day for intense training or demanding cognitive work — push hard today.`,
+        icon: '💪'
+      });
+    } else if (score >= 34) {
+      insights.push({
+        type: 'recovery', severity: 'info',
+        title: 'Moderate Recovery — Yellow Zone',
+        message: `Recovery at ${score}%. Steady work is fine but skip intense exercise. Prioritize focus over maximum output.`,
+        icon: '⚡'
+      });
+    } else {
+      insights.push({
+        type: 'recovery', severity: 'warning',
+        title: 'Low Recovery — Rest Day',
+        message: `Recovery at ${score}% — red zone. Prioritize rest and light activity only. Intense cognitive or physical effort will compound the deficit.`,
+        icon: '🔴'
+      });
+    }
+  }
+
+  // 3. HRV Trend
+  const hrvRows = last7.filter(d => d.hrv_rmssd != null && d.hrv_rmssd > 0);
+  if (hrvRows.length >= 3) {
+    const sorted = [...hrvRows].sort((a, b) => a.date.localeCompare(b.date));
+    let consecutiveDecline = 0, consecutiveRise = 0, maxDecline = 0, maxRise = 0;
+    for (let i = 1; i < sorted.length; i++) {
+      if (sorted[i].hrv_rmssd < sorted[i-1].hrv_rmssd) {
+        consecutiveDecline++; consecutiveRise = 0;
+      } else {
+        consecutiveRise++; consecutiveDecline = 0;
+      }
+      maxDecline = Math.max(maxDecline, consecutiveDecline);
+      maxRise = Math.max(maxRise, consecutiveRise);
+    }
+    if (maxDecline >= 3) {
+      insights.push({
+        type: 'hrv_trend', severity: 'warning',
+        title: 'HRV Declining — Possible Overtraining',
+        message: `HRV has dropped for ${maxDecline}+ consecutive days. This signals accumulating stress or overtraining. Consider a deload day and prioritize sleep and recovery protocols.`,
+        icon: '📉'
+      });
+    } else if (maxRise >= 3) {
+      insights.push({
+        type: 'hrv_trend', severity: 'info',
+        title: 'HRV Rising — Keep It Up',
+        message: `HRV has been trending upward for ${maxRise}+ days. Your current recovery habits are working — maintain your sleep schedule and stress management routine.`,
+        icon: '📈'
+      });
+    }
+  }
+
+  // 4. Deep Sleep Quality
+  const deepRows = last7.filter(d => d.deep_sleep_min != null);
+  if (deepRows.length >= 3) {
+    const avgDeep = deepRows.reduce((s, d) => s + d.deep_sleep_min, 0) / deepRows.length;
+    if (avgDeep < 60) {
+      insights.push({
+        type: 'deep_sleep', severity: 'action',
+        title: 'Deep Sleep Below Optimal',
+        message: `Averaging only ${Math.round(avgDeep)}min of deep sleep (target: 60min+). Cut caffeine by 2pm, cool your bedroom to 65°F, and avoid screens 1hr before bed.`,
+        icon: '🌙'
+      });
+    }
+  }
+
+  // 5. REM Sleep
+  const remRows = last7.filter(d => d.rem_sleep_min != null && d.sleep_duration_min > 0);
+  if (remRows.length >= 3) {
+    const avgRemPct = remRows.reduce((s, d) => s + (d.rem_sleep_min / d.sleep_duration_min), 0) / remRows.length * 100;
+    if (avgRemPct < 25) {
+      insights.push({
+        type: 'rem_sleep', severity: 'warning',
+        title: 'Low REM Sleep',
+        message: `REM averaging ${avgRemPct.toFixed(0)}% of total sleep (target: 25%+). REM is critical for memory consolidation — this directly impacts your cognitive test results.`,
+        icon: '🧠'
+      });
+    }
+  }
+
+  // 6. Cognitive-Sleep Correlation
+  const dsstResults = cogResults.filter(r => r.test_type === 'dsst');
+  if (dsstResults.length >= 5) {
+    const corr = [];
+    for (const test of dsstResults) {
+      // Check same-day and prior-day WHOOP data
+      const d = new Date(test.date);
+      d.setDate(d.getDate() - 1);
+      const prevStr = d.toISOString().slice(0, 10);
+      const whoop = whoopData.find(w => w.date === prevStr || w.date === test.date);
+      if (whoop && whoop.sleep_duration_min) {
+        try {
+          const scores = JSON.parse(test.scores_json);
+          if (scores.correct != null) corr.push({ correct: scores.correct, sleep: whoop.sleep_duration_min });
+        } catch(e) {}
+      }
+    }
+    if (corr.length >= 5) {
+      const good = corr.filter(c => c.sleep >= 420); // 7+ hours
+      const poor = corr.filter(c => c.sleep < 420);
+      if (good.length >= 2 && poor.length >= 2) {
+        const avgGood = good.reduce((s, c) => s + c.correct, 0) / good.length;
+        const avgPoor = poor.reduce((s, c) => s + c.correct, 0) / poor.length;
+        const pct = Math.round(Math.abs(avgGood - avgPoor) / (avgPoor || 1) * 100);
+        if (pct > 5) {
+          insights.push({
+            type: 'cog_sleep_corr', severity: 'info',
+            title: 'Sleep-Cognition Link Found',
+            message: `DSST scores average ${pct}% higher after 7+ hours of sleep (${avgGood.toFixed(0)} vs ${avgPoor.toFixed(0)} correct). More sleep = measurably faster processing speed.`,
+            icon: '🔗'
+          });
+        }
+      }
+    }
+  }
+
+  // 7. Pre-Test Prediction
+  if (latest.recovery_score != null && latest.sleep_duration_min != null) {
+    const score = latest.recovery_score;
+    const sleep = latest.sleep_duration_min;
+    let prediction, sev, sevIcon;
+    if (score >= 67 && sleep >= 420) {
+      prediction = 'above baseline'; sev = 'info'; sevIcon = '🎯';
+    } else if (score <= 33 || sleep < 300) {
+      prediction = 'below baseline'; sev = 'warning'; sevIcon = '⚠️';
+    } else {
+      prediction = 'near baseline'; sev = 'info'; sevIcon = '📊';
+    }
+    const advice = prediction === 'above baseline'
+      ? 'Run your full battery today — conditions are optimal.'
+      : prediction === 'below baseline'
+      ? 'Consider a shorter session or reschedule non-critical tests.'
+      : 'Standard session recommended.';
+    insights.push({
+      type: 'pre_test_prediction', severity: sev,
+      title: "Today's Cognitive Forecast",
+      message: `Based on last night's ${(sleep/60).toFixed(1)}h sleep and ${Math.round(score)}% recovery, expect performance ${prediction}. ${advice}`,
+      icon: sevIcon
+    });
+  }
+
+  // 8. Sleep Consistency
+  const consistRows = last7.filter(d => d.sleep_consistency != null);
+  if (consistRows.length >= 3) {
+    const avgConsist = consistRows.reduce((s, d) => s + d.sleep_consistency, 0) / consistRows.length;
+    if (avgConsist < 70) {
+      insights.push({
+        type: 'sleep_consistency', severity: 'action',
+        title: 'Inconsistent Sleep Schedule',
+        message: `Sleep consistency averaging ${avgConsist.toFixed(0)}% (target: 70%+). Irregular sleep times disrupt circadian rhythm and HRV. Pick a fixed bedtime and wake time — including weekends.`,
+        icon: '🕐'
+      });
+    }
+  }
+
+  return insights;
+}
+
+app.get('/api/cognitive/insights', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const insights = generateInsights();
+    res.json({ insights });
+  } catch (err) {
+    console.error('Error generating insights:', err);
+    res.status(500).json({ error: 'Failed to generate insights' });
+  }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Neural NeXus running on http://localhost:${PORT}`);
 });
