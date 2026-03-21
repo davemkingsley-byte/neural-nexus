@@ -1299,3 +1299,20 @@ app.get('/api/whoop/data', dashboardAuth, (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Neural NeXus running on http://localhost:${PORT}`);
 });
+
+// Debug: test WHOOP API directly
+app.get('/api/whoop/debug', dashboardAuth, async (req, res) => {
+  const accessToken = await getWhoopAccessToken();
+  if (!accessToken) return res.json({ error: 'no token', suggestion: 'reconnect' });
+  
+  try {
+    const sleepRes = await fetch('https://api.prod.whoop.com/developer/v1/activity/sleep?limit=3', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const status = sleepRes.status;
+    const body = await sleepRes.text();
+    res.json({ status, body: JSON.parse(body) });
+  } catch (err) {
+    res.json({ error: err.message });
+  }
+});
