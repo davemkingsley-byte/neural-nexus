@@ -1088,6 +1088,127 @@ app.get('/api/cognitive/analytics', dashboardAuth, (req, res) => {
   }
 });
 
+// ── WHOOP ↔ Cognitive Correlation Engine ──
+app.get('/api/cognitive/correlations', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const whoopData = cogDB.getAllWhoopData();
+    const results = cogDB.getResults(90).map(r => ({
+      ...r,
+      scores: JSON.parse(r.scores_json)
+    }));
+
+    // Group cognitive results by date, picking best score per test type per day
+    const cogByDate = {};
+    for (const r of results) {
+      if (!cogByDate[r.date]) cogByDate[r.date] = {};
+      const existing = cogByDate[r.date][r.test_type];
+      if (r.test_type === 'pvt') {
+        if (!existing || r.scores.median_rt < existing.median_rt)
+          cogByDate[r.date].pvt = r.scores;
+      } else if (r.test_type === 'dsst') {
+        if (!existing || r.scores.correct > existing.correct)
+          cogByDate[r.date].dsst = r.scores;
+      } else if (r.test_type === 'nback') {
+        if (!existing || r.scores.max_n > existing.max_n)
+          cogByDate[r.date].nback = r.scores;
+      }
+    }
+
+    // Join by date
+    const matched = [];
+    for (const w of whoopData) {
+      const cog = cogByDate[w.date];
+      if (cog) matched.push({ whoop: w, cog });
+    }
+
+    if (matched.length < 7) {
+      return res.json({ insufficient_data: true, data_points: matched.length, minimum_required: 7 });
+    }
+
+    // Pearson correlation helper
+    function pearson(xs, ys) {
+      const n = xs.length;
+      if (n < 7) return null;
+      const mx = xs.reduce((a, b) => a + b, 0) / n;
+      const my = ys.reduce((a, b) => a + b, 0) / n;
+      let num = 0, dx2 = 0, dy2 = 0;
+      for (let i = 0; i < n; i++) {
+        const dx = xs[i] - mx, dy = ys[i] - my;
+        num += dx * dy;
+        dx2 += dx * dx;
+        dy2 += dy * dy;
+      }
+      const denom = Math.sqrt(dx2 * dy2);
+      return denom === 0 ? 0 : num / denom;
+    }
+
+    // Build paired arrays for each WHOOP metric × cognitive metric
+    const whoopMetrics = {
+      sleep_hours: { extract: w => w.sleep_duration_min != null ? w.sleep_duration_min / 60 : null, label: 'Sleep Duration (hrs)' },
+      hrv: { extract: w => w.hrv_rmssd, label: 'HRV (RMSSD)' },
+      recovery: { extract: w => w.recovery_score, label: 'Recovery Score' },
+      deep_sleep_pct: { extract: w => (w.deep_sleep_min != null && w.sleep_duration_min) ? (w.deep_sleep_min / w.sleep_duration_min) * 100 : null, label: 'Deep Sleep %' }
+    };
+    const cogMetrics = {
+      pvt_median_rt: { extract: c => c.pvt ? c.pvt.median_rt : null, label: 'PVT Median RT', lower_better: true },
+      dsst_correct: { extract: c => c.dsst ? c.dsst.correct : null, label: 'DSST Correct', lower_better: false },
+      nback_level: { extract: c => c.nback ? c.nback.max_n : null, label: 'N-Back Level', lower_better: false }
+    };
+
+    const correlations = {};
+    const insights = [];
+
+    for (const [wKey, wDef] of Object.entries(whoopMetrics)) {
+      correlations[wKey] = {};
+      for (const [cKey, cDef] of Object.entries(cogMetrics)) {
+        const xs = [], ys = [];
+        for (const m of matched) {
+          const x = wDef.extract(m.whoop);
+          const y = cDef.extract(m.cog);
+          if (x != null && y != null) { xs.push(x); ys.push(y); }
+        }
+        const r = pearson(xs, ys);
+        correlations[wKey][cKey] = { r: r != null ? Math.round(r * 1000) / 1000 : null, n: xs.length };
+
+        // Generate insight for |r| >= 0.3
+        if (r != null && Math.abs(r) >= 0.3) {
+          const strength = Math.abs(r) >= 0.7 ? 'strong' : Math.abs(r) >= 0.5 ? 'moderate' : 'weak';
+          const dir = r > 0 ? 'positive' : 'negative';
+          // Interpret the practical meaning
+          let meaning;
+          if (r > 0 && !cDef.lower_better) {
+            meaning = `Higher ${wDef.label.toLowerCase()} is associated with better ${cDef.label.toLowerCase()} performance.`;
+          } else if (r < 0 && cDef.lower_better) {
+            meaning = `Higher ${wDef.label.toLowerCase()} is associated with better ${cDef.label.toLowerCase()} (faster reaction time).`;
+          } else if (r > 0 && cDef.lower_better) {
+            meaning = `Higher ${wDef.label.toLowerCase()} is associated with slower ${cDef.label.toLowerCase()} (worse performance).`;
+          } else {
+            meaning = `Higher ${wDef.label.toLowerCase()} is associated with lower ${cDef.label.toLowerCase()}.`;
+          }
+          insights.push({
+            whoop_metric: wDef.label,
+            cognitive_metric: cDef.label,
+            r: Math.round(r * 1000) / 1000,
+            strength,
+            direction: dir,
+            n: xs.length,
+            insight: `${strength.charAt(0).toUpperCase() + strength.slice(1)} ${dir} correlation (r=${r.toFixed(2)}, n=${xs.length}): ${meaning}`
+          });
+        }
+      }
+    }
+
+    // Sort insights by absolute correlation strength
+    insights.sort((a, b) => Math.abs(b.r) - Math.abs(a.r));
+
+    res.json({ data_points: matched.length, correlations, insights });
+  } catch (err) {
+    console.error('Error computing correlations:', err);
+    res.status(500).json({ error: 'Failed to compute correlations' });
+  }
+});
+
 // Data export
 app.get('/api/cognitive/export', dashboardAuth, (req, res) => {
   if (!checkCogDB(res)) return;

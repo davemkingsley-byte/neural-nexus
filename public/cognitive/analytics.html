@@ -590,6 +590,12 @@ body {
       </div>
     </div>
 
+    <!-- WHOOP ↔ Cognitive Correlations -->
+    <h2 class="section-title" id="correlationsTitle" style="display:none;">WHOOP ↔ Cognitive Correlations</h2>
+    <div class="card" id="correlationsCard" style="display:none; padding:24px;">
+      <div id="correlationsContent"></div>
+    </div>
+
     <!-- Statistical Analysis -->
     <h2 class="section-title">Statistical Analysis</h2>
     <div class="card stats-table-wrap">
@@ -1167,6 +1173,42 @@ async function init() {
     `;
     tbody.appendChild(tr);
   });
+
+  // ── WHOOP ↔ Cognitive Correlations ──
+  try {
+    const corrRes = await fetch('/api/cognitive/correlations');
+    const corr = await corrRes.json();
+    const corrTitle = document.getElementById('correlationsTitle');
+    const corrCard = document.getElementById('correlationsCard');
+    const corrContent = document.getElementById('correlationsContent');
+
+    if (corr.insufficient_data) {
+      corrTitle.style.display = '';
+      corrCard.style.display = '';
+      corrContent.innerHTML = `<p style="color:var(--text-dim);text-align:center;padding:20px 0;">
+        Insufficient data for correlations (${corr.data_points}/${corr.minimum_required} matched days).
+        Keep logging cognitive tests on days you wear your WHOOP.</p>`;
+    } else if (corr.correlations) {
+      corrTitle.style.display = '';
+      corrCard.style.display = '';
+      let html = `<p style="color:var(--text-dim);margin-bottom:16px;font-size:0.85rem;">${corr.data_points} matched data points (last 90 days)</p>`;
+      if (corr.insights && corr.insights.length > 0) {
+        html += '<div style="display:grid;gap:12px;">';
+        corr.insights.forEach(ins => {
+          const color = Math.abs(ins.r) >= 0.5 ? 'var(--gold)' : 'var(--text-mid)';
+          const icon = ins.direction === 'positive' ? '↑' : '↓';
+          html += `<div style="padding:14px 18px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-weight:700;color:${color};font-size:0.9rem;margin-bottom:4px;">${icon} ${ins.whoop_metric} → ${ins.cognitive_metric} <span style="font-weight:400;font-size:0.8rem;opacity:0.7;">r=${ins.r.toFixed(2)}</span></div>
+            <div style="color:var(--text-dim);font-size:0.82rem;">${ins.insight}</div>
+          </div>`;
+        });
+        html += '</div>';
+      } else {
+        html += '<p style="color:var(--text-dim);text-align:center;">No significant correlations found (|r| &lt; 0.3). More data may reveal patterns.</p>';
+      }
+      corrContent.innerHTML = html;
+    }
+  } catch (e) { console.error('Correlations load error:', e); }
 
   // ── Supplement Timeline ──
   const suppEl = $('#suppTimeline');

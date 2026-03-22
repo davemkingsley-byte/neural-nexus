@@ -407,6 +407,14 @@ select.field-select {
       <div id="dashboard-activity" class="activity-list"></div>
     </div>
 
+    <!-- Cognitive Correlations -->
+    <div id="dash-corr-section" style="margin-bottom:28px;display:none;">
+      <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:12px;">🧠 Cognitive Correlations</div>
+      <div id="dash-corr-card" style="padding:20px;border-radius:14px;background:var(--surface);border:1px solid var(--border);backdrop-filter:blur(20px);">
+        <div id="dash-corr-content"></div>
+      </div>
+    </div>
+
     <!-- Row 4: Active Work -->
     <div>
       <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-dim);margin-bottom:12px;">🔧 Active Work</div>
@@ -1315,6 +1323,36 @@ async function saveWeeklySnapshot() {
     showToast('Error saving snapshot: ' + e.message, true);
   }
 }
+
+// ── Cognitive Correlations ────────────────────────────────────────────────────
+(async function loadCogCorrelations() {
+  try {
+    const res = await fetch('/api/cognitive/correlations');
+    if (!res.ok) return;
+    const corr = await res.json();
+    const section = document.getElementById('dash-corr-section');
+    const content = document.getElementById('dash-corr-content');
+    if (corr.insufficient_data) {
+      section.style.display = '';
+      content.innerHTML = `<div style="color:var(--text-dim);font-size:0.82rem;text-align:center;padding:8px 0;">Need ${corr.minimum_required - corr.data_points} more matched days for WHOOP ↔ cognitive correlations.</div>`;
+    } else if (corr.correlations) {
+      section.style.display = '';
+      if (corr.insights && corr.insights.length > 0) {
+        content.innerHTML = `<div style="font-size:0.72rem;color:var(--text-dim);margin-bottom:10px;">${corr.data_points} matched days</div>` +
+          corr.insights.slice(0, 3).map(ins => {
+            const icon = ins.direction === 'positive' ? '↑' : '↓';
+            const color = Math.abs(ins.r) >= 0.5 ? 'var(--gold)' : 'var(--text-mid)';
+            return `<div style="padding:10px 14px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid var(--border);margin-bottom:8px;">
+              <span style="font-weight:700;color:${color};font-size:0.82rem;">${icon} ${ins.whoop_metric} → ${ins.cognitive_metric}</span>
+              <span style="font-size:0.72rem;color:var(--text-dim);margin-left:6px;">r=${ins.r.toFixed(2)}</span>
+            </div>`;
+          }).join('');
+      } else {
+        content.innerHTML = '<div style="color:var(--text-dim);font-size:0.82rem;text-align:center;padding:8px 0;">No significant correlations found yet.</div>';
+      }
+    }
+  } catch {}
+})();
 
 // ── Init ──────────────────────────────────────────────────────────────────────
 loadCharters();

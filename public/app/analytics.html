@@ -54,6 +54,11 @@ h1{color:var(--heading);font-size:22px;font-weight:700;margin-bottom:20px}
     <div class="card-title">WHOOP Data</div>
     <div class="chart-wrap"><canvas id="whoopChart"></canvas></div>
   </div>
+
+  <div class="card" id="corrCard" style="display:none">
+    <div class="card-title">WHOOP ↔ Cognitive Correlations</div>
+    <div id="corrContent"></div>
+  </div>
 </div>
 
 <nav class="tab-bar" id="tabBar" style="display:none">
@@ -98,6 +103,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('tabBar').style.display = 'flex';
   loadAnalytics();
   loadWhoop();
+  loadCorrelations();
 });
 
 async function loadAnalytics() {
@@ -223,6 +229,32 @@ async function loadWhoop() {
           }
         }
       });
+    }
+  } catch {}
+}
+
+async function loadCorrelations() {
+  try {
+    const corr = await fetch('/api/cognitive/correlations').then(r => r.json());
+    const card = document.getElementById('corrCard');
+    const content = document.getElementById('corrContent');
+    if (corr.insufficient_data) {
+      card.style.display = 'block';
+      content.innerHTML = `<div class="no-data">Need ${corr.minimum_required - corr.data_points} more matched days for correlations</div>`;
+    } else if (corr.correlations) {
+      card.style.display = 'block';
+      if (corr.insights && corr.insights.length > 0) {
+        content.innerHTML = corr.insights.map(ins => {
+          const icon = ins.direction === 'positive' ? '↑' : '↓';
+          const color = Math.abs(ins.r) >= 0.5 ? 'var(--gold)' : 'rgba(255,255,255,0.6)';
+          return `<div style="padding:12px;border-radius:12px;background:rgba(255,255,255,0.03);border:1px solid var(--border);margin-bottom:10px;">
+            <div style="font-weight:700;color:${color};font-size:14px;margin-bottom:4px;">${icon} ${ins.whoop_metric} → ${ins.cognitive_metric} <span style="font-weight:400;font-size:12px;opacity:0.6;">r=${ins.r.toFixed(2)}</span></div>
+            <div style="color:rgba(255,255,255,0.4);font-size:13px;">${ins.insight}</div>
+          </div>`;
+        }).join('');
+      } else {
+        content.innerHTML = '<div class="no-data">No significant correlations found yet</div>';
+      }
     }
   } catch {}
 }
