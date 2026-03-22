@@ -84,9 +84,29 @@ p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:340px;mar
 .app-test-nav::-webkit-scrollbar{display:none}
 .app-test-nav a{flex-shrink:0;padding:6px 12px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.4);text-decoration:none;transition:color 0.2s}
 .app-test-nav a.active{color:#d4a853}
+/* Top test navigation */
+.test-nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(0,0,0,0.9);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;font-size:13px;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08);overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.test-nav::-webkit-scrollbar{display:none}
+.test-nav .tn-link{color:rgba(255,255,255,0.4);text-decoration:none;padding:4px 8px;border-radius:6px;transition:color .2s}
+.test-nav .tn-link.active{color:#d4a853}
+.test-nav .tn-sep{color:rgba(255,255,255,0.15);font-size:10px}
+.test-nav.hidden{display:none}
 </style>
 </head>
 <body>
+<nav class="test-nav" id="testNav">
+  <a href="/app/test/pvt.html" class="tn-link">PVT</a>
+  <span class="tn-sep">·</span>
+  <a href="/app/test/dsst.html" class="tn-link">DSST</a>
+  <span class="tn-sep">·</span>
+  <a href="/app/test/nback.html" class="tn-link active">N-Back</a>
+  <span class="tn-sep">·</span>
+  <a href="/app/test/stroop.html" class="tn-link">Stroop</a>
+  <span class="tn-sep">·</span>
+  <a href="/app/test/avlt.html" class="tn-link">AVLT</a>
+  <span class="tn-sep">·</span>
+  <a href="/app/test/tmtb.html" class="tn-link">TMT-B</a>
+</nav>
 
 <button class="help-btn" id="helpBtn" title="Show Tutorial">?</button>
 
@@ -320,6 +340,7 @@ let maxN = 2;
 function show(id) {
   document.querySelectorAll('.screen,.game-screen,.tut-screen').forEach(s => s.classList.add('hidden'));
   document.getElementById(id).classList.remove('hidden');
+  const nav=document.getElementById('testNav');if(nav)nav.classList.toggle('hidden',id==='gameScreen');
 }
 
 async function startTest() {
