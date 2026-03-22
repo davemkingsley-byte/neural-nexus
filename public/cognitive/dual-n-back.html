@@ -313,6 +313,29 @@ h2 {
 .match-btn.hint-glow { animation: hintPulse 0.6s ease-in-out 3; }
 @keyframes hintPulse { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 20px rgba(74,222,128,0.5)} }
 
+/* ── Help Button ── */
+.help-btn {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.4);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.help-btn:hover { border-color: #d4a853; color: #d4a853; }
+
 /* ── Responsive ── */
 @media (max-width: 480px) {
   h1 { font-size: 32px; }
@@ -405,6 +428,8 @@ h2 {
 </head>
 <body>
 
+<button class="help-btn" id="help-btn" title="Show Tutorial">?</button>
+
 <nav class="cog-nav">
   <a href="/cognitive/">&larr; Dashboard</a>
   <span class="cog-nav-sep">|</span>
@@ -461,8 +486,12 @@ h2 {
   <div id="tutorial-screen">
     <h2>How It Works</h2>
     <div class="tut-section">
-      <h3>1. Watch the grid</h3>
-      <p>Each turn, a square lights up on the 3&times;3 grid. Remember where it appears.</p>
+      <h3>What is N-Back?</h3>
+      <p>The N-Back task is one of the most well-studied working memory tests in cognitive science. You must continuously compare what you see and hear <em>now</em> with what happened <strong class="gold">N steps ago</strong>. As you improve, N increases &mdash; making the task progressively harder.</p>
+    </div>
+    <div class="tut-section">
+      <h3>1. Visual Channel &mdash; Watch the grid</h3>
+      <p>Each turn, a square lights up on the 3&times;3 grid. Remember where it appears. If the position matches the one from <strong class="gold">N turns ago</strong>, press <strong class="gold">A</strong> or tap <strong class="gold">Position Match</strong>.</p>
       <div class="tut-mini-grid" id="tutGridDesktop1">
         <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
         <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
@@ -470,8 +499,12 @@ h2 {
       </div>
     </div>
     <div class="tut-section">
-      <h3>2. Position Match</h3>
-      <p>When the <strong class="gold">current position</strong> matches the one from <em>N steps ago</em>, press <strong class="gold">A</strong> or tap <strong class="gold">Position Match</strong>.</p>
+      <h3>2. Audio Channel &mdash; Listen for letters</h3>
+      <p>A letter is spoken each turn. When the <strong class="gold">current letter</strong> matches the one from <strong class="gold">N turns ago</strong>, press <strong class="gold">L</strong> or tap <strong class="gold">Sound Match</strong>.</p>
+    </div>
+    <div class="tut-section">
+      <h3>3. Dual Task &mdash; Both at once</h3>
+      <p>The real challenge: you must track <em>both</em> channels simultaneously. A position match and an audio match can happen on the same trial &mdash; or neither.</p>
       <div class="tut-mini-grid" id="tutGridDesktop2">
         <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
         <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
@@ -479,8 +512,8 @@ h2 {
       </div>
     </div>
     <div class="tut-section">
-      <h3>3. Audio Match</h3>
-      <p>A letter is spoken each turn. When the <strong class="gold">current letter</strong> matches <em>N steps ago</em>, press <strong class="gold">L</strong> or tap <strong class="gold">Sound Match</strong>.</p>
+      <h3>4. Scoring &amp; Adaptive Difficulty</h3>
+      <p>You start at <strong class="gold">2-back</strong>. Three correct trials in a row raises N by one; three wrong drops it. Your key metric is <strong class="gold">Max N</strong> &mdash; the highest level you reach. Visual and audio accuracy are tracked separately.</p>
     </div>
     <button class="btn" id="practice-btn">Try Practice Round (1-Back)</button>
     <br>
@@ -615,10 +648,13 @@ h2 {
   const PRACTICE_INTERVAL = 3000;
 
   // Show tutorial button for first-time users
+  const helpBtn = document.getElementById('help-btn');
   if (!localStorage.getItem('nback_desktop_tutorial_done')) {
     document.getElementById('tutorial-btn').style.display = 'inline-block';
     document.getElementById('tutorial-btn').addEventListener('click', () => showScreen(tutorialScreen));
   }
+  // Help button always available to re-show tutorial
+  helpBtn.addEventListener('click', () => showScreen(tutorialScreen));
 
   document.getElementById('practice-btn').addEventListener('click', startPractice);
   document.getElementById('skip-to-test-btn').addEventListener('click', () => {

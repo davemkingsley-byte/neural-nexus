@@ -76,9 +76,14 @@ p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:340px;mar
 .practice-hint.visible{opacity:1}
 .match-btn.hint-glow{animation:hintPulse 0.6s ease-in-out 3}
 @keyframes hintPulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 20px rgba(74,222,128,0.5)}}
+/* Help button */
+.help-btn{position:fixed;top:calc(12px + env(safe-area-inset-top));right:12px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.4);font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;z-index:50;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.help-btn:active{border-color:var(--gold);color:var(--gold)}
 </style>
 </head>
 <body>
+
+<button class="help-btn" id="helpBtn" title="Show Tutorial">?</button>
 
 <!-- Instructions -->
 <div class="screen" id="instrScreen">
@@ -95,8 +100,12 @@ p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:340px;mar
 <div class="tut-screen hidden" id="tutorialScreen">
   <h2 style="color:var(--heading);margin-bottom:4px">How It Works</h2>
   <div class="tut-step">
-    <h3>1. Watch the grid</h3>
-    <p>A blue square lights up in the 3×3 grid each turn.</p>
+    <h3>What is N-Back?</h3>
+    <p>A gold-standard working memory test. You compare what you see and hear <em>now</em> with what happened <strong style="color:var(--gold)">N steps ago</strong>. As you improve, N increases.</p>
+  </div>
+  <div class="tut-step">
+    <h3>1. Visual — Watch the grid</h3>
+    <p>A blue square lights up in the 3×3 grid each turn. If it matches the position from <strong style="color:var(--gold)">N turns ago</strong>, tap <strong style="color:#4488ff">Position Match</strong>.</p>
     <div class="tut-mini-grid" id="tutGrid1">
       <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
       <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
@@ -104,8 +113,8 @@ p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:340px;mar
     </div>
   </div>
   <div class="tut-step">
-    <h3>2. Remember & compare</h3>
-    <p>When the <strong style="color:#4488ff">current position</strong> matches the one from <strong style="color:var(--gold)">N steps ago</strong>, tap <strong style="color:#4488ff">Position Match</strong>.</p>
+    <h3>2. Audio — Listen for letters</h3>
+    <p>A letter is spoken each turn. When it matches <strong style="color:var(--gold)">N steps ago</strong>, tap <strong style="color:#8855cc">Audio Match</strong>.</p>
     <div class="tut-mini-grid" id="tutGrid2">
       <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
       <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
@@ -113,8 +122,12 @@ p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:340px;mar
     </div>
   </div>
   <div class="tut-step">
-    <h3>3. Listen too!</h3>
-    <p>A letter is spoken each turn. When the <strong style="color:#8855cc">current letter</strong> matches <strong style="color:var(--gold)">N steps ago</strong>, tap <strong style="color:#8855cc">Audio Match</strong>.</p>
+    <h3>3. Both at once</h3>
+    <p>Track <em>both</em> channels simultaneously. Position and audio matches can happen on the same trial — or neither.</p>
+  </div>
+  <div class="tut-step">
+    <h3>4. Scoring</h3>
+    <p>Start at <strong style="color:var(--gold)">2-back</strong>. Accuracy above 80% raises N; below 50% lowers it. Your key metric is <strong style="color:var(--gold)">Max N</strong> reached. Visual and audio accuracy are tracked separately.</p>
   </div>
   <button class="btn" onclick="startPractice()" style="margin-top:8px">Try Practice Round</button>
   <button class="skip-btn" onclick="startTest()">Skip to real test →</button>
@@ -193,6 +206,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     document.getElementById('btnSkipTutorial').style.display = 'inline-block';
     document.getElementById('btnSkipTutorial').onclick = () => startTest();
   }
+  // Help button always available to re-show tutorial
+  document.getElementById('helpBtn').addEventListener('click', () => showTutorial());
   // Run tutorial animations
   runTutorialAnimations();
 });
