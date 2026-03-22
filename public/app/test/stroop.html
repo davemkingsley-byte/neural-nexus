@@ -53,10 +53,6 @@ p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:340px;mar
 .auth-box input{width:100%;padding:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;color:var(--heading);font-size:16px;font-family:inherit;text-align:center;margin-bottom:12px}
 .auth-box button{width:100%;padding:14px;background:var(--gold);color:#06060b;font-weight:700;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-family:inherit}
 /* Test navigation */
-.app-test-nav{position:fixed;bottom:0;left:0;right:0;display:flex;gap:4px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(0,0,0,0.95);border-top:1px solid rgba(255,255,255,0.08);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;z-index:9999}
-.app-test-nav::-webkit-scrollbar{display:none}
-.app-test-nav a{flex-shrink:0;padding:6px 12px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.4);text-decoration:none;transition:color 0.2s}
-.app-test-nav a.active{color:#d4a853}
 /* Top test navigation */
 .test-nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(0,0,0,0.9);backdrop-filter:blur(12px);display:flex;align-items:center;justify-content:center;gap:8px;padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;font-size:13px;font-weight:600;border-bottom:1px solid rgba(255,255,255,0.08);overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .test-nav::-webkit-scrollbar{display:none}
@@ -274,6 +270,5 @@ async function endTest() {
   } catch {}
 }
 </script>
-<nav class="app-test-nav"><a href="pvt.html">PVT</a><a href="dsst.html">DSST</a><a href="nback.html">N-Back</a><a href="stroop.html" class="active">Stroop</a><a href="tmtb.html">TMT-B</a><a href="avlt.html">AVLT</a></nav>
 </body>
 </html>
