@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artificial Intelligence: The Definitive Guide to AI in 2026 | Neural NeXus</title>
+<meta name="description" content="A comprehensive guide to artificial intelligence — from foundational concepts and neural networks to frontier models, AGI timelines, and the AI industry landscape in 2026.">
+<meta property="og:title" content="Artificial Intelligence: The Definitive Guide to AI in 2026">
+<meta property="og:description" content="Everything you need to understand about AI — foundational concepts, frontier models, industry dynamics, and what comes next.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.neuralnexus.press/topics/ai">
+<meta property="og:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Artificial Intelligence: The Definitive Guide to AI in 2026">
+<meta name="twitter:description" content="Everything you need to understand about AI in 2026 — models, companies, risks, and the road to AGI.">
+<meta name="twitter:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
+<link rel="icon" href="/img/neuron-logo.jpg">
+<link rel="canonical" href="https://www.neuralnexus.press/topics/ai">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Artificial Intelligence: The Definitive Guide to AI in 2026",
+  "description": "A comprehensive guide to artificial intelligence — from foundational concepts and neural networks to frontier models, AGI timelines, and the AI industry landscape.",
+  "url": "https://www.neuralnexus.press/topics/ai",
+  "image": "https://www.neuralnexus.press/img/neuron-logo.jpg",
+  "datePublished": "2026-03-22",
+  "dateModified": "2026-03-22",
+  "author": {
+    "@type": "Person",
+    "name": "David Kingsley",
+    "jobTitle": "PhD Scientist",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Colossal Biosciences",
+      "url": "https://colossalbiosciences.com"
+    },
+    "url": "https://www.neuralnexus.press"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Neural NeXus",
+    "url": "https://www.neuralnexus.press",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.neuralnexus.press/img/neuron-logo.jpg"
+    }
+  },
+  "keywords": ["artificial intelligence", "AI guide", "machine learning", "deep learning", "neural networks", "AGI", "frontier AI models", "AI companies"],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.neuralnexus.press/topics/ai"
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06060b;
+    --surface: rgba(255,255,255,0.03);
+    --surface-2: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.06);
+    --border-2: rgba(255,255,255,0.1);
+    --text: #f0f0f5;
+    --text-dim: rgba(255,255,255,0.4);
+    --text-mid: rgba(255,255,255,0.6);
+    --accent: #60a5fa;
+    --accent-2: #a78bfa;
+    --gold: #f0c040;
+    --green: #34d399;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .ambient::before {
+    content: ''; position: absolute; top: -30%; left: 10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(96,165,250,0.06) 0%, transparent 70%);
+    animation: float1 15s ease-in-out infinite alternate;
+  }
+  .ambient::after {
+    content: ''; position: absolute; bottom: -20%; right: 10%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(167,139,250,0.05) 0%, transparent 70%);
+    animation: float2 18s ease-in-out infinite alternate;
+  }
+  @keyframes float1 { 0%{transform:translate(0,0)} 100%{transform:translate(40px,-30px)} }
+  @keyframes float2 { 0%{transform:translate(0,0)} 100%{transform:translate(-30px,40px)} }
+
+  .grid-bg {
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none; z-index: 0;
+    mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+  }
+
+  section { position: relative; z-index: 1; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    padding: 14px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(6,6,11,0.85);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-brand img { height: 30px; border-radius: 6px; }
+  .nav-brand-text { font-size: 0.82rem; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text); }
+  .nav-brand-text span { color: var(--accent); }
+  .nav-links { display: flex; gap: 22px; align-items: center; list-style: none; }
+  .nav-links a { color: var(--text-mid); text-decoration: none; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.5px; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { background: var(--accent) !important; color: var(--bg) !important; padding: 7px 16px; border-radius: 8px; font-weight: 700 !important; }
+
+  .article-hero {
+    padding: 140px 24px 60px;
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+  .article-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 14px; border-radius: 20px;
+    background: var(--surface-2); border: 1px solid var(--border-2);
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #60a5fa; margin-bottom: 24px;
+  }
+  .article-hero h1 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 400; line-height: 1.1; margin-bottom: 20px;
+  }
+  .article-hero h1 .highlight {
+    background: linear-gradient(135deg, #60a5fa, var(--accent-2));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .article-meta-row {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .article-author { display: flex; align-items: center; gap: 10px; }
+  .article-author img { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border-2); }
+  .article-author-name { font-size: 0.82rem; font-weight: 700; }
+  .article-author-role { font-size: 0.7rem; color: var(--text-dim); }
+  .article-date-tag { font-size: 0.72rem; color: var(--text-dim); margin-left: auto; }
+
+  .article-body {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative; z-index: 1;
+  }
+  .article-body h2 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 1.7rem; font-weight: 400;
+    margin: 48px 0 16px; color: var(--text); line-height: 1.2;
+  }
+  .article-body h3 { font-size: 1.05rem; font-weight: 700; margin: 32px 0 12px; color: var(--text); }
+  .article-body p { font-size: 1rem; line-height: 1.85; color: var(--text-mid); margin-bottom: 20px; }
+  .article-body strong { color: var(--text); font-weight: 700; }
+  .article-body a { color: var(--accent); text-decoration: none; }
+  .article-body a:hover { text-decoration: underline; }
+
+  .callout {
+    background: var(--surface); border: 1px solid var(--border-2); border-left: 3px solid #60a5fa;
+    border-radius: 0 12px 12px 0; padding: 20px 24px; margin: 32px 0;
+  }
+  .callout p { margin: 0; font-size: 0.95rem; color: var(--text-mid); }
+  .callout strong { color: #60a5fa; }
+
+  .compare-table {
+    width: 100%; border-collapse: collapse; margin: 28px 0;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+  }
+  .compare-table th {
+    padding: 14px 18px; text-align: left; font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px; background: var(--surface-2);
+    border-bottom: 1px solid var(--border-2); color: var(--text-mid);
+  }
+  .compare-table td { padding: 12px 18px; font-size: 0.88rem; color: var(--text-mid); border-bottom: 1px solid var(--border); }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table td:first-child { font-weight: 600; color: var(--text); }
+  .compare-table td.good { color: var(--green); }
+  .compare-table td.mid { color: var(--gold); }
+  .compare-table td.no { color: rgba(255,100,100,0.8); }
+
+  .framework-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 28px 0; }
+  .framework-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px; transition: all 0.3s;
+  }
+  .framework-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
+  .framework-name { font-size: 0.92rem; font-weight: 800; margin-bottom: 4px; color: var(--text); }
+  .framework-type { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #60a5fa; margin-bottom: 8px; }
+  .framework-card p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.6; margin: 0; }
+
+  .related-topics { max-width: 800px; margin: 0 auto; padding: 0 24px 60px; position: relative; z-index: 1; }
+  .related-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: #60a5fa; margin-bottom: 16px; }
+  .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .related-card {
+    padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    text-decoration: none; color: inherit; transition: all 0.3s;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .related-card:hover { border-color: var(--border-2); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .related-card-icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+  .related-card h3 { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+  .related-card p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+  .subscribe-cta { max-width: 800px; margin: 0 auto; padding: 0 24px 80px; position: relative; z-index: 1; }
+  .subscribe-box {
+    background: linear-gradient(135deg, rgba(96,165,250,0.06) 0%, rgba(167,139,250,0.04) 100%);
+    border: 1px solid var(--border-2); border-radius: 20px; padding: 44px 40px; text-align: center;
+  }
+  .subscribe-box h2 { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.8rem; margin-bottom: 10px; }
+  .subscribe-box p { color: var(--text-mid); font-size: 0.92rem; margin-bottom: 24px; line-height: 1.6; }
+  .subscribe-form { display: flex; gap: 10px; max-width: 440px; margin: 0 auto; }
+  .subscribe-input {
+    flex: 1; padding: 14px 18px; border-radius: 12px;
+    border: 1px solid var(--border-2); background: var(--surface); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none;
+    backdrop-filter: blur(10px); transition: border-color 0.2s;
+  }
+  .subscribe-input:focus { border-color: #60a5fa; }
+  .subscribe-input::placeholder { color: var(--text-dim); }
+  .subscribe-btn {
+    padding: 14px 24px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, #60a5fa, #3b82f6); color: #0a0f1f;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .subscribe-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(96,165,250,0.3); }
+  .subscribe-note { margin-top: 14px; font-size: 0.68rem; color: var(--text-dim); }
+
+  footer { padding: 36px 24px; text-align: center; border-top: 1px solid var(--border); position: relative; z-index: 1; }
+  .footer-inner { max-width: 600px; margin: 0 auto; }
+  .footer-brand { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; }
+  .footer-brand img { height: 22px; border-radius: 4px; opacity: 0.5; }
+  .footer-brand span { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); letter-spacing: 1.5px; text-transform: uppercase; }
+  .footer-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 14px; flex-wrap: wrap; }
+  .footer-links a { color: var(--text-dim); font-size: 0.75rem; text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text); }
+  footer .copy { font-size: 0.68rem; color: rgba(255,255,255,0.2); }
+
+  @media (max-width: 640px) {
+    nav { padding: 10px 16px; }
+    .nav-links { gap: 10px; }
+    .nav-links a { font-size: 0.65rem; }
+    .nav-cta { padding: 6px 12px; font-size: 0.65rem !important; }
+    .article-hero { padding: 110px 20px 40px; }
+    .article-body { padding: 0 20px 60px; }
+    .subscribe-box { padding: 28px 20px; }
+    .subscribe-form { flex-direction: column; }
+    .subscribe-btn { width: 100%; }
+    .related-topics { padding: 0 20px 40px; }
+    .compare-table { font-size: 0.78rem; }
+    .compare-table th, .compare-table td { padding: 10px 12px; }
+  }
+</style>
+  <meta name="google-site-verification" content="kW4a01m15KuJy1nc9RStj2h4bXvGCTIBrMhcHTxUiSs" />
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="grid-bg"></div>
+
+<nav>
+  <a href="/" class="nav-brand">
+    <img src="/img/neuron-logo.jpg" alt="Neural NeXus">
+    <span class="nav-brand-text">Neural<span>NeXus</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/#articles">Articles</a></li>
+    <li><a href="/#about">About</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/play">🐝 Bee</a></li>
+    <li><a href="#subscribe" class="nav-cta">Subscribe</a></li>
+  </ul>
+</nav>
+
+<!-- Article Hero -->
+<section class="article-hero">
+  <div class="article-tag">🧠 Artificial Intelligence</div>
+  <h1><span class="highlight">Artificial Intelligence</span>:<br>The Definitive Guide for 2026</h1>
+  <div class="article-meta-row">
+    <div class="article-author">
+      <img src="/img/david.jpg" alt="David Kingsley, PhD">
+      <div>
+        <div class="article-author-name">David Kingsley, PhD</div>
+        <div class="article-author-role">Scientist · Neural NeXus</div>
+      </div>
+    </div>
+    <div class="article-date-tag">March 2026 · 12 min read</div>
+  </div>
+</section>
+
+<!-- Article Body -->
+<article class="article-body">
+
+  <p>Artificial intelligence is no longer an emerging technology — it's the defining technology of the decade. In the span of four years, AI has moved from research curiosity to the fastest-growing segment of the global technology industry, reshaping how software is built, how companies operate, and how scientific discoveries are made. If you want to understand where technology is heading, understanding AI is no longer optional.</p>
+
+  <p>This guide covers what AI actually is, the key breakthroughs that brought us here, the companies and models driving the frontier, and the risks and open questions that will shape the next five years. Whether you're an engineer, investor, scientist, or informed generalist, this is the foundation you need.</p>
+
+  <h2>What Is Artificial Intelligence?</h2>
+
+  <p>At its most fundamental, artificial intelligence is the field of computer science dedicated to creating systems that can perform tasks that would normally require human intelligence — recognizing speech, understanding language, making decisions, generating creative work, and learning from experience.</p>
+
+  <p>The field was formally founded in 1956 at the Dartmouth Conference, but the modern AI revolution was ignited by three converging forces: <strong>massive datasets</strong> from the internet age, <strong>GPU computing</strong> that made training large neural networks feasible, and <strong>architectural breakthroughs</strong> — most critically, the Transformer architecture introduced by Google researchers in 2017.</p>
+
+  <div class="callout">
+    <p><strong>The key insight:</strong> Modern AI doesn't work by encoding human rules. It learns statistical patterns from enormous datasets, then generalizes those patterns to new situations. This is why more data and more compute have consistently produced more capable systems — a trend known as "scaling laws."</p>
+  </div>
+
+  <h2>The AI Stack: From Models to Applications</h2>
+
+  <p>The modern AI industry is organized in layers, each building on the one below:</p>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Layer</th>
+        <th>What It Does</th>
+        <th>Key Players</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Compute</td>
+        <td>GPU/TPU chips and cloud infrastructure for training and inference</td>
+        <td class="good">NVIDIA, AMD, Google TPU, AWS, Azure</td>
+      </tr>
+      <tr>
+        <td>Foundation Models</td>
+        <td>Large pre-trained models (LLMs, vision, multimodal)</td>
+        <td class="good">OpenAI, Anthropic, Google, Meta, Mistral</td>
+      </tr>
+      <tr>
+        <td>Developer Tools</td>
+        <td>APIs, SDKs, fine-tuning, RAG, orchestration</td>
+        <td class="mid">LangChain, Vercel AI SDK, Hugging Face</td>
+      </tr>
+      <tr>
+        <td>Applications</td>
+        <td>End-user products built on AI</td>
+        <td class="good">ChatGPT, Claude, Copilot, Perplexity</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Frontier Models: The State of the Art</h2>
+
+  <p>As of early 2026, the frontier of AI capability is defined by a small number of large language models (LLMs) and multimodal models that can reason, write code, analyze images, and engage in extended multi-step problem solving.</p>
+
+  <h3>The Major Model Families</h3>
+
+  <div class="framework-grid">
+    <div class="framework-card">
+      <div class="framework-name">GPT-4 / GPT-4o</div>
+      <div class="framework-type">OpenAI · Proprietary</div>
+      <p>The model that catalyzed the AI boom. GPT-4 remains one of the most capable general-purpose models. GPT-4o added native multimodal capabilities — text, vision, audio — in a single model.</p>
+    </div>
+    <div class="framework-card">
+      <div class="framework-name">Claude (Anthropic)</div>
+      <div class="framework-type">Anthropic · Proprietary</div>
+      <p>Known for strong reasoning, instruction-following, and safety. Claude's long context windows (up to 1M tokens) and tool-use capabilities make it particularly strong for complex, agentic tasks.</p>
+    </div>
+    <div class="framework-card">
+      <div class="framework-name">Gemini</div>
+      <div class="framework-type">Google DeepMind · Proprietary</div>
+      <p>Google's flagship multimodal model family. Gemini Ultra competes at the frontier; Gemini Flash offers strong performance at lower cost. Deep integration with Google's product ecosystem.</p>
+    </div>
+    <div class="framework-card">
+      <div class="framework-name">Llama</div>
+      <div class="framework-type">Meta · Open Weights</div>
+      <p>Meta's open-weight model family has become the backbone of the open-source AI ecosystem. Llama models power thousands of fine-tuned variants and enterprise deployments where data privacy requires on-premise inference.</p>
+    </div>
+    <div class="framework-card">
+      <div class="framework-name">Mistral / Mixtral</div>
+      <div class="framework-type">Mistral AI · Open/Proprietary</div>
+      <p>European AI lab producing highly efficient models. Mixtral's mixture-of-experts architecture demonstrated that clever architecture can match much larger dense models at a fraction of the compute.</p>
+    </div>
+    <div class="framework-card">
+      <div class="framework-name">DeepSeek</div>
+      <div class="framework-type">DeepSeek · Open Weights</div>
+      <p>Chinese AI lab that surprised the field with DeepSeek-V3 and R1, demonstrating frontier-competitive performance at dramatically lower training costs. Raised questions about whether scaling requires as much capital as assumed.</p>
+    </div>
+  </div>
+
+  <h2>Why AI Matters Now</h2>
+
+  <p>The impact of AI in 2026 extends far beyond chatbots. AI is becoming embedded infrastructure across industries:</p>
+
+  <p><strong>Software development:</strong> AI coding assistants (GitHub Copilot, Cursor, Claude Code) are used by millions of developers daily. Studies consistently show 30–50% productivity gains for well-scoped coding tasks. AI is not replacing developers — it's changing what a single developer can accomplish.</p>
+
+  <p><strong>Scientific research:</strong> AlphaFold solved the protein-folding problem. AI-driven drug discovery pipelines are accelerating candidate identification from years to months. Climate modeling, materials science, and genomics are all being transformed by AI-powered analysis.</p>
+
+  <p><strong>Enterprise operations:</strong> Every major enterprise software company — Salesforce, Microsoft, ServiceNow, SAP — has reoriented its product strategy around AI. The enterprise AI market is projected to exceed $300 billion annually by 2028.</p>
+
+  <p><strong>Creative industries:</strong> Image generation (Midjourney, DALL-E, Stable Diffusion), video generation (Sora, Runway), and music generation tools have created entirely new creative workflows — and ignited fierce debates about copyright, compensation, and artistic integrity.</p>
+
+  <h2>The Road to AGI</h2>
+
+  <p>Artificial General Intelligence — AI that matches or exceeds human cognitive abilities across essentially all domains — remains the field's long-term goal and its most contentious debate. OpenAI, Anthropic, and Google DeepMind have all stated that AGI is their explicit objective.</p>
+
+  <p>Optimistic timelines (from leaders at OpenAI and Google) suggest AGI could arrive by 2027–2030. More cautious researchers argue that current scaling approaches will hit diminishing returns, and that fundamental architectural innovations are still needed. The truth is that nobody knows — but the pace of progress has consistently exceeded expert predictions.</p>
+
+  <h2>Risks and Open Questions</h2>
+
+  <p><strong>Alignment:</strong> As AI systems become more capable, ensuring they reliably pursue human-intended goals becomes both more important and harder. Anthropic's Constitutional AI and OpenAI's superalignment research are attempting to address this, but the problem is far from solved.</p>
+
+  <p><strong>Concentration of power:</strong> Training frontier models costs hundreds of millions of dollars and requires access to enormous GPU clusters. This concentrates AI capability in a handful of well-funded labs — a dynamic that raises concerns about market power, safety governance, and equitable access.</p>
+
+  <p><strong>Labor displacement:</strong> While AI is currently augmenting rather than replacing most knowledge workers, the trajectory is clear. The pace and scale of labor-market disruption from AI will be a defining policy challenge of the late 2020s.</p>
+
+  <p><strong>Misinformation and deepfakes:</strong> Generative AI makes creating convincing fake text, images, audio, and video trivially easy. The implications for elections, journalism, and public trust are profound and largely unaddressed.</p>
+
+  <p>Artificial intelligence is not a feature — it's a platform shift on the scale of the internet itself. The organizations, researchers, and individuals who understand it deeply will have an outsized advantage in shaping what comes next.</p>
+
+</article>
+
+<!-- Related Topics -->
+<section class="related-topics">
+  <div class="related-label">Explore More</div>
+  <div class="related-grid">
+    <a href="/topics/ai-agents" class="related-card">
+      <span class="related-card-icon">🤖</span>
+      <h3>AI Agents</h3>
+      <p>The next evolution beyond chatbots — autonomous AI systems that plan, act, and learn.</p>
+    </a>
+    <a href="/topics/semiconductors" class="related-card">
+      <span class="related-card-icon">🔬</span>
+      <h3>Semiconductors</h3>
+      <p>The chips powering the AI revolution — from NVIDIA GPUs to custom silicon.</p>
+    </a>
+    <a href="/topics/robotics" class="related-card">
+      <span class="related-card-icon">🦾</span>
+      <h3>Robotics</h3>
+      <p>Where AI meets the physical world — humanoid robots, autonomous systems, and embodied intelligence.</p>
+    </a>
+  </div>
+</section>
+
+<!-- Subscribe CTA -->
+<section class="subscribe-cta" id="subscribe">
+  <div class="subscribe-box">
+    <h2>Stay ahead of the AI curve</h2>
+    <p>Neural NeXus delivers weekly deep dives on AI, biotech breakthroughs, and the technologies shaping the future. Read by 1,000+ scientists, engineers, and investors. Free forever.</p>
+    <div class="subscribe-form">
+      <input type="email" class="subscribe-input" placeholder="you@email.com" id="email-input" autocomplete="email">
+      <button class="subscribe-btn" id="subscribe-btn">Subscribe →</button>
+    </div>
+    <div class="subscribe-note">Delivered via Substack · Unsubscribe anytime</div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="/img/neuron-logo.jpg" alt="Neural NeXus">
+      <span>Neural NeXus</span>
+    </div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/topics">Topics</a>
+      <a href="https://davidkingsley.substack.com" target="_blank">Substack</a>
+      <a href="https://davidkingsley.substack.com/archive" target="_blank">Archive</a>
+      <a href="/play">Spelling Bee</a>
+    </div>
+    <p class="copy">© 2026 Neural NeXus · David Kingsley, PhD</p>
+  </div>
+</footer>
+
+<script>
+document.getElementById('subscribe-btn').addEventListener('click', () => {
+  const email = document.getElementById('email-input').value.trim();
+  window.open(email
+    ? 'https://davidkingsley.substack.com/subscribe?simple=true&next=https://davidkingsley.substack.com/?email=' + encodeURIComponent(email)
+    : 'https://davidkingsley.substack.com/subscribe?simple=true&next=https://davidkingsley.substack.com/', '_blank');
+});
+document.getElementById('email-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('subscribe-btn').click();
+});
+</script>
+</body>
+</html>

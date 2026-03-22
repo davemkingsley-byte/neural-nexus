@@ -311,6 +311,27 @@ app.get('/topics/artificial-womb', (req, res) => {
 app.get('/topics/ai-agents', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'topics', 'ai-agents.html'));
 });
+app.get('/topics/ai', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'topics', 'ai.html'));
+});
+app.get('/topics/biotech', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'topics', 'biotech.html'));
+});
+app.get('/topics/robotics', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'topics', 'robotics.html'));
+});
+app.get('/topics/semiconductors', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'topics', 'semiconductors.html'));
+});
+app.get('/topics/venture-capital', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'topics', 'venture-capital.html'));
+});
+app.get('/topics/health', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'topics', 'health.html'));
+});
+app.get('/topics/longevity', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'topics', 'longevity.html'));
+});
 
 // Archive pages
 app.get('/archive', (req, res) => {

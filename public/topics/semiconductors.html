@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Semiconductors: The Silicon Foundation of the AI Revolution | Neural NeXus</title>
+<meta name="description" content="Semiconductors power the AI revolution — from NVIDIA GPUs to TSMC fabs. Understand chip design, AI accelerators, geopolitics, and the companies shaping the future of compute.">
+<meta property="og:title" content="Semiconductors: The Silicon Foundation of the AI Revolution">
+<meta property="og:description" content="Semiconductors power the AI revolution — from NVIDIA GPUs to TSMC fabs. Understand chip design, AI accelerators, and semiconductor geopolitics.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.neuralnexus.press/topics/semiconductors">
+<meta property="og:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Semiconductors: The Silicon Foundation of the AI Revolution">
+<meta name="twitter:description" content="Semiconductors power the AI revolution. Here's what you need to know about chips, fabs, and geopolitics.">
+<meta name="twitter:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
+<link rel="icon" href="/img/neuron-logo.jpg">
+<link rel="canonical" href="https://www.neuralnexus.press/topics/semiconductors">
+<meta name="keywords" content="semiconductors, AI chips, NVIDIA, TSMC, chip manufacturing, Moore's Law, GPU, semiconductor geopolitics">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Semiconductors: The Silicon Foundation of the AI Revolution",
+  "description": "A comprehensive guide to the semiconductor industry: chip design vs fabrication, AI accelerators, NVIDIA and TSMC dominance, geopolitics, and the companies shaping the future of compute.",
+  "url": "https://www.neuralnexus.press/topics/semiconductors",
+  "image": "https://www.neuralnexus.press/img/neuron-logo.jpg",
+  "datePublished": "2026-03-22",
+  "dateModified": "2026-03-22",
+  "author": {
+    "@type": "Person",
+    "name": "David Kingsley",
+    "jobTitle": "PhD Scientist",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Colossal Biosciences",
+      "url": "https://colossalbiosciences.com"
+    },
+    "url": "https://www.neuralnexus.press"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Neural NeXus",
+    "url": "https://www.neuralnexus.press",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.neuralnexus.press/img/neuron-logo.jpg"
+    }
+  },
+  "keywords": ["semiconductors", "AI chips", "NVIDIA", "TSMC", "chip manufacturing", "Moore's Law", "GPU", "semiconductor geopolitics"],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.neuralnexus.press/topics/semiconductors"
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06060b;
+    --surface: rgba(255,255,255,0.03);
+    --surface-2: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.06);
+    --border-2: rgba(255,255,255,0.1);
+    --text: #f0f0f5;
+    --text-dim: rgba(255,255,255,0.4);
+    --text-mid: rgba(255,255,255,0.6);
+    --accent: #60a5fa;
+    --accent-2: #a78bfa;
+    --gold: #f0c040;
+    --green: #34d399;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .ambient::before {
+    content: ''; position: absolute; top: -30%; left: 10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(167,139,250,0.06) 0%, transparent 70%);
+    animation: float1 15s ease-in-out infinite alternate;
+  }
+  .ambient::after {
+    content: ''; position: absolute; bottom: -20%; right: 10%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(96,165,250,0.05) 0%, transparent 70%);
+    animation: float2 18s ease-in-out infinite alternate;
+  }
+  @keyframes float1 { 0%{transform:translate(0,0)} 100%{transform:translate(40px,-30px)} }
+  @keyframes float2 { 0%{transform:translate(0,0)} 100%{transform:translate(-30px,40px)} }
+
+  .grid-bg {
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none; z-index: 0;
+    mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+  }
+
+  section { position: relative; z-index: 1; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    padding: 14px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(6,6,11,0.85);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-brand img { height: 30px; border-radius: 6px; }
+  .nav-brand-text { font-size: 0.82rem; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text); }
+  .nav-brand-text span { color: var(--accent); }
+  .nav-links { display: flex; gap: 22px; align-items: center; list-style: none; }
+  .nav-links a { color: var(--text-mid); text-decoration: none; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.5px; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { background: var(--accent) !important; color: var(--bg) !important; padding: 7px 16px; border-radius: 8px; font-weight: 700 !important; }
+
+  .article-hero {
+    padding: 140px 24px 60px;
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+  .article-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 14px; border-radius: 20px;
+    background: var(--surface-2); border: 1px solid var(--border-2);
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #a78bfa; margin-bottom: 24px;
+  }
+  .article-hero h1 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 400; line-height: 1.1; margin-bottom: 20px;
+  }
+  .article-hero h1 .highlight {
+    background: linear-gradient(135deg, #a78bfa, var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .article-meta-row {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .article-author { display: flex; align-items: center; gap: 10px; }
+  .article-author img { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border-2); }
+  .article-author-name { font-size: 0.82rem; font-weight: 700; }
+  .article-author-role { font-size: 0.7rem; color: var(--text-dim); }
+  .article-date-tag { font-size: 0.72rem; color: var(--text-dim); margin-left: auto; }
+
+  .article-body {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative; z-index: 1;
+  }
+  .article-body h2 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 1.7rem; font-weight: 400;
+    margin: 48px 0 16px; color: var(--text); line-height: 1.2;
+  }
+  .article-body h3 { font-size: 1.05rem; font-weight: 700; margin: 32px 0 12px; color: var(--text); }
+  .article-body p { font-size: 1rem; line-height: 1.85; color: var(--text-mid); margin-bottom: 20px; }
+  .article-body strong { color: var(--text); font-weight: 700; }
+  .article-body a { color: var(--accent); text-decoration: none; }
+  .article-body a:hover { text-decoration: underline; }
+
+  .callout {
+    background: var(--surface); border: 1px solid var(--border-2); border-left: 3px solid #a78bfa;
+    border-radius: 0 12px 12px 0; padding: 20px 24px; margin: 32px 0;
+  }
+  .callout p { margin: 0; font-size: 0.95rem; color: var(--text-mid); }
+  .callout strong { color: #a78bfa; }
+
+  .compare-table {
+    width: 100%; border-collapse: collapse; margin: 28px 0;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+  }
+  .compare-table th {
+    padding: 14px 18px; text-align: left; font-size: 0.78rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.5px; background: var(--surface-2);
+    border-bottom: 1px solid var(--border-2); color: var(--text-mid);
+  }
+  .compare-table td { padding: 12px 18px; font-size: 0.88rem; color: var(--text-mid); border-bottom: 1px solid var(--border); }
+  .compare-table tr:last-child td { border-bottom: none; }
+  .compare-table td:first-child { font-weight: 600; color: var(--text); }
+  .compare-table td.good { color: var(--green); }
+  .compare-table td.mid { color: var(--gold); }
+  .compare-table td.no { color: rgba(255,100,100,0.8); }
+
+  .framework-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 28px 0; }
+  .framework-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px; transition: all 0.3s;
+  }
+  .framework-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
+  .framework-name { font-size: 0.92rem; font-weight: 800; margin-bottom: 4px; color: var(--text); }
+  .framework-type { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #a78bfa; margin-bottom: 8px; }
+  .framework-card p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.6; margin: 0; }
+
+  .timeline { margin: 32px 0; }
+  .timeline-item { display: flex; gap: 20px; margin-bottom: 24px; }
+  .timeline-year { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; font-weight: 700; color: var(--green); min-width: 52px; padding-top: 2px; }
+  .timeline-content { flex: 1; padding-bottom: 24px; border-bottom: 1px solid var(--border); }
+  .timeline-item:last-child .timeline-content { border-bottom: none; }
+  .timeline-content h4 { font-size: 0.95rem; font-weight: 700; margin-bottom: 4px; }
+  .timeline-content p { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; margin: 0; }
+
+  .related-topics { max-width: 800px; margin: 0 auto; padding: 0 24px 60px; position: relative; z-index: 1; }
+  .related-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: #a78bfa; margin-bottom: 16px; }
+  .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .related-card {
+    padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    text-decoration: none; color: inherit; transition: all 0.3s;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .related-card:hover { border-color: var(--border-2); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .related-card-icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+  .related-card h3 { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+  .related-card p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+  .subscribe-cta { max-width: 800px; margin: 0 auto; padding: 0 24px 80px; position: relative; z-index: 1; }
+  .subscribe-box {
+    background: linear-gradient(135deg, rgba(167,139,250,0.06) 0%, rgba(96,165,250,0.04) 100%);
+    border: 1px solid var(--border-2); border-radius: 20px; padding: 44px 40px; text-align: center;
+  }
+  .subscribe-box h2 { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.8rem; margin-bottom: 10px; }
+  .subscribe-box p { color: var(--text-mid); font-size: 0.92rem; margin-bottom: 24px; line-height: 1.6; }
+  .subscribe-form { display: flex; gap: 10px; max-width: 440px; margin: 0 auto; }
+  .subscribe-input {
+    flex: 1; padding: 14px 18px; border-radius: 12px;
+    border: 1px solid var(--border-2); background: var(--surface); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none;
+    backdrop-filter: blur(10px); transition: border-color 0.2s;
+  }
+  .subscribe-input:focus { border-color: #a78bfa; }
+  .subscribe-input::placeholder { color: var(--text-dim); }
+  .subscribe-btn {
+    padding: 14px 24px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, #a78bfa, #7c3aed); color: #0f0a1f;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .subscribe-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(167,139,250,0.3); }
+  .subscribe-note { margin-top: 14px; font-size: 0.68rem; color: var(--text-dim); }
+
+  footer { padding: 36px 24px; text-align: center; border-top: 1px solid var(--border); position: relative; z-index: 1; }
+  .footer-inner { max-width: 600px; margin: 0 auto; }
+  .footer-brand { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; }
+  .footer-brand img { height: 22px; border-radius: 4px; opacity: 0.5; }
+  .footer-brand span { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); letter-spacing: 1.5px; text-transform: uppercase; }
+  .footer-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 14px; flex-wrap: wrap; }
+  .footer-links a { color: var(--text-dim); font-size: 0.75rem; text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text); }
+  footer .copy { font-size: 0.68rem; color: rgba(255,255,255,0.2); }
+
+  @media (max-width: 640px) {
+    nav { padding: 10px 16px; }
+    .nav-links { gap: 10px; }
+    .nav-links a { font-size: 0.65rem; }
+    .nav-cta { padding: 6px 12px; font-size: 0.65rem !important; }
+    .article-hero { padding: 110px 20px 40px; }
+    .article-body { padding: 0 20px 60px; }
+    .subscribe-box { padding: 28px 20px; }
+    .subscribe-form { flex-direction: column; }
+    .subscribe-btn { width: 100%; }
+    .related-topics { padding: 0 20px 40px; }
+    .compare-table { font-size: 0.78rem; }
+    .compare-table th, .compare-table td { padding: 10px 12px; }
+  }
+</style>
+  <meta name="google-site-verification" content="kW4a01m15KuJy1nc9RStj2h4bXvGCTIBrMhcHTxUiSs" />
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="grid-bg"></div>
+
+<nav>
+  <a href="/" class="nav-brand">
+    <img src="/img/neuron-logo.jpg" alt="Neural NeXus">
+    <span class="nav-brand-text">Neural<span>NeXus</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/#articles">Articles</a></li>
+    <li><a href="/#about">About</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/play">🐝 Bee</a></li>
+    <li><a href="#subscribe" class="nav-cta">Subscribe</a></li>
+  </ul>
+</nav>
+
+<!-- Article Hero -->
+<section class="article-hero">
+  <div class="article-tag">⚡ Semiconductors</div>
+  <h1><span class="highlight">Semiconductors</span>:<br>The Silicon Foundation of the AI Revolution</h1>
+  <div class="article-meta-row">
+    <div class="article-author">
+      <img src="/img/david.jpg" alt="David Kingsley, PhD">
+      <div>
+        <div class="article-author-name">David Kingsley, PhD</div>
+        <div class="article-author-role">Scientist · Neural NeXus</div>
+      </div>
+    </div>
+    <div class="article-date-tag">March 2026 · 11 min read</div>
+  </div>
+</section>
+
+<!-- Article Body -->
+<article class="article-body">
+
+  <p>Every breakthrough in artificial intelligence — every large language model, every image generator, every autonomous agent — runs on semiconductors. The algorithms get the headlines, but it is the chips that set the ceiling. Without continued advances in semiconductor design and manufacturing, the AI revolution stalls. Understanding the chip industry is not optional for anyone trying to understand where AI is going.</p>
+
+  <p>The semiconductor industry is a $600 billion global market, but its influence extends far beyond its revenue. Chips are the enabling substrate for virtually every technology sector: AI, cloud computing, autonomous vehicles, smartphones, defense systems, and medical devices. The companies that design and fabricate the most advanced chips hold extraordinary leverage over the trajectory of technology itself.</p>
+
+  <p>This guide covers what you need to know: how the chip industry is structured, which companies matter most, why AI has created unprecedented demand for specific types of semiconductors, and why chip manufacturing has become a geopolitical flashpoint.</p>
+
+  <h2>Why Semiconductors Matter More Than Ever</h2>
+
+  <p>The AI compute curve is staggering. Training a frontier language model in 2020 required roughly 3,000 GPU-hours. By 2024, training runs for models like GPT-4 and Gemini Ultra consumed tens of thousands of GPUs running for months, at costs exceeding $100 million per training run. By 2026, the largest training clusters contain over 100,000 GPUs, and the planned next-generation clusters aim for a million.</p>
+
+  <p>This exponential growth in compute demand has made semiconductors — specifically, AI accelerator chips — the most strategically important technology on Earth. The companies that can design and manufacture these chips are not just supplying a market; they are determining which organizations, and which countries, can participate in the AI race at all.</p>
+
+  <p><strong>Moore's Law</strong>, the observation that transistor density on chips roughly doubles every two years, drove five decades of predictable performance gains. While the cadence has slowed at the physical level, innovations in chip architecture, packaging, and specialization have kept effective performance scaling alive — especially for AI workloads, where purpose-built accelerators deliver orders-of-magnitude improvements over general-purpose processors.</p>
+
+  <h2>Chip Design vs. Fabrication: The Fabless Model</h2>
+
+  <p>The modern semiconductor industry is built on a critical division of labor. <strong>Chip designers</strong> — companies like NVIDIA, AMD, Apple, and Qualcomm — create the architectures and circuit layouts for chips. <strong>Chip fabricators</strong> (foundries) — most importantly TSMC — actually manufacture the physical silicon. This is the <strong>fabless model</strong>, and it has defined the industry for two decades.</p>
+
+  <p>Why the split? Building a state-of-the-art semiconductor fabrication facility (a "fab") costs $20–30 billion and takes 3–5 years. The extreme ultraviolet (EUV) lithography machines required for leading-edge nodes cost over $300 million each, and only one company in the world — ASML, based in the Netherlands — makes them. The capital requirements and technical complexity are so extreme that only a handful of companies can afford to operate at the frontier.</p>
+
+  <p>TSMC (Taiwan Semiconductor Manufacturing Company) fabricates roughly 90% of the world's most advanced chips. This concentration creates both extraordinary efficiency and extraordinary risk. TSMC's manufacturing expertise is unmatched, but the fact that nearly all advanced chip production depends on a single company located on an island 100 miles from mainland China is one of the most discussed geopolitical vulnerabilities in the world.</p>
+
+  <h2>AI Accelerators: GPUs, TPUs, and Custom ASICs</h2>
+
+  <p>Not all chips are created equal when it comes to AI. Traditional CPUs (central processing units) are designed for general-purpose sequential computation. AI workloads — particularly the massive matrix multiplications involved in training and running neural networks — require a fundamentally different approach: massive parallelism.</p>
+
+  <p><strong>GPUs (Graphics Processing Units)</strong> were originally designed for rendering graphics, which involves performing the same mathematical operation on millions of pixels simultaneously. This parallel architecture turns out to be nearly ideal for neural network computation. NVIDIA recognized this early and spent over a decade building a software ecosystem (CUDA) that made its GPUs the default platform for AI research. That early investment now constitutes one of the deepest competitive moats in technology.</p>
+
+  <p><strong>TPUs (Tensor Processing Units)</strong> are Google's custom-designed AI accelerators, optimized specifically for tensor operations used in machine learning. Google uses TPUs internally for training and inference across its products, and offers them to external customers through Google Cloud. TPUs are not general-purpose — they sacrifice flexibility for raw efficiency on AI workloads.</p>
+
+  <p><strong>Custom ASICs (Application-Specific Integrated Circuits)</strong> are chips designed for a single specific task. Amazon's Trainium and Inferentia chips, Intel's Gaudi accelerators, and a growing number of startup designs (Cerebras, Groq, SambaNova) all represent bets that purpose-built silicon can outperform GPUs for specific AI workloads. The trade-off is always the same: specialization delivers efficiency, but at the cost of flexibility.</p>
+
+  <div class="callout">
+    <p><strong>NVIDIA's dominance is not just hardware — it's ecosystem.</strong> CUDA, NVIDIA's proprietary software platform, has over 4 million developers and is deeply embedded in every major AI framework. Competitors don't just need to build better chips; they need to replicate a software ecosystem that took 15 years to build. This is why NVIDIA's data center GPU revenue grew from $15 billion in 2023 to over $100 billion in 2025 — and why the GPU shortage has constrained AI progress industry-wide.</p>
+  </div>
+
+  <h2>The AI Chip Landscape</h2>
+
+  <table class="compare-table">
+    <thead>
+      <tr>
+        <th>Chip Type</th>
+        <th>Designer</th>
+        <th>Fabricator</th>
+        <th>Primary Use</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>GPU (H100/B200)</td>
+        <td>NVIDIA</td>
+        <td>TSMC</td>
+        <td class="good">AI Training</td>
+      </tr>
+      <tr>
+        <td>TPU (v5p/v6)</td>
+        <td>Google</td>
+        <td>TSMC</td>
+        <td class="good">Google Cloud</td>
+      </tr>
+      <tr>
+        <td>Apple Silicon (M4)</td>
+        <td>Apple</td>
+        <td>TSMC</td>
+        <td class="mid">Consumer</td>
+      </tr>
+      <tr>
+        <td>Trainium</td>
+        <td>Amazon</td>
+        <td>TSMC</td>
+        <td class="good">AWS Inference</td>
+      </tr>
+      <tr>
+        <td>Gaudi</td>
+        <td>Intel</td>
+        <td>Intel</td>
+        <td class="mid">Enterprise AI</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>The Companies That Matter</h2>
+
+  <div class="framework-grid">
+    <div class="framework-card">
+      <div class="framework-name">NVIDIA</div>
+      <div class="framework-type">GPU Design · USA</div>
+      <p>The undisputed leader in AI accelerators. The H100 and B200 GPUs power the majority of AI training worldwide. CUDA's software moat makes switching costs enormous. Market cap exceeded $3 trillion in 2025.</p>
+    </div>
+    <div class="framework-card">
+      <div class="framework-name">TSMC</div>
+      <div class="framework-type">Foundry · Taiwan</div>
+      <p>Fabricates ~90% of the world's most advanced chips. The sole manufacturer capable of producing at 3nm and below. Every major fabless chip designer depends on TSMC's fabs.</p>
+    </div>
+    <div class="framework-card">
+      <div class="framework-name">AMD</div>
+      <div class="framework-type">GPU + CPU Design · USA</div>
+      <p>NVIDIA's primary GPU competitor. The MI300X accelerator is gaining traction in AI data centers. AMD's open ROCm software stack is positioning as the open-source alternative to CUDA.</p>
+    </div>
+    <div class="framework-card">
+      <div class="framework-name">Intel</div>
+      <div class="framework-type">Design + Foundry · USA</div>
+      <p>The former semiconductor king, now fighting to regain relevance. Intel Foundry Services aims to become a TSMC alternative for Western chip production. Gaudi accelerators target enterprise AI workloads.</p>
+    </div>
+    <div class="framework-card">
+      <div class="framework-name">Qualcomm</div>
+      <div class="framework-type">Mobile + Edge AI · USA</div>
+      <p>Dominates mobile processors and is pushing aggressively into on-device AI. Snapdragon chips power the majority of Android devices and an increasing number of Windows PCs with integrated neural processing units.</p>
+    </div>
+    <div class="framework-card">
+      <div class="framework-name">ASML</div>
+      <div class="framework-type">Lithography Equipment · Netherlands</div>
+      <p>The sole manufacturer of EUV lithography machines required for leading-edge chip fabrication. Without ASML's equipment, no foundry can produce chips below 7nm. A true single point of failure for the industry.</p>
+    </div>
+  </div>
+
+  <h2>Geopolitics: Chips as Strategic Assets</h2>
+
+  <p>Semiconductors have become the most geopolitically contested technology since nuclear weapons. The concentration of advanced chip manufacturing in Taiwan, combined with the critical importance of chips for both AI and military applications, has made semiconductor supply chains a top national security priority for the United States, China, and the European Union.</p>
+
+  <p><strong>The CHIPS and Science Act:</strong> Signed into law in 2022, this $52.7 billion U.S. initiative aims to rebuild domestic semiconductor manufacturing capacity. TSMC, Samsung, and Intel are all building new fabs on U.S. soil — TSMC's Arizona facility is the flagship project. But replicating the manufacturing ecosystem that Taiwan has built over decades will take years, and U.S.-made chips will initially be more expensive than those produced in Asia.</p>
+
+  <p><strong>The Taiwan risk:</strong> Any disruption to TSMC's operations — whether from natural disaster, military conflict, or political instability — would cripple the global technology industry. There is no backup. TSMC's most advanced fabs are in Hsinchu and Tainan, and no other foundry can produce chips at comparable process nodes. This vulnerability is driving the reshoring push, but progress is slow and the cost is measured in hundreds of billions of dollars.</p>
+
+  <p><strong>U.S.–China export controls:</strong> Since October 2022, the U.S. has imposed increasingly strict restrictions on the sale of advanced chips and chip-making equipment to China. These controls have cut Chinese AI labs off from the most powerful NVIDIA GPUs, forcing reliance on older architectures and domestic alternatives. China is investing heavily in semiconductor self-sufficiency, but remains at least 5–7 years behind TSMC at the leading edge.</p>
+
+  <p><strong>Reshoring and allied supply chains:</strong> The broader strategic trend is toward "friendshoring" — building semiconductor capacity in allied nations. Japan, South Korea, Germany, and the U.S. are all investing in new fabs. The goal is not to replace TSMC but to reduce single-point-of-failure risk and ensure that critical chip production is not concentrated in a single geopolitical flashpoint.</p>
+
+  <h2>What to Watch</h2>
+
+  <p><strong>The NVIDIA B200 and Rubin architecture:</strong> NVIDIA's next-generation AI accelerators promise another leap in training performance. Whether competitors can close the gap — or whether NVIDIA's lead continues to widen — will shape the AI compute landscape through the end of the decade.</p>
+
+  <p><strong>TSMC Arizona ramp:</strong> The success or failure of TSMC's U.S. fab operations will determine whether semiconductor reshoring is viable at scale, or whether the cost and talent gaps prove insurmountable.</p>
+
+  <p><strong>China's domestic chip progress:</strong> Huawei's Ascend AI accelerators and SMIC's manufacturing advances are the leading indicators of how quickly China can build an independent semiconductor ecosystem despite export controls.</p>
+
+  <p><strong>The rise of custom silicon:</strong> As hyperscalers (Google, Amazon, Microsoft, Meta) invest billions in custom chip design, the question is whether NVIDIA's GPU monopoly erodes or whether the CUDA ecosystem proves too entrenched to dislodge.</p>
+
+  <p><strong>Advanced packaging:</strong> Chiplet architectures and 3D stacking are becoming as important as process node shrinks. Companies that master advanced packaging may gain advantages independent of transistor density — a potential inflection point for the industry.</p>
+
+  <p>The semiconductor industry sits at the intersection of physics, economics, and geopolitics in a way that no other technology sector does. Understanding it is not just an exercise in tech analysis — it is essential context for understanding where AI, computing, and global power are headed.</p>
+
+</article>
+
+<!-- Related Topics -->
+<section class="related-topics">
+  <div class="related-label">Explore More</div>
+  <div class="related-grid">
+    <a href="/topics/ai" class="related-card">
+      <span class="related-card-icon">🤖</span>
+      <h3>Artificial Intelligence</h3>
+      <p>The models, frameworks, and breakthroughs driving the AI revolution — and the chips that power them.</p>
+    </a>
+    <a href="/topics/robotics" class="related-card">
+      <span class="related-card-icon">🦾</span>
+      <h3>Robotics</h3>
+      <p>How AI-powered robotics is transforming manufacturing, logistics, and the physical world.</p>
+    </a>
+    <a href="/topics/venture-capital" class="related-card">
+      <span class="related-card-icon">💰</span>
+      <h3>Venture Capital</h3>
+      <p>Where the money is flowing — from AI infrastructure to biotech to frontier hardware.</p>
+    </a>
+  </div>
+</section>
+
+<!-- Subscribe CTA -->
+<section class="subscribe-cta" id="subscribe">
+  <div class="subscribe-box">
+    <h2>Stay ahead of the silicon curve</h2>
+    <p>Neural NeXus delivers weekly deep dives on semiconductors, AI breakthroughs, and the technologies shaping the future. Read by 1,000+ scientists, engineers, and investors. Free forever.</p>
+    <div class="subscribe-form">
+      <input type="email" class="subscribe-input" placeholder="you@email.com" id="email-input" autocomplete="email">
+      <button class="subscribe-btn" id="subscribe-btn">Subscribe →</button>
+    </div>
+    <div class="subscribe-note">Delivered via Substack · Unsubscribe anytime</div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="/img/neuron-logo.jpg" alt="Neural NeXus">
+      <span>Neural NeXus</span>
+    </div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/topics">Topics</a>
+      <a href="https://davidkingsley.substack.com" target="_blank">Substack</a>
+      <a href="https://davidkingsley.substack.com/archive" target="_blank">Archive</a>
+      <a href="/play">Spelling Bee</a>
+    </div>
+    <p class="copy">© 2026 Neural NeXus · David Kingsley, PhD</p>
+  </div>
+</footer>
+
+<script>
+document.getElementById('subscribe-btn').addEventListener('click', () => {
+  const email = document.getElementById('email-input').value.trim();
+  window.open(email
+    ? 'https://davidkingsley.substack.com/subscribe?simple=true&next=https://davidkingsley.substack.com/?email=' + encodeURIComponent(email)
+    : 'https://davidkingsley.substack.com/subscribe?simple=true&next=https://davidkingsley.substack.com/', '_blank');
+});
+document.getElementById('email-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('subscribe-btn').click();
+});
+</script>
+</body>
+</html>

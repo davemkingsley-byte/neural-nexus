@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Longevity & Life Extension: The Science of Living Longer and Better | Neural NeXus</title>
+<meta name="description" content="The science of longevity and life extension — from senolytics and rapamycin to NAD+ precursors, caloric restriction, and epigenetic reprogramming. How aging biology is becoming the hottest frontier in biomedicine.">
+<meta property="og:title" content="Longevity & Life Extension: The Science of Living Longer and Better">
+<meta property="og:description" content="How longevity science — senolytics, rapamycin, NAD+, and epigenetic reprogramming — is transforming our understanding of aging and healthspan.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://www.neuralnexus.press/topics/longevity">
+<meta property="og:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Longevity & Life Extension: The Science of Living Longer and Better">
+<meta name="twitter:description" content="How longevity science is transforming our understanding of aging and healthspan.">
+<meta name="twitter:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
+<link rel="icon" href="/img/neuron-logo.jpg">
+<link rel="canonical" href="https://www.neuralnexus.press/topics/longevity">
+<meta name="keywords" content="longevity, life extension, aging biology, senolytics, rapamycin, NAD+, healthspan, anti-aging research">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Longevity & Life Extension: The Science of Living Longer and Better",
+  "description": "A deep dive into the science of longevity — from the hallmarks of aging to senolytics, rapamycin, NAD+ precursors, caloric restriction, and epigenetic reprogramming.",
+  "url": "https://www.neuralnexus.press/topics/longevity",
+  "image": "https://www.neuralnexus.press/img/neuron-logo.jpg",
+  "datePublished": "2026-03-22",
+  "dateModified": "2026-03-22",
+  "author": {
+    "@type": "Person",
+    "name": "David Kingsley",
+    "jobTitle": "PhD Scientist",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Colossal Biosciences",
+      "url": "https://colossalbiosciences.com"
+    },
+    "url": "https://www.neuralnexus.press"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Neural NeXus",
+    "url": "https://www.neuralnexus.press",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://www.neuralnexus.press/img/neuron-logo.jpg"
+    }
+  },
+  "keywords": ["longevity", "life extension", "aging biology", "senolytics", "rapamycin", "NAD+", "healthspan", "anti-aging research"],
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://www.neuralnexus.press/topics/longevity"
+  }
+}
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #06060b;
+    --surface: rgba(255,255,255,0.03);
+    --surface-2: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.06);
+    --border-2: rgba(255,255,255,0.1);
+    --text: #f0f0f5;
+    --text-dim: rgba(255,255,255,0.4);
+    --text-mid: rgba(255,255,255,0.6);
+    --accent: #60a5fa;
+    --accent-2: #a78bfa;
+    --gold: #f0c040;
+    --green: #34d399;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  .ambient { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .ambient::before {
+    content: ''; position: absolute; top: -30%; left: 10%;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(251,146,60,0.06) 0%, transparent 70%);
+    animation: float1 15s ease-in-out infinite alternate;
+  }
+  .ambient::after {
+    content: ''; position: absolute; bottom: -20%; right: 10%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(96,165,250,0.05) 0%, transparent 70%);
+    animation: float2 18s ease-in-out infinite alternate;
+  }
+  @keyframes float1 { 0%{transform:translate(0,0)} 100%{transform:translate(40px,-30px)} }
+  @keyframes float2 { 0%{transform:translate(0,0)} 100%{transform:translate(-30px,40px)} }
+
+  .grid-bg {
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none; z-index: 0;
+    mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 30%, black 20%, transparent 70%);
+  }
+
+  section { position: relative; z-index: 1; }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+    padding: 14px 24px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(6,6,11,0.85);
+    backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+  .nav-brand img { height: 30px; border-radius: 6px; }
+  .nav-brand-text { font-size: 0.82rem; font-weight: 800; letter-spacing: 2.5px; text-transform: uppercase; color: var(--text); }
+  .nav-brand-text span { color: var(--accent); }
+  .nav-links { display: flex; gap: 22px; align-items: center; list-style: none; }
+  .nav-links a { color: var(--text-mid); text-decoration: none; font-size: 0.78rem; font-weight: 600; letter-spacing: 0.5px; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { background: var(--accent) !important; color: var(--bg) !important; padding: 7px 16px; border-radius: 8px; font-weight: 700 !important; }
+
+  .article-hero {
+    padding: 140px 24px 60px;
+    max-width: 800px;
+    margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+  .article-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 14px; border-radius: 20px;
+    background: var(--surface-2); border: 1px solid var(--border-2);
+    font-size: 0.68rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+    color: #fb923c; margin-bottom: 24px;
+  }
+  .article-hero h1 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight: 400; line-height: 1.1; margin-bottom: 20px;
+  }
+  .article-hero h1 .highlight {
+    background: linear-gradient(135deg, #fb923c, var(--accent));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .article-meta-row {
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+    padding: 16px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+  }
+  .article-author { display: flex; align-items: center; gap: 10px; }
+  .article-author img { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--border-2); }
+  .article-author-name { font-size: 0.82rem; font-weight: 700; }
+  .article-author-role { font-size: 0.7rem; color: var(--text-dim); }
+  .article-date-tag { font-size: 0.72rem; color: var(--text-dim); margin-left: auto; }
+
+  .article-body {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+    position: relative; z-index: 1;
+  }
+  .article-body h2 {
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: 1.7rem; font-weight: 400;
+    margin: 48px 0 16px; color: var(--text);
+    line-height: 1.2;
+  }
+  .article-body h3 {
+    font-size: 1.05rem; font-weight: 700;
+    margin: 32px 0 12px; color: var(--text);
+  }
+  .article-body p {
+    font-size: 1rem; line-height: 1.85;
+    color: var(--text-mid); margin-bottom: 20px;
+  }
+  .article-body strong { color: var(--text); font-weight: 700; }
+  .article-body a { color: var(--accent); text-decoration: none; }
+  .article-body a:hover { text-decoration: underline; }
+
+  .callout {
+    background: var(--surface); border: 1px solid var(--border-2); border-left: 3px solid #fb923c;
+    border-radius: 0 12px 12px 0; padding: 20px 24px; margin: 32px 0;
+  }
+  .callout p { margin: 0; font-size: 0.95rem; color: var(--text-mid); }
+  .callout strong { color: #fb923c; }
+
+  .comparison-table {
+    width: 100%; border-collapse: collapse; margin: 28px 0;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    overflow: hidden;
+  }
+  .comparison-table th {
+    padding: 14px 16px; text-align: left; font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 1px; text-transform: uppercase; color: var(--text-dim);
+    background: var(--surface-2); border-bottom: 1px solid var(--border-2);
+  }
+  .comparison-table td {
+    padding: 14px 16px; font-size: 0.85rem; color: var(--text-mid);
+    border-bottom: 1px solid var(--border);
+  }
+  .comparison-table tr:last-child td { border-bottom: none; }
+  .comparison-table td:first-child { font-weight: 700; color: var(--text); }
+
+  .framework-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 28px 0; }
+  .framework-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    padding: 20px; transition: all 0.3s;
+  }
+  .framework-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
+  .framework-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
+  .framework-card h4 { font-size: 0.92rem; font-weight: 700; margin-bottom: 6px; }
+  .framework-card p { font-size: 0.8rem; color: var(--text-dim); line-height: 1.6; margin: 0; }
+  .framework-type {
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+    color: #fb923c; margin-bottom: 8px;
+  }
+
+  .related-topics {
+    max-width: 800px; margin: 0 auto; padding: 0 24px 60px;
+    position: relative; z-index: 1;
+  }
+  .related-label { font-size: 0.65rem; font-weight: 800; letter-spacing: 4px; text-transform: uppercase; color: #fb923c; margin-bottom: 16px; }
+  .related-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+  .related-card {
+    padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+    text-decoration: none; color: inherit; transition: all 0.3s;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .related-card:hover { border-color: var(--border-2); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .related-card-icon { font-size: 1.5rem; margin-bottom: 8px; display: block; }
+  .related-card h3 { font-size: 0.92rem; font-weight: 700; margin-bottom: 4px; }
+  .related-card p { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
+
+  .subscribe-cta {
+    max-width: 800px; margin: 0 auto; padding: 0 24px 80px;
+    position: relative; z-index: 1;
+  }
+  .subscribe-box {
+    background: linear-gradient(135deg, rgba(251,146,60,0.06) 0%, rgba(96,165,250,0.04) 100%);
+    border: 1px solid var(--border-2); border-radius: 20px;
+    padding: 44px 40px; text-align: center;
+  }
+  .subscribe-box h2 { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.8rem; margin-bottom: 10px; }
+  .subscribe-box p { color: var(--text-mid); font-size: 0.92rem; margin-bottom: 24px; line-height: 1.6; }
+  .subscribe-form { display: flex; gap: 10px; max-width: 440px; margin: 0 auto; }
+  .subscribe-input {
+    flex: 1; padding: 14px 18px; border-radius: 12px;
+    border: 1px solid var(--border-2); background: var(--surface); color: var(--text);
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; outline: none;
+    backdrop-filter: blur(10px); transition: border-color 0.2s;
+  }
+  .subscribe-input:focus { border-color: #fb923c; }
+  .subscribe-input::placeholder { color: var(--text-dim); }
+  .subscribe-btn {
+    padding: 14px 24px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, #fb923c, #ea580c); color: #1a0f00;
+    font-family: 'DM Sans', sans-serif; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; white-space: nowrap;
+  }
+  .subscribe-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(251,146,60,0.3); }
+  .subscribe-note { margin-top: 14px; font-size: 0.68rem; color: var(--text-dim); }
+
+  footer { padding: 36px 24px; text-align: center; border-top: 1px solid var(--border); position: relative; z-index: 1; }
+  .footer-inner { max-width: 600px; margin: 0 auto; }
+  .footer-brand { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 14px; }
+  .footer-brand img { height: 22px; border-radius: 4px; opacity: 0.5; }
+  .footer-brand span { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); letter-spacing: 1.5px; text-transform: uppercase; }
+  .footer-links { display: flex; justify-content: center; gap: 20px; margin-bottom: 14px; flex-wrap: wrap; }
+  .footer-links a { color: var(--text-dim); font-size: 0.75rem; text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--text); }
+  footer .copy { font-size: 0.68rem; color: rgba(255,255,255,0.2); }
+
+  @media (max-width: 640px) {
+    nav { padding: 10px 16px; }
+    .nav-links { gap: 10px; }
+    .nav-links a { font-size: 0.65rem; }
+    .nav-cta { padding: 6px 12px; font-size: 0.65rem !important; }
+    .article-hero { padding: 110px 20px 40px; }
+    .article-body { padding: 0 20px 60px; }
+    .subscribe-box { padding: 28px 20px; }
+    .subscribe-form { flex-direction: column; }
+    .subscribe-btn { width: 100%; }
+    .related-topics { padding: 0 20px 40px; }
+    .comparison-table { font-size: 0.8rem; }
+    .comparison-table th, .comparison-table td { padding: 10px 10px; }
+  }
+</style>
+  <meta name="google-site-verification" content="kW4a01m15KuJy1nc9RStj2h4bXvGCTIBrMhcHTxUiSs" />
+</head>
+<body>
+
+<div class="ambient"></div>
+<div class="grid-bg"></div>
+
+<nav>
+  <a href="/" class="nav-brand">
+    <img src="/img/neuron-logo.jpg" alt="Neural NeXus">
+    <span class="nav-brand-text">Neural<span>NeXus</span></span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="/#articles">Articles</a></li>
+    <li><a href="/#about">About</a></li>
+    <li><a href="/topics">Topics</a></li>
+    <li><a href="/play">🐝 Bee</a></li>
+    <li><a href="#subscribe" class="nav-cta">Subscribe</a></li>
+  </ul>
+</nav>
+
+<!-- Article Hero -->
+<section class="article-hero">
+  <div class="article-tag">⏳ Longevity & Life Extension</div>
+  <h1><span class="highlight">Longevity & Life Extension</span>:<br>The Science of Living Longer and Better</h1>
+  <div class="article-meta-row">
+    <div class="article-author">
+      <img src="/img/david.jpg" alt="David Kingsley, PhD">
+      <div>
+        <div class="article-author-name">David Kingsley, PhD</div>
+        <div class="article-author-role">Scientist · Neural NeXus</div>
+      </div>
+    </div>
+    <div class="article-date-tag">March 2026 · 12 min read</div>
+  </div>
+</section>
+
+<!-- Article Body -->
+<article class="article-body">
+
+  <p>In 2022, Saudi Arabia announced the Hevolution Foundation with a planned budget of $1 billion per year for aging research. In 2023, Jeff Bezos-backed Altos Labs launched with $3 billion in funding and a mission to reverse cellular aging. Calico, Alphabet's longevity subsidiary, has been quietly operating since 2013 with over $1.5 billion deployed. The total investment in longevity science now exceeds $4 billion, and that number is accelerating.</p>
+
+  <p>Something has changed. Aging research has moved from the margins of biology to the center of biomedical investment. The shift is not driven by hype alone — it is driven by a series of genuine scientific breakthroughs over the past two decades that have transformed aging from an inevitable, intractable process into something that looks increasingly like a <strong>targetable biological mechanism</strong>. The question is no longer whether aging can be slowed. It is how much, how soon, and for whom.</p>
+
+  <p>As a scientist, I find this one of the most consequential areas in all of biology right now. Here is a clear-eyed look at where the science actually stands.</p>
+
+  <h2>The Hallmarks of Aging</h2>
+
+  <p>The modern scientific framework for understanding aging was crystallized in a landmark 2013 paper by Carlos Lopez-Otin and colleagues, which proposed nine <strong>hallmarks of aging</strong> — fundamental biological processes that drive the deterioration we associate with growing old. An updated version in 2023 expanded this to twelve hallmarks. These hallmarks are not a list of symptoms; they are a list of causes, each supported by extensive experimental evidence.</p>
+
+  <p>The twelve hallmarks are: <strong>genomic instability</strong> (accumulation of DNA damage over time), <strong>telomere attrition</strong> (shortening of protective chromosome caps), <strong>epigenetic alterations</strong> (changes in gene regulation without DNA sequence changes), <strong>loss of proteostasis</strong> (failure to maintain properly folded proteins), <strong>disabled macroautophagy</strong> (decline in cellular recycling), <strong>deregulated nutrient sensing</strong> (dysfunction in pathways like mTOR and insulin/IGF-1), <strong>mitochondrial dysfunction</strong> (decline in cellular energy production), <strong>cellular senescence</strong> (accumulation of damaged, non-dividing cells that secrete inflammatory signals), <strong>stem cell exhaustion</strong> (loss of regenerative capacity), <strong>altered intercellular communication</strong> (chronic low-grade inflammation, or "inflammaging"), <strong>chronic inflammation</strong>, and <strong>dysbiosis</strong> (disruption of the gut microbiome).</p>
+
+  <p>What makes this framework powerful is that each hallmark represents a potential intervention point. Target the hallmark, and you may be able to slow, halt, or even reverse that component of aging. This is not speculation — it has been demonstrated in animal models for several of these hallmarks already.</p>
+
+  <h2>Key Interventions Under Investigation</h2>
+
+  <h3>Senolytics: Clearing Zombie Cells</h3>
+
+  <p>Senescent cells are cells that have stopped dividing but refuse to die. Instead, they accumulate in tissues and secrete a toxic cocktail of inflammatory signals called the SASP (senescence-associated secretory phenotype). Think of them as "zombie cells" — they are not functioning normally, but they are actively damaging the tissue around them. Senolytics are drugs designed to selectively kill these cells. The most studied combination is <strong>dasatinib + quercetin (D+Q)</strong>, which has shown remarkable results in mice: clearing senescent cells extends healthspan, improves physical function, and in some models extends lifespan by 20-30%. Human clinical trials are underway for conditions including idiopathic pulmonary fibrosis, diabetic kidney disease, and Alzheimer's disease.</p>
+
+  <h3>Rapamycin and mTOR Inhibition</h3>
+
+  <p>Rapamycin, originally discovered as an antifungal compound from Easter Island soil bacteria, is the most consistently life-extending drug ever tested in mammals. It works by inhibiting <strong>mTOR (mechanistic target of rapamycin)</strong>, a nutrient-sensing pathway that regulates cell growth and metabolism. When mTOR is dialed down, cells shift from growth mode to maintenance and repair mode. In mice, rapamycin extends lifespan by 10-25% even when started late in life. The catch: rapamycin is an immunosuppressant at high doses, used clinically to prevent organ transplant rejection. The longevity community is exploring low-dose, intermittent protocols that may capture the anti-aging benefits while minimizing immune suppression. Multiple clinical trials are testing rapamycin analogs for age-related conditions.</p>
+
+  <h3>NAD+ Precursors</h3>
+
+  <p><strong>NAD+ (nicotinamide adenine dinucleotide)</strong> is a critical coenzyme present in every cell, essential for energy metabolism, DNA repair, and sirtuin activation. NAD+ levels decline dramatically with age — by age 60, levels may be half of what they were at 20. Precursors like <strong>NMN (nicotinamide mononucleotide)</strong> and <strong>NR (nicotinamide riboside)</strong> can boost NAD+ levels when taken orally. In mice, NAD+ supplementation improves mitochondrial function, enhances DNA repair, and reverses several markers of aging. Human evidence is more mixed — clinical trials show NAD+ levels do increase, but the downstream effects on healthspan and function are still being established. David Sinclair's work at Harvard has been central to this field, though not without controversy.</p>
+
+  <h3>Caloric Restriction and Fasting Mimetics</h3>
+
+  <p>Caloric restriction (CR) — reducing calorie intake by 20-40% without malnutrition — is the oldest and most robustly demonstrated intervention for extending lifespan in laboratory animals, from yeast to primates. The CALERIE trial, the first controlled study of CR in healthy humans, showed that even modest caloric restriction (about 12%) over two years improved multiple biomarkers of aging and reduced estimated biological age. But sustained CR is difficult for most humans. This has driven interest in <strong>fasting mimetics</strong> — drugs that trick the body into a fasting-like state. Metformin, the widely used diabetes drug, is the subject of the TAME (Targeting Aging with Metformin) trial, the first FDA-approved clinical trial that treats aging itself as the indication.</p>
+
+  <h3>Epigenetic Reprogramming: The Yamanaka Factor Approach</h3>
+
+  <p>Perhaps the most radical approach to longevity comes from <strong>cellular reprogramming</strong>. In 2006, Shinya Yamanaka showed that four transcription factors (Oct4, Sox2, Klf4, c-Myc — the "Yamanaka factors") could reprogram adult cells back into stem cells. The longevity insight: <strong>partial reprogramming</strong> — brief, controlled exposure to these factors — can reset a cell's epigenetic age without fully reverting it to a stem cell state. In mice, partial reprogramming has been shown to restore youthful gene expression patterns, improve tissue function, and extend lifespan in progeroid (accelerated aging) models. This is the core technology behind Altos Labs' $3 billion bet. The challenge is enormous — too much reprogramming causes cancer (teratomas). But if the dose and timing can be controlled, this approach could represent the closest thing to true biological age reversal.</p>
+
+  <div class="callout">
+    <p><strong>The paradigm shift:</strong> Longevity research has shifted from fringe to frontier science. The question is no longer whether aging is a biological process that can be modulated — the evidence is overwhelming that it can. The question is whether we can translate interventions that work in mice into safe, effective therapies for humans, and whether regulatory frameworks will evolve fast enough to allow it.</p>
+  </div>
+
+  <h2>Intervention Comparison</h2>
+
+  <div style="overflow-x:auto;">
+  <table class="comparison-table">
+    <thead>
+      <tr>
+        <th>Intervention</th>
+        <th>Mechanism</th>
+        <th>Evidence Level</th>
+        <th>Key Players</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Senolytics</td>
+        <td>Clear senescent "zombie" cells</td>
+        <td>Strong animal; early human trials</td>
+        <td>Unity Biotechnology, Mayo Clinic</td>
+      </tr>
+      <tr>
+        <td>Rapamycin</td>
+        <td>mTOR inhibition; shift to repair mode</td>
+        <td>Strong animal; off-label human use</td>
+        <td>Dog Aging Project, Participatory Trials</td>
+      </tr>
+      <tr>
+        <td>NAD+ Precursors</td>
+        <td>Restore cellular NAD+ levels</td>
+        <td>Strong animal; mixed human data</td>
+        <td>Elysium, ChromaDex, Metro Biotech</td>
+      </tr>
+      <tr>
+        <td>Epigenetic Reprogramming</td>
+        <td>Yamanaka factors reset epigenetic age</td>
+        <td>Early animal; pre-clinical</td>
+        <td>Altos Labs, Turn Biotechnologies, NewLimit</td>
+      </tr>
+      <tr>
+        <td>GLP-1 Agonists</td>
+        <td>Metabolic reset; reduce inflammation</td>
+        <td>Strong human data (obesity/diabetes); longevity TBD</td>
+        <td>Novo Nordisk, Eli Lilly</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h2>Key Companies in Longevity Science</h2>
+
+  <div class="framework-grid">
+    <div class="framework-card">
+      <span class="framework-icon">🔬</span>
+      <div class="framework-type">Epigenetic Reprogramming</div>
+      <h4>Altos Labs</h4>
+      <p>$3B funded. Led by former GlaxoSmithKline CEO Hal Barron. Focused on cellular rejuvenation through partial reprogramming and stem cell science.</p>
+    </div>
+    <div class="framework-card">
+      <span class="framework-icon">🧪</span>
+      <div class="framework-type">Multi-Target Research</div>
+      <h4>Calico (Alphabet)</h4>
+      <p>Google/Alphabet's secretive aging lab. $1.5B+ in funding. Researches fundamental biology of aging with partnerships at AbbVie for drug development.</p>
+    </div>
+    <div class="framework-card">
+      <span class="framework-icon">💊</span>
+      <div class="framework-type">Senolytics</div>
+      <h4>Unity Biotechnology</h4>
+      <p>Public company developing senolytic medicines. Lead programs target age-related ophthalmology and neurology. Backed by Bezos Expeditions and ARCH Venture.</p>
+    </div>
+    <div class="framework-card">
+      <span class="framework-icon">🐕</span>
+      <div class="framework-type">Veterinary Longevity</div>
+      <h4>Loyal (Dog Longevity)</h4>
+      <p>Developing drugs to extend healthy lifespan in dogs. First company to receive FDA "reasonable expectation of effectiveness" for a lifespan drug. Led by Celine Halioua.</p>
+    </div>
+    <div class="framework-card">
+      <span class="framework-icon">🧬</span>
+      <div class="framework-type">Epigenetic Reprogramming</div>
+      <h4>Turn Biotechnologies</h4>
+      <p>Developing mRNA-based epigenetic reprogramming therapies. Uses transient Yamanaka factor delivery to rejuvenate cells without full dedifferentiation.</p>
+    </div>
+    <div class="framework-card">
+      <span class="framework-icon">📊</span>
+      <div class="framework-type">Biomarker-Driven</div>
+      <h4>BioAge Labs</h4>
+      <p>Uses large-scale human biobank data and machine learning to identify aging biomarkers and drug targets. Pipeline includes metabolic and immune aging programs.</p>
+    </div>
+  </div>
+
+  <h2>Healthspan vs. Lifespan: The Critical Distinction</h2>
+
+  <p>The longevity field has increasingly shifted its focus from <strong>lifespan</strong> (how long you live) to <strong>healthspan</strong> (how long you live in good health). This distinction matters enormously. Global life expectancy has risen dramatically over the past century — from roughly 47 years in 1900 to over 73 today — but much of that gain has come from reductions in infant mortality and infectious disease, not from slowing aging itself. The result: many people live longer but spend their final decade or more in a state of chronic disease, disability, and declining function.</p>
+
+  <p>The promise of longevity science is not merely adding years to life, but <strong>compressing morbidity</strong> — shortening the period of decline at the end of life. If a 75-year-old could have the cardiovascular health, cognitive function, and physical resilience of a 55-year-old, that is arguably more valuable than simply extending lifespan by five years while maintaining the same trajectory of decline. Many researchers now argue that healthspan, not lifespan, should be the primary endpoint for longevity interventions.</p>
+
+  <p>This reframing also matters for regulation. The FDA does not currently recognize aging as a disease, which makes it difficult to run clinical trials with "slowing aging" as a primary endpoint. The TAME trial's innovation is that it targets <strong>multimorbidity</strong> — the co-occurrence of age-related diseases — rather than aging per se, creating a potential regulatory pathway that could unlock future aging-focused drug development.</p>
+
+  <h2>What to Watch</h2>
+
+  <p>The next three to five years will be decisive for the field. Several developments deserve close attention. The <strong>TAME trial</strong> (Targeting Aging with Metformin), if successful, will establish the first FDA-recognized pathway for treating aging as a condition. Results from <strong>Loyal's dog longevity drug</strong> could provide the first real-world evidence that pharmaceutical lifespan extension works in a complex mammal outside a laboratory. <strong>Altos Labs' first clinical candidates</strong>, expected to emerge from their reprogramming platform by 2027-2028, will test whether partial cellular rejuvenation is safe enough for human use. And the ongoing <strong>Dog Aging Project</strong>, a longitudinal study of rapamycin in companion dogs, will generate invaluable data on mTOR inhibition in a species that shares our environment and many of our diseases.</p>
+
+  <p>The regulatory landscape is also evolving. The WHO added an extension code for aging (XT9T) to the International Classification of Diseases in 2022. Several countries, including Singapore and the UAE, are actively developing regulatory frameworks for longevity therapeutics. If any major jurisdiction creates a formal pathway for approving drugs that target aging, it will unleash a wave of clinical development that dwarfs what we have seen so far.</p>
+
+  <p>Longevity science is no longer a collection of speculative ideas and supplement marketing. It is a rigorous, well-funded, rapidly advancing field with real interventions approaching clinical viability. The biology is increasingly clear. The interventions are increasingly specific. The money is flowing. Whether the first true anti-aging drug reaches patients in five years or fifteen, the trajectory is unmistakable: aging is becoming medicine's next great target.</p>
+
+</article>
+
+<!-- Related Topics -->
+<section class="related-topics">
+  <div class="related-label">Explore More</div>
+  <div class="related-grid">
+    <a href="/topics/health" class="related-card">
+      <span class="related-card-icon">🏥</span>
+      <h3>Health & Medicine</h3>
+      <p>From precision medicine to digital health — the technologies reshaping how we prevent and treat disease.</p>
+    </a>
+    <a href="/topics/biotech" class="related-card">
+      <span class="related-card-icon">🧬</span>
+      <h3>Biotechnology</h3>
+      <p>CRISPR, synthetic biology, and the biotech revolution transforming medicine and agriculture.</p>
+    </a>
+    <a href="/topics/artificial-womb" class="related-card">
+      <span class="related-card-icon">🍼</span>
+      <h3>Artificial Womb Technology</h3>
+      <p>How ectogenesis research is moving from science fiction to clinical reality.</p>
+    </a>
+  </div>
+</section>
+
+<!-- Subscribe CTA -->
+<section class="subscribe-cta" id="subscribe">
+  <div class="subscribe-box">
+    <h2>Follow the frontier of longevity science</h2>
+    <p>David writes weekly about breakthroughs at the frontier of biotech and AI — from aging biology to epigenetic reprogramming. Read by 1,000+ scientists, engineers, and investors. Free forever.</p>
+    <div class="subscribe-form">
+      <input type="email" class="subscribe-input" placeholder="you@email.com" id="email-input" autocomplete="email">
+      <button class="subscribe-btn" id="subscribe-btn">Subscribe →</button>
+    </div>
+    <div class="subscribe-note">Delivered via Substack · Unsubscribe anytime</div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="/img/neuron-logo.jpg" alt="Neural NeXus">
+      <span>Neural NeXus</span>
+    </div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/topics">Topics</a>
+      <a href="https://davidkingsley.substack.com" target="_blank">Substack</a>
+      <a href="https://davidkingsley.substack.com/archive" target="_blank">Archive</a>
+      <a href="/play">Spelling Bee</a>
+    </div>
+    <p class="copy">© 2026 Neural NeXus · David Kingsley, PhD</p>
+  </div>
+</footer>
+
+<script>
+document.getElementById('subscribe-btn').addEventListener('click', () => {
+  const email = document.getElementById('email-input').value.trim();
+  window.open(email
+    ? 'https://davidkingsley.substack.com/subscribe?simple=true&next=https://davidkingsley.substack.com/?email=' + encodeURIComponent(email)
+    : 'https://davidkingsley.substack.com/subscribe?simple=true&next=https://davidkingsley.substack.com/', '_blank');
+});
+document.getElementById('email-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('subscribe-btn').click();
+});
+</script>
+</body>
+</html>
