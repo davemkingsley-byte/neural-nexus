@@ -98,6 +98,17 @@ function initDB() {
         updated_at TEXT DEFAULT (datetime('now'))
       );
 
+      CREATE TABLE IF NOT EXISTS experiment_phases (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        phase_type TEXT NOT NULL CHECK(phase_type IN ('baseline', 'intervention', 'washout', 'custom')),
+        compounds TEXT,
+        start_date TEXT NOT NULL,
+        end_date TEXT,
+        notes TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+
       CREATE INDEX IF NOT EXISTS idx_test_results_date ON test_results(date);
       CREATE INDEX IF NOT EXISTS idx_test_results_type ON test_results(test_type);
       CREATE INDEX IF NOT EXISTS idx_chess_elo_date ON chess_elo(date);
@@ -108,6 +119,13 @@ function initDB() {
     // Add session column to existing test_results if missing
     try {
       db.exec('ALTER TABLE test_results ADD COLUMN session TEXT');
+    } catch (e) {
+      // column already exists
+    }
+
+    // Add phase_id column to existing test_results if missing
+    try {
+      db.exec('ALTER TABLE test_results ADD COLUMN phase_id INTEGER REFERENCES experiment_phases(id)');
     } catch (e) {
       // column already exists
     }
@@ -140,7 +158,10 @@ const stmts = {};
 
 function prepareStatements() {
   stmts.insertResult = db.prepare(
-    'INSERT INTO test_results (test_type, date, time, scores_json, session) VALUES (?, ?, ?, ?, ?)'
+    'INSERT INTO test_results (test_type, date, time, scores_json, session, phase_id) VALUES (?, ?, ?, ?, ?, ?)'
+  );
+  stmts.getActivePhase = db.prepare(
+    'SELECT * FROM experiment_phases WHERE end_date IS NULL ORDER BY start_date DESC LIMIT 1'
   );
   stmts.getResults = db.prepare(
     `SELECT * FROM test_results
@@ -279,7 +300,9 @@ module.exports = {
   },
 
   saveResult(test_type, date, time, scores_json, session) {
-    return stmts.insertResult.run(test_type, date, time, scores_json, session || null);
+    const active = stmts.getActivePhase.get() || null;
+    const phaseId = active ? active.id : null;
+    return stmts.insertResult.run(test_type, date, time, scores_json, session || null, phaseId);
   },
 
   getResults(days = 30) {
@@ -399,6 +422,97 @@ module.exports = {
 
   getWhoopTokens() {
     return stmts.getWhoopTokens.get() || null;
+  },
+
+  // ── Experiment Phases ──
+  createPhase(name, phase_type, compounds_arr, start_date, notes) {
+    const compounds = compounds_arr ? JSON.stringify(compounds_arr) : null;
+    return db.prepare(
+      'INSERT INTO experiment_phases (name, phase_type, compounds, start_date, notes) VALUES (?, ?, ?, ?, ?)'
+    ).run(name, phase_type, compounds, start_date, notes || null);
+  },
+
+  endPhase(id, end_date) {
+    return db.prepare('UPDATE experiment_phases SET end_date = ? WHERE id = ?').run(end_date, id);
+  },
+
+  updatePhase(id, patch) {
+    const fields = [];
+    const values = [];
+    if (patch.name !== undefined) { fields.push('name = ?'); values.push(patch.name); }
+    if (patch.phase_type !== undefined) { fields.push('phase_type = ?'); values.push(patch.phase_type); }
+    if (patch.compounds !== undefined) { fields.push('compounds = ?'); values.push(JSON.stringify(patch.compounds)); }
+    if (patch.notes !== undefined) { fields.push('notes = ?'); values.push(patch.notes); }
+    if (fields.length === 0) return;
+    values.push(id);
+    return db.prepare(`UPDATE experiment_phases SET ${fields.join(', ')} WHERE id = ?`).run(...values);
+  },
+
+  deletePhase(id) {
+    return db.prepare('DELETE FROM experiment_phases WHERE id = ?').run(id);
+  },
+
+  getPhases() {
+    return db.prepare('SELECT * FROM experiment_phases ORDER BY start_date DESC').all();
+  },
+
+  getActivePhase() {
+    return stmts.getActivePhase.get() || null;
+  },
+
+  getPhaseById(id) {
+    return db.prepare('SELECT * FROM experiment_phases WHERE id = ?').get(id) || null;
+  },
+
+  getPhaseStats(phase_id) {
+    const phase = db.prepare('SELECT * FROM experiment_phases WHERE id = ?').get(phase_id);
+    if (!phase) return null;
+
+    const rows = db.prepare('SELECT test_type, scores_json FROM test_results WHERE phase_id = ?').all(phase_id);
+    const grouped = { nback: [], pvt: [], dsst: [] };
+    rows.forEach(r => {
+      const s = JSON.parse(r.scores_json);
+      if (r.test_type === 'nback') grouped.nback.push(s.max_n || 0);
+      else if (r.test_type === 'pvt') grouped.pvt.push(s.median_rt || 0);
+      else if (r.test_type === 'dsst') grouped.dsst.push(s.correct || 0);
+    });
+
+    function calcStats(arr) {
+      if (arr.length === 0) return { mean: null, sd: null, n: 0 };
+      const n = arr.length;
+      const mean = arr.reduce((a, b) => a + b, 0) / n;
+      const variance = arr.reduce((sum, v) => sum + (v - mean) ** 2, 0) / (n > 1 ? n - 1 : 1);
+      return { mean: Math.round(mean * 100) / 100, sd: Math.round(Math.sqrt(variance) * 100) / 100, n };
+    }
+
+    return {
+      phase,
+      stats: {
+        nback: calcStats(grouped.nback),
+        pvt: calcStats(grouped.pvt),
+        dsst: calcStats(grouped.dsst),
+      }
+    };
+  },
+
+  comparePhases(phase_id_a, phase_id_b) {
+    const a = this.getPhaseStats(phase_id_a);
+    const b = this.getPhaseStats(phase_id_b);
+    if (!a || !b) return null;
+
+    function cohensD(statsA, statsB, flipSign = false) {
+      if (statsA.n < 2 || statsB.n < 2) return { mean_a: statsA.mean, mean_b: statsB.mean, sd_a: statsA.sd, sd_b: statsB.sd, n_a: statsA.n, n_b: statsB.n, cohens_d: null };
+      const pooledSD = Math.sqrt(((statsA.n - 1) * statsA.sd ** 2 + (statsB.n - 1) * statsB.sd ** 2) / (statsA.n + statsB.n - 2));
+      let d = pooledSD === 0 ? 0 : (statsB.mean - statsA.mean) / pooledSD;
+      if (flipSign) d = -d;
+      return { mean_a: statsA.mean, mean_b: statsB.mean, sd_a: statsA.sd, sd_b: statsB.sd, n_a: statsA.n, n_b: statsB.n, cohens_d: Math.round(d * 100) / 100 };
+    }
+
+    return {
+      nback: cohensD(a.stats.nback, b.stats.nback),
+      pvt: cohensD(a.stats.pvt, b.stats.pvt, true),
+      dsst: cohensD(a.stats.dsst, b.stats.dsst),
+    };
   },
 
   close() {

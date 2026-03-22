@@ -868,6 +868,94 @@ app.post('/api/cognitive/supplements', dashboardAuth, (req, res) => {
   }
 });
 
+// Experiment Phases
+// IMPORTANT: /active and /compare must come before /:id to avoid Express treating them as IDs
+app.get('/api/cognitive/phases', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    res.json({ phases: cogDB.getPhases() });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get phases' });
+  }
+});
+
+app.post('/api/cognitive/phases', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const { name, phase_type, compounds, start_date, notes } = req.body;
+    if (!name || !phase_type || !start_date) return res.status(400).json({ error: 'Missing name, phase_type, or start_date' });
+    const result = cogDB.createPhase(name, phase_type, compounds || [], start_date, notes);
+    res.json({ ok: true, id: result.lastInsertRowid });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to create phase: ' + err.message });
+  }
+});
+
+app.get('/api/cognitive/phases/active', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const phase = cogDB.getActivePhase();
+    res.json({ phase });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get active phase' });
+  }
+});
+
+app.get('/api/cognitive/phases/compare', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const { a, b } = req.query;
+    if (!a || !b) return res.status(400).json({ error: 'Missing query params a and b' });
+    const result = cogDB.comparePhases(parseInt(a), parseInt(b));
+    if (!result) return res.status(404).json({ error: 'One or both phases not found' });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to compare phases: ' + err.message });
+  }
+});
+
+app.put('/api/cognitive/phases/:id', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    cogDB.updatePhase(parseInt(req.params.id), req.body);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to update phase' });
+  }
+});
+
+app.post('/api/cognitive/phases/:id/end', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const end_date = (req.body && req.body.end_date) || new Date().toISOString().split('T')[0];
+    cogDB.endPhase(parseInt(req.params.id), end_date);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to end phase' });
+  }
+});
+
+app.delete('/api/cognitive/phases/:id', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    cogDB.deletePhase(parseInt(req.params.id));
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete phase' });
+  }
+});
+
+app.get('/api/cognitive/phases/:id/stats', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const result = cogDB.getPhaseStats(parseInt(req.params.id));
+    if (!result) return res.status(404).json({ error: 'Phase not found' });
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get phase stats' });
+  }
+});
+
 // Daily subjective ratings
 app.post('/api/cognitive/daily', dashboardAuth, (req, res) => {
   if (!checkCogDB(res)) return;

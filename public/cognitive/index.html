@@ -26,6 +26,27 @@
   --chart-grid: rgba(255,255,255,0.05);
 }
 
+.phase-badge {
+  display:inline-block;padding:2px 10px;border-radius:10px;font-size:0.72rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;
+}
+.phase-badge.baseline { background:rgba(96,165,250,0.18);color:#60a5fa; }
+.phase-badge.intervention { background:rgba(52,211,153,0.18);color:#34d399; }
+.phase-badge.washout { background:rgba(251,191,36,0.18);color:#fbbf24; }
+.phase-badge.custom { background:rgba(176,125,224,0.18);color:#b07de0; }
+.phase-row { padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:background 0.15s; }
+.phase-row:hover { background:var(--surface-hover); }
+.phase-row:last-child { border-bottom:none; }
+.phase-detail { display:none;padding:10px 0 6px;font-size:0.84rem;color:var(--text-mid); }
+.phase-detail.open { display:block; }
+.phase-compare-btn { background:none;border:1px solid var(--border);color:var(--text-dim);padding:3px 10px;border-radius:6px;font-size:0.75rem;cursor:pointer;transition:all 0.15s; }
+.phase-compare-btn:hover { border-color:var(--gold);color:var(--gold); }
+.phase-compare-btn.selected { border-color:var(--gold);color:var(--gold);background:var(--gold-dim); }
+.comp-metric { display:grid;grid-template-columns:100px 1fr 1fr 80px 100px;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:0.85rem; }
+.comp-metric:last-child { border-bottom:none; }
+.comp-improved { color:var(--green); }
+.comp-worse { color:var(--red); }
+.comp-negligible { color:var(--text-dim); }
+
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 
@@ -687,6 +708,74 @@ body {
     </div>
   </div>
 
+  <!-- Experiment Phases -->
+  <div class="experiment-phases-section">
+    <h2 class="section-title">Experiment Phases</h2>
+
+    <!-- Active Phase Banner -->
+    <div id="activePhaseBanner" class="card" style="padding:18px;display:none;margin-bottom:16px;border-left:3px solid var(--gold)">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+        <div>
+          <span id="activePhaseName" style="font-weight:600;font-size:1.1rem;color:var(--text)"></span>
+          <span id="activePhaseType" class="phase-badge" style="margin-left:8px"></span>
+        </div>
+        <button class="btn-gold" onclick="endActivePhase()" style="font-size:0.8rem;padding:6px 14px">End Phase</button>
+      </div>
+      <div style="margin-top:8px;font-size:0.85rem;color:var(--text-mid)">
+        Started <span id="activePhaseStart"></span> &middot; <span id="activePhaseDays"></span> days elapsed
+      </div>
+      <div id="activePhaseCompounds" style="margin-top:6px;font-size:0.82rem;color:var(--text-dim)"></div>
+    </div>
+
+    <!-- Toggle New Phase Form -->
+    <button class="btn-gold" id="toggleNewPhaseBtn" onclick="toggleNewPhaseForm()" style="font-size:0.85rem;padding:8px 18px;margin-bottom:14px">+ Start New Phase</button>
+
+    <div id="newPhaseForm" class="card" style="padding:20px;display:none;margin-bottom:16px">
+      <h3 style="margin:0 0 14px;font-size:0.95rem;color:var(--gold)">Start New Phase</h3>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group">
+          <label for="phaseName">Phase Name</label>
+          <input type="text" id="phaseName" placeholder="e.g. Lion's Mane 8-week" style="width:100%;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem">
+        </div>
+        <div class="form-group">
+          <label for="phaseType">Type</label>
+          <select id="phaseType" style="width:100%;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem">
+            <option value="baseline">Baseline</option>
+            <option value="intervention">Intervention</option>
+            <option value="washout">Washout</option>
+            <option value="custom">Custom</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="phaseStartDate">Start Date</label>
+          <input type="date" id="phaseStartDate" style="width:100%;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem">
+        </div>
+        <div class="form-group">
+          <label for="phaseCompounds">Compounds</label>
+          <select id="phaseCompounds" multiple style="width:100%;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;min-height:70px">
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-top:10px">
+        <label for="phaseNotes">Notes</label>
+        <textarea id="phaseNotes" placeholder="Protocol details, dosing, etc." style="width:100%;padding:8px 10px;background:var(--surface);border:1px solid var(--border);border-radius:6px;color:var(--text);font-size:0.9rem;min-height:60px;resize:vertical"></textarea>
+      </div>
+      <button class="btn-gold" onclick="createPhase()" style="margin-top:12px;font-size:0.85rem;padding:8px 20px">Create Phase</button>
+    </div>
+
+    <!-- Phase History -->
+    <div id="phaseHistory" class="card" style="padding:16px;margin-bottom:16px">
+      <h3 style="margin:0 0 12px;font-size:0.95rem;color:var(--gold)">Phase History</h3>
+      <div id="phaseList"><div class="supp-empty">Loading phases&hellip;</div></div>
+    </div>
+
+    <!-- Phase Comparison Panel -->
+    <div id="phaseComparePanel" class="card" style="padding:20px;display:none;margin-bottom:16px;border:1px solid var(--gold-dim)">
+      <h3 style="margin:0 0 14px;font-size:0.95rem;color:var(--gold)">Phase Comparison</h3>
+      <div id="phaseCompareContent"></div>
+    </div>
+  </div>
+
   <!-- Supplement Timeline -->
   <div class="supplement-timeline">
     <h2 class="section-title">Supplement Timeline</h2>
@@ -1341,8 +1430,217 @@ function renderInsights(insights) {
   section.style.display = '';
 }
 
+// ── Experiment Phases ──
+let phaseCompareSelection = [];
+
+function toggleNewPhaseForm() {
+  const form = document.getElementById('newPhaseForm');
+  form.style.display = form.style.display === 'none' ? '' : 'none';
+  if (form.style.display !== 'none') {
+    document.getElementById('phaseStartDate').value = todayStr;
+    loadCompoundsForPhaseForm();
+  }
+}
+
+async function loadCompoundsForPhaseForm() {
+  const sel = document.getElementById('phaseCompounds');
+  if (sel.options.length > 0) return;
+  const data = await apiFetch(API.supplements);
+  const supps = (data && data.supplements) ? data.supplements : [];
+  supps.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.compound_name;
+    opt.textContent = s.compound_name;
+    sel.appendChild(opt);
+  });
+}
+
+async function createPhase() {
+  const name = document.getElementById('phaseName').value.trim();
+  const phase_type = document.getElementById('phaseType').value;
+  const start_date = document.getElementById('phaseStartDate').value;
+  const sel = document.getElementById('phaseCompounds');
+  const compounds = Array.from(sel.selectedOptions).map(o => o.value);
+  const notes = document.getElementById('phaseNotes').value.trim();
+  if (!name || !start_date) return alert('Name and start date are required');
+  const r = await fetch('/api/cognitive/phases', {
+    method: 'POST', credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, phase_type, compounds, start_date, notes })
+  });
+  if (r.ok) {
+    document.getElementById('newPhaseForm').style.display = 'none';
+    document.getElementById('phaseName').value = '';
+    document.getElementById('phaseNotes').value = '';
+    loadPhases();
+  }
+}
+
+async function endActivePhase() {
+  const banner = document.getElementById('activePhaseBanner');
+  const id = banner.dataset.phaseId;
+  if (!id) return;
+  await fetch(`/api/cognitive/phases/${id}/end`, {
+    method: 'POST', credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ end_date: todayStr })
+  });
+  loadPhases();
+}
+
+function phaseTypeBadge(type) {
+  return `<span class="phase-badge ${type}">${type}</span>`;
+}
+
+function daysBetween(a, b) {
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+
+async function loadPhases() {
+  const [phasesData, activeData] = await Promise.all([
+    apiFetch('/api/cognitive/phases'),
+    apiFetch('/api/cognitive/phases/active')
+  ]);
+
+  const phases = (phasesData && phasesData.phases) ? phasesData.phases : [];
+  const active = (activeData && activeData.phase) ? activeData.phase : null;
+
+  // Active banner
+  const banner = document.getElementById('activePhaseBanner');
+  if (active) {
+    banner.style.display = '';
+    banner.dataset.phaseId = active.id;
+    document.getElementById('activePhaseName').textContent = active.name;
+    const typeEl = document.getElementById('activePhaseType');
+    typeEl.textContent = active.phase_type;
+    typeEl.className = 'phase-badge ' + active.phase_type;
+    document.getElementById('activePhaseStart').textContent = new Date(active.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    document.getElementById('activePhaseDays').textContent = daysBetween(active.start_date, todayStr);
+    const compounds = active.compounds ? JSON.parse(active.compounds) : [];
+    document.getElementById('activePhaseCompounds').textContent = compounds.length > 0 ? compounds.join(', ') : '';
+  } else {
+    banner.style.display = 'none';
+  }
+
+  // Phase history list
+  const list = document.getElementById('phaseList');
+  if (phases.length === 0) {
+    list.innerHTML = '<div class="supp-empty">No phases recorded yet.</div>';
+    return;
+  }
+
+  // Fetch stats for all phases in parallel
+  const statsArr = await Promise.all(phases.map(p => apiFetch(`/api/cognitive/phases/${p.id}/stats`)));
+
+  list.innerHTML = phases.map((p, i) => {
+    const st = statsArr[i];
+    const totalSessions = st ? (st.stats.nback.n + st.stats.pvt.n + st.stats.dsst.n) : 0;
+    const endStr = p.end_date ? new Date(p.end_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'ongoing';
+    const startStr = new Date(p.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const dur = p.end_date ? daysBetween(p.start_date, p.end_date) : daysBetween(p.start_date, todayStr);
+    const isSelected = phaseCompareSelection.includes(p.id);
+
+    let detailHTML = '';
+    if (st) {
+      const fmtStat = (label, s, unit) => s.n > 0 ? `<div>${label}: ${s.mean}${unit} ±${s.sd} (n=${s.n})</div>` : `<div>${label}: no data</div>`;
+      detailHTML = `<div class="phase-detail" id="phaseDetail${p.id}">
+        ${fmtStat('N-Back max level', st.stats.nback, '')}
+        ${fmtStat('PVT median RT', st.stats.pvt, 'ms')}
+        ${fmtStat('DSST correct', st.stats.dsst, '')}
+        ${p.notes ? `<div style="margin-top:6px;font-style:italic">${p.notes}</div>` : ''}
+      </div>`;
+    }
+
+    return `<div class="phase-row" onclick="togglePhaseDetail(${p.id})">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px">
+        <div>
+          <span style="font-weight:500;color:var(--text)">${p.name}</span>
+          ${phaseTypeBadge(p.phase_type)}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:0.82rem;color:var(--text-dim)">
+          <span>${startStr} – ${endStr}</span>
+          <span>(${dur}d)</span>
+          <span>${totalSessions} sessions</span>
+          <button class="phase-compare-btn ${isSelected ? 'selected' : ''}" onclick="event.stopPropagation();toggleCompare(${p.id})">${isSelected ? 'Selected' : 'Compare'}</button>
+        </div>
+      </div>
+      ${detailHTML}
+    </div>`;
+  }).join('');
+}
+
+function togglePhaseDetail(id) {
+  const el = document.getElementById('phaseDetail' + id);
+  if (el) el.classList.toggle('open');
+}
+
+function toggleCompare(id) {
+  const idx = phaseCompareSelection.indexOf(id);
+  if (idx >= 0) {
+    phaseCompareSelection.splice(idx, 1);
+  } else {
+    if (phaseCompareSelection.length >= 2) phaseCompareSelection.shift();
+    phaseCompareSelection.push(id);
+  }
+  if (phaseCompareSelection.length === 2) {
+    runComparison(phaseCompareSelection[0], phaseCompareSelection[1]);
+  } else {
+    document.getElementById('phaseComparePanel').style.display = 'none';
+  }
+  // Re-render to update button states
+  loadPhases();
+}
+
+async function runComparison(idA, idB) {
+  const data = await apiFetch(`/api/cognitive/phases/compare?a=${idA}&b=${idB}`);
+  if (!data) return;
+
+  const panel = document.getElementById('phaseComparePanel');
+  panel.style.display = '';
+
+  function interpret(d) {
+    if (d === null) return { label: 'N/A', cls: 'comp-negligible' };
+    const abs = Math.abs(d);
+    let size = 'tiny';
+    if (abs >= 0.8) size = 'large';
+    else if (abs >= 0.5) size = 'medium';
+    else if (abs >= 0.2) size = 'small';
+    const improved = d > 0;
+    const cls = abs < 0.2 ? 'comp-negligible' : (improved ? 'comp-improved' : 'comp-worse');
+    return { label: size, cls };
+  }
+
+  const metrics = [
+    { key: 'nback', name: 'N-Back', unit: '' },
+    { key: 'pvt', name: 'PVT (RT)', unit: 'ms' },
+    { key: 'dsst', name: 'DSST', unit: '' },
+  ];
+
+  let html = `<div class="comp-metric" style="font-weight:600;color:var(--text-dim);font-size:0.78rem">
+    <div>Metric</div><div>Phase A</div><div>Phase B</div><div>Cohen's d</div><div>Effect</div>
+  </div>`;
+
+  metrics.forEach(m => {
+    const s = data[m.key];
+    if (!s) return;
+    const interp = interpret(s.cohens_d);
+    const dVal = s.cohens_d !== null ? s.cohens_d.toFixed(2) : '—';
+    html += `<div class="comp-metric">
+      <div style="font-weight:500">${m.name}</div>
+      <div>${s.mean_a !== null ? s.mean_a + m.unit + ' ±' + s.sd_a + ' (n=' + s.n_a + ')' : '—'}</div>
+      <div>${s.mean_b !== null ? s.mean_b + m.unit + ' ±' + s.sd_b + ' (n=' + s.n_b + ')' : '—'}</div>
+      <div class="${interp.cls}" style="font-weight:600">${dVal}</div>
+      <div class="${interp.cls}">${interp.label}</div>
+    </div>`;
+  });
+
+  document.getElementById('phaseCompareContent').innerHTML = html;
+}
+
 // ── Init ──
+async function initPhases() { await loadPhases(); }
 init();
+initPhases();
 </script>
 </body>
 </html>
