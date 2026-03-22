@@ -12,7 +12,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-user-select:none;user-select:none}
 :root{--bg:#06060b;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--text:#e0e0e0;--heading:#ffffff;--gold:#d4a853;--green:#4ade80;--red:#ef4444;--radius:16px}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:16px;min-height:100vh;min-height:100dvh;overflow:hidden;touch-action:manipulation}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:16px;min-height:100vh;min-height:100dvh;overflow:hidden;touch-action:manipulation;padding-bottom:56px}
 .screen{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
 .screen.hidden{display:none}
 h1{color:var(--heading);font-size:24px;margin-bottom:8px}
@@ -52,6 +52,11 @@ p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:340px;mar
 .auth-box h2{color:var(--heading);margin-bottom:16px}
 .auth-box input{width:100%;padding:14px;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:10px;color:var(--heading);font-size:16px;font-family:inherit;text-align:center;margin-bottom:12px}
 .auth-box button{width:100%;padding:14px;background:var(--gold);color:#06060b;font-weight:700;border:none;border-radius:10px;font-size:16px;cursor:pointer;font-family:inherit}
+/* Test navigation */
+.app-test-nav{position:fixed;bottom:0;left:0;right:0;display:flex;gap:4px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:rgba(0,0,0,0.95);border-top:1px solid rgba(255,255,255,0.08);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;z-index:9999}
+.app-test-nav::-webkit-scrollbar{display:none}
+.app-test-nav a{flex-shrink:0;padding:6px 12px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.4);text-decoration:none;transition:color 0.2s}
+.app-test-nav a.active{color:#d4a853}
 </style>
 </head>
 <body>
@@ -248,5 +253,6 @@ async function endTest() {
   } catch {}
 }
 </script>
+<nav class="app-test-nav"><a href="pvt.html">PVT</a><a href="dsst.html">DSST</a><a href="nback.html">N-Back</a><a href="stroop.html" class="active">Stroop</a><a href="tmtb.html">TMT-B</a><a href="avlt.html">AVLT</a></nav>
 </body>
 </html>
