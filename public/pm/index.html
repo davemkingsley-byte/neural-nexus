@@ -406,6 +406,145 @@ a { color: var(--gold); text-decoration: none; }
   padding: 2px 8px;
 }
 
+/* Org Charter */
+.charter-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 28px 32px;
+  margin-top: 8px;
+}
+.charter-meta {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border);
+}
+.charter-meta span { color: var(--text-mid); }
+.charter-purpose {
+  font-size: 14px;
+  color: var(--text-mid);
+  line-height: 1.7;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: rgba(201,168,76,0.06);
+  border-left: 3px solid var(--gold-dim);
+  border-radius: 0 8px 8px 0;
+}
+.charter-block-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--gold);
+  margin-bottom: 12px;
+  margin-top: 24px;
+}
+.divisions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.division-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.division-card .division-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.division-card .division-focus {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 12px;
+}
+.division-agent {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+}
+.division-agent .agent-tag { flex-shrink: 0; }
+.division-agent .agent-scope {
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+.orchestrator-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: rgba(201,168,76,0.08);
+  border: 1px solid var(--gold-dim);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+}
+.orchestrator-row .agent-tag { flex-shrink: 0; }
+.orchestrator-row .orch-info { font-size: 12px; color: var(--text-mid); line-height: 1.6; }
+.orchestrator-row .orch-role { font-weight: 700; color: var(--gold); margin-bottom: 2px; }
+.criteria-list, .constraints-list {
+  list-style: none;
+  padding: 0;
+}
+.criteria-list li, .constraints-list li {
+  font-size: 13px;
+  color: var(--text-mid);
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  line-height: 1.6;
+}
+.criteria-list li:last-child, .constraints-list li:last-child { border-bottom: none; }
+.criteria-list .domain {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  background: var(--gold-dim);
+  border-radius: 5px;
+  padding: 2px 8px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.constraints-list .bullet { color: var(--red); flex-shrink: 0; margin-top: 2px; }
+.cadence-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+.cadence-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+.cadence-card .cadence-freq {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.cadence-card .cadence-activity {
+  font-size: 12px;
+  color: var(--text-mid);
+  line-height: 1.6;
+}
+
 /* Loading / Error */
 .loading {
   text-align: center;
@@ -648,6 +787,65 @@ a { color: var(--gold); text-decoration: none; }
     return html;
   }
 
+  function renderOrgCharter(data) {
+    const c = data.orgCharter;
+    if (!c) return '';
+
+    const divisionsHtml = c.divisions.map(div => `
+      <div class="division-card">
+        <div class="division-name">${esc(div.name)} Division</div>
+        <div class="division-focus">${esc(div.focus)}</div>
+        ${div.agents.map(a => `
+          <div class="division-agent">
+            <span class="agent-tag">${esc(a.name)}</span>
+            <div class="agent-scope"><strong style="color:var(--text-mid)">${esc(a.role)}</strong> — ${esc(a.scope)}</div>
+          </div>`).join('')}
+      </div>`).join('');
+
+    const criteriaHtml = c.successCriteria.map(sc => `
+      <li><span class="domain">${esc(sc.domain)}</span>${esc(sc.target)}</li>`).join('');
+
+    const constraintsHtml = c.constraints.map(con => `
+      <li><span class="bullet">▪</span>${esc(con)}</li>`).join('');
+
+    const cadenceHtml = c.reviewCadence.map(r => `
+      <div class="cadence-card">
+        <div class="cadence-freq">${esc(r.frequency)}</div>
+        <div class="cadence-activity">${esc(r.activity)}</div>
+      </div>`).join('');
+
+    return `
+      <div class="charter-section">
+        <div class="charter-meta">
+          <span>Version: <span>${esc(c.version)}</span></span>
+          <span>Adopted: <span>${fmtDate(c.adopted)}</span></span>
+          <span>Author: <span>${esc(c.author)}</span></span>
+        </div>
+        <div class="charter-purpose">${esc(c.purpose)}</div>
+
+        <div class="charter-block-title">Orchestrator</div>
+        <div class="orchestrator-row">
+          <span class="agent-tag">${esc(c.orchestrator.name)}</span>
+          <div class="orch-info">
+            <div class="orch-role">${esc(c.orchestrator.role)}</div>
+            <div>${esc(c.orchestrator.scope)}</div>
+          </div>
+        </div>
+
+        <div class="charter-block-title">Divisions &amp; Agents</div>
+        <div class="divisions-grid">${divisionsHtml}</div>
+
+        <div class="charter-block-title">Success Criteria</div>
+        <ul class="criteria-list">${criteriaHtml}</ul>
+
+        <div class="charter-block-title">Operating Constraints</div>
+        <ul class="constraints-list">${constraintsHtml}</ul>
+
+        <div class="charter-block-title">Review Cadence</div>
+        <div class="cadence-grid">${cadenceHtml}</div>
+      </div>`;
+  }
+
   function renderAgents(data) {
     const tasks = allTasks(data);
     const rows = (data.agents || []).map(agent => {
@@ -690,6 +888,8 @@ a { color: var(--gold); text-decoration: none; }
     $('#app').innerHTML = `
       ${renderSummary(stats)}
       ${renderProgramCards(data)}
+      <div class="section-title" style="margin-top:48px;">Org Charter</div>
+      ${renderOrgCharter(data)}
       <div class="section-title" style="margin-top:48px;">Projects</div>
       ${renderProjects(data)}
       <div class="section-title" style="margin-top:48px;">All Tasks</div>

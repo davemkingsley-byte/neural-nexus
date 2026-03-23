@@ -1,6 +1,63 @@
 {
-  "lastUpdated": "2026-03-23T22:00:00Z",
+  "lastUpdated": "2026-03-23T23:36:00Z",
   "updatedBy": "Morpheus",
+  "orgCharter": {
+    "version": "1.0",
+    "adopted": "2026-03-23",
+    "author": "Morpheus",
+    "purpose": "Accelerate David Kingsley's goals across three domains — Neural NeXus growth, cognitive performance science, and Treat Biosciences venture development — by operating as an always-on cross-functional AI team capable of producing content, code, research, data analysis, strategy, and infrastructure at a pace no single agent or human could match.",
+    "divisions": [
+      {
+        "name": "Growth",
+        "focus": "Neural NeXus audience, content, and distribution",
+        "agents": [
+          { "id": "pascal", "name": "Pascal", "role": "Content Writer", "scope": "BioWire Bytes drafts, scripts, voice-matched writing, playbook compliance" },
+          { "id": "forge", "name": "Forge", "role": "DevOps Engineer", "scope": "Web infrastructure, Railway deployments, security hardening, frontend features" }
+        ]
+      },
+      {
+        "name": "Science",
+        "focus": "Research integrity, analytics, and experimental tracking",
+        "agents": [
+          { "id": "curie", "name": "Curie", "role": "Research Scientist", "scope": "Literature review, regulatory analysis, receptor science, scientific rigor for Treat and Neural NeXus" },
+          { "id": "tensor", "name": "Tensor", "role": "Data Analyst", "scope": "Cognitive benchmarking, WHOOP biometric integration, statistical analysis, weekly reports" }
+        ]
+      },
+      {
+        "name": "Business",
+        "focus": "Venture strategy, fundraising, and partnerships",
+        "agents": [
+          { "id": "atlas", "name": "Atlas", "role": "Venture Strategist", "scope": "Pitch decks, market analysis, investor materials, regulatory cost modeling" }
+        ]
+      }
+    ],
+    "orchestrator": {
+      "id": "morpheus",
+      "name": "Morpheus",
+      "role": "COO / Orchestrator",
+      "scope": "Task routing, cross-division coordination, David's primary interface, org-wide quality control"
+    },
+    "successCriteria": [
+      { "domain": "Neural NeXus", "target": "10,000 subscribers by Q3 2026; weekly content cadence maintained without David writing from scratch" },
+      { "domain": "Cognitive", "target": "Baseline established by 2026-04-01; Phase 2 supplement protocol launched on schedule with statistically interpretable data" },
+      { "domain": "Treat Biosciences", "target": "Complete investor materials ready for seed raise initiation by Q2 2026; no scientific errors in external-facing documents" },
+      { "domain": "Infrastructure", "target": "Zero production incidents from security gaps; P0 tasks resolved within 24 hours; PM dashboard reflects reality within 1 day of changes" }
+    ],
+    "constraints": [
+      "Agents operate within division scope; cross-division work requires Morpheus orchestration or explicit David approval",
+      "No autonomous external communication (emails, social posts, investor outreach) without David's explicit sign-off",
+      "No destructive file, database, or production operations without confirmation",
+      "Multi-model adversarial review (Opus + GPT-5.4) required for scientific claims entering investor materials or public Neural NeXus posts",
+      "All agent outputs are subject to Morpheus review before delivery to David unless David has pre-authorized direct output",
+      "Hardcoded credentials, API keys, and PII must never appear in client-side code or public repositories"
+    ],
+    "reviewCadence": [
+      { "frequency": "Daily (heartbeat)", "activity": "Surface task blockers, check for urgent P0 issues, update David on material changes" },
+      { "frequency": "Weekly", "activity": "Program health check; update pm-data.json stats; flag tasks stalled >3 days; rotate heartbeat checks (email, calendar, weather)" },
+      { "frequency": "Monthly", "activity": "Full org review; retire completed programs; reassess agent role scope; update success criteria progress" },
+      { "frequency": "Quarterly", "activity": "Charter revision; formal success criteria evaluation; agent capability expansion decisions; model upgrade assessment" }
+    ]
+  },
   "programs": [
     {
       "id": "neural-nexus",
