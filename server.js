@@ -956,6 +956,30 @@ app.get('/api/cognitive/phases/:id/stats', dashboardAuth, (req, res) => {
   }
 });
 
+// ── Public Brain Check Leaderboard (no auth) ──
+app.post('/api/brain-check/submit', (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const { score, pvt_ms, dsst_score } = req.body;
+    if (score == null || pvt_ms == null || dsst_score == null) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const result = cogDB.submitBrainCheck(score, pvt_ms, dsst_score);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to submit brain check' });
+  }
+});
+
+app.get('/api/brain-check/leaderboard', (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    res.json(cogDB.getBrainCheckLeaderboard());
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to get leaderboard' });
+  }
+});
+
 // Weekly cognitive report
 app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
   if (!cogDBReady) return res.json({ error: 'db_unavailable' });

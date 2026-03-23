@@ -508,6 +508,55 @@ body {
 .cta-card.blue-border:hover { border-color: var(--blue); }
 .cta-card small { display: block; margin-top: 6px; font-weight: 400; font-size: 0.8rem; color: var(--text-dim); }
 
+.live-benchmarks {
+  background: var(--surface);
+  border: 1px solid var(--surface2);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  width: 100%;
+  max-width: 400px;
+  margin: 16px 0;
+  text-align: center;
+}
+.live-benchmarks .lb-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gold);
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+.lb-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.lb-stat {
+  padding: 8px 0;
+}
+.lb-stat .lb-val {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+}
+.lb-stat .lb-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+
+.percentile-live {
+  display: none;
+  margin: 12px 0;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, rgba(212,168,83,0.18), rgba(212,168,83,0.06));
+  border: 1px solid rgba(212,168,83,0.35);
+  border-radius: 60px;
+  font-size: 0.95rem;
+  color: var(--gold);
+  font-weight: 500;
+}
+
 .share-row {
   display: flex;
   gap: 12px;
@@ -640,6 +689,17 @@ body {
   <div class="score-big" id="score-big">0</div>
   <p class="score-label">out of <strong>100</strong></p>
   <div class="percentile-badge" id="percentile-badge"></div>
+  <div class="percentile-live" id="percentile-live"></div>
+
+  <div class="live-benchmarks" id="live-benchmarks" style="display:none">
+    <div class="lb-title">&#x1F4CA; Live Benchmarks</div>
+    <div class="lb-stats">
+      <div class="lb-stat"><div class="lb-val" id="lb-total">—</div><div class="lb-label">Total submissions</div></div>
+      <div class="lb-stat"><div class="lb-val" id="lb-median">—</div><div class="lb-label">Median (p50)</div></div>
+      <div class="lb-stat"><div class="lb-val" id="lb-p75">—</div><div class="lb-label">Top 25% (p75)</div></div>
+      <div class="lb-stat"><div class="lb-val" id="lb-p90">—</div><div class="lb-label">Top 10% (p90)</div></div>
+    </div>
+  </div>
 
   <div class="breakdown" id="breakdown"></div>
 
@@ -1067,6 +1127,27 @@ body {
 
     // Confetti
     launchConfetti();
+
+    // Submit to leaderboard (non-blocking)
+    fetch('/api/brain-check/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ score: finalScore, pvt_ms: medRT, dsst_score: state.dsstCorrect })
+    })
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(data) {
+      if (!data) return;
+      var el = $('percentile-live');
+      if (data.total < 5) {
+        el.textContent = 'You are one of our first testers!';
+      } else {
+        el.textContent = 'You scored better than ' + data.percentile + '% of Brain Check takers \uD83E\uDDE0';
+      }
+      el.style.display = 'inline-block';
+      // Refresh benchmarks widget
+      fetchLeaderboard();
+    })
+    .catch(function() {});
   }
 
   // ---- Share ----
@@ -1169,6 +1250,22 @@ body {
 
     requestAnimationFrame(animateConfetti);
   }
+
+  // ---- Live Benchmarks ----
+  function fetchLeaderboard() {
+    fetch('/api/brain-check/leaderboard')
+      .then(function(r) { return r.ok ? r.json() : null; })
+      .then(function(data) {
+        if (!data || data.total === 0) return;
+        $('live-benchmarks').style.display = '';
+        $('lb-total').textContent = data.total;
+        $('lb-median').textContent = data.percentiles.p50 != null ? data.percentiles.p50 : '—';
+        $('lb-p75').textContent = data.percentiles.p75 != null ? data.percentiles.p75 : '—';
+        $('lb-p90').textContent = data.percentiles.p90 != null ? data.percentiles.p90 : '—';
+      })
+      .catch(function() {});
+  }
+  fetchLeaderboard();
 
 })();
 </script>

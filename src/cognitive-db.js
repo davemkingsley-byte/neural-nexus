@@ -109,6 +109,14 @@ function initDB() {
         created_at TEXT DEFAULT (datetime('now'))
       );
 
+      CREATE TABLE IF NOT EXISTS public_brain_check (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        score INTEGER,
+        pvt_ms REAL,
+        dsst_score INTEGER,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+
       CREATE INDEX IF NOT EXISTS idx_test_results_date ON test_results(date);
       CREATE INDEX IF NOT EXISTS idx_test_results_type ON test_results(test_type);
       CREATE INDEX IF NOT EXISTS idx_chess_elo_date ON chess_elo(date);
@@ -279,6 +287,19 @@ function prepareStatements() {
        updated_at = datetime('now')`
   );
   stmts.getWhoopTokens = db.prepare('SELECT * FROM whoop_tokens WHERE id = 1');
+
+  // Brain Check leaderboard
+  stmts.insertBrainCheck = db.prepare(
+    'INSERT INTO public_brain_check (score, pvt_ms, dsst_score) VALUES (?, ?, ?)'
+  );
+  stmts.brainCheckCount = db.prepare('SELECT COUNT(*) as total FROM public_brain_check');
+  stmts.brainCheckCountBelow = db.prepare('SELECT COUNT(*) as cnt FROM public_brain_check WHERE score < ?');
+  stmts.brainCheckPercentile = db.prepare(
+    'SELECT score FROM public_brain_check ORDER BY score ASC LIMIT 1 OFFSET ?'
+  );
+  stmts.brainCheckTop10 = db.prepare(
+    'SELECT id, score, pvt_ms, dsst_score, created_at FROM public_brain_check ORDER BY score DESC LIMIT 10'
+  );
 }
 
 // chess_elo needs a unique constraint on date for upsert to work
@@ -512,6 +533,31 @@ module.exports = {
       nback: cohensD(a.stats.nback, b.stats.nback),
       pvt: cohensD(a.stats.pvt, b.stats.pvt, true),
       dsst: cohensD(a.stats.dsst, b.stats.dsst),
+    };
+  },
+
+  submitBrainCheck(score, pvt_ms, dsst_score) {
+    stmts.insertBrainCheck.run(score, pvt_ms, dsst_score);
+    const { total } = stmts.brainCheckCount.get();
+    const { cnt } = stmts.brainCheckCountBelow.get(score);
+    const percentile = total > 0 ? Math.round((cnt / total) * 100) : 0;
+    return { percentile, total };
+  },
+
+  getBrainCheckLeaderboard() {
+    const { total } = stmts.brainCheckCount.get();
+    if (total === 0) return { total: 0, percentiles: { p25: null, p50: null, p75: null, p90: null }, top_scores: [] };
+
+    function pVal(p) {
+      const idx = Math.min(Math.floor(p * total), total - 1);
+      const row = stmts.brainCheckPercentile.get(idx);
+      return row ? row.score : null;
+    }
+
+    return {
+      total,
+      percentiles: { p25: pVal(0.25), p50: pVal(0.50), p75: pVal(0.75), p90: pVal(0.90) },
+      top_scores: stmts.brainCheckTop10.all()
     };
   },
 
