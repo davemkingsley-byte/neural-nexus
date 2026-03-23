@@ -1733,14 +1733,26 @@ app.get('/api/whoop/callback', async (req, res) => {
 });
 
 // Status — check if WHOOP is connected
-app.get('/api/whoop/status', dashboardAuth, (req, res) => {
+app.get('/api/whoop/status', dashboardAuth, async (req, res) => {
   if (!checkCogDB(res)) return;
   const tokens = cogDB.getWhoopTokens();
   if (!tokens || !tokens.access_token) {
     return res.json({ connected: false });
   }
   const expired = new Date(tokens.expires_at) < new Date();
-  res.json({ connected: true, hasRefreshToken: !!tokens.refresh_token, tokenExpired: expired });
+
+  // If token is expired, proactively attempt a refresh so the dashboard
+  // shows an accurate connected/disconnected state.
+  if (expired && tokens.refresh_token) {
+    const freshToken = await getWhoopAccessToken();
+    if (freshToken) {
+      return res.json({ connected: true, hasRefreshToken: true, tokenExpired: false, refreshed: true });
+    }
+    // Refresh failed — tokens were cleared by getWhoopAccessToken()
+    return res.json({ connected: false, refreshFailed: true });
+  }
+
+  res.json({ connected: !expired, hasRefreshToken: !!tokens.refresh_token, tokenExpired: expired });
 });
 
 // Helper: get valid WHOOP access token (refresh if needed)
@@ -1754,8 +1766,12 @@ async function getWhoopAccessToken() {
   }
 
   // Try to refresh
-  if (!tokens.refresh_token) return null;
+  if (!tokens.refresh_token) {
+    console.warn('WHOOP token expired and no refresh token available — marking disconnected');
+    return null;
+  }
 
+  console.log('WHOOP access token expired, attempting refresh...');
   try {
     const body = new URLSearchParams({
       grant_type: 'refresh_token',
@@ -1771,20 +1787,77 @@ async function getWhoopAccessToken() {
     });
 
     if (!refreshRes.ok) {
-      console.error('WHOOP token refresh failed');
+      const errBody = await refreshRes.text().catch(() => 'unknown');
+      console.error(`WHOOP token refresh failed (${refreshRes.status}): ${errBody}`);
       // Clear tokens — mark as disconnected
       cogDB.saveWhoopTokens('', '', '');
       return null;
     }
 
     const newTokens = await refreshRes.json();
-    const expiresAt = new Date(Date.now() + newTokens.expires_in * 1000).toISOString();
-    cogDB.saveWhoopTokens(newTokens.access_token, newTokens.refresh_token, expiresAt);
+    if (!newTokens.access_token) {
+      console.error('WHOOP refresh response missing access_token');
+      cogDB.saveWhoopTokens('', '', '');
+      return null;
+    }
+    const expiresAt = new Date(Date.now() + (newTokens.expires_in || 3600) * 1000).toISOString();
+    cogDB.saveWhoopTokens(newTokens.access_token, newTokens.refresh_token || tokens.refresh_token, expiresAt);
+    console.log('WHOOP token refreshed successfully, expires at', expiresAt);
     return newTokens.access_token;
   } catch (err) {
     console.error('WHOOP token refresh error:', err);
     return null;
   }
+}
+
+// Helper: process WHOOP sleep + recovery data and save to DB
+function processWhoopSyncData(sleepData, recoveryData, res) {
+  const sleepRecords = sleepData.records || [];
+  const recoveryRecords = recoveryData.records || [];
+
+  const recoveryBySleepId = {};
+  const recoveryByDate = {};
+  recoveryRecords.forEach(r => {
+    if (r.sleep_id != null) recoveryBySleepId[String(r.sleep_id)] = r;
+    const fallbackDate = r.created_at ? r.created_at.split('T')[0] : null;
+    if (fallbackDate) recoveryByDate[fallbackDate] = r;
+  });
+
+  let synced = 0;
+  sleepRecords.forEach(sleep => {
+    const date = sleep.start ? sleep.start.split('T')[0] : null;
+    if (!date) return;
+
+    const msToMin = ms => ms != null ? ms / 60000 : null;
+    const stages = sleep.score?.stage_summary || {};
+    const recovery = recoveryBySleepId[String(sleep.id)] || recoveryByDate[date] || {};
+    const recoveryScore = recovery.score?.recovery_score ?? null;
+
+    cogDB.saveWhoopData({
+      date,
+      sleep_duration_min: msToMin(stages.total_in_bed_time_milli ?? sleep.score?.total_in_bed_time_milli),
+      deep_sleep_min: msToMin(stages.total_slow_wave_sleep_time_milli),
+      rem_sleep_min: msToMin(stages.total_rem_sleep_time_milli),
+      light_sleep_min: msToMin(stages.total_light_sleep_time_milli),
+      awake_min: msToMin(stages.total_awake_time_milli),
+      sleep_cycles: stages.sleep_cycle_count ?? null,
+      disturbances: stages.disturbance_count ?? null,
+      respiratory_rate: sleep.score?.respiratory_rate ?? null,
+      sleep_performance: sleep.score?.sleep_performance_percentage ?? null,
+      sleep_consistency: sleep.score?.sleep_consistency_percentage ?? null,
+      sleep_efficiency: sleep.score?.sleep_efficiency_percentage ?? null,
+      recovery_score: recoveryScore,
+      resting_hr: recovery.score?.resting_heart_rate ?? null,
+      hrv_rmssd: recovery.score?.hrv_rmssd_milli ?? null,
+      spo2: recovery.score?.spo2_percentage ?? null,
+      skin_temp: recovery.score?.skin_temp_celsius ?? null,
+      raw_sleep_json: JSON.stringify(sleep),
+      raw_recovery_json: recovery.score ? JSON.stringify(recovery) : null,
+    });
+    synced++;
+  });
+
+  return res.json({ ok: true, synced });
 }
 
 // Sync — pull latest data from WHOOP
@@ -1804,8 +1877,30 @@ app.post('/api/whoop/sync', dashboardAuth, async (req, res) => {
       fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=30', { headers }),
     ]);
 
-    // Handle 401 — try refresh once
+    // Handle 401 — force-refresh and retry once before giving up
     if (sleepRes.status === 401 || recoveryRes.status === 401) {
+      console.log('WHOOP API returned 401 — attempting token refresh and retry...');
+      // Invalidate the cached expiry so getWhoopAccessToken() forces a refresh
+      const currentTokens = cogDB.getWhoopTokens();
+      if (currentTokens && currentTokens.refresh_token) {
+        cogDB.saveWhoopTokens(currentTokens.access_token, currentTokens.refresh_token, new Date(0).toISOString());
+        const retryToken = await getWhoopAccessToken();
+        if (retryToken) {
+          const retryHeaders = { Authorization: `Bearer ${retryToken}` };
+          const [retrySleep, retryRecovery] = await Promise.all([
+            fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=30', { headers: retryHeaders }),
+            fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=30', { headers: retryHeaders }),
+          ]);
+          if (retrySleep.ok || retryRecovery.ok) {
+            // Retry succeeded — continue with retried responses
+            const retrySleepData = retrySleep.ok ? await retrySleep.json() : { records: [] };
+            const retryRecoveryData = retryRecovery.ok ? await retryRecovery.json() : { records: [] };
+            return processWhoopSyncData(retrySleepData, retryRecoveryData, res);
+          }
+        }
+      }
+      // Refresh+retry failed — clear tokens
+      console.error('WHOOP token refresh+retry failed — clearing tokens');
       cogDB.saveWhoopTokens('', '', '');
       return res.status(401).json({ error: 'WHOOP token expired. Please reconnect.' });
     }
@@ -1813,56 +1908,7 @@ app.post('/api/whoop/sync', dashboardAuth, async (req, res) => {
     const sleepData = sleepRes.ok ? await sleepRes.json() : { records: [] };
     const recoveryData = recoveryRes.ok ? await recoveryRes.json() : { records: [] };
 
-    const sleepRecords = sleepData.records || [];
-    const recoveryRecords = recoveryData.records || [];
-
-    // Index recovery by sleep_id (most reliable match) and by date as fallback.
-    // WHOOP v2 recovery records carry a sleep_id that maps directly to sleep.id.
-    const recoveryBySleepId = {};
-    const recoveryByDate = {};
-    recoveryRecords.forEach(r => {
-      if (r.sleep_id != null) recoveryBySleepId[String(r.sleep_id)] = r;
-      // Fallback: use the sleep start date from score.user_calibration_time or created_at
-      const fallbackDate = r.created_at ? r.created_at.split('T')[0] : null;
-      if (fallbackDate) recoveryByDate[fallbackDate] = r;
-    });
-
-    let synced = 0;
-    sleepRecords.forEach(sleep => {
-      const date = sleep.start ? sleep.start.split('T')[0] : null;
-      if (!date) return;
-
-      const msToMin = ms => ms != null ? ms / 60000 : null;
-      const stages = sleep.score?.stage_summary || {};
-      // Match recovery via sleep_id first (exact), then fallback to date index
-      const recovery = recoveryBySleepId[String(sleep.id)] || recoveryByDate[date] || {};
-      const recoveryScore = recovery.score?.recovery_score ?? null;
-
-      cogDB.saveWhoopData({
-        date,
-        sleep_duration_min: msToMin(stages.total_in_bed_time_milli ?? sleep.score?.total_in_bed_time_milli),
-        deep_sleep_min: msToMin(stages.total_slow_wave_sleep_time_milli),
-        rem_sleep_min: msToMin(stages.total_rem_sleep_time_milli),
-        light_sleep_min: msToMin(stages.total_light_sleep_time_milli),
-        awake_min: msToMin(stages.total_awake_time_milli),
-        sleep_cycles: stages.sleep_cycle_count ?? null,
-        disturbances: stages.disturbance_count ?? null,
-        respiratory_rate: sleep.score?.respiratory_rate ?? null,
-        sleep_performance: sleep.score?.sleep_performance_percentage ?? null,
-        sleep_consistency: sleep.score?.sleep_consistency_percentage ?? null,
-        sleep_efficiency: sleep.score?.sleep_efficiency_percentage ?? null,
-        recovery_score: recoveryScore,
-        resting_hr: recovery.score?.resting_heart_rate ?? null,
-        hrv_rmssd: recovery.score?.hrv_rmssd_milli ?? null,
-        spo2: recovery.score?.spo2_percentage ?? null,
-        skin_temp: recovery.score?.skin_temp_celsius ?? null,
-        raw_sleep_json: JSON.stringify(sleep),
-        raw_recovery_json: recovery.score ? JSON.stringify(recovery) : null,
-      });
-      synced++;
-    });
-
-    res.json({ ok: true, synced });
+    return processWhoopSyncData(sleepData, recoveryData, res);
   } catch (err) {
     console.error('WHOOP sync error:', err);
     res.status(500).json({ error: 'Failed to sync WHOOP data' });

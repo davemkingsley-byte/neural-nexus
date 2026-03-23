@@ -1247,7 +1247,7 @@ async function init() {
   // ── WHOOP status ──
   try {
     const whoopStatus = await apiFetch('/api/whoop/status');
-    if (whoopStatus && whoopStatus.connected) {
+    if (whoopStatus && whoopStatus.connected && !whoopStatus.tokenExpired) {
       $('#whoopNotConnected').style.display = 'none';
       $('#whoopConnected').style.display = '';
       // Load latest WHOOP data
