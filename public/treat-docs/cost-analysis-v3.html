@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Treat Biosciences — Development Cost Analysis v3</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: #f5f5f5; color: #1a1a1a; line-height: 1.5; }
+  .slide { background: #fff; max-width: 960px; margin: 30px auto; padding: 48px 56px; border-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.1); page-break-after: always; min-height: 540px; }
+  h1 { font-size: 28px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+  h2 { font-size: 20px; font-weight: 600; color: #333; margin: 24px 0 12px; }
+  h3 { font-size: 16px; font-weight: 600; color: #444; margin: 16px 0 8px; }
+  .subtitle { font-size: 18px; color: #666; margin-bottom: 4px; }
+  .version { font-size: 14px; color: #888; margin-bottom: 24px; }
+  .hero { text-align: center; padding: 80px 0 40px; }
+  .hero h1 { font-size: 36px; }
+  .big-number { font-size: 32px; font-weight: 700; color: #2563eb; }
+  .big-number.green { color: #16a34a; }
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 20px; font-size: 13px; }
+  th { background: #1a1a1a; color: #fff; padding: 8px 12px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
+  td { padding: 7px 12px; border-bottom: 1px solid #e5e5e5; }
+  tr:last-child td { border-bottom: none; }
+  tr.total td { font-weight: 700; background: #f0f4ff; border-top: 2px solid #1a1a1a; }
+  tr.highlight td { background: #fef3c7; }
+  tr:hover td { background: #f8f9fa; }
+  tr.total:hover td { background: #e8edff; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 32px; }
+  .col { }
+  ul { margin: 8px 0 16px 20px; }
+  li { margin-bottom: 4px; font-size: 14px; }
+  .note { font-size: 13px; color: #666; font-style: italic; margin-top: 12px; }
+  .tag { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+  .tag-risk { background: #fecaca; color: #991b1b; }
+  .tag-ok { background: #bbf7d0; color: #166534; }
+  .tag-warn { background: #fef3c7; color: #92400e; }
+  .callout { background: #f0f4ff; border-left: 4px solid #2563eb; padding: 12px 16px; margin: 16px 0; font-size: 14px; }
+  .callout.warn { background: #fef3c7; border-left-color: #f59e0b; }
+  .callout.red { background: #fef2f2; border-left-color: #ef4444; }
+  .source-list { font-size: 12px; color: #555; }
+  .source-list li { margin-bottom: 6px; }
+  .timeline-bar { display: flex; gap: 2px; margin: 8px 0; }
+  .timeline-seg { height: 24px; border-radius: 3px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #fff; }
+  @media print { .slide { box-shadow: none; margin: 0; border-radius: 0; } body { background: #fff; } }
+</style>
+</head>
+<body>
+
+<!-- SLIDE 1: Title -->
+<div class="slide hero">
+  <h1>Treat Biosciences</h1>
+  <p class="subtitle">Development Cost Analysis</p>
+  <p class="subtitle">Canine Triple Incretin Agonist Program</p>
+  <p class="version">v3 — Audit-Corrected | March 23, 2026</p>
+  <div style="margin-top: 48px;">
+    <p style="font-size: 14px; color: #888;">Internal Working Document</p>
+  </div>
+</div>
+
+<!-- SLIDE 2: Executive Summary -->
+<div class="slide">
+  <h1>Executive Summary</h1>
+  <div class="cols" style="margin-top: 24px;">
+    <div style="text-align: center; padding: 32px; background: #f0f9ff; border-radius: 8px;">
+      <p style="font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 1px;">CNADA Pathway</p>
+      <p class="big-number" style="margin: 8px 0;">$4.5M – $8M</p>
+      <p style="font-size: 14px; color: #555;">24–28 months</p>
+    </div>
+    <div style="text-align: center; padding: 32px; background: #f0fdf4; border-radius: 8px;">
+      <p style="font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 1px;">Full NADA Pathway</p>
+      <p class="big-number green" style="margin: 8px 0;">$7M – $13M</p>
+      <p style="font-size: 14px; color: #555;">36–42 months</p>
+    </div>
+  </div>
+  <div class="callout" style="margin-top: 24px;">
+    These are <strong>all-in costs</strong>: technical development + personnel + G&A + SAB + commercial readiness.<br>
+    Not just CRO invoices — this is what it actually costs to run the company through approval.
+  </div>
+  <ul style="margin-top: 16px;">
+    <li>v3 corrects prior estimates with audited vendor data and adds previously omitted cost categories</li>
+    <li>Geometric mean of v1 (too low) and deep review (too high), skewed toward v1 because deep review applied biologic-grade costs to a synthetic peptide</li>
+  </ul>
+</div>
+
+<!-- SLIDE 3: Total Program Cost Summary -->
+<div class="slide">
+  <h1>Total Program Cost Summary</h1>
+  <div class="cols" style="margin-top: 16px;">
+    <div>
+      <h2>CNADA Pathway</h2>
+      <table>
+        <thead><tr><th>Category</th><th style="text-align:right">Low</th><th style="text-align:right">High</th></tr></thead>
+        <tbody>
+          <tr><td>Technical costs (Stages 1–9)</td><td style="text-align:right">$2,775,000</td><td style="text-align:right">$6,745,000</td></tr>
+          <tr><td>Personnel (24 months)</td><td style="text-align:right">$800,000</td><td style="text-align:right">$1,400,000</td></tr>
+          <tr><td>G&A (24 months)</td><td style="text-align:right">$174,000</td><td style="text-align:right">$364,000</td></tr>
+          <tr><td>Scientific Advisory Board</td><td style="text-align:right">$60,000</td><td style="text-align:right">$150,000</td></tr>
+          <tr><td>Commercial readiness</td><td style="text-align:right">$55,000</td><td style="text-align:right">$125,000</td></tr>
+          <tr class="total"><td><strong>TOTAL CNADA</strong></td><td style="text-align:right"><strong>$4,500,000</strong></td><td style="text-align:right"><strong>$8,000,000</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h2>Full NADA Pathway</h2>
+      <table>
+        <thead><tr><th>Category</th><th style="text-align:right">Low</th><th style="text-align:right">High</th></tr></thead>
+        <tbody>
+          <tr><td>CNADA technical stages (1–9)</td><td style="text-align:right">$2,775,000</td><td style="text-align:right">$6,745,000</td></tr>
+          <tr><td>Pivotal Field Study (Stage 10)</td><td style="text-align:right">$1,500,000</td><td style="text-align:right">$3,800,000</td></tr>
+          <tr><td>Personnel (36–42 months)</td><td style="text-align:right">$1,300,000</td><td style="text-align:right">$2,450,000</td></tr>
+          <tr><td>G&A (36–42 months)</td><td style="text-align:right">$261,000</td><td style="text-align:right">$637,000</td></tr>
+          <tr><td>SAB (3 years)</td><td style="text-align:right">$90,000</td><td style="text-align:right">$225,000</td></tr>
+          <tr><td>Commercial readiness</td><td style="text-align:right">$55,000</td><td style="text-align:right">$125,000</td></tr>
+          <tr class="total"><td><strong>TOTAL Full NADA</strong></td><td style="text-align:right"><strong>$7,000,000</strong></td><td style="text-align:right"><strong>$13,000,000</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 4: Stage-by-Stage Cost Breakdown -->
+<div class="slide">
+  <h1>Stage-by-Stage Cost Breakdown</h1>
+  <table style="margin-top: 16px;">
+    <thead>
+      <tr><th>#</th><th>Stage</th><th>Timeline</th><th style="text-align:right">Low</th><th style="text-align:right">High</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Computational Design</td><td>Mo 1–3</td><td style="text-align:right">$25,000</td><td style="text-align:right">$75,000</td></tr>
+      <tr><td>2</td><td>Peptide Synthesis (5–10 candidates)</td><td>Mo 2–5</td><td style="text-align:right">$60,000</td><td style="text-align:right">$160,000</td></tr>
+      <tr><td>3</td><td>In Vitro Characterization</td><td>Mo 3–7</td><td style="text-align:right">$180,000</td><td style="text-align:right">$400,000</td></tr>
+      <tr><td>4</td><td>Exploratory Canine PK</td><td>Mo 6–10</td><td style="text-align:right">$180,000</td><td style="text-align:right">$360,000</td></tr>
+      <tr class="highlight"><td>5</td><td>GLP Target Animal Safety</td><td>Mo 10–18</td><td style="text-align:right">$750,000</td><td style="text-align:right">$1,800,000</td></tr>
+      <tr><td>6</td><td>Pilot Clinical (20–40 dogs)</td><td>Mo 12–22</td><td style="text-align:right">$450,000</td><td style="text-align:right">$1,100,000</td></tr>
+      <tr class="highlight"><td>7</td><td>CMC / Manufacturing</td><td>Mo 6–24</td><td style="text-align:right">$700,000</td><td style="text-align:right">$1,800,000</td></tr>
+      <tr><td>8</td><td>Regulatory</td><td>Mo 1–28</td><td style="text-align:right">$350,000</td><td style="text-align:right">$850,000</td></tr>
+      <tr><td>9</td><td>IP / Legal</td><td>Mo 1–28</td><td style="text-align:right">$80,000</td><td style="text-align:right">$200,000</td></tr>
+      <tr style="border-top: 2px dashed #ccc;"><td>10</td><td>Pivotal Study <span class="tag tag-warn">NADA only</span></td><td>Mo 22–42</td><td style="text-align:right">$1,500,000</td><td style="text-align:right">$3,800,000</td></tr>
+      <tr><td>11</td><td>Personnel</td><td>Mo 1–24+</td><td style="text-align:right">$800,000</td><td style="text-align:right">$1,400,000</td></tr>
+      <tr><td>12</td><td>G&A</td><td>Mo 1–24+</td><td style="text-align:right">$174,000</td><td style="text-align:right">$364,000</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Highlighted rows = largest cost drivers. Stage 10 applies only to full NADA pathway.</p>
+</div>
+
+<!-- SLIDE 5: Staged Fundraising -->
+<div class="slide">
+  <h1>Staged Fundraising Strategy</h1>
+  <table style="margin-top: 16px;">
+    <thead>
+      <tr><th>Round</th><th>Amount</th><th>Timing</th><th>Key Milestones Funded</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Pre-Seed</strong></td>
+        <td style="white-space:nowrap"><strong>$500K–$750K</strong></td>
+        <td>Months 1–6</td>
+        <td>Computational design, lead selection, initial synthesis (5 candidates), INAD filing + CVM pre-sub meeting, provisional patent</td>
+      </tr>
+      <tr>
+        <td><strong>Seed</strong></td>
+        <td style="white-space:nowrap"><strong>$3M–$5M</strong></td>
+        <td>Months 6–18</td>
+        <td>In vitro + canine PK, GLP TAS initiation, GMP process development + formulation, pilot clinical enrollment begins</td>
+      </tr>
+      <tr>
+        <td><strong>Series A</strong></td>
+        <td style="white-space:nowrap"><strong>$5M–$8M</strong> (CNADA)<br><strong>$7M–$12M</strong> (NADA)</td>
+        <td>Months 18–30+</td>
+        <td>Complete TAS + pilot clinical, CMC completion + process validation, CNADA or NADA filing, commercial manufacturing + pre-launch</td>
+      </tr>
+    </tbody>
+  </table>
+  <h2>Key Inflection Points</h2>
+  <ul>
+    <li><strong>Post Pre-Seed:</strong> Lead candidate selected + CVM pathway confirmed</li>
+    <li><strong>Post Seed:</strong> Canine PK proof-of-concept + TAS underway</li>
+    <li><strong>Post Series A:</strong> Regulatory approval + first revenue</li>
+  </ul>
+</div>
+
+<!-- SLIDE 6: Quarterly Cash Flow -->
+<div class="slide">
+  <h1>Quarterly Cash Flow — CNADA Pathway</h1>
+  <table style="margin-top: 16px;">
+    <thead>
+      <tr><th>Quarter</th><th>Months</th><th style="text-align:right">Quarterly Burn</th><th style="text-align:right">Cumulative</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Q1</td><td>1–3</td><td style="text-align:right">$250K–$450K</td><td style="text-align:right">$250K–$450K</td></tr>
+      <tr><td>Q2</td><td>4–6</td><td style="text-align:right">$350K–$600K</td><td style="text-align:right">$600K–$1,050K</td></tr>
+      <tr><td>Q3</td><td>7–9</td><td style="text-align:right">$300K–$550K</td><td style="text-align:right">$900K–$1,600K</td></tr>
+      <tr><td>Q4</td><td>10–12</td><td style="text-align:right">$400K–$700K</td><td style="text-align:right">$1,300K–$2,300K</td></tr>
+      <tr class="highlight"><td><strong>Q5</strong></td><td><strong>13–15</strong></td><td style="text-align:right"><strong>$500K–$900K</strong></td><td style="text-align:right"><strong>$1,800K–$3,200K</strong></td></tr>
+      <tr class="highlight"><td><strong>Q6</strong></td><td><strong>16–18</strong></td><td style="text-align:right"><strong>$500K–$900K</strong></td><td style="text-align:right"><strong>$2,300K–$4,100K</strong></td></tr>
+      <tr><td>Q7</td><td>19–21</td><td style="text-align:right">$450K–$800K</td><td style="text-align:right">$2,750K–$4,900K</td></tr>
+      <tr><td>Q8</td><td>22–24</td><td style="text-align:right">$400K–$750K</td><td style="text-align:right">$3,150K–$5,650K</td></tr>
+      <tr><td>Q9</td><td>25–28</td><td style="text-align:right">$350K–$600K</td><td style="text-align:right">$3,500K–$6,250K</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <strong>Peak burn: Q5–Q6 (Months 13–18)</strong> — TAS, CMC, and pilot clinical running simultaneously.<br>
+    Personnel + G&A distributed at ~$120K–$220K/quarter across all periods.
+  </div>
+</div>
+
+<!-- SLIDE 7: Synthesis & CMC -->
+<div class="slide">
+  <h1>Synthesis & CMC Reality</h1>
+  <div class="callout">
+    This is <strong>specialty synthesis</strong> (semaglutide-class complexity) — not commodity, not biologic.
+  </div>
+  <div class="cols" style="margin-top: 16px;">
+    <div>
+      <h2>Peptide Synthesis (Stage 2): $60K–$160K</h2>
+      <ul>
+        <li>39-AA lipidated peptide = semaglutide-class</li>
+        <li>Per-peptide cost: <strong>$6K–$12K</strong> at mid-tier CROs</li>
+        <li>C20 fatty diacid + γGlu-γGlu linker is the cost driver ($2K–$5K custom)</li>
+        <li>20–40% synthesis failure rate for full lipidated 39-mer</li>
+        <li>Budget: 5 candidates + 3–4 backup syntheses</li>
+      </ul>
+    </div>
+    <div>
+      <h2>CMC / Manufacturing (Stage 7): $700K–$1.8M</h2>
+      <table>
+        <tbody>
+          <tr><td>GMP process dev + tech transfer</td><td style="text-align:right">$80K–$200K</td></tr>
+          <tr><td>Analytical method dev + validation</td><td style="text-align:right">$100K–$220K</td></tr>
+          <tr><td>Primary GMP batch (100–500g)</td><td style="text-align:right">$100K–$400K</td></tr>
+          <tr><td>Process validation (3 batches)</td><td style="text-align:right">$100K–$400K</td></tr>
+          <tr><td>Formulation + fill-finish + stability</td><td style="text-align:right">$123K–$275K</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="cols" style="margin-top: 16px;">
+    <div class="callout red" style="font-size: 13px;">
+      <strong>Deep review was too high ($2–5M):</strong> Applied biologic/mAb-grade costs to a synthetic peptide
+    </div>
+    <div class="callout warn" style="font-size: 13px;">
+      <strong>v2 was too low ($350K):</strong> Missed process validation, formulation complexity, analytical scope
+    </div>
+  </div>
+</div>
+
+<!-- SLIDE 8: Regulatory Pathway -->
+<div class="slide">
+  <h1>Regulatory Pathway</h1>
+  <div class="cols" style="margin-top: 16px;">
+    <div>
+      <h2>CNADA <span class="tag tag-ok">Optimistic</span></h2>
+      <ul>
+        <li>Requires: "serious/life-threatening or unmet need" + "complex/difficult effectiveness studies"</li>
+        <li><strong>Eligibility is NOT guaranteed</strong> — go/no-go gate at Month 3–4 CVM meeting</li>
+        <li>Effectiveness standard: "reasonable expectation" (pilot study sufficient)</li>
+        <li>ADUFA fee: ~$354K (supplemental) to $709K (full)</li>
+        <li>Timeline: <strong>24–28 months</strong></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Full NADA <span class="tag tag-warn">Base Case</span></h2>
+      <ul>
+        <li>"Substantial evidence of effectiveness" = pivotal field study required</li>
+        <li>120–250 dogs, 8–15 sites, $1.5M–$3.8M additional</li>
+        <li>ADUFA NADA fee: <strong>$708,863</strong> (FY2026 confirmed)</li>
+        <li>Timeline: <strong>36–42 months</strong></li>
+      </ul>
+    </div>
+  </div>
+  <h2>Post-Approval Recurring Costs: $379K/year</h2>
+  <table>
+    <tbody>
+      <tr><td>Product fee</td><td style="text-align:right">$13,463/yr</td></tr>
+      <tr><td>Establishment fee</td><td style="text-align:right">$200,000/yr</td></tr>
+      <tr><td>Sponsor fee</td><td style="text-align:right">$165,441/yr</td></tr>
+      <tr class="total"><td><strong>Total annual</strong></td><td style="text-align:right"><strong>$378,904/yr</strong></td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SLIDE 9: GLP TAS -->
+<div class="slide">
+  <h1>GLP Target Animal Safety — The Biggest Variable</h1>
+  <h2>Study Design (VICH GL43 / CVM GFI #185)</h2>
+  <ul>
+    <li>4 groups: control + 1×/3×/5× dose</li>
+    <li>8 dogs/group (4M + 4F) + 8 recovery = <strong>40 dogs total</strong></li>
+    <li>GLP-compliant (21 CFR Part 58)</li>
+  </ul>
+  <div class="cols" style="margin-top: 16px;">
+    <div>
+      <h2>Base Case: 6-Month Study <span class="tag tag-warn">$750K–$1.8M</span></h2>
+      <ul>
+        <li>Chronic-use drug → CVM default is 6 months</li>
+        <li>Housing: $168K–$336K</li>
+        <li>TK sampling: $120K–$360K</li>
+        <li>Drug supply: $60K–$150K</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Optimistic: 90-Day Study <span class="tag tag-ok">Saves $150K–$500K</span></h2>
+      <ul>
+        <li>Only if CVM agrees based on strong PK data (no accumulation)</li>
+        <li>Housing savings: $84K–$168K</li>
+        <li>Also saves ~3 months on timeline</li>
+        <li><strong>Treat 90 days as upside, not the plan</strong></li>
+      </ul>
+    </div>
+  </div>
+  <div class="callout red" style="margin-top: 16px;">
+    <strong>CVM decides the duration</strong> — early INAD engagement is critical.<br>
+    File INAD in Month 1, pre-submission meeting by Month 3–4.
+  </div>
+</div>
+
+<!-- SLIDE 10: Clinical Strategy -->
+<div class="slide">
+  <h1>Clinical Strategy</h1>
+  <div class="cols" style="margin-top: 16px;">
+    <div>
+      <h2>Pilot Field Study (Stage 6) <span class="tag tag-ok">$450K–$1.1M</span></h2>
+      <ul>
+        <li>20–40 client-owned obese dogs</li>
+        <li>3–5 vet clinics/schools, 4–6 months enrollment</li>
+        <li>Endpoints: weight loss, BCS, metabolic markers, DEXA subset</li>
+        <li>Serves as CNADA "reasonable expectation of effectiveness" (RXE)</li>
+        <li><strong>Designed to serve both pathways</strong> — dose-ranging data for pivotal if needed</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Pivotal Field Study (Stage 10) <span class="tag tag-warn">$1.5M–$3.8M</span></h2>
+      <ul>
+        <li>120–250 client-owned obese dogs</li>
+        <li>8–15 sites, 6–8 months enrollment</li>
+        <li>"Substantial evidence of effectiveness" (SEE) standard</li>
+        <li>Site PI fees: $300K–$750K</li>
+        <li>Vet visits: $200K–$500K</li>
+        <li>Drug supply: $200K–$500K</li>
+      </ul>
+    </div>
+  </div>
+  <h2 style="margin-top: 20px;">Potential Partners</h2>
+  <p style="font-size: 14px;"><strong>CROs:</strong> BrightPath Bioscience, VetDC, KLIFO &nbsp;|&nbsp; <strong>Academic:</strong> Colorado State, Cornell, Penn, UC Davis, Texas A&M</p>
+</div>
+
+<!-- SLIDE 11: Sensitivity Analysis -->
+<div class="slide">
+  <h1>Sensitivity Analysis</h1>
+  <table style="margin-top: 16px;">
+    <thead>
+      <tr><th>Scenario</th><th style="text-align:right">Cost Impact</th><th>Timeline Impact</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>CVM requires 6-mo TAS (base case)</td><td style="text-align:right">+$150K–$500K vs 90-day</td><td>+3 months</td></tr>
+      <tr class="highlight"><td><strong>CNADA denied → full NADA</strong></td><td style="text-align:right"><strong>+$2.1M–$5.1M</strong></td><td><strong>+12–18 months</strong></td></tr>
+      <tr><td>Low synthesis yields (&gt;40% failure)</td><td style="text-align:right">+$30K–$80K/round</td><td>+2–4 weeks/round</td></tr>
+      <tr><td>Lilly IP conflict</td><td style="text-align:right">+$100K–$500K</td><td>+6–12 months</td></tr>
+      <tr><td>Cell line engineering fails</td><td style="text-align:right">+$25K–$50K/attempt</td><td>+6–8 weeks</td></tr>
+      <tr><td>CMC needs extra validation batches</td><td style="text-align:right">+$100K–$200K/batch</td><td>+2–3 months</td></tr>
+    </tbody>
+  </table>
+  <h2>Fundraising Breakpoints</h2>
+  <ul>
+    <li><strong>CNADA denied + 6-mo TAS:</strong> Seed needs $4–5M; Series A becomes $8–12M</li>
+    <li><strong>IP conflict requiring redesign:</strong> Bridge round $500K–$1M needed</li>
+    <li><strong>CMC costs hit $2M+:</strong> Series A at upper range ($8M+)</li>
+    <li><strong>All three occur:</strong> ~$15M total; may need Series A + B structure</li>
+  </ul>
+</div>
+
+<!-- SLIDE 12: Risk Register -->
+<div class="slide">
+  <h1>Risk Register — Top 5</h1>
+  <table style="margin-top: 16px;">
+    <thead>
+      <tr><th>Risk</th><th style="text-align:center">Prob.</th><th>Impact</th><th>Mitigation</th></tr>
+    </thead>
+    <tbody>
+      <tr class="highlight">
+        <td><strong>CNADA denied</strong></td>
+        <td style="text-align:center"><span class="tag tag-risk">40%</span></td>
+        <td>+$2–5M, +12–18 mo</td>
+        <td>Early INAD, CVM meeting Mo 3; design pilot for both paths</td>
+      </tr>
+      <tr>
+        <td>6-month TAS required</td>
+        <td style="text-align:center"><span class="tag tag-warn">60%</span></td>
+        <td>Already budgeted</td>
+        <td>Strong PK accumulation data; discuss with CVM pre-TAS</td>
+      </tr>
+      <tr>
+        <td>Lilly IP blocks launch</td>
+        <td style="text-align:center"><span class="tag tag-warn">25%</span></td>
+        <td>Program stop/redesign</td>
+        <td>FTO in Month 1; canine-specific mods; vet-only license fallback</td>
+      </tr>
+      <tr>
+        <td>Cell line engineering fails</td>
+        <td style="text-align:center"><span class="tag tag-warn">30%</span></td>
+        <td>+3–6 mo, +$25–50K</td>
+        <td>Start Month 1; parallel vet school outreach; transient expression fallback</td>
+      </tr>
+      <tr>
+        <td>CMC scale-up issues</td>
+        <td style="text-align:center"><span class="tag tag-warn">35%</span></td>
+        <td>+$50–150K formulation</td>
+        <td>Start formulation Month 6; lyophilization backup; experienced CDMO</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SLIDE 13: Timeline -->
+<div class="slide">
+  <h1>Program Timeline — CNADA Critical Path (28 months)</h1>
+  <table style="margin-top: 16px; font-size: 13px;">
+    <thead>
+      <tr><th>Activity</th><th>Months</th><th>Duration</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Computational design, INAD filing, cell line eng., CVM meeting</td><td>1–3</td><td>3 mo</td></tr>
+      <tr><td>Peptide synthesis + in vitro characterization</td><td>2–7</td><td>6 mo</td></tr>
+      <tr><td>Exploratory canine PK</td><td>6–10</td><td>5 mo</td></tr>
+      <tr><td>CMC / Manufacturing (overlapping)</td><td>6–24</td><td>18 mo</td></tr>
+      <tr class="highlight"><td><strong>GLP TAS (6-month base case)</strong></td><td><strong>10–24</strong></td><td><strong>14 mo</strong></td></tr>
+      <tr><td>Pilot clinical field study</td><td>14–26</td><td>12 mo</td></tr>
+      <tr><td>CNADA filing + review</td><td>24–28</td><td>4 mo</td></tr>
+    </tbody>
+  </table>
+  <h2>Key Go/No-Go Gates</h2>
+  <table>
+    <thead><tr><th>Gate</th><th>Month</th><th>Decision</th></tr></thead>
+    <tbody>
+      <tr class="highlight"><td><strong>CVM pre-sub meeting</strong></td><td>3–4</td><td>CNADA eligible?</td></tr>
+      <tr><td>Lead candidate selected</td><td>7</td><td>Canine receptor potency confirmed?</td></tr>
+      <tr><td>PK data package</td><td>10</td><td>Weekly dosing feasible?</td></tr>
+      <tr><td>TAS initiated</td><td>10–12</td><td>PK-informed dose selection</td></tr>
+      <tr><td>TAS complete</td><td>18–24</td><td>Safety at 5× dose?</td></tr>
+      <tr><td>Pilot clinical readout</td><td>22–26</td><td>Weight loss signal?</td></tr>
+      <tr><td>CNADA filing</td><td>24–28</td><td>All sections complete?</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- SLIDE 14: Three Analyses Compared -->
+<div class="slide">
+  <h1>Three Analyses Compared</h1>
+  <table style="margin-top: 16px; font-size: 12px;">
+    <thead>
+      <tr><th>Phase</th><th style="text-align:right">v1 Original</th><th style="text-align:right">Deep Review</th><th style="text-align:right; background: #e8edff;">v3 Corrected</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Computational</td><td style="text-align:right">$35K–$85K</td><td style="text-align:right">$200K–$600K</td><td style="text-align:right; background:#f0f4ff"><strong>$25K–$75K</strong></td></tr>
+      <tr><td>Synthesis</td><td style="text-align:right">$250K–$650K*</td><td style="text-align:right">$600K–$1.8M</td><td style="text-align:right; background:#f0f4ff"><strong>$60K–$160K</strong></td></tr>
+      <tr><td>In Vitro</td><td style="text-align:right">(combined)*</td><td style="text-align:right">(combined)</td><td style="text-align:right; background:#f0f4ff"><strong>$180K–$400K</strong></td></tr>
+      <tr><td>Canine PK</td><td style="text-align:right">$80K–$200K</td><td style="text-align:right">$900K–$2.5M</td><td style="text-align:right; background:#f0f4ff"><strong>$180K–$360K</strong></td></tr>
+      <tr><td>GLP TAS</td><td style="text-align:right">$200K–$500K</td><td style="text-align:right">$1.5M–$4M</td><td style="text-align:right; background:#f0f4ff"><strong>$750K–$1.8M</strong></td></tr>
+      <tr><td>Pilot Clinical</td><td style="text-align:right">$350K–$1M</td><td style="text-align:right">$1M–$2.5M</td><td style="text-align:right; background:#f0f4ff"><strong>$450K–$1.1M</strong></td></tr>
+      <tr><td>CMC</td><td style="text-align:right">$250K–$715K</td><td style="text-align:right">$2M–$5M</td><td style="text-align:right; background:#f0f4ff"><strong>$700K–$1.8M</strong></td></tr>
+      <tr><td>Regulatory</td><td style="text-align:right">$155K–$535K</td><td style="text-align:right">$1.2M–$2.8M</td><td style="text-align:right; background:#f0f4ff"><strong>$350K–$850K</strong></td></tr>
+      <tr><td>Pivotal (NADA)</td><td style="text-align:right">Not budgeted</td><td style="text-align:right">$3M–$8M</td><td style="text-align:right; background:#f0f4ff"><strong>$1.5M–$3.8M</strong></td></tr>
+      <tr><td>Personnel</td><td style="text-align:right; color:#999">Not included</td><td style="text-align:right; color:#999">Not included</td><td style="text-align:right; background:#f0f4ff"><strong>$800K–$1.4M</strong></td></tr>
+      <tr><td>G&A + SAB + Commercial</td><td style="text-align:right; color:#999">Not included</td><td style="text-align:right; color:#999">Not included</td><td style="text-align:right; background:#f0f4ff"><strong>$289K–$639K</strong></td></tr>
+      <tr class="total"><td><strong>CNADA TOTAL</strong></td><td style="text-align:right"><strong>$2.1M–$5.7M</strong></td><td style="text-align:right"><strong>$6.5M–$12.5M</strong></td><td style="text-align:right; background:#e8edff"><strong>$4.5M–$8M</strong></td></tr>
+      <tr class="total"><td><strong>NADA TOTAL</strong></td><td style="text-align:right"><strong>$2.1M–$5.7M</strong></td><td style="text-align:right"><strong>$12M–$25M</strong></td><td style="text-align:right; background:#e8edff"><strong>$7M–$13M</strong></td></tr>
+    </tbody>
+  </table>
+  <p class="note">*v1 combined synthesis + in vitro. v3 ≈ geometric mean of v1 and deep review, skewed toward v1 because deep review applied biologic-grade costs to a synthetic peptide.</p>
+</div>
+
+<!-- SLIDE 15: Key Sources -->
+<div class="slide">
+  <h1>Key Sources</h1>
+  <ol class="source-list" style="margin-top: 16px; padding-left: 24px;">
+    <li><strong>FDA ADUFA FY2026 Fee Schedule</strong> — NADA $708,863; Supplemental $354,431. Federal Register 2025-14417</li>
+    <li><strong>VICH GL43 / CVM GFI #185</strong> — Target Animal Safety study design requirements</li>
+    <li><strong>ResolveMass Laboratories</strong> — LC-MS/MS method costs: development $4K–$25K; per-sample $150–$400</li>
+    <li><strong>Peptide 2.0 / ABI Scientific</strong> — Published per-AA pricing; modification surcharges (Aib $65–$150)</li>
+    <li><strong>Works in Progress (June 2025)</strong> — Vet pharma benchmarks: safety trial $500K; small field trial $2M</li>
+    <li><strong>KindredBio / Life Science Leader</strong> — "New animal drug for $5M or less" (reformulations baseline)</li>
+    <li><strong>TriangleIP (2025)</strong> — Patent cost ranges: provisional $5–15K; utility $15–35K; FTO $10–50K</li>
+    <li><strong>GenScript / Bachem / PolyPeptide</strong> — GMP peptide synthesis and CDMO pricing</li>
+    <li><strong>21 CFR Part 58</strong> — GLP requirements for nonclinical studies</li>
+    <li><strong>FDA GFI #170</strong> — ADUFA fee waiver provisions for minor use/minor species</li>
+  </ol>
+  <div class="callout" style="margin-top: 24px;">
+    v3 — Built bottom-up from published vendor pricing, confirmed fee schedules, and industry benchmarks.<br>
+    All costs include 15–30% contingency per stage.
+  </div>
+</div>
+
+</body>
+</html>
