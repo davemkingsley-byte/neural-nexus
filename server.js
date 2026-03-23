@@ -956,6 +956,231 @@ app.get('/api/cognitive/phases/:id/stats', dashboardAuth, (req, res) => {
   }
 });
 
+// Weekly cognitive report
+app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
+  if (!cogDBReady) return res.json({ error: 'db_unavailable' });
+  try {
+    const db = cogDB.db;
+
+    // Compute week_start (Monday) and week_end (Sunday)
+    let weekStart;
+    if (req.query.week) {
+      weekStart = new Date(req.query.week + 'T12:00:00');
+    } else {
+      weekStart = new Date();
+    }
+    // Roll back to Monday
+    const dow = weekStart.getDay();
+    const diffToMon = dow === 0 ? 6 : dow - 1;
+    weekStart.setDate(weekStart.getDate() - diffToMon);
+    const wsISO = weekStart.toISOString().split('T')[0];
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekEnd.getDate() + 6);
+    const weISO = weekEnd.toISOString().split('T')[0];
+
+    // Prior week for trend comparison
+    const priorStart = new Date(weekStart);
+    priorStart.setDate(priorStart.getDate() - 7);
+    const psISO = priorStart.toISOString().split('T')[0];
+    const priorEnd = new Date(weekStart);
+    priorEnd.setDate(priorEnd.getDate() - 1);
+    const peISO = priorEnd.toISOString().split('T')[0];
+
+    // Fetch results for this week and prior week
+    const stmt = db.prepare('SELECT date, time, scores_json FROM test_results WHERE test_type=? AND date>=? AND date<=? ORDER BY date, time');
+
+    function extractMetric(type, row) {
+      const s = typeof row.scores_json === 'string' ? JSON.parse(row.scores_json) : row.scores_json;
+      if (type === 'nback') return s.max_n;
+      if (type === 'pvt') return s.median_rt;
+      if (type === 'dsst') return s.correct;
+      return null;
+    }
+
+    function calcStats(values, type) {
+      if (!values.length) return null;
+      const n = values.length;
+      const mean = values.reduce((a, b) => a + b, 0) / n;
+      const variance = values.reduce((a, v) => a + (v - mean) ** 2, 0) / n;
+      const sd = Math.sqrt(variance);
+      const lowerBetter = type === 'pvt';
+      const best = lowerBetter ? Math.min(...values) : Math.max(...values);
+      const worst = lowerBetter ? Math.max(...values) : Math.min(...values);
+      return { sessions: n, mean: Math.round(mean * 100) / 100, sd: Math.round(sd * 100) / 100, best, worst };
+    }
+
+    const testTypes = ['nback', 'pvt', 'dsst'];
+    const tests = {};
+    let totalSessions = 0;
+    const dailyScores = {}; // date -> { nback: [], pvt: [], dsst: [] }
+
+    for (const type of testTypes) {
+      const rows = stmt.all(type, wsISO, weISO);
+      const values = [];
+      for (const row of rows) {
+        const v = extractMetric(type, row);
+        if (v != null) {
+          values.push(v);
+          if (!dailyScores[row.date]) dailyScores[row.date] = {};
+          if (!dailyScores[row.date][type]) dailyScores[row.date][type] = [];
+          dailyScores[row.date][type].push(v);
+        }
+      }
+
+      const stats = calcStats(values, type);
+      if (!stats) {
+        tests[type] = { sessions: 0, mean: null, sd: null, best: null, worst: null, trend: 'new', daily: [] };
+        continue;
+      }
+
+      // Daily: best score per date
+      const daily = [];
+      for (const [date, byType] of Object.entries(dailyScores)) {
+        if (byType[type] && byType[type].length > 0) {
+          const lowerBetter = type === 'pvt';
+          const best = lowerBetter ? Math.min(...byType[type]) : Math.max(...byType[type]);
+          daily.push({ date, value: best });
+        }
+      }
+
+      // Trend: compare vs prior week
+      const priorRows = stmt.all(type, psISO, peISO);
+      const priorValues = priorRows.map(r => extractMetric(type, r)).filter(v => v != null);
+      let trend = 'new';
+      if (priorValues.length > 0 && values.length > 0) {
+        const priorMean = priorValues.reduce((a, b) => a + b, 0) / priorValues.length;
+        const pctChange = ((stats.mean - priorMean) / priorMean) * 100;
+        const lowerBetter = type === 'pvt';
+        if (lowerBetter) {
+          trend = pctChange <= -5 ? 'improving' : pctChange >= 5 ? 'declining' : 'stable';
+        } else {
+          trend = pctChange >= 5 ? 'improving' : pctChange <= -5 ? 'declining' : 'stable';
+        }
+      }
+
+      tests[type] = { ...stats, trend, daily };
+      totalSessions += stats.sessions;
+    }
+
+    // Check minimum sessions
+    if (totalSessions < 3) {
+      return res.json({ error: 'insufficient_data', sessions: totalSessions, week_start: wsISO, week_end: weISO });
+    }
+
+    // Best/worst day via normalized composite scoring
+    const dates = Object.keys(dailyScores).sort();
+    const dayComposites = [];
+    for (const date of dates) {
+      const d = dailyScores[date];
+      const typesPresent = Object.keys(d).length;
+      const scores = {};
+      for (const type of testTypes) {
+        if (d[type] && d[type].length > 0) {
+          const lowerBetter = type === 'pvt';
+          scores[type] = lowerBetter ? Math.min(...d[type]) : Math.max(...d[type]);
+        }
+      }
+      dayComposites.push({ date, scores, typesPresent });
+    }
+
+    // Normalize each metric 0-1 across all days
+    function normalize(dayComps) {
+      const normed = dayComps.map(d => ({ date: d.date, norm: 0, count: 0, typesPresent: d.typesPresent, scores: d.scores }));
+      for (const type of testTypes) {
+        const vals = dayComps.filter(d => d.scores[type] != null).map(d => d.scores[type]);
+        if (vals.length < 2) continue;
+        const min = Math.min(...vals);
+        const max = Math.max(...vals);
+        if (max === min) continue;
+        for (const nd of normed) {
+          if (nd.scores[type] != null) {
+            let n = (nd.scores[type] - min) / (max - min);
+            if (type === 'pvt') n = 1 - n; // invert: lower RT is better
+            nd.norm += n;
+            nd.count++;
+          }
+        }
+      }
+      return normed;
+    }
+
+    const normed = normalize(dayComposites);
+    let bestDay = null, worstDay = null;
+
+    if (normed.length > 0) {
+      // Best day: highest composite among days with at least 1 test
+      const candidates = normed.filter(d => d.count > 0);
+      if (candidates.length > 0) {
+        candidates.sort((a, b) => (b.norm / b.count) - (a.norm / a.count));
+        const bd = candidates[0];
+        const reasons = [];
+        if (bd.scores.nback != null) reasons.push(`Best N-Back (${bd.scores.nback})`);
+        if (bd.scores.pvt != null) reasons.push(`fastest PVT (${bd.scores.pvt}ms)`);
+        if (bd.scores.dsst != null) reasons.push(`DSST (${bd.scores.dsst})`);
+        bestDay = { date: bd.date, reason: reasons.join(' + ') };
+      }
+      // Worst day: lowest composite among days with >= 2 test types
+      const worstCandidates = normed.filter(d => d.typesPresent >= 2 && d.count > 0);
+      if (worstCandidates.length > 0) {
+        worstCandidates.sort((a, b) => (a.norm / a.count) - (b.norm / b.count));
+        const wd = worstCandidates[0];
+        const reasons = [];
+        if (wd.scores.pvt != null) reasons.push(`Slowest PVT (${wd.scores.pvt}ms)`);
+        if (wd.scores.nback != null) reasons.push(`N-Back (${wd.scores.nback})`);
+        if (wd.scores.dsst != null) reasons.push(`DSST (${wd.scores.dsst})`);
+        worstDay = { date: wd.date, reason: reasons.join(' + ') };
+      }
+    }
+
+    // Active phase
+    let activePhase = null;
+    try {
+      const phase = cogDB.getActivePhase();
+      if (phase) activePhase = { id: phase.id, name: phase.name };
+    } catch (e) {}
+
+    // Supplement context
+    let supplementContext = [];
+    try {
+      const supps = cogDB.getSupplements();
+      supplementContext = supps
+        .filter(s => s.start_date <= weISO)
+        .map(s => s.compound_name);
+    } catch (e) {}
+
+    // Insights
+    const insights = [];
+    insights.push(`You completed ${totalSessions} sessions this week.`);
+    for (const type of testTypes) {
+      const t = tests[type];
+      if (t.trend === 'improving') {
+        const label = type === 'nback' ? 'N-Back' : type.toUpperCase();
+        insights.push(`${label} is trending upward vs last week.`);
+      } else if (t.trend === 'declining') {
+        const label = type === 'nback' ? 'N-Back' : type.toUpperCase();
+        insights.push(`${label} declined vs last week — consider recovery.`);
+      }
+    }
+    if (bestDay) insights.push(`Your best day was ${bestDay.date} (${bestDay.reason}).`);
+    if (worstDay) insights.push(`Your toughest day was ${worstDay.date}.`);
+
+    res.json({
+      week_start: wsISO,
+      week_end: weISO,
+      generated_at: new Date().toISOString(),
+      tests,
+      best_day: bestDay,
+      worst_day: worstDay,
+      active_phase: activePhase,
+      supplement_context: supplementContext,
+      insights
+    });
+  } catch (err) {
+    console.error('Error generating weekly report:', err);
+    res.status(500).json({ error: 'Failed to generate weekly report' });
+  }
+});
+
 // Daily subjective ratings
 app.post('/api/cognitive/daily', dashboardAuth, (req, res) => {
   if (!checkCogDB(res)) return;

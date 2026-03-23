@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Weekly Cognitive Report — Neural NeXus</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #d4a853;
+  --green: #16a34a;
+  --red: #dc2626;
+  --gray: #6b7280;
+  --border: #e5e7eb;
+  --bg: #ffffff;
+  --surface: #f9fafb;
+}
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: #1f2937;
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1.6;
+  padding: 40px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+.header {
+  text-align: center;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--gold);
+}
+.header h1 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.header .subtitle {
+  font-size: 0.85rem;
+  color: var(--gray);
+}
+.week-title {
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 28px;
+}
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.metric-card {
+  text-align: center;
+  padding: 20px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.metric-card h4 {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray);
+  margin-bottom: 10px;
+}
+.metric-card .mean {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #111827;
+}
+.metric-card .mean .unit {
+  font-size: 0.65em;
+  color: var(--gray);
+  font-weight: 400;
+}
+.metric-card .sd {
+  font-size: 0.8rem;
+  color: var(--gray);
+  margin-top: 2px;
+}
+.metric-card .sessions {
+  font-size: 0.72rem;
+  color: var(--gray);
+  margin-top: 2px;
+}
+.metric-card .range {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-top: 6px;
+}
+.trend {
+  display: inline-block;
+  font-size: 0.78rem;
+  font-weight: 600;
+  margin-top: 8px;
+  padding: 3px 10px;
+  border-radius: 10px;
+}
+.trend.improving { color: var(--green); background: #dcfce7; }
+.trend.declining { color: var(--red); background: #fee2e2; }
+.trend.stable { color: var(--gray); background: #f3f4f6; }
+.trend.new { color: #b45309; background: #fef3c7; }
+
+.day-boxes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.day-box {
+  padding: 16px 18px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+.day-box.best { border-left: 3px solid var(--green); }
+.day-box.worst { border-left: 3px solid var(--red); }
+.day-box .label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.day-box.best .label { color: var(--green); }
+.day-box.worst .label { color: var(--red); }
+.day-box .date { font-weight: 600; font-size: 0.9rem; }
+.day-box .reason { color: var(--gray); font-size: 0.8rem; margin-top: 2px; }
+
+.meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+.phase-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--gold);
+  color: #92400e;
+  background: #fef3c7;
+}
+.supp-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: #374151;
+}
+
+.insights {
+  margin-bottom: 24px;
+  padding: 18px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.insights h3 {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray);
+  margin-bottom: 10px;
+}
+.insights ul {
+  list-style: none;
+  padding: 0;
+}
+.insights li {
+  padding: 6px 0;
+  font-size: 0.85rem;
+  color: #374151;
+  border-bottom: 1px solid #f3f4f6;
+}
+.insights li:last-child { border-bottom: none; }
+.insights li::before {
+  content: '→ ';
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.footer {
+  text-align: center;
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 0.78rem;
+  color: var(--gray);
+}
+
+.print-btn {
+  display: block;
+  margin: 20px auto 0;
+  background: var(--gold);
+  color: #fff;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.print-btn:hover { background: #c49a42; }
+
+#loading {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--gray);
+}
+#error {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--red);
+  display: none;
+}
+
+@media print {
+  .print-btn { display: none !important; }
+  body { padding: 20px; }
+}
+@media (max-width: 600px) {
+  .metrics-grid { grid-template-columns: 1fr; }
+  .day-boxes { grid-template-columns: 1fr; }
+  body { padding: 20px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Neural NeXus</h1>
+  <p class="subtitle">Weekly Cognitive Report</p>
+</div>
+
+<div id="loading">Loading report&hellip;</div>
+<div id="error"></div>
+<div id="report" style="display:none"></div>
+
+<div class="footer">neuralnexus.press/cognitive</div>
+
+<script>
+async function loadReport() {
+  const params = new URLSearchParams(window.location.search);
+  const week = params.get('week');
+  const url = '/api/cognitive/weekly-report' + (week ? '?week=' + encodeURIComponent(week) : '');
+
+  try {
+    const r = await fetch(url, { credentials: 'same-origin' });
+    if (r.status === 401) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('error').style.display = '';
+      document.getElementById('error').textContent = 'Authentication required. Please log in first.';
+      return;
+    }
+    const data = await r.json();
+    document.getElementById('loading').style.display = 'none';
+
+    if (data.error) {
+      document.getElementById('error').style.display = '';
+      if (data.error === 'insufficient_data') {
+        document.getElementById('error').textContent = 'Not enough data for this week (' + (data.sessions || 0) + ' sessions, need 3+).';
+      } else {
+        document.getElementById('error').textContent = data.error;
+      }
+      return;
+    }
+
+    render(data);
+  } catch (e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = '';
+    document.getElementById('error').textContent = 'Failed to load report.';
+  }
+}
+
+function fmtDate(iso) {
+  return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+}
+function fmtShort(iso) {
+  return new Date(iso + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+function rd(v) { return v != null ? Number(v).toFixed(1) : '—'; }
+
+function trendSpan(trend) {
+  const map = { improving: ['↑','Improving'], declining: ['↓','Declining'], stable: ['→','Stable'], new: ['★','New'] };
+  const [arrow, label] = map[trend] || map.stable;
+  return '<span class="trend ' + trend + '">' + arrow + ' ' + label + '</span>';
+}
+
+function render(data) {
+  const el = document.getElementById('report');
+  el.style.display = '';
+  document.title = 'Weekly Report — ' + fmtDate(data.week_start) + ' — Neural NeXus';
+
+  let html = '<div class="week-title">Week of ' + fmtDate(data.week_start) + ' – ' + fmtDate(data.week_end) + '</div>';
+
+  // Metric cards
+  function mc(title, type, unit) {
+    const t = data.tests[type];
+    if (!t || t.sessions === 0) {
+      return '<div class="metric-card"><h4>' + title + '</h4><div class="mean">—</div><div class="sessions">No data</div></div>';
+    }
+    return '<div class="metric-card"><h4>' + title + '</h4>' +
+      '<div class="mean">' + rd(t.mean) + (unit ? ' <span class="unit">' + unit + '</span>' : '') + '</div>' +
+      '<div class="sd">± ' + rd(t.sd) + '</div>' +
+      '<div class="sessions">' + t.sessions + ' session' + (t.sessions !== 1 ? 's' : '') + '</div>' +
+      '<div class="range">Best: ' + t.best + (unit || '') + ' · Worst: ' + t.worst + (unit || '') + '</div>' +
+      trendSpan(t.trend) + '</div>';
+  }
+
+  html += '<div class="metrics-grid">' + mc('N-Back (Max N)', 'nback', '') + mc('PVT (Median RT)', 'pvt', 'ms') + mc('DSST (Correct)', 'dsst', '') + '</div>';
+
+  // Best/worst day
+  if (data.best_day || data.worst_day) {
+    html += '<div class="day-boxes">';
+    if (data.best_day) {
+      html += '<div class="day-box best"><div class="label">Best Day</div><div class="date">' + fmtShort(data.best_day.date) + '</div><div class="reason">' + data.best_day.reason + '</div></div>';
+    }
+    if (data.worst_day) {
+      html += '<div class="day-box worst"><div class="label">Toughest Day</div><div class="date">' + fmtShort(data.worst_day.date) + '</div><div class="reason">' + data.worst_day.reason + '</div></div>';
+    }
+    html += '</div>';
+  }
+
+  // Supplements
+  if ((data.active_phase) || (data.supplement_context && data.supplement_context.length > 0)) {
+    html += '<div class="meta-row">';
+    if (data.active_phase) html += '<span class="phase-badge">Phase: ' + data.active_phase.name + '</span>';
+    if (data.supplement_context) data.supplement_context.forEach(function(s) { html += '<span class="supp-chip">' + s + '</span>'; });
+    html += '</div>';
+  }
+
+  // Insights
+  if (data.insights && data.insights.length > 0) {
+    html += '<div class="insights"><h3>Insights</h3><ul>';
+    data.insights.forEach(function(i) { html += '<li>' + i + '</li>'; });
+    html += '</ul></div>';
+  }
+
+  html += '<button class="print-btn" onclick="window.print()">Print Report</button>';
+  el.innerHTML = html;
+}
+
+loadReport();
+</script>
+</body>
+</html>
