@@ -52,7 +52,16 @@ try {
 const app = express();
 const PORT = process.env.PORT || 4000;
 
-app.use(express.json());
+app.use(express.json({ limit: '100kb' }));
+
+// Security headers
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
 
 // Protect dashboard data from public access
 const DASHBOARD_PASS = process.env.DASHBOARD_PASS || 'nexus2026';
@@ -61,7 +70,7 @@ function dashboardAuth(req, res, next) {
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === DASHBOARD_PASS) return next();
   if (req.query.key === DASHBOARD_PASS) {
-    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' });
+    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
     return res.redirect(req.path);
   }
   res.status(401).json({ error: 'unauthorized' });
@@ -72,7 +81,7 @@ app.use('/pm-charters', (req, res, next) => {
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === DASHBOARD_PASS) return next();
   if (req.query.key === DASHBOARD_PASS) {
-    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' });
+    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
     return res.redirect(req.path);
   }
   res.redirect('/dashboard');
@@ -84,7 +93,7 @@ app.use('/treat-docs', (req, res, next) => {
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === DASHBOARD_PASS) return next();
   if (req.query.key === DASHBOARD_PASS) {
-    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' });
+    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
     return res.redirect(req.path);
   }
   res.redirect('/dashboard');
@@ -96,7 +105,7 @@ app.use('/cognitive', (req, res, next) => {
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === DASHBOARD_PASS) return next();
   if (req.query.key === DASHBOARD_PASS) {
-    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' });
+    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
     return res.redirect(req.path);
   }
   res.redirect('/dashboard');
@@ -282,7 +291,7 @@ function dashboardLoginPage(req, res, next) {
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === DASHBOARD_PASS) return next();
   if (req.query.key === DASHBOARD_PASS) {
-    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax' });
+    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
     return res.redirect('/dashboard');
   }
   res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
@@ -522,8 +531,11 @@ app.post('/api/score', (req, res) => {
   if (!checkDB(res)) return;
   try {
     const { nickname, score, words_found, time_remaining } = req.body;
+    if (!nickname || typeof nickname !== 'string') return res.status(400).json({ error: 'Missing nickname' });
+    if (typeof score !== 'number' || typeof time_remaining !== 'number') return res.status(400).json({ error: 'Invalid score data' });
+    if (!Array.isArray(words_found)) return res.status(400).json({ error: 'Invalid words_found' });
     const dateStr = getTodayStr();
-    spellDB.submitScore(dateStr, nickname, score, words_found, time_remaining);
+    spellDB.submitScore(dateStr, nickname.trim().slice(0, 20), score, words_found, time_remaining);
     res.json({ success: true });
   } catch (err) {
     console.error('Error saving score:', err);
@@ -964,7 +976,14 @@ app.post('/api/brain-check/submit', (req, res) => {
     if (score == null || pvt_ms == null || dsst_score == null) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    const result = cogDB.submitBrainCheck(score, pvt_ms, dsst_score);
+    // Validate types and ranges to prevent abuse
+    if (typeof score !== 'number' || typeof pvt_ms !== 'number' || typeof dsst_score !== 'number') {
+      return res.status(400).json({ error: 'Invalid field types' });
+    }
+    if (score < 0 || score > 100 || pvt_ms < 50 || pvt_ms > 5000 || dsst_score < 0 || dsst_score > 200) {
+      return res.status(400).json({ error: 'Values out of range' });
+    }
+    const result = cogDB.submitBrainCheck(Math.round(score), Math.round(pvt_ms), Math.round(dsst_score));
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: 'Failed to submit brain check' });

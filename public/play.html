@@ -1167,7 +1167,7 @@
       const medals = ['🥇','🥈','🥉'];
       $lbBody.innerHTML = data.entries.map((e, i) => {
         const wf = Array.isArray(e.words_found) ? e.words_found.length : 0;
-        return '<tr><td>' + (i < 3 ? medals[i] : i+1) + '</td><td>' + e.nickname + '</td><td>' + e.score + '</td><td>' + wf + '</td></tr>';
+        return '<tr><td>' + (i < 3 ? medals[i] : i+1) + '</td><td>' + e.nickname.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</td><td>' + e.score + '</td><td>' + wf + '</td></tr>';
       }).join('');
     } catch (e) { $lbBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.15)">Could not load</td></tr>'; }
   }
