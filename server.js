@@ -1710,7 +1710,7 @@ app.get('/api/whoop/connect', dashboardAuth, (req, res) => {
     client_id: WHOOP_CLIENT_ID,
     redirect_uri: WHOOP_REDIRECT_URI,
     response_type: 'code',
-    scope: 'read:sleep read:recovery read:cycles offline',
+    scope: 'read:sleep read:recovery read:cycles',
     state,
   });
   res.redirect(`https://api.prod.whoop.com/oauth/oauth2/auth?${params}`);
@@ -1744,8 +1744,17 @@ app.get('/api/whoop/callback', async (req, res) => {
     }
 
     const tokens = await tokenRes.json();
+    console.log('WHOOP token response keys:', Object.keys(tokens));
+    console.log('WHOOP has refresh_token:', !!tokens.refresh_token);
+    console.log('WHOOP token fields:', JSON.stringify({ 
+      has_access: !!tokens.access_token, 
+      has_refresh: !!tokens.refresh_token,
+      expires_in: tokens.expires_in,
+      token_type: tokens.token_type,
+      scope: tokens.scope 
+    }));
     const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
-    cogDB.saveWhoopTokens(tokens.access_token, tokens.refresh_token, expiresAt);
+    cogDB.saveWhoopTokens(tokens.access_token, tokens.refresh_token || null, expiresAt);
 
     res.redirect('/cognitive/index.html?whoop=connected');
   } catch (err) {
