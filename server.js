@@ -1688,7 +1688,7 @@ app.get('/api/whoop/connect', dashboardAuth, (req, res) => {
     client_id: WHOOP_CLIENT_ID,
     redirect_uri: WHOOP_REDIRECT_URI,
     response_type: 'code',
-    scope: 'read:sleep read:recovery read:cycles',
+    scope: 'read:sleep read:recovery read:cycles offline',
     state,
   });
   res.redirect(`https://api.prod.whoop.com/oauth/oauth2/auth?${params}`);
