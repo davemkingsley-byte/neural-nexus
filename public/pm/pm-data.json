@@ -1,0 +1,243 @@
+{
+  "lastUpdated": "2026-03-23T22:00:00Z",
+  "updatedBy": "Morpheus",
+  "programs": [
+    {
+      "id": "neural-nexus",
+      "name": "Neural NeXus",
+      "status": "active",
+      "description": "Newsletter, website, content production, SEO, subscriber growth",
+      "metrics": {"subscribers": "1,000+", "weeklyActiveUsers": 20, "publishedIssues": "21+ BioWire Bytes"},
+      "projects": [
+        {
+          "id": "nn-website",
+          "name": "Website & Landing Page",
+          "status": "active",
+          "charter": "Dark glassmorphism site at neuralnexus.press with landing page, article cards, about section, topics grid, game CTA, subscribe form. Railway auto-deploy from GitHub.",
+          "started": "2026-03-15",
+          "lastUpdated": "2026-03-23",
+          "agents": ["forge"],
+          "tasks": [
+            {"id": "t1", "description": "Bare domain SSL fix (Cloudflare migration)", "status": "open", "priority": "P1", "assignee": "forge", "blocker": null},
+            {"id": "t2", "description": "Internal linking between main site and blog.neuralnexus.press", "status": "open", "priority": "P2", "assignee": "forge", "blocker": null}
+          ]
+        },
+        {
+          "id": "nn-content",
+          "name": "Content Production",
+          "status": "active",
+          "charter": "BioWire Bytes short-form series, deep dives, content pipeline with playbook linter. Pascal agent handles drafts, Morpheus reviews.",
+          "started": "2026-03-16",
+          "lastUpdated": "2026-03-23",
+          "agents": ["pascal"],
+          "tasks": [
+            {"id": "t3", "description": "Co-writing session with David for Pascal voice gold standard", "status": "open", "priority": "P1", "assignee": "David", "blocker": "Needs David's availability"},
+            {"id": "t4", "description": "Tune playbook linter false positives (But patterns)", "status": "open", "priority": "P2", "assignee": "pascal", "blocker": null},
+            {"id": "t5", "description": "BioWire Bytes 022 shipped", "status": "complete", "priority": "P0", "assignee": "pascal", "completedDate": "2026-03-23"}
+          ]
+        },
+        {
+          "id": "nn-seo",
+          "name": "SEO & Growth",
+          "status": "in-progress",
+          "charter": "Technical SEO, Substack custom domain (blog.neuralnexus.press), cross-promo outreach, GA4 analytics. Option A: Substack subdomain now, evaluate Ghost at 90 days (June 17, 2026).",
+          "started": "2026-03-18",
+          "lastUpdated": "2026-03-23",
+          "agents": ["forge", "pascal"],
+          "tasks": [
+            {"id": "t6", "description": "Substack custom domain (blog.neuralnexus.press)", "status": "complete", "priority": "P0", "assignee": "morpheus", "completedDate": "2026-03-23"},
+            {"id": "t7", "description": "SEO topic pages QA (7 pages)", "status": "open", "priority": "P2", "assignee": "forge", "blocker": null},
+            {"id": "t8", "description": "Programmatic GA4 analytics pipeline", "status": "open", "priority": "P2", "assignee": "tensor", "blocker": "Needs service account or manual screenshots"},
+            {"id": "t9", "description": "Cross-promo outreach to Katia Tarasava and Elliot Hershberg", "status": "open", "priority": "P2", "assignee": "David", "blocker": "David deferred"}
+          ]
+        },
+        {
+          "id": "nn-tiktok",
+          "name": "TikTok Pipeline",
+          "status": "in-progress",
+          "charter": "Substack-to-TikTok video pipeline. Parse articles, generate scripts, render videos with captions and branding. TikTok handle: @science.chad",
+          "started": "2026-03-16",
+          "lastUpdated": "2026-03-16",
+          "agents": ["pascal", "forge"],
+          "tasks": [
+            {"id": "t10", "description": "ElevenLabs voice clone (needs David's voice sample + API key)", "status": "blocked", "priority": "P1", "assignee": "morpheus", "blocker": "Needs David's voice sample and API key"},
+            {"id": "t11", "description": "Pexels API key for stock footage backgrounds", "status": "blocked", "priority": "P2", "assignee": "David", "blocker": "Needs API key"}
+          ]
+        },
+        {
+          "id": "nn-spelling-bee",
+          "name": "Spelling Bee Game",
+          "status": "active",
+          "charter": "Daily word puzzle at neuralnexus.press/play. Node.js + Express + SQLite, honeycomb UI, leaderboard, scoring with obscurity tiers.",
+          "started": "2026-03-15",
+          "lastUpdated": "2026-03-20",
+          "agents": ["forge"],
+          "tasks": []
+        }
+      ]
+    },
+    {
+      "id": "cognitive",
+      "name": "Cognitive Enhancement",
+      "status": "active",
+      "description": "Cognitive testing battery, WHOOP biometrics integration, supplement protocol tracking, performance analytics",
+      "metrics": {"baselineDate": "2026-03-20", "testsAvailable": 5, "daysTracked": 3},
+      "projects": [
+        {
+          "id": "cog-dashboard",
+          "name": "Cognitive Performance Dashboard",
+          "status": "active",
+          "charter": "Three-track system: standardized battery (N-Back, PVT, DSST, Stroop, TMT-B, AVLT) + Chess ELO + WHOOP biometrics. AM/PM dual session protocol. Analytics with Cohen's d effect sizes. Live at neuralnexus.press/cognitive/",
+          "started": "2026-03-20",
+          "lastUpdated": "2026-03-23",
+          "agents": ["tensor", "curie"],
+          "tasks": [
+            {"id": "t12", "description": "WHOOP OAuth refresh token fix", "status": "in-progress", "priority": "P0", "assignee": "forge", "blocker": "Fix pushed, awaiting David re-auth with offline scope"},
+            {"id": "t13", "description": "Stroop interference scoring (congruent vs incongruent RT delta)", "status": "open", "priority": "P2", "assignee": "tensor", "blocker": null},
+            {"id": "t14", "description": "N-Back tutorial/practice mode", "status": "open", "priority": "P2", "assignee": "tensor", "blocker": null},
+            {"id": "t15", "description": "Weekly cognitive performance report generator", "status": "open", "priority": "P2", "assignee": "tensor", "blocker": null}
+          ]
+        },
+        {
+          "id": "cog-mobile",
+          "name": "Mobile PWA",
+          "status": "active",
+          "charter": "Installable PWA at neuralnexus.press/app/ with mobile-optimized tests (PVT tap-anywhere, DSST thumb grid, N-Back large buttons). Today view with WHOOP summary.",
+          "started": "2026-03-20",
+          "lastUpdated": "2026-03-20",
+          "agents": ["forge"],
+          "tasks": []
+        },
+        {
+          "id": "cog-supplements",
+          "name": "Supplement Protocol",
+          "status": "active",
+          "charter": "Phase 1 stack: L-Theanine (Suntheanine), Mag L-Threonate (Magtein), Bacopa (BaCognize), Alpha-GPC, Lion's Mane, Primavie, KSM-66, D3+K2. Phase 2: Phenylpiracetam first. Tracking via supplement timeline on dashboard.",
+          "started": "2026-03-17",
+          "lastUpdated": "2026-03-20",
+          "agents": ["curie"],
+          "tasks": [
+            {"id": "t16", "description": "Supplement phase tracker (A/B experiment framework)", "status": "open", "priority": "P2", "assignee": "curie", "blocker": null},
+            {"id": "t17", "description": "Phase 2 phenylpiracetam protocol", "status": "open", "priority": "P2", "assignee": "curie", "blocker": "Awaiting baseline completion"}
+          ]
+        },
+        {
+          "id": "cog-brain-check",
+          "name": "Public Brain Check",
+          "status": "active",
+          "charter": "Public-facing cognitive test page at neuralnexus.press/brain-check for Neural NeXus growth. Simplified versions of PVT, DSST.",
+          "started": "2026-03-21",
+          "lastUpdated": "2026-03-21",
+          "agents": ["forge", "tensor"],
+          "tasks": []
+        }
+      ]
+    },
+    {
+      "id": "treat",
+      "name": "Treat Biosciences",
+      "status": "in-development",
+      "description": "Canine-optimized triple incretin agonist startup. Co-founded with Frank Gillam (CEO) and Niki Cyrus (CFO). David is CSO.",
+      "metrics": {"targetRaise": "$3-5M seed", "timeline": "24-28 months to CNADA", "tam": "$63.6B"},
+      "projects": [
+        {
+          "id": "treat-cost",
+          "name": "Development Cost Analysis",
+          "status": "complete",
+          "charter": "Bottom-up cost analysis for canine triple incretin program. Three rounds: v1 draft, independent audit (C+ grade), v3 corrected. CNADA: $4.5-8M, Full NADA: $7-13M.",
+          "started": "2026-03-23",
+          "lastUpdated": "2026-03-23",
+          "completedDate": "2026-03-23",
+          "agents": ["atlas", "curie"],
+          "tasks": [
+            {"id": "t18", "description": "Development cost analysis v3 (audit-corrected)", "status": "complete", "priority": "P0", "assignee": "morpheus", "completedDate": "2026-03-23"}
+          ]
+        },
+        {
+          "id": "treat-deck",
+          "name": "Investor Pitch Deck",
+          "status": "in-progress",
+          "charter": "Google Slides pitch deck for seed fundraising. 12 slides covering market, science, competitive landscape, regulatory strategy, team, financials, the ask.",
+          "started": "2026-03-23",
+          "lastUpdated": "2026-03-23",
+          "agents": ["atlas"],
+          "tasks": [
+            {"id": "t19", "description": "Update Slide 11 (milestones) and Slide 12 (the ask) with v3 cost figures", "status": "open", "priority": "P0", "assignee": "atlas", "blocker": "Awaiting David's review of v3 cost analysis"},
+            {"id": "t20", "description": "Confirm team status (Frank/Niki) and entity formation", "status": "blocked", "priority": "P0", "assignee": "David", "blocker": "David to confirm"},
+            {"id": "t21", "description": "Delete rough first Slides deck", "status": "open", "priority": "P2", "assignee": "morpheus", "blocker": null}
+          ]
+        },
+        {
+          "id": "treat-regulatory",
+          "name": "Regulatory Strategy",
+          "status": "in-progress",
+          "charter": "Two-track regulatory plan: Track A (CNADA conditional) vs Track B (full NADA). XCA eligibility as go/no-go gate. CVM pre-submission meeting critical first step.",
+          "started": "2026-03-23",
+          "lastUpdated": "2026-03-23",
+          "agents": ["curie"],
+          "tasks": [
+            {"id": "t22", "description": "CNADA vs NADA pathway deep analysis", "status": "complete", "priority": "P0", "assignee": "curie", "completedDate": "2026-03-23"},
+            {"id": "t23", "description": "Treat one-pager for investor outreach", "status": "open", "priority": "P1", "assignee": "atlas", "blocker": null}
+          ]
+        },
+        {
+          "id": "treat-science",
+          "name": "Scientific Foundation",
+          "status": "active",
+          "charter": "Receptor homology analysis, competitive intelligence, patent landscape, preclinical study design. 22 files + protein sequences in charters/treat-biosciences/.",
+          "started": "2026-03-19",
+          "lastUpdated": "2026-03-23",
+          "agents": ["curie"],
+          "tasks": [
+            {"id": "t24", "description": "Computational design pipeline (AlphaFold3, RFdiffusion)", "status": "open", "priority": "P2", "assignee": "curie", "blocker": "Needs GPU access"},
+            {"id": "t25", "description": "FTO patent landscape analysis", "status": "open", "priority": "P1", "assignee": "atlas", "blocker": null}
+          ]
+        }
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "name": "Infrastructure",
+      "status": "active",
+      "description": "Multi-agent organization, deployment pipeline, security, tooling, skills system",
+      "metrics": {"agents": 6, "skills": 13, "models": 2},
+      "projects": [
+        {
+          "id": "infra-agents",
+          "name": "Agent Organization",
+          "status": "active",
+          "charter": "6-agent org with 3 divisions (Growth, Science, Business). Morpheus as COO/orchestrator. Multi-model capability: Opus + GPT-5.4 for adversarial scientific review.",
+          "started": "2026-03-22",
+          "lastUpdated": "2026-03-23",
+          "agents": ["morpheus"],
+          "tasks": [
+            {"id": "t26", "description": "Design multi-model scientific panel architecture", "status": "in-progress", "priority": "P1", "assignee": "morpheus", "blocker": null},
+            {"id": "t27", "description": "Build PM dashboard at /pm/", "status": "in-progress", "priority": "P0", "assignee": "forge", "blocker": null}
+          ]
+        },
+        {
+          "id": "infra-security",
+          "name": "Security Hardening",
+          "status": "in-progress",
+          "charter": "Remove hardcoded password from 10 client JS files, add express-rate-limit, switch login GET→POST, proper auth flow.",
+          "started": "2026-03-23",
+          "lastUpdated": "2026-03-23",
+          "agents": ["forge"],
+          "tasks": [
+            {"id": "t28", "description": "Remove hardcoded nexus2026 from client-side JS (10 files)", "status": "open", "priority": "P0", "assignee": "forge", "blocker": null},
+            {"id": "t29", "description": "Add express-rate-limit", "status": "open", "priority": "P1", "assignee": "forge", "blocker": null},
+            {"id": "t30", "description": "Switch login endpoint GET→POST", "status": "open", "priority": "P1", "assignee": "forge", "blocker": null}
+          ]
+        }
+      ]
+    }
+  ],
+  "agents": [
+    {"id": "morpheus", "name": "Morpheus", "role": "COO / Orchestrator", "model": "opus", "division": "—", "status": "active"},
+    {"id": "pascal", "name": "Pascal", "role": "Content Writer", "model": "opus", "division": "Growth", "status": "active"},
+    {"id": "forge", "name": "Forge", "role": "DevOps Engineer", "model": "opus", "division": "Growth", "status": "active"},
+    {"id": "curie", "name": "Curie", "role": "Research Scientist", "model": "opus", "division": "Science", "status": "active"},
+    {"id": "tensor", "name": "Tensor", "role": "Data Analyst", "model": "opus", "division": "Science", "status": "active"},
+    {"id": "atlas", "name": "Atlas", "role": "Venture Strategist", "model": "opus", "division": "Business", "status": "active"}
+  ]
+}

@@ -76,6 +76,18 @@ function dashboardAuth(req, res, next) {
   res.status(401).json({ error: 'unauthorized' });
 }
 app.use('/data', dashboardAuth);
+// PM Dashboard (password-protected)
+app.use('/pm', (req, res, next) => {
+  const cookies = req.headers.cookie || '';
+  const match = cookies.match(/dash_auth=([^;]+)/);
+  if (match && match[1] === DASHBOARD_PASS) return next();
+  if (req.query.key === DASHBOARD_PASS) {
+    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+    return res.redirect(req.path);
+  }
+  res.redirect('/dashboard');
+}, express.static(path.join(__dirname, 'public', 'pm')));
+
 app.use('/pm-charters', (req, res, next) => {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
@@ -112,6 +124,16 @@ app.use('/cognitive', (req, res, next) => {
 }, express.static(path.join(__dirname, 'public', 'cognitive')));
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+// PM data API
+app.get('/api/pm/data', dashboardAuth, (req, res) => {
+  try {
+    const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'pm', 'pm-data.json'), 'utf8'));
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to load PM data' });
+  }
+});
 
 // Health check
 app.get('/health', (req, res) => {
