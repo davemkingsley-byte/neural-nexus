@@ -1756,11 +1756,48 @@ app.get('/api/whoop/callback', async (req, res) => {
     const expiresAt = new Date(Date.now() + tokens.expires_in * 1000).toISOString();
     cogDB.saveWhoopTokens(tokens.access_token, tokens.refresh_token || null, expiresAt);
 
+    if (!tokens.refresh_token) {
+      console.warn('WHOOP OAuth: NO refresh_token in response. Token will expire in', tokens.expires_in, 'seconds. Re-auth will be required after expiry.');
+    } else {
+      console.log('WHOOP OAuth: refresh_token received and stored. Auto-refresh enabled.');
+    }
+
     res.redirect('/cognitive/index.html?whoop=connected');
   } catch (err) {
     console.error('WHOOP callback error:', err);
     res.redirect('/cognitive/index.html?whoop=error');
   }
+});
+
+// Diagnostics — verify token state and DB persistence after re-auth
+app.get('/api/whoop/diagnostics', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  const dataVolumeMounted = fs.existsSync('/data');
+  const dbPath = dataVolumeMounted
+    ? '/data/cognitive.db'
+    : path.join(__dirname, 'cognitive.db');
+  const dbExists = fs.existsSync(dbPath);
+  const tokens = cogDB.getWhoopTokens();
+  const hasAccess = !!(tokens && tokens.access_token);
+  const hasRefresh = !!(tokens && tokens.refresh_token);
+  const expired = tokens ? new Date(tokens.expires_at) < new Date() : null;
+  res.json({
+    db: { path: dbPath, volumeMounted: dataVolumeMounted, fileExists: dbExists },
+    tokens: {
+      hasAccessToken: hasAccess,
+      hasRefreshToken: hasRefresh,
+      tokenExpired: expired,
+      expiresAt: tokens ? tokens.expires_at : null,
+      updatedAt: tokens ? tokens.updated_at : null,
+    },
+    verdict: !hasAccess
+      ? 'NOT_CONNECTED — re-auth required'
+      : !hasRefresh
+        ? 'CONNECTED_NO_REFRESH — WHOOP did not return a refresh_token; re-auth will be needed after expiry'
+        : expired
+          ? 'REFRESH_TOKEN_AVAILABLE_BUT_EXPIRED — should auto-refresh on next sync'
+          : 'HEALTHY — connected with refresh token',
+  });
 });
 
 // Status — check if WHOOP is connected
