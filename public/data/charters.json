@@ -16,7 +16,6 @@
           "targetDate": "2026-03-15",
           "dateCompleted": "2026-03-14",
           "daysActive": 5,
-          "daysUntilTarget": -4,
           "overdue": false,
           "owner": "David Kingsley",
           "assignee": "Morpheus",
@@ -155,12 +154,11 @@
           "statusClean": "Live",
           "phase": "✅ Deployed — Live at www.neuralnexus.press",
           "phaseIndex": 5,
-          "liveUrl": null,
+          "liveUrl": "https://www.neuralnexus.press",
           "dateInitiated": "2026-03-15",
           "targetDate": "2026-03-15",
           "dateCompleted": "2026-03-15",
           "daysActive": 4,
-          "daysUntilTarget": -4,
           "overdue": false,
           "owner": "David Kingsley",
           "assignee": "Morpheus",
@@ -178,7 +176,9 @@
           "progress": 100,
           "objective": "Build a professional website for the Neural NeXus newsletter brand — landing page, about, newsletter signup, and Spelling Bee game integration.",
           "successCriteria": "Fully externalized website on neuralnexus.press with newsletter signup, brand presence, and playable Spelling Bee game accessible to the public.",
-          "blockers": [],
+          "blockers": [
+            "Bare domain SSL (needs Cloudflare migration)"
+          ],
           "outstanding": [],
           "decisions": [
             {
@@ -263,7 +263,6 @@
           "targetDate": "2026-03-15",
           "dateCompleted": "2026-03-15",
           "daysActive": 4,
-          "daysUntilTarget": -4,
           "overdue": false,
           "owner": "David Kingsley",
           "assignee": "Morpheus",
@@ -307,20 +306,19 @@
         },
         {
           "id": "106",
-          "title": "Substack to TikTok Converter",
-          "status": "🟡 In Progress",
-          "statusClean": "In Progress",
-          "phase": "⚙️ Implementation (M3 renderer complete)",
+          "title": "Substack to TikTok Pipeline",
+          "status": "⏸️ Paused",
+          "statusClean": "Paused",
+          "phase": "⏸️ Paused — M1-M3 done, blocked on assets",
           "phaseIndex": 2,
           "liveUrl": null,
           "dateInitiated": "2026-03-16",
           "targetDate": "2026-04-15",
           "dateCompleted": null,
           "daysActive": 3,
-          "daysUntilTarget": 27,
           "overdue": false,
           "owner": "David Kingsley",
-          "assignee": "Morpheus",
+          "assignee": "Pascal / Forge",
           "priority": "Medium",
           "program": "Neural NeXus",
           "budget": "$0 (ElevenLabs TBD)",
@@ -333,7 +331,8 @@
           "objective": "Automated pipeline that converts Neural NeXus Substack posts into TikTok-ready short-form video content, designed to drive traffic back to Substack for subscriber growth.",
           "successCriteria": "One Substack post → multiple TikTok-ready clips (30-90s), with hooks, captions, CTA overlay pointing to Substack. Minimal manual effort per post.",
           "blockers": [
-            "David's TikTok handle (for backlog item)"
+            "ElevenLabs voice clone needs David's voice sample + API key",
+            "Pexels API key for stock footage"
           ],
           "outstanding": [
             {
@@ -482,7 +481,6 @@
           "targetDate": "2026-03-16",
           "dateCompleted": "2026-03-16",
           "daysActive": 4,
-          "daysUntilTarget": -3,
           "overdue": false,
           "owner": "Morpheus",
           "assignee": "Morpheus",
@@ -603,24 +601,23 @@
         },
         {
           "id": "108",
-          "title": "SEO & Analytics Strategy for neuralnexus.press",
-          "status": "🟡 In Progress",
-          "statusClean": "In Progress",
-          "phase": "⚙️ Implementation",
+          "title": "SEO & Analytics Strategy",
+          "status": "🟢 Implementation",
+          "statusClean": "Implementation",
+          "phase": "⚙️ Implementation — Core deployed, content building",
           "phaseIndex": 2,
           "liveUrl": null,
-          "dateInitiated": "2026-03-15",
+          "dateInitiated": "2026-03-18",
           "targetDate": "2026-06-17",
           "dateCompleted": null,
           "daysActive": 4,
-          "daysUntilTarget": 90,
           "overdue": false,
           "owner": "David Kingsley",
           "assignee": "Morpheus",
           "priority": "High",
           "program": "Neural NeXus",
           "budget": "$50 (Substack custom domain)",
-          "actualSpend": "$0",
+          "actualSpend": "$50",
           "dependencies": [
             "102"
           ],
@@ -631,48 +628,44 @@
           "objective": "Transform neuralnexus.press from a static hub into a search-discoverable, traffic-generating asset that complements Substack — driving organic visitors to the newsletter, games, and David's brand.",
           "successCriteria": "",
           "blockers": [
-            "David: Move DNS to Cloudflare (fixes bare domain SSL)"
+            "Bare domain SSL fix (Cloudflare migration)"
           ],
           "outstanding": [
             {
               "done": true,
-              "text": "David: Create GA4 property at analytics.google.com → share Measurement ID"
+              "text": "GA4 deployed (G-B0X6HBHKH3)"
             },
             {
               "done": true,
-              "text": "David: Verify site in Google Search Console → share verification token"
+              "text": "Search Console verified"
             },
             {
               "done": true,
-              "text": "Morpheus: Deploy robots.txt + sitemap.xml"
+              "text": "robots.txt + sitemap.xml deployed"
             },
             {
               "done": true,
-              "text": "Morpheus: Add GA4 gtag.js to all pages"
+              "text": "JSON-LD structured data"
             },
             {
               "done": true,
-              "text": "Morpheus: Add JSON-LD structured data (WebSite, Person, Game schemas)"
+              "text": "Substack custom domain (blog.neuralnexus.press)"
             },
             {
               "done": true,
-              "text": "Morpheus: Fix heading hierarchy + game page meta"
-            },
-            {
-              "done": true,
-              "text": "David: Decide content mirroring strategy (A, B, C, or D above)"
-            },
-            {
-              "done": true,
-              "text": "Morpheus: Build first 5 content pages based on chosen strategy"
+              "text": "7 SEO topic pages built"
             },
             {
               "done": false,
-              "text": "David: Move DNS to Cloudflare (fixes bare domain SSL)"
+              "text": "Bare domain SSL fix (Cloudflare migration)"
             },
             {
-              "done": true,
-              "text": "Morpheus: Submit sitemap to Search Console + Bing Webmaster Tools"
+              "done": false,
+              "text": "Programmatic GA4 analytics pipeline"
+            },
+            {
+              "done": false,
+              "text": "Internal linking between main site and Substack blog"
             }
           ],
           "decisions": [
@@ -777,33 +770,65 @@
       "charters": [
         {
           "id": "201",
-          "title": "Oral Supplementation for Cognitive Enhancement",
+          "title": "Oral Supplementation",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
-          "phase": "⚙️ Implementation (Phase 1 order placed)",
+          "phase": "⚙️ Implementation (Phase 1 active)",
           "phaseIndex": 2,
           "liveUrl": null,
-          "dateInitiated": "2026-03-15",
+          "dateInitiated": "2026-03-17",
           "targetDate": "2026-06-17",
           "dateCompleted": null,
           "daysActive": 4,
-          "daysUntilTarget": 90,
           "overdue": false,
           "owner": "David Kingsley",
-          "assignee": "Morpheus",
+          "assignee": "Curie",
           "priority": "High",
           "program": "Cognitive Enhancements",
-          "budget": "$125 (Phase 1 supplements)",
+          "budget": "$125 (Phase 1)",
           "actualSpend": "$95",
           "dependencies": [],
           "enables": [
             "202"
           ],
-          "progress": 0,
+          "progress": 50,
           "objective": "Design a personalized, evidence-based oral supplementation protocol targeting cognitive performance — memory, focus, processing speed, neuroprotection, and long-term brain health.",
           "successCriteria": "- [ ] Literature review of top-tier nootropic compounds completed",
           "blockers": [],
-          "outstanding": [],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "Compound evidence review completed"
+            },
+            {
+              "done": true,
+              "text": "Shopping list produced"
+            },
+            {
+              "done": true,
+              "text": "Novel pathways research (TrkB, σ1, mGluR5, PDE4/5, Nrf2)"
+            },
+            {
+              "done": true,
+              "text": "Off-label pharma assessment"
+            },
+            {
+              "done": true,
+              "text": "Peptide de-risking playbook"
+            },
+            {
+              "done": true,
+              "text": "Phase 1 supplements all arrived and started"
+            },
+            {
+              "done": false,
+              "text": "Phase 2: Phenylpiracetam protocol"
+            },
+            {
+              "done": false,
+              "text": "Semax sourcing research"
+            }
+          ],
           "decisions": [
             {
               "date": "---",
@@ -884,20 +909,19 @@
         },
         {
           "id": "202",
-          "title": "Cognitive Performance Tracker",
+          "title": "Cognitive Performance Dashboard",
           "status": "🟢 Live",
           "statusClean": "Live",
           "phase": "✅ Deployed — Live at neuralnexus.press/cognitive/",
           "phaseIndex": 5,
           "liveUrl": "https://www.neuralnexus.press/cognitive/",
-          "dateInitiated": "2026-03-15",
+          "dateInitiated": "2026-03-20",
           "targetDate": "2026-04-30",
           "dateCompleted": "2026-03-20",
           "daysActive": 4,
-          "daysUntilTarget": 42,
           "overdue": false,
           "owner": "David Kingsley",
-          "assignee": "Morpheus",
+          "assignee": "Tensor",
           "priority": "High",
           "program": "Cognitive Enhancements",
           "budget": "$0",
@@ -915,7 +939,7 @@
           "outstanding": [
             {
               "done": true,
-              "text": "N-Back adaptive test deployed"
+              "text": "N-Back adaptive test"
             },
             {
               "done": true,
@@ -923,7 +947,7 @@
             },
             {
               "done": true,
-              "text": "DSST 90s timed deployed"
+              "text": "DSST 90s timed"
             },
             {
               "done": true,
@@ -935,7 +959,7 @@
             },
             {
               "done": true,
-              "text": "AVLT word list test built"
+              "text": "AVLT word list test"
             },
             {
               "done": true,
@@ -943,7 +967,7 @@
             },
             {
               "done": true,
-              "text": "Analytics page with longitudinal charts"
+              "text": "Analytics with longitudinal charts + Cohen's d"
             },
             {
               "done": true,
@@ -951,15 +975,19 @@
             },
             {
               "done": true,
-              "text": "Supplement timeline with 8 compounds"
+              "text": "Supplement timeline (8 compounds)"
+            },
+            {
+              "done": true,
+              "text": "WHOOP OAuth flow + API v2"
             },
             {
               "done": false,
-              "text": "WHOOP refresh token persistence fix"
+              "text": "WHOOP refresh token persistence"
             },
             {
               "done": false,
-              "text": "Stroop interference scoring (congruent vs incongruent RT)"
+              "text": "Stroop interference scoring"
             },
             {
               "done": false,
@@ -1034,7 +1062,7 @@
         },
         {
           "id": "203",
-          "title": "Mobile Cognitive Performance App (PWA)",
+          "title": "Mobile Cognitive App (PWA)",
           "status": "🟢 Live",
           "statusClean": "Live",
           "phase": "✅ Deployed — Live at neuralnexus.press/app/",
@@ -1063,7 +1091,7 @@
           "decisions": [
             {
               "date": "2026-03-20",
-              "text": "PWA over native app (no app store needed)"
+              "text": "PWA over native app"
             },
             {
               "date": "2026-03-20",
@@ -1082,23 +1110,23 @@
     {
       "name": "Treat Biosciences",
       "slug": "treat-biosciences",
+      "description": "Canine therapeutic development — TRT-001 triple incretin agonist for canine obesity.",
       "charters": [
         {
           "id": "501",
           "title": "Triple Incretin Program (TRT-001)",
-          "status": "🟡 In Progress",
-          "statusClean": "In Progress",
-          "phase": "📋 Requirements → Design — Research complete, discovery program defined",
-          "phaseIndex": 0,
+          "status": "🟡 Evaluating Restart",
+          "statusClean": "Evaluating Restart",
+          "phase": "⏸️ Paused — Research complete, awaiting David's decisions",
+          "phaseIndex": 1,
           "liveUrl": null,
           "dateInitiated": "2026-03-19",
           "targetDate": "2026-06-19",
           "dateCompleted": null,
           "daysActive": 0,
-          "daysUntilTarget": 92,
           "overdue": false,
           "owner": "David Kingsley",
-          "assignee": "David Kingsley / Morpheus",
+          "assignee": "David / Morpheus",
           "priority": "Critical",
           "program": "Treat Biosciences",
           "budget": "$500K (full); Discovery = $29-44K",
@@ -1113,18 +1141,18 @@
           "objective": "Develop TRT-001, the first canine-optimized triple incretin agonist (GLP-1R/GIPR/GCGR) for canine obesity. $29-44K discovery budget. CNADA pathway to conditional approval.",
           "successCriteria": "- [x] Competitive landscape analysis complete (updated 2026-03-19 with Okava, Teva generic, APOP)",
           "blockers": [
-            "David: Call Frank to discuss pivot and restart",
+            "David: Confirm team status (Frank/Niki)",
             "David: Confirm company legal status",
-            "David: Review overnight documents (especially combo thesis and critical path)"
+            "CNADA vs full NADA pitch strategy undecided"
           ],
           "outstanding": [
             {
               "done": true,
-              "text": "Receptor homology analysis (GLP-1R 91.1%, GIPR 89.3%, GCGR 81.7%)"
+              "text": "Receptor homology (GLP-1R 91.1%, GIPR 89.3%, GCGR 81.7%)"
             },
             {
               "done": true,
-              "text": "Competitive landscape analysis (Okava, Akston, Vetigenics, Loyal, Invetx)"
+              "text": "Competitive landscape (Okava, Akston, Vetigenics, Loyal, Invetx)"
             },
             {
               "done": true,
@@ -1136,7 +1164,7 @@
             },
             {
               "done": true,
-              "text": "Patent landscape analysis — no blocking patents"
+              "text": "Patent landscape — no blocking patents"
             },
             {
               "done": true,
@@ -1144,19 +1172,31 @@
             },
             {
               "done": true,
-              "text": "Market sizing ($63.6B TAM)"
+              "text": "Market sizing ($63.6B TAM, $216M SOM Y5)"
             },
             {
               "done": true,
               "text": "Investor one-pager v2"
             },
             {
-              "done": false,
-              "text": "Confirm team status (Frank/Niki)"
+              "done": true,
+              "text": "Regulatory strategy (CNADA + NADA pathways)"
+            },
+            {
+              "done": true,
+              "text": "In vitro + preclinical testing plans"
+            },
+            {
+              "done": true,
+              "text": "SBIR + accelerator deadline scan"
+            },
+            {
+              "done": true,
+              "text": "38 research documents produced"
             },
             {
               "done": false,
-              "text": "Entity formation / legal status"
+              "text": "Confirm team (Frank/Niki) and entity"
             },
             {
               "done": false,
@@ -1212,8 +1252,7 @@
           ],
           "milestones": []
         }
-      ],
-      "description": "Canine therapeutic development — TRT-001 triple incretin agonist for canine obesity. AI-designed peptide therapeutics."
+      ]
     },
     {
       "name": "Physical Health",
@@ -1231,7 +1270,6 @@
           "targetDate": "2026-05-19",
           "dateCompleted": "—",
           "daysActive": 0,
-          "daysUntilTarget": 61,
           "overdue": false,
           "owner": "David Kingsley",
           "assignee": "David Kingsley",
@@ -1252,35 +1290,23 @@
           "outstanding": [
             {
               "done": true,
-              "text": "Cryotherapy (liquid nitrogen) applied to visible lesions"
+              "text": "Cryotherapy applied"
+            },
+            {
+              "done": true,
+              "text": "Full STI panel negative"
             },
             {
               "done": false,
-              "text": "**Imiquimod 5% cream (Aldara)** — apply 3x/week at bedtime to any lesions. Wash off after 6-10 hours. Continue for up to 16 weeks or until cleared."
+              "text": "Imiquimod 5% cream 3x/week (ongoing)"
             },
             {
               "done": false,
-              "text": "Return visit in 3-4 weeks for reassessment"
+              "text": "Return visit 3-4 weeks for reassessment"
             },
             {
               "done": false,
-              "text": "Treat any new lesions that appear (normal — incubation period of existing subclinical lesions)"
-            },
-            {
-              "done": false,
-              "text": "Consider Gardasil 9 vaccine (separate from molluscum — general HPV protection, via PCP)"
-            },
-            {
-              "done": false,
-              "text": "Avoid shaving over or near active lesions (prevents autoinoculation)"
-            },
-            {
-              "done": false,
-              "text": "Use separate towels for affected area"
-            },
-            {
-              "done": false,
-              "text": "Avoid sexual contact with active visible lesions present"
+              "text": "8-week follow-up (May 14)"
             }
           ],
           "decisions": [],
@@ -1331,12 +1357,11 @@
           "statusClean": "Live",
           "phase": "✅ Deployed — Live at neuralnexus.press/dashboard",
           "phaseIndex": 5,
-          "liveUrl": null,
+          "liveUrl": "https://www.neuralnexus.press/dashboard",
           "dateInitiated": "2026-03-15",
           "targetDate": "2026-03-18",
           "dateCompleted": "2026-03-18",
           "daysActive": 4,
-          "daysUntilTarget": -1,
           "overdue": false,
           "owner": "David Kingsley",
           "assignee": "Morpheus",
@@ -1445,12 +1470,11 @@
           "statusClean": "Live",
           "phase": "✅ Deployed — Live at neuralnexus.press/dashboard",
           "phaseIndex": 5,
-          "liveUrl": null,
+          "liveUrl": "https://www.neuralnexus.press/dashboard",
           "dateInitiated": "2026-03-15",
           "targetDate": "2026-03-18",
           "dateCompleted": "2026-03-18",
           "daysActive": 4,
-          "daysUntilTarget": -1,
           "overdue": false,
           "owner": "David Kingsley",
           "assignee": "Morpheus",
@@ -1515,12 +1539,51 @@
           ]
         },
         {
-          "id": "PM-001",
-          "title": "Work Process Framework",
+          "id": "703",
+          "title": "Scientific Panel Architecture",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
           "phase": "⚙️ Implementation",
           "phaseIndex": 2,
+          "liveUrl": null,
+          "dateInitiated": "2026-03-23",
+          "targetDate": null,
+          "dateCompleted": null,
+          "daysActive": 0,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Morpheus",
+          "priority": "Medium",
+          "program": "Project Management",
+          "budget": "$0",
+          "actualSpend": "$0",
+          "dependencies": [],
+          "enables": [],
+          "progress": 25,
+          "objective": "Multi-model adversarial review panel: Curie (Opus) + GPT-5.4 challenger. Morpheus as arbiter.",
+          "successCriteria": "",
+          "blockers": [],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "Architecture designed"
+            },
+            {
+              "done": false,
+              "text": "Implementation — agents paused pending PM framework"
+            }
+          ],
+          "decisions": [],
+          "risks": [],
+          "milestones": []
+        },
+        {
+          "id": "704",
+          "title": "Work Process Framework",
+          "status": "📋 Requirements",
+          "statusClean": "Requirements",
+          "phase": "📋 Requirements",
+          "phaseIndex": 0,
           "liveUrl": null,
           "dateInitiated": "2026-03-23",
           "targetDate": "2026-03-25",
@@ -1536,8 +1599,8 @@
           "dependencies": [],
           "enables": [],
           "progress": 25,
-          "objective": "Define end-to-end work process: task intake → planning → execution → verification → testing → shipping. Response to quality failures on 2026-03-23.",
-          "successCriteria": "Written process doc approved by David. All agents follow defined QA gates before shipping.",
+          "objective": "Define end-to-end work process: task intake → planning → execution → verification → testing → shipping.",
+          "successCriteria": "",
           "blockers": [],
           "outstanding": [
             {
@@ -1546,11 +1609,11 @@
             },
             {
               "done": false,
-              "text": "Full work process document written"
+              "text": "Full work process document"
             },
             {
               "done": false,
-              "text": "QA gates defined per risk level"
+              "text": "QA gates per risk level"
             },
             {
               "done": false,
@@ -1564,7 +1627,7 @@
           "decisions": [
             {
               "date": "2026-03-23",
-              "text": "Lean org: Morpheus primary, Codex review gate, specialist agents added only when proven"
+              "text": "Lean org: Morpheus primary, Codex review gate"
             },
             {
               "date": "2026-03-23",
