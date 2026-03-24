@@ -304,14 +304,130 @@ h2 {
 .tut-section h3 { font-size: 16px; color: #fff; margin-bottom: 8px; }
 .tut-section p { font-size: 14px; color: rgba(255,255,255,0.5); line-height: 1.6; margin-bottom: 8px; }
 .tut-mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; width: 120px; aspect-ratio: 1; margin: 12px 0; }
-.tut-mini-cell { background: rgba(255,255,255,0.06); border-radius: 6px; transition: background 0.3s; }
+.tut-mini-cell { background: rgba(255,255,255,0.06); border-radius: 6px; transition: background 0.3s, border 0.3s, box-shadow 0.3s; }
 .tut-mini-cell.lit { background: rgba(212,168,83,0.25); border: 1px solid #d4a853; box-shadow: 0 0 12px rgba(212,168,83,0.15); }
 .tut-mini-cell.match-glow { background: rgba(74,222,128,0.3); box-shadow: 0 0 12px rgba(74,222,128,0.3); }
 .skip-link { display: inline-block; color: rgba(255,255,255,0.35); font-size: 13px; cursor: pointer; margin-top: 8px; border: none; background: none; font-family: inherit; }
 .skip-link:hover { color: #d4a853; }
 .practice-hint-bar { text-align: center; height: 24px; margin-top: 8px; font-size: 13px; font-weight: 600; color: #d4a853; }
-.match-btn.hint-glow { animation: hintPulse 0.6s ease-in-out 3; }
+.match-btn.hint-glow { animation: hintPulse 0.6s ease-in-out infinite; }
 @keyframes hintPulse { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 20px rgba(74,222,128,0.5)} }
+
+/* ── Tutorial Wizard ── */
+.tut-wizard-wrap { position: relative; }
+.tut-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.tut-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.12);
+  transition: background 0.3s, transform 0.3s;
+}
+.tut-dot.active {
+  background: #d4a853;
+  transform: scale(1.25);
+}
+.tut-dot.done {
+  background: rgba(212,168,83,0.45);
+}
+.tut-step { display: none; }
+.tut-step.active { display: block; }
+.tut-step h2 {
+  font-family: 'Instrument Serif', serif;
+  font-weight: 400;
+  font-size: 28px;
+  color: #fff;
+  margin-bottom: 12px;
+}
+.tut-step p {
+  font-size: 14px;
+  color: rgba(255,255,255,0.5);
+  line-height: 1.7;
+  margin-bottom: 12px;
+}
+.tut-step .gold { color: #d4a853; }
+.tut-nav {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+.tut-nav .btn { flex: 1; }
+.tut-interactive-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  width: 180px;
+  aspect-ratio: 1;
+  margin: 16px auto;
+}
+.tut-interactive-grid .tut-mini-cell {
+  border-radius: 8px;
+}
+.tut-interactive-btns {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}
+.tut-interactive-btns .match-btn {
+  flex: 1;
+  padding: 14px 10px;
+}
+.tut-feedback-msg {
+  text-align: center;
+  min-height: 24px;
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+.tut-feedback-msg.error { color: #d9534f; }
+.tut-feedback-msg.success { color: #5cb85c; }
+.tut-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(212,168,83,0.12);
+  border: 1px solid rgba(212,168,83,0.3);
+  border-radius: 8px;
+  padding: 8px 16px;
+  color: #d4a853;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin: 8px 0;
+  transition: background 0.2s;
+}
+.tut-play-btn:hover { background: rgba(212,168,83,0.2); }
+.tut-match-visual {
+  display: flex;
+  gap: 10px;
+  margin: 12px 0;
+}
+.tut-match-visual .mock-btn {
+  flex: 1;
+  padding: 14px 10px;
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: #e0e0e0;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  text-align: center;
+  pointer-events: none;
+}
+.tut-match-visual .mock-btn .key-hint {
+  display: block;
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255,255,255,0.25);
+  margin-top: 4px;
+}
 
 /* ── Help Button ── */
 .help-btn {
@@ -478,46 +594,103 @@ h2 {
       <button class="session-btn" data-session="evening" id="btn-evening">&#127769; Evening</button>
     </div>
     <button class="btn" id="begin-btn">Begin Test</button>
-    <br>
-    <button class="skip-link" id="tutorial-btn" style="display:none">How It Works (Tutorial)</button>
   </div>
 
-  <!-- ── Tutorial Screen ── -->
+  <!-- ── Tutorial Screen (Wizard) ── -->
   <div id="tutorial-screen">
-    <h2>How It Works</h2>
-    <div class="tut-section">
-      <h3>What is N-Back?</h3>
-      <p>The N-Back task is one of the most well-studied working memory tests in cognitive science. You must continuously compare what you see and hear <em>now</em> with what happened <strong class="gold">N steps ago</strong>. As you improve, N increases &mdash; making the task progressively harder.</p>
-    </div>
-    <div class="tut-section">
-      <h3>1. Visual Channel &mdash; Watch the grid</h3>
-      <p>Each turn, a square lights up on the 3&times;3 grid. Remember where it appears. If the position matches the one from <strong class="gold">N turns ago</strong>, press <strong class="gold">A</strong> or tap <strong class="gold">Position Match</strong>.</p>
-      <div class="tut-mini-grid" id="tutGridDesktop1">
-        <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
-        <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
-        <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+    <div class="tut-wizard-wrap">
+      <div class="tut-dots" id="tut-dots"></div>
+
+      <!-- Step 0: Welcome -->
+      <div class="tut-step" data-step="0">
+        <h2>Welcome to Dual N-Back</h2>
+        <p>On each turn, a square lights up on this grid.</p>
+        <div class="tut-mini-grid" id="tutWizGrid0">
+          <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+          <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+          <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+        </div>
+        <div class="tut-nav">
+          <button class="btn" id="tut-next-0">Next</button>
+        </div>
       </div>
-    </div>
-    <div class="tut-section">
-      <h3>2. Audio Channel &mdash; Listen for letters</h3>
-      <p>A letter is spoken each turn. When the <strong class="gold">current letter</strong> matches the one from <strong class="gold">N turns ago</strong>, press <strong class="gold">L</strong> or tap <strong class="gold">Sound Match</strong>.</p>
-    </div>
-    <div class="tut-section">
-      <h3>3. Dual Task &mdash; Both at once</h3>
-      <p>The real challenge: you must track <em>both</em> channels simultaneously. A position match and an audio match can happen on the same trial &mdash; or neither.</p>
-      <div class="tut-mini-grid" id="tutGridDesktop2">
-        <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
-        <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
-        <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+
+      <!-- Step 1: Remember position -->
+      <div class="tut-step" data-step="1">
+        <h2>Remember the Position</h2>
+        <p>Your job: remember where it lit up, <strong class="gold">N turns ago</strong>.</p>
+        <p>If N=2, you compare <strong class="gold">now</strong> to <strong class="gold">2 turns back</strong>.</p>
+        <div class="tut-mini-grid" id="tutWizGrid1">
+          <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+          <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+          <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+        </div>
+        <div class="tut-nav">
+          <button class="btn btn-outline" id="tut-back-1">Back</button>
+          <button class="btn" id="tut-next-1">Next</button>
+        </div>
       </div>
+
+      <!-- Step 2: Audio -->
+      <div class="tut-step" data-step="2">
+        <h2>And a Letter Plays</h2>
+        <p>Each turn you also hear a letter: <strong class="gold">C, H, K, L, Q, R, S,</strong> or <strong class="gold">T</strong>.</p>
+        <button class="tut-play-btn" id="tut-play-letter">&#9654; Play &ldquo;K&rdquo;</button>
+        <p>Track both channels simultaneously.</p>
+        <div class="tut-nav">
+          <button class="btn btn-outline" id="tut-back-2">Back</button>
+          <button class="btn" id="tut-next-2">Next</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Match buttons -->
+      <div class="tut-step" data-step="3">
+        <h2>Press When There Is a Match</h2>
+        <div class="tut-match-visual">
+          <div class="mock-btn">Position Match<span class="key-hint">Press A</span></div>
+          <div class="mock-btn">Sound Match<span class="key-hint">Press L</span></div>
+        </div>
+        <p><strong class="gold">Position match:</strong> press <strong>A</strong> or tap Position Match.</p>
+        <p><strong class="gold">Sound match:</strong> press <strong>L</strong> or tap Sound Match.</p>
+        <p>Both, either, or neither can match on the same turn.</p>
+        <div class="tut-nav">
+          <button class="btn btn-outline" id="tut-back-3">Back</button>
+          <button class="btn" id="tut-next-3">Next</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Interactive -->
+      <div class="tut-step" data-step="4">
+        <h2>Try It Yourself</h2>
+        <p>Watch the grid &mdash; two turns at 1-back. Press <strong class="gold">Position Match</strong> if the second position matches the first.</p>
+        <div class="tut-interactive-grid" id="tutWizGrid4">
+          <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+          <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+          <div class="tut-mini-cell"></div><div class="tut-mini-cell"></div><div class="tut-mini-cell"></div>
+        </div>
+        <div class="tut-interactive-btns" id="tut-interactive-btns">
+          <button class="match-btn" id="tut-pos-btn">Position Match<span class="key-hint">Press A</span></button>
+          <button class="match-btn" id="tut-snd-btn">Sound Match<span class="key-hint">Press L</span></button>
+        </div>
+        <div class="tut-feedback-msg" id="tut-interactive-feedback"></div>
+        <div class="tut-nav">
+          <button class="btn" id="tut-next-4" style="display:none;">Continue</button>
+        </div>
+      </div>
+
+      <!-- Step 5: Scoring -->
+      <div class="tut-step" data-step="5">
+        <h2>Scoring &amp; Difficulty</h2>
+        <p>You start at <strong class="gold">2-Back</strong>. Three correct in a row: level up. Three wrong: level down.</p>
+        <p>Your key score is <strong class="gold">Max N</strong> &mdash; the highest level you reach.</p>
+        <p>20 trials total. Ready?</p>
+        <div class="tut-nav" style="flex-direction:column;gap:10px;">
+          <button class="btn" id="tut-start-practice">Start Practice Round</button>
+          <button class="skip-link" id="tut-skip-to-test">Skip to real test &rarr;</button>
+        </div>
+      </div>
+
     </div>
-    <div class="tut-section">
-      <h3>4. Scoring &amp; Adaptive Difficulty</h3>
-      <p>You start at <strong class="gold">2-back</strong>. Three correct trials in a row raises N by one; three wrong drops it. Your key metric is <strong class="gold">Max N</strong> &mdash; the highest level you reach. Visual and audio accuracy are tracked separately.</p>
-    </div>
-    <button class="btn" id="practice-btn">Try Practice Round (1-Back)</button>
-    <br>
-    <button class="skip-link" id="skip-to-test-btn">Skip to real test &rarr;</button>
   </div>
 
   <!-- ── Practice Ready Screen ── -->
@@ -647,34 +820,210 @@ h2 {
   const PRACTICE_TRIALS = 5;
   const PRACTICE_INTERVAL = 3000;
 
-  // Show tutorial button for first-time users
+  // ── Tutorial Wizard ──
+  const TOTAL_TUT_STEPS = 6;
+  let currentTutorialStep = 0;
+  let tutInteractiveState = 'idle'; // idle, showing, waiting, done
+  let tutStep4Timers = [];
   const helpBtn = document.getElementById('help-btn');
-  if (!localStorage.getItem('nback_desktop_tutorial_done')) {
-    document.getElementById('tutorial-btn').style.display = 'inline-block';
-    document.getElementById('tutorial-btn').addEventListener('click', () => showScreen(tutorialScreen));
-  }
-  // Help button always available to re-show tutorial
-  helpBtn.addEventListener('click', () => showScreen(tutorialScreen));
 
-  document.getElementById('practice-btn').addEventListener('click', startPractice);
-  document.getElementById('skip-to-test-btn').addEventListener('click', () => {
-    try { getAudioCtx(); } catch(e) {}
-    runGame();
+  // Auto-onboarding: show tutorial first for new users
+  if (!localStorage.getItem('nback_v2_tutorial_done')) {
+    setupScreen.classList.remove('active');
+    tutorialScreen.classList.add('active');
+    initTutorialWizard();
+  }
+
+  // Help button re-triggers tutorial from step 0
+  helpBtn.addEventListener('click', () => {
+    showScreen(tutorialScreen);
+    initTutorialWizard();
   });
+
+  // Post-practice screen buttons
   document.getElementById('start-after-practice-btn').addEventListener('click', () => runGame());
   document.getElementById('practice-again-btn').addEventListener('click', startPractice);
 
-  // Tutorial animations
-  (function runTutAnimations() {
-    const g1 = document.querySelectorAll('#tutGridDesktop1 .tut-mini-cell');
-    const g2 = document.querySelectorAll('#tutGridDesktop2 .tut-mini-cell');
-    const seq1 = [0, 4, 8, 2, 6];
-    let i1 = 0;
-    setInterval(() => { g1.forEach(c => c.classList.remove('lit')); g1[seq1[i1 % seq1.length]].classList.add('lit'); i1++; }, 1000);
-    const seq2 = [{p:3,m:false},{p:7,m:false},{p:3,m:false},{p:3,m:true}];
-    let i2 = 0;
-    setInterval(() => { g2.forEach(c => c.classList.remove('lit','match-glow')); const s = seq2[i2 % seq2.length]; g2[s.p].classList.add(s.m ? 'match-glow' : 'lit'); i2++; }, 1200);
-  })();
+  function initTutorialWizard() {
+    currentTutorialStep = 0;
+    renderTutDots();
+    showTutStep(0);
+  }
+
+  function renderTutDots() {
+    const container = document.getElementById('tut-dots');
+    container.innerHTML = '';
+    for (let i = 0; i < TOTAL_TUT_STEPS; i++) {
+      const dot = document.createElement('div');
+      dot.className = 'tut-dot' + (i === currentTutorialStep ? ' active' : (i < currentTutorialStep ? ' done' : ''));
+      container.appendChild(dot);
+    }
+  }
+
+  function showTutStep(step) {
+    currentTutorialStep = step;
+    renderTutDots();
+    // Clear any step 4 timers
+    tutStep4Timers.forEach(t => clearTimeout(t));
+    tutStep4Timers = [];
+    tutInteractiveState = 'idle';
+    // Hide all steps, show current
+    document.querySelectorAll('.tut-step').forEach(el => el.classList.remove('active'));
+    const activeStep = document.querySelector(`.tut-step[data-step="${step}"]`);
+    if (activeStep) activeStep.classList.add('active');
+    // Run step-specific animations
+    if (step === 0) runStep0Anim();
+    if (step === 1) runStep1Anim();
+    if (step === 4) runStep4Interactive();
+  }
+
+  // Step 0: single cell lighting up in a loop
+  let step0Interval = null;
+  function runStep0Anim() {
+    if (step0Interval) clearInterval(step0Interval);
+    const cells0 = document.querySelectorAll('#tutWizGrid0 .tut-mini-cell');
+    const seq = [0, 4, 8, 2, 6, 1, 7, 3, 5];
+    let i = 0;
+    function tick() { cells0.forEach(c => c.classList.remove('lit')); cells0[seq[i % seq.length]].classList.add('lit'); i++; }
+    tick();
+    step0Interval = setInterval(tick, 900);
+  }
+
+  // Step 1: two sequential highlights
+  let step1Interval = null;
+  function runStep1Anim() {
+    if (step1Interval) clearInterval(step1Interval);
+    const cells1 = document.querySelectorAll('#tutWizGrid1 .tut-mini-cell');
+    const pairs = [[2, 6], [4, 0], [7, 3], [1, 5]];
+    let pi = 0;
+    let phase = 0;
+    function tick() {
+      cells1.forEach(c => c.classList.remove('lit'));
+      const pair = pairs[pi % pairs.length];
+      if (phase === 0) {
+        cells1[pair[0]].classList.add('lit');
+        phase = 1;
+      } else {
+        cells1[pair[1]].classList.add('lit');
+        phase = 0;
+        pi++;
+      }
+    }
+    tick();
+    step1Interval = setInterval(tick, 800);
+  }
+
+  // Step 4: interactive mini-game
+  function runStep4Interactive() {
+    const grid4 = document.querySelectorAll('#tutWizGrid4 .tut-mini-cell');
+    const posBtn = document.getElementById('tut-pos-btn');
+    const sndBtn = document.getElementById('tut-snd-btn');
+    const fb = document.getElementById('tut-interactive-feedback');
+    const continueBtn = document.getElementById('tut-next-4');
+    grid4.forEach(c => c.classList.remove('lit'));
+    posBtn.classList.remove('pressed', 'hint-glow');
+    sndBtn.classList.remove('pressed', 'hint-glow');
+    fb.textContent = '';
+    fb.className = 'tut-feedback-msg';
+    continueBtn.style.display = 'none';
+    tutInteractiveState = 'showing';
+
+    // Pick a random cell for first stimulus
+    const cell1 = Math.floor(Math.random() * 9);
+    // Second stimulus = same position (position match)
+    const cell2 = cell1;
+
+    // Show first stimulus
+    grid4[cell1].classList.add('lit');
+    tutStep4Timers.push(setTimeout(() => {
+      grid4[cell1].classList.remove('lit');
+    }, 600));
+
+    // Show second stimulus after pause
+    tutStep4Timers.push(setTimeout(() => {
+      grid4[cell2].classList.add('lit');
+      tutStep4Timers.push(setTimeout(() => {
+        grid4[cell2].classList.remove('lit');
+      }, 600));
+      // Now waiting for user input
+      tutInteractiveState = 'waiting';
+      // Hint glow after a delay
+      tutStep4Timers.push(setTimeout(() => {
+        if (tutInteractiveState === 'waiting') {
+          posBtn.classList.add('hint-glow');
+        }
+      }, 2000));
+    }, 1500));
+  }
+
+  function handleTutInteractivePress(type) {
+    if (tutInteractiveState !== 'waiting') return;
+    const posBtn = document.getElementById('tut-pos-btn');
+    const sndBtn = document.getElementById('tut-snd-btn');
+    const fb = document.getElementById('tut-interactive-feedback');
+    const continueBtn = document.getElementById('tut-next-4');
+
+    if (type === 'position') {
+      // Correct!
+      tutInteractiveState = 'done';
+      posBtn.classList.remove('hint-glow');
+      posBtn.classList.add('pressed');
+      fb.textContent = 'Perfect! You got it.';
+      fb.className = 'tut-feedback-msg success';
+      continueBtn.style.display = '';
+    } else {
+      // Wrong
+      fb.textContent = 'Watch the position \u2014 it matches! Press Position Match.';
+      fb.className = 'tut-feedback-msg error';
+      posBtn.classList.add('hint-glow');
+    }
+  }
+
+  // Wire interactive buttons
+  document.getElementById('tut-pos-btn').addEventListener('click', () => handleTutInteractivePress('position'));
+  document.getElementById('tut-snd-btn').addEventListener('click', () => handleTutInteractivePress('sound'));
+
+  // Wire play letter button
+  document.getElementById('tut-play-letter').addEventListener('click', () => {
+    try {
+      if (window.speechSynthesis) {
+        const u = new SpeechSynthesisUtterance('K');
+        u.rate = 1.1; u.pitch = 1; u.volume = 0.8;
+        speechSynthesis.cancel();
+        speechSynthesis.speak(u);
+      }
+    } catch(e) {}
+  });
+
+  // Wire all wizard nav buttons
+  document.getElementById('tut-next-0').addEventListener('click', () => showTutStep(1));
+  document.getElementById('tut-back-1').addEventListener('click', () => showTutStep(0));
+  document.getElementById('tut-next-1').addEventListener('click', () => showTutStep(2));
+  document.getElementById('tut-back-2').addEventListener('click', () => showTutStep(1));
+  document.getElementById('tut-next-2').addEventListener('click', () => showTutStep(3));
+  document.getElementById('tut-back-3').addEventListener('click', () => showTutStep(2));
+  document.getElementById('tut-next-3').addEventListener('click', () => showTutStep(4));
+  document.getElementById('tut-next-4').addEventListener('click', () => showTutStep(5));
+
+  // Step 5 buttons
+  document.getElementById('tut-start-practice').addEventListener('click', () => {
+    completeTutorial();
+    startPractice();
+  });
+  document.getElementById('tut-skip-to-test').addEventListener('click', () => {
+    completeTutorial();
+    try { getAudioCtx(); } catch(e) {}
+    runGame();
+  });
+
+  function completeTutorial() {
+    localStorage.setItem('nback_v2_tutorial_done', '1');
+    localStorage.setItem('nback_desktop_tutorial_done', '1');
+    // Clean up any running animations
+    if (step0Interval) clearInterval(step0Interval);
+    if (step1Interval) clearInterval(step1Interval);
+    tutStep4Timers.forEach(t => clearTimeout(t));
+  }
 
   function startPractice() {
     practiceMode = true;
@@ -1008,6 +1357,7 @@ h2 {
   async function runGame() {
     practiceMode = false;
     localStorage.setItem('nback_desktop_tutorial_done', '1');
+    localStorage.setItem('nback_v2_tutorial_done', '1');
     // Reset state
     nLevel = 2;
     maxN = 2;
@@ -1204,8 +1554,16 @@ h2 {
   }
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'a' || e.key === 'A') { e.preventDefault(); pressPosition(); }
-    if (e.key === 'l' || e.key === 'L') { e.preventDefault(); pressSound(); }
+    if (e.key === 'a' || e.key === 'A') {
+      e.preventDefault();
+      if (tutInteractiveState === 'waiting') { handleTutInteractivePress('position'); return; }
+      pressPosition();
+    }
+    if (e.key === 'l' || e.key === 'L') {
+      e.preventDefault();
+      if (tutInteractiveState === 'waiting') { handleTutInteractivePress('sound'); return; }
+      pressSound();
+    }
   });
 
   btnPosition.addEventListener('click', pressPosition);
