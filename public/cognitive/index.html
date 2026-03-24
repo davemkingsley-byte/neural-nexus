@@ -1255,7 +1255,7 @@ async function init() {
       $('#whoopNotConnected').style.display = 'none';
       $('#whoopConnected').style.display = '';
       // Load latest WHOOP data
-      const whoopData = await apiFetch('/api/whoop/data?days=7');
+      const whoopData = await apiFetch('/api/whoop/data?days=30');
       if (whoopData && whoopData.data && whoopData.data.length > 0) {
         const latest = whoopData.data[0]; // most recent (sorted DESC)
         if (latest.recovery_score != null) {
@@ -1371,7 +1371,7 @@ async function syncWhoop() {
     if (r.ok) {
       if (status) status.textContent = `Synced ${data.synced} records`;
       // Refresh WHOOP cards
-      const whoopData = await apiFetch('/api/whoop/data?days=7');
+      const whoopData = await apiFetch('/api/whoop/data?days=30');
       if (whoopData && whoopData.data && whoopData.data.length > 0) {
         const latest = whoopData.data[0];
         if (latest.recovery_score != null) {
