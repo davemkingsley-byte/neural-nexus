@@ -1055,6 +1055,8 @@ app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
       if (type === 'nback') return s.max_n;
       if (type === 'pvt') return s.median_rt;
       if (type === 'dsst') return s.correct;
+      if (type === 'stroop') return s.interference_score;
+      if (type === 'avlt') return s.total_learning_score;
       return null;
     }
 
@@ -1064,13 +1066,13 @@ app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
       const mean = values.reduce((a, b) => a + b, 0) / n;
       const variance = values.reduce((a, v) => a + (v - mean) ** 2, 0) / n;
       const sd = Math.sqrt(variance);
-      const lowerBetter = type === 'pvt';
+      const lowerBetter = ['pvt', 'stroop'].includes(type);
       const best = lowerBetter ? Math.min(...values) : Math.max(...values);
       const worst = lowerBetter ? Math.max(...values) : Math.min(...values);
       return { sessions: n, mean: Math.round(mean * 100) / 100, sd: Math.round(sd * 100) / 100, best, worst };
     }
 
-    const testTypes = ['nback', 'pvt', 'dsst'];
+    const testTypes = ['nback', 'pvt', 'dsst', 'stroop', 'avlt'];
     const tests = {};
     let totalSessions = 0;
     const dailyScores = {}; // date -> { nback: [], pvt: [], dsst: [] }
@@ -1098,7 +1100,7 @@ app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
       const daily = [];
       for (const [date, byType] of Object.entries(dailyScores)) {
         if (byType[type] && byType[type].length > 0) {
-          const lowerBetter = type === 'pvt';
+          const lowerBetter = ['pvt', 'stroop'].includes(type);
           const best = lowerBetter ? Math.min(...byType[type]) : Math.max(...byType[type]);
           daily.push({ date, value: best });
         }
@@ -1111,7 +1113,7 @@ app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
       if (priorValues.length > 0 && values.length > 0) {
         const priorMean = priorValues.reduce((a, b) => a + b, 0) / priorValues.length;
         const pctChange = ((stats.mean - priorMean) / priorMean) * 100;
-        const lowerBetter = type === 'pvt';
+        const lowerBetter = ['pvt', 'stroop'].includes(type);
         if (lowerBetter) {
           trend = pctChange <= -5 ? 'improving' : pctChange >= 5 ? 'declining' : 'stable';
         } else {
@@ -1137,7 +1139,7 @@ app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
       const scores = {};
       for (const type of testTypes) {
         if (d[type] && d[type].length > 0) {
-          const lowerBetter = type === 'pvt';
+          const lowerBetter = ['pvt', 'stroop'].includes(type);
           scores[type] = lowerBetter ? Math.min(...d[type]) : Math.max(...d[type]);
         }
       }
@@ -1156,7 +1158,7 @@ app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
         for (const nd of normed) {
           if (nd.scores[type] != null) {
             let n = (nd.scores[type] - min) / (max - min);
-            if (type === 'pvt') n = 1 - n; // invert: lower RT is better
+            if (['pvt', 'stroop'].includes(type)) n = 1 - n; // invert: lower is better
             nd.norm += n;
             nd.count++;
           }
@@ -1178,6 +1180,8 @@ app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
         if (bd.scores.nback != null) reasons.push(`Best N-Back (${bd.scores.nback})`);
         if (bd.scores.pvt != null) reasons.push(`fastest PVT (${bd.scores.pvt}ms)`);
         if (bd.scores.dsst != null) reasons.push(`DSST (${bd.scores.dsst})`);
+        if (bd.scores.stroop != null) reasons.push(`Stroop (${bd.scores.stroop}ms)`);
+        if (bd.scores.avlt != null) reasons.push(`AVLT (${bd.scores.avlt})`);
         bestDay = { date: bd.date, reason: reasons.join(' + ') };
       }
       // Worst day: lowest composite among days with >= 2 test types
@@ -1189,6 +1193,8 @@ app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
         if (wd.scores.pvt != null) reasons.push(`Slowest PVT (${wd.scores.pvt}ms)`);
         if (wd.scores.nback != null) reasons.push(`N-Back (${wd.scores.nback})`);
         if (wd.scores.dsst != null) reasons.push(`DSST (${wd.scores.dsst})`);
+        if (wd.scores.stroop != null) reasons.push(`Stroop (${wd.scores.stroop}ms)`);
+        if (wd.scores.avlt != null) reasons.push(`AVLT (${wd.scores.avlt})`);
         worstDay = { date: wd.date, reason: reasons.join(' + ') };
       }
     }
@@ -1215,10 +1221,10 @@ app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
     for (const type of testTypes) {
       const t = tests[type];
       if (t.trend === 'improving') {
-        const label = type === 'nback' ? 'N-Back' : type.toUpperCase();
+        const label = type === 'nback' ? 'N-Back' : type === 'stroop' ? 'Stroop interference' : type === 'avlt' ? 'AVLT' : type.toUpperCase();
         insights.push(`${label} is trending upward vs last week.`);
       } else if (t.trend === 'declining') {
-        const label = type === 'nback' ? 'N-Back' : type.toUpperCase();
+        const label = type === 'nback' ? 'N-Back' : type === 'stroop' ? 'Stroop interference' : type === 'avlt' ? 'AVLT' : type.toUpperCase();
         insights.push(`${label} declined vs last week — consider recovery.`);
       }
     }
@@ -1239,6 +1245,58 @@ app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
   } catch (err) {
     console.error('Error generating weekly report:', err);
     res.status(500).json({ error: 'Failed to generate weekly report' });
+  }
+});
+
+// Auto-save weekly report
+const cogWeeklyPath = path.join(__dirname, 'data', 'cognitive-weekly-reports.json');
+app.post('/api/cognitive/weekly-report/auto-save', dashboardAuth, (req, res) => {
+  // Internally call the weekly-report logic by forwarding to our own handler
+  const fakeRes = {
+    _status: 200,
+    _data: null,
+    status(code) { this._status = code; return this; },
+    json(data) { this._data = data; }
+  };
+  // Re-use the GET handler
+  app._router.handle(
+    Object.assign({}, req, { method: 'GET', url: '/api/cognitive/weekly-report', query: {} }),
+    fakeRes,
+    () => {}
+  );
+  // Since the handler is synchronous, _data is available immediately
+  const report = fakeRes._data;
+  if (!report || report.error) {
+    return res.status(fakeRes._status === 200 ? 400 : fakeRes._status).json(report || { error: 'Failed to generate report' });
+  }
+
+  try {
+    let entries = [];
+    if (fs.existsSync(cogWeeklyPath)) {
+      entries = JSON.parse(fs.readFileSync(cogWeeklyPath, 'utf-8'));
+    }
+    const weekOf = report.week_start;
+    const savedAt = new Date().toISOString();
+    const entry = { weekOf, generatedAt: savedAt, report };
+
+    // Overwrite if same weekOf exists
+    const idx = entries.findIndex(e => e.weekOf === weekOf);
+    if (idx >= 0) {
+      entries[idx] = entry;
+    } else {
+      entries.push(entry);
+    }
+
+    // Keep up to 52 entries (most recent)
+    if (entries.length > 52) {
+      entries = entries.slice(entries.length - 52);
+    }
+
+    fs.writeFileSync(cogWeeklyPath, JSON.stringify(entries, null, 2));
+    res.json({ ok: true, weekOf, savedAt });
+  } catch (err) {
+    console.error('Error saving weekly report:', err);
+    res.status(500).json({ error: 'Failed to save weekly report' });
   }
 });
 
