@@ -37,31 +37,31 @@
           "outstanding": [
             {
               "done": true,
-              "text": "**Deploy publicly by 2026-03-15** — Game needs a public URL for Neural NeXus newsletter readers"
+              "text": "Deploy publicly"
             },
             {
               "done": true,
-              "text": "Choose hosting platform (Railway / Render / VPS / Cloudflare Tunnel)"
+              "text": "Hosting platform (Railway)"
             },
             {
               "done": true,
-              "text": "Set up deployment pipeline"
+              "text": "Deployment pipeline"
             },
             {
               "done": true,
-              "text": "Test public access"
+              "text": "Public access tested"
             },
             {
               "done": true,
-              "text": "Generate shareable link for newsletter"
+              "text": "Shareable link for newsletter"
             },
             {
               "done": true,
-              "text": "Explore Substack integration (iframe embed or link-out with preview image)"
+              "text": "Custom domain (neuralnexus.press/play)"
             },
             {
               "done": true,
-              "text": "Optional: custom domain/subdomain for the game"
+              "text": "Substack integration"
             }
           ],
           "decisions": [
@@ -128,22 +128,22 @@
             {
               "name": "Core engine",
               "tasks": "Puzzle generator, word validation, scoring",
-              "status": "⬜ Not started"
+              "status": "✅ Complete"
             },
             {
               "name": "Game UI",
               "tasks": "Honeycomb, input, timer, found words",
-              "status": "⬜ Not started"
+              "status": "✅ Complete"
             },
             {
               "name": "Scoreboard",
               "tasks": "Backend, storage, leaderboard view",
-              "status": "⬜ Not started"
+              "status": "✅ Complete"
             },
             {
               "name": "Polish",
               "tasks": "Responsive design, share button, animations",
-              "status": "⬜ Not started"
+              "status": "✅ Complete"
             }
           ]
         },
@@ -173,13 +173,46 @@
             "107",
             "108"
           ],
-          "progress": 100,
+          "progress": 90,
           "objective": "Build a professional website for the Neural NeXus newsletter brand — landing page, about, newsletter signup, and Spelling Bee game integration.",
           "successCriteria": "Fully externalized website on neuralnexus.press with newsletter signup, brand presence, and playable Spelling Bee game accessible to the public.",
           "blockers": [
             "Bare domain SSL (needs Cloudflare migration)"
           ],
-          "outstanding": [],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "Landing page with hero, about, topics"
+            },
+            {
+              "done": true,
+              "text": "Article cards with Substack thumbnails"
+            },
+            {
+              "done": true,
+              "text": "About section with headshot"
+            },
+            {
+              "done": true,
+              "text": "Subscribe form"
+            },
+            {
+              "done": true,
+              "text": "Domain setup (neuralnexus.press)"
+            },
+            {
+              "done": true,
+              "text": "Railway auto-deploy from GitHub"
+            },
+            {
+              "done": false,
+              "text": "Bare domain SSL (needs Cloudflare)"
+            },
+            {
+              "done": false,
+              "text": "Internal linking to blog.neuralnexus.press"
+            }
+          ],
           "decisions": [
             {
               "date": "------",
@@ -232,22 +265,22 @@
             {
               "name": "Landing page",
               "tasks": "Hero, about, topics, signup form",
-              "status": "⬜ Not started"
+              "status": "✅ Complete"
             },
             {
               "name": "Game integration",
-              "tasks": "Embed or link Spelling Bee",
-              "status": "⬜ Not started"
+              "tasks": "Spelling Bee, Wordle, Crossword links",
+              "status": "✅ Complete"
             },
             {
               "name": "Domain setup",
               "tasks": "DNS, hosting, SSL",
-              "status": "⬜ Not started"
+              "status": "✅ Complete"
             },
             {
               "name": "Polish",
               "tasks": "Animations, responsive, SEO",
-              "status": "⬜ Not started"
+              "status": "✅ Complete"
             }
           ]
         },
@@ -278,7 +311,28 @@
           "objective": "Build a daily Wordle word-guessing game for the Neural NeXus website. Same premium dark UI as Spelling Bee. New word every day, 6 guesses, color-coded feedback, shareable results.",
           "successCriteria": "Playable at www.neuralnexus.press/wordle, daily word rotation, keyboard with color hints, share-friendly emoji grid, leaderboard integration.",
           "blockers": [],
-          "outstanding": [],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "Game logic (6 guesses, color feedback)"
+            },
+            {
+              "done": true,
+              "text": "Daily word rotation"
+            },
+            {
+              "done": true,
+              "text": "Keyboard with color hints"
+            },
+            {
+              "done": true,
+              "text": "Shareable emoji grid"
+            },
+            {
+              "done": true,
+              "text": "Dark theme matching site"
+            }
+          ],
           "decisions": [
             {
               "date": "------",
@@ -439,18 +493,18 @@
           "milestones": [
             {
               "name": "M1: Content Parser",
-              "tasks": "Substack RSS/URL → structured post data",
+              "tasks": "Substack RSS/URL → structured data",
               "status": "✅ Complete"
             },
             {
               "name": "M2: Script Generator",
-              "tasks": "LLM pipeline: extract hooks, write TikTok scripts",
+              "tasks": "LLM pipeline: hooks, TikTok scripts",
               "status": "✅ Complete"
             },
             {
               "name": "M3: Video Assembly",
-              "tasks": "ffmpeg + TTS + Pillow captions + branding overlay",
-              "status": "✅ MVP Complete"
+              "tasks": "ffmpeg + TTS + Pillow captions",
+              "status": "✅ Complete"
             },
             {
               "name": "M4: Voice Clone",
@@ -459,12 +513,12 @@
             },
             {
               "name": "M5: Batch Pipeline",
-              "tasks": "One command: URL → 3-5 ready clips",
+              "tasks": "URL → 3-5 ready clips",
               "status": "⬜ Not started"
             },
             {
               "name": "M6: Distribution",
-              "tasks": "TikTok caption gen, UTM tracking, optional API upload",
+              "tasks": "TikTok caption, UTM tracking",
               "status": "⬜ Not started"
             }
           ]
@@ -499,19 +553,19 @@
           "outstanding": [
             {
               "done": true,
-              "text": "Build and deploy (deployed 2026-03-16, commit 759b60d)"
+              "text": "Build and deploy"
             },
             {
               "done": true,
-              "text": "**CRITICAL:** Rewrite all 30 puzzle datasets — grids and clues are inconsistent/broken"
+              "text": "Rewrite all 30 puzzle datasets"
             },
             {
               "done": true,
-              "text": "Update vocabulary to use everyday words (not science-themed per David's feedback)"
+              "text": "Update vocabulary (everyday words)"
             },
             {
               "done": true,
-              "text": "Revalidate all crossword grids against clues before redeploying"
+              "text": "Revalidate all grids"
             }
           ],
           "decisions": [
@@ -568,34 +622,29 @@
           ],
           "milestones": [
             {
-              "name": "ID",
-              "tasks": "Milestone",
-              "status": "Target"
+              "name": "Puzzle data",
+              "tasks": "30 puzzles authored",
+              "status": "✅ Complete"
             },
             {
-              "name": "M1",
-              "tasks": "Puzzle data format + 30 puzzles authored",
-              "status": "2026-03-16"
+              "name": "Game engine",
+              "tasks": "Grid, input, validation",
+              "status": "✅ Complete"
             },
             {
-              "name": "M2",
-              "tasks": "Core game engine (grid, input, validation)",
-              "status": "2026-03-16"
+              "name": "UI/UX",
+              "tasks": "Dark theme, animations, mobile",
+              "status": "✅ Complete"
             },
             {
-              "name": "M3",
-              "tasks": "UI/UX (dark theme, animations, mobile)",
-              "status": "2026-03-16"
+              "name": "Daily rotation",
+              "tasks": "Stats + sharing",
+              "status": "✅ Complete"
             },
             {
-              "name": "M4",
-              "tasks": "Daily rotation + stats + sharing",
-              "status": "2026-03-16"
-            },
-            {
-              "name": "M5",
-              "tasks": "Deploy to production",
-              "status": "2026-03-16"
+              "name": "Deploy",
+              "tasks": "Production",
+              "status": "✅ Complete"
             }
           ]
         },
@@ -757,7 +806,20 @@
           "objective": "Automate content distribution across social platforms from Substack posts.",
           "successCriteria": "One-click distribution from Substack to social channels with tracking.",
           "blockers": [],
-          "outstanding": [],
+          "outstanding": [
+            {
+              "done": false,
+              "text": "Requirements gathering"
+            },
+            {
+              "done": false,
+              "text": "Platform selection (social channels)"
+            },
+            {
+              "done": false,
+              "text": "Automation pipeline design"
+            }
+          ],
           "decisions": [],
           "risks": [],
           "milestones": []
@@ -1087,7 +1149,40 @@
           "objective": "Installable PWA with mobile-optimized cognitive tests, WHOOP summary, and Today view.",
           "successCriteria": "PWA installable on iOS, mobile-optimized tests (PVT tap, DSST thumb grid, N-Back), service worker caching.",
           "blockers": [],
-          "outstanding": [],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "PWA manifest + service worker"
+            },
+            {
+              "done": true,
+              "text": "Today view with WHOOP summary"
+            },
+            {
+              "done": true,
+              "text": "Mobile PVT (tap anywhere)"
+            },
+            {
+              "done": true,
+              "text": "Mobile DSST (thumb grid)"
+            },
+            {
+              "done": true,
+              "text": "Mobile N-Back (large buttons)"
+            },
+            {
+              "done": true,
+              "text": "Analytics page"
+            },
+            {
+              "done": true,
+              "text": "Settings page"
+            },
+            {
+              "done": true,
+              "text": "Bottom tab bar navigation"
+            }
+          ],
           "decisions": [
             {
               "date": "2026-03-20",
@@ -1138,7 +1233,7 @@
             "502 (future: Clinical Trials)"
           ],
           "progress": 40,
-          "objective": "Develop TRT-001, the first canine-optimized triple incretin agonist (GLP-1R/GIPR/GCGR) for canine obesity. $29-44K discovery budget. CNADA pathway to conditional approval.",
+          "objective": "Develop TRT-001, the first canine-optimized triple incretin agonist (GLP-1R/GIPR/GCGR) for canine obesity. 38 research documents produced. CNADA pathway to conditional approval.",
           "successCriteria": "- [x] Competitive landscape analysis complete (updated 2026-03-19 with Okava, Teva generic, APOP)",
           "blockers": [
             "David: Confirm team status (Frank/Niki)",
@@ -1432,34 +1527,34 @@
           ],
           "milestones": [
             {
-              "name": "M1: Backend API",
-              "tasks": "Markdown parser, REST endpoints, file read/write",
-              "status": "⬜ Not started"
+              "name": "Backend API",
+              "tasks": "Charter parser, REST endpoints",
+              "status": "✅ Complete"
             },
             {
-              "name": "M2: Dashboard UI",
+              "name": "Dashboard UI",
               "tasks": "Summary cards, filter/sort, search",
-              "status": "⬜ Not started"
+              "status": "✅ Complete"
             },
             {
-              "name": "M3: Detail View",
-              "tasks": "Expandable cards, phase drill-down, blockers",
-              "status": "⬜ Not started"
+              "name": "Detail View",
+              "tasks": "Expandable cards, phase drill-down",
+              "status": "✅ Complete"
             },
             {
-              "name": "M4: Edit Mode",
-              "tasks": "In-browser status/phase editing, checkbox persistence",
-              "status": "⬜ Not started"
+              "name": "Edit Mode",
+              "tasks": "In-browser status editing",
+              "status": "✅ Complete"
             },
             {
-              "name": "M5: Monitoring",
+              "name": "Monitoring",
               "tasks": "URL health checks, activity feed",
-              "status": "⬜ Not started"
+              "status": "✅ Complete"
             },
             {
-              "name": "M6: Timeline",
-              "tasks": "Gantt/timeline view of project phases",
-              "status": "⬜ Not started"
+              "name": "Timeline",
+              "tasks": "Gantt view of project phases",
+              "status": "✅ Complete"
             }
           ]
         },
@@ -1512,29 +1607,24 @@
           "risks": [],
           "milestones": [
             {
-              "name": "Component",
-              "tasks": "Status",
-              "status": "Detail"
-            },
-            {
               "name": "Charter index page",
-              "tasks": "✅ Done",
-              "status": "`charters/index.html` — lists all projects"
+              "tasks": "Lists all projects",
+              "status": "✅ Complete"
             },
             {
               "name": "Charter detail pages",
-              "tasks": "✅ Done",
-              "status": "`charters/001.html`, `charters/002.html`"
+              "tasks": "Individual charter HTML pages",
+              "status": "✅ Complete"
             },
             {
-              "name": "Spelling Bee dashboard",
-              "tasks": "✅ Done",
-              "status": "`spelling-bee/dashboard.html`"
+              "name": "Program grouping",
+              "tasks": "Neural NeXus, Cognitive, Treat, etc.",
+              "status": "✅ Complete"
             },
             {
-              "name": "launchd service",
-              "tasks": "✅ Done",
-              "status": "`~/Library/LaunchAgents/com.openclaw.dashboard.plist`"
+              "name": "Navigation",
+              "tasks": "Cross-section links",
+              "status": "✅ Complete"
             }
           ]
         },
