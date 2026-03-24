@@ -509,8 +509,8 @@
     <div class="footer-links">
       <a href="/">Home</a>
       <a href="/topics">Topics</a>
-      <a href="https://davidkingsley.substack.com" target="_blank">Substack</a>
-      <a href="https://davidkingsley.substack.com/archive" target="_blank">Archive</a>
+      <a href="https://blog.neuralnexus.press" target="_blank">Blog</a>
+      <a href="https://blog.neuralnexus.press/archive" target="_blank">Archive</a>
       <a href="/play">Spelling Bee</a>
     </div>
     <p class="copy">© 2026 Neural NeXus · David Kingsley, PhD</p>
@@ -521,8 +521,8 @@
 document.getElementById('subscribe-btn').addEventListener('click', () => {
   const email = document.getElementById('email-input').value.trim();
   window.open(email
-    ? 'https://davidkingsley.substack.com/subscribe?simple=true&next=https://davidkingsley.substack.com/?email=' + encodeURIComponent(email)
-    : 'https://davidkingsley.substack.com/subscribe?simple=true&next=https://davidkingsley.substack.com/', '_blank');
+    ? 'https://blog.neuralnexus.press/subscribe?email=' + encodeURIComponent(email)
+    : 'https://blog.neuralnexus.press/subscribe', '_blank');
 });
 document.getElementById('email-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('subscribe-btn').click();
