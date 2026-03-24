@@ -1670,14 +1670,14 @@
         {
           "id": "704",
           "title": "Work Process Framework",
-          "status": "🟡 Review",
-          "statusClean": "Review",
-          "phase": "📝 Awaiting David approval",
-          "phaseIndex": 3,
+          "status": "🟢 Active",
+          "statusClean": "Active",
+          "phase": "✅ Approved — In effect",
+          "phaseIndex": 5,
           "liveUrl": null,
           "dateInitiated": "2026-03-23",
           "targetDate": "2026-03-25",
-          "dateCompleted": null,
+          "dateCompleted": "2026-03-23",
           "daysActive": 0,
           "overdue": false,
           "owner": "David Kingsley",
@@ -1688,7 +1688,7 @@
           "actualSpend": "$0",
           "dependencies": [],
           "enables": [],
-          "progress": 75,
+          "progress": 100,
           "objective": "Define end-to-end work process: task intake → planning → execution → verification → testing → shipping.",
           "successCriteria": "",
           "blockers": [],
@@ -1699,7 +1699,7 @@
             },
             {
               "done": true,
-              "text": "Full work process document written"
+              "text": "Full work process document (13 sections)"
             },
             {
               "done": true,
@@ -1707,19 +1707,31 @@
             },
             {
               "done": true,
-              "text": "Communication protocol defined"
+              "text": "Communication protocol"
+            },
+            {
+              "done": true,
+              "text": "Session startup protocol"
+            },
+            {
+              "done": true,
+              "text": "Autonomous work rules"
+            },
+            {
+              "done": true,
+              "text": "Context management"
             },
             {
               "done": true,
               "text": "Incident log with root causes"
             },
             {
-              "done": false,
+              "done": true,
               "text": "David review and sign-off"
             },
             {
               "done": false,
-              "text": "Org charter for agent structure"
+              "text": "Org charter for agent structure (separate deliverable)"
             }
           ],
           "decisions": [
