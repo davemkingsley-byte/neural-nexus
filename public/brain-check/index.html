@@ -611,6 +611,152 @@ body {
   clip: rect(0,0,0,0); border: 0;
 }
 
+/* ---- STREAK BADGE ---- */
+.streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(255,170,0,0.15), rgba(255,100,0,0.1));
+  border: 1px solid rgba(255,150,0,0.4);
+  border-radius: 60px;
+  padding: 7px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #ffaa00;
+  margin: 12px 0 0;
+  animation: fadeIn 0.5s ease;
+}
+.streak-badge .streak-fire { font-size: 1.1rem; }
+
+/* ---- EMAIL CAPTURE MODAL ---- */
+.email-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(6,6,11,0.82);
+  z-index: 100;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 0 20px;
+}
+.email-modal-overlay.visible {
+  display: flex;
+  animation: slideUp 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.email-modal {
+  background: var(--surface);
+  border: 1px solid rgba(212,168,83,0.25);
+  border-radius: 20px 20px 12px 12px;
+  padding: 28px 24px 24px;
+  max-width: 440px;
+  width: 100%;
+  box-shadow: 0 -8px 40px rgba(0,0,0,0.5);
+  position: relative;
+}
+.email-modal-close {
+  position: absolute;
+  top: 14px; right: 16px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 1.2rem;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px;
+}
+.email-modal h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+.email-modal p {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.email-modal-form {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.email-modal-input {
+  flex: 1;
+  min-width: 180px;
+  background: var(--surface2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+}
+.email-modal-input:focus { border-color: var(--gold); }
+.email-modal-input::placeholder { color: var(--text-dim); }
+.btn-subscribe {
+  background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+  color: #06060b;
+  border: none;
+  padding: 12px 22px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-family: inherit;
+  border-radius: 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.15s;
+}
+.btn-subscribe:hover { transform: translateY(-1px); }
+.btn-subscribe:active { transform: scale(0.97); }
+.email-modal-success {
+  display: none;
+  text-align: center;
+  padding: 8px 0;
+}
+.email-modal-success span {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 8px;
+}
+.email-modal-success p {
+  color: var(--green);
+  font-weight: 600;
+  margin: 0;
+}
+.email-modal-skip {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  text-align: center;
+  cursor: pointer;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  font-family: inherit;
+  width: 100%;
+}
+
+/* ---- STREAK ON RESULTS ---- */
+.streak-result-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, rgba(255,170,0,0.2), rgba(255,100,0,0.12));
+  border: 1px solid rgba(255,150,0,0.4);
+  border-radius: 60px;
+  padding: 6px 14px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #ffaa00;
+  margin: 8px 0 4px;
+}
+
 /* prevent iOS zoom on inputs */
 @media (max-width: 480px) {
   .dsst-key { gap: 2px; }
@@ -627,10 +773,13 @@ body {
   <div class="hero-brain" aria-hidden="true">&#129504;</div>
   <h1 class="hero-title">How Sharp Is Your Brain Today?</h1>
   <p class="hero-sub">A free 3-minute cognitive test based on real neuroscience</p>
-  <button class="btn-gold" id="btn-start">Start Free Test</button>
+  <div id="landing-streak-wrap" style="display:none">
+    <div class="streak-badge"><span class="streak-fire">🔥</span> <span id="landing-streak-text">Day 1 streak</span></div>
+  </div>
+  <button class="btn-gold" id="btn-start" style="margin-top:20px">Start Free Test</button>
   <p class="hero-note">No signup required <span>&middot;</span> Results in 3 minutes</p>
   <div class="landing-footer">
-    <a href="https://davidkingsley.substack.com" target="_blank" rel="noopener">Subscribe to Neural NeXus</a>
+    <a href="https://blog.neuralnexus.press" target="_blank" rel="noopener">Subscribe to Neural NeXus</a>
   </div>
 </div>
 
@@ -689,6 +838,9 @@ body {
   <div class="score-big" id="score-big">0</div>
   <p class="score-label">out of <strong>100</strong></p>
   <div class="percentile-badge" id="percentile-badge"></div>
+  <div id="result-streak-wrap" style="display:none">
+    <div class="streak-result-badge" id="result-streak-text"></div>
+  </div>
   <div class="percentile-live" id="percentile-live"></div>
 
   <div class="live-benchmarks" id="live-benchmarks" style="display:none">
@@ -713,10 +865,30 @@ body {
       Track your brain over time
       <small>Full cognitive dashboard</small>
     </a>
-    <a href="https://davidkingsley.substack.com" target="_blank" rel="noopener" class="cta-card blue-border">
+    <a href="https://blog.neuralnexus.press" target="_blank" rel="noopener" class="cta-card blue-border">
       Subscribe to Neural NeXus
       <small>Weekly brain science</small>
     </a>
+  </div>
+</div>
+
+<!-- ==================== EMAIL CAPTURE MODAL ==================== -->
+<div id="email-modal-overlay" class="email-modal-overlay" role="dialog" aria-modal="true" aria-label="Subscribe to Neural NeXus">
+  <div class="email-modal">
+    <button class="email-modal-close" id="email-modal-close" aria-label="Close">&times;</button>
+    <div id="email-modal-form-wrap">
+      <h3>🧠 Get Your Weekly Brain Report</h3>
+      <p>Join thousands of readers who track their cognitive edge with Neural NeXus. Free, no spam.</p>
+      <div class="email-modal-form">
+        <input type="email" class="email-modal-input" id="email-modal-input" placeholder="you@example.com" autocomplete="email" inputmode="email">
+        <button class="btn-subscribe" id="btn-subscribe">Subscribe →</button>
+      </div>
+      <button class="email-modal-skip" id="email-modal-skip">No thanks, just show my score</button>
+    </div>
+    <div class="email-modal-success" id="email-modal-success">
+      <span>🎉</span>
+      <p>You're in! Check your inbox for the next Neural NeXus issue.</p>
+    </div>
   </div>
 </div>
 
@@ -1122,8 +1294,18 @@ body {
         '<div class="card-label ' + dsstLabel.cls + '">' + dsstLabel.text + '</div>' +
       '</div>';
 
-    // Share data
-    window._shareText = 'I scored ' + finalScore + '/100 on the Neural NeXus Brain Check! How sharp is your brain? \uD83E\uDDE0 https://www.neuralnexus.press/brain-check';
+    // Streak: update and display
+    var newStreak = updateStreak();
+    window._currentScore = finalScore;
+    if (newStreak >= 2) {
+      $('result-streak-text').textContent = '🔥 ' + newStreak + '-day streak!';
+      $('result-streak-wrap').style.display = '';
+    }
+
+    // Share data — personalized by score tier
+    var shareVerb = finalScore >= 80 ? 'crushed' : finalScore >= 60 ? 'scored' : 'scored';
+    var shareEmoji = finalScore >= 80 ? '🔥' : finalScore >= 60 ? '🧠' : '💪';
+    window._shareText = shareEmoji + ' I ' + shareVerb + ' ' + finalScore + '/100 on the Neural NeXus Brain Check! How sharp is your brain? \uD83E\uDDE0 https://www.neuralnexus.press/brain-check/';
 
     // Confetti
     launchConfetti();
@@ -1266,6 +1448,155 @@ body {
       .catch(function() {});
   }
   fetchLeaderboard();
+
+  // ==================== STREAK TRACKING ====================
+  function getToday() {
+    return new Date().toISOString().split('T')[0];
+  }
+
+  function updateStreak() {
+    var today = getToday();
+    var lastDate = localStorage.getItem('nn_bc_last_date');
+    var streak = parseInt(localStorage.getItem('nn_bc_streak') || '0', 10);
+
+    if (lastDate === today) {
+      // Already tested today — don't increment, just return current streak
+      return streak;
+    }
+
+    var yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    var yd = yesterday.toISOString().split('T')[0];
+
+    if (lastDate === yd) {
+      streak = streak + 1; // Consecutive day
+    } else {
+      streak = 1; // First time or broke streak
+    }
+
+    localStorage.setItem('nn_bc_streak', String(streak));
+    localStorage.setItem('nn_bc_last_date', today);
+    return streak;
+  }
+
+  function getExistingStreak() {
+    var today = getToday();
+    var lastDate = localStorage.getItem('nn_bc_last_date');
+    var streak = parseInt(localStorage.getItem('nn_bc_streak') || '0', 10);
+
+    if (!lastDate || streak === 0) return 0;
+
+    // Show streak badge on landing if tested yesterday or today
+    var yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    var yd = yesterday.toISOString().split('T')[0];
+
+    if (lastDate === today || lastDate === yd) return streak;
+    return 0;
+  }
+
+  // Show streak badge on landing page if returning user
+  (function() {
+    var s = getExistingStreak();
+    if (s >= 2) {
+      $('landing-streak-text').textContent = 'Day ' + s + ' streak';
+      $('landing-streak-wrap').style.display = '';
+    }
+  })();
+
+  // ==================== EMAIL CAPTURE ====================
+  var _emailModalShown = false;
+
+  function shouldShowEmailModal() {
+    // Don't show if user already subscribed or dismissed recently
+    var dismissed = localStorage.getItem('nn_email_dismissed');
+    var subscribed = localStorage.getItem('nn_subscribed');
+    if (subscribed === '1') return false;
+    if (dismissed) {
+      var dismissedAt = parseInt(dismissed, 10);
+      var sevenDays = 7 * 24 * 60 * 60 * 1000;
+      if (Date.now() - dismissedAt < sevenDays) return false;
+    }
+    return true;
+  }
+
+  function showEmailModal() {
+    if (_emailModalShown) return;
+    if (!shouldShowEmailModal()) return;
+    _emailModalShown = true;
+    $('email-modal-overlay').classList.add('visible');
+    try { gtag('event', 'email_modal_shown', {}); } catch(e) {}
+  }
+
+  function hideEmailModal() {
+    $('email-modal-overlay').classList.remove('visible');
+  }
+
+  function dismissEmailModal() {
+    localStorage.setItem('nn_email_dismissed', String(Date.now()));
+    hideEmailModal();
+    try { gtag('event', 'email_modal_dismissed', {}); } catch(e) {}
+  }
+
+  // Show modal after results + 2.5 second delay
+  var _origShowResults = showResults;
+  // Trigger modal when results screen is shown
+  // Poll for results screen becoming active (triggered from showResults → showScreen)
+  var _modalScheduled = false;
+  (function scheduleModalCheck() {
+    var interval = setInterval(function() {
+      if ($('results').classList.contains('active') && !_modalScheduled) {
+        _modalScheduled = true;
+        clearInterval(interval);
+        setTimeout(showEmailModal, 2800);
+      }
+    }, 200);
+    // Stop checking after 5 minutes
+    setTimeout(function() { clearInterval(interval); }, 300000);
+  })();
+
+  $('email-modal-close').addEventListener('click', dismissEmailModal);
+  $('email-modal-skip').addEventListener('click', dismissEmailModal);
+
+  $('btn-subscribe').addEventListener('click', function() {
+    var emailInput = $('email-modal-input');
+    var email = emailInput.value.trim();
+    if (!email || !email.includes('@')) {
+      emailInput.style.borderColor = '#ff4444';
+      emailInput.focus();
+      setTimeout(function() { emailInput.style.borderColor = ''; }, 2000);
+      return;
+    }
+
+    var btn = $('btn-subscribe');
+    btn.textContent = '...';
+    btn.disabled = true;
+
+    fetch('/api/brain-check/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, score: window._currentScore || null })
+    })
+    .then(function(r) { return r.ok ? r.json() : { ok: false }; })
+    .then(function(data) {
+      // Mark as subscribed regardless (even if duplicate)
+      localStorage.setItem('nn_subscribed', '1');
+      $('email-modal-form-wrap').style.display = 'none';
+      $('email-modal-success').style.display = '';
+      try { gtag('event', 'email_subscribed', { email: email }); } catch(e) {}
+      // Auto-close after 3 seconds
+      setTimeout(hideEmailModal, 3000);
+    })
+    .catch(function() {
+      btn.textContent = 'Subscribe →';
+      btn.disabled = false;
+    });
+  });
+
+  // Allow submit on Enter key in email input
+  $('email-modal-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') $('btn-subscribe').click();
+  });
 
 })();
 </script>

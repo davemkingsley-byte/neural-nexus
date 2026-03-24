@@ -1008,6 +1008,23 @@ app.post('/api/brain-check/submit', (req, res) => {
   }
 });
 
+app.post('/api/brain-check/subscribe', (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const { email, score } = req.body;
+    if (!email || typeof email !== 'string' || !email.includes('@')) {
+      return res.status(400).json({ error: 'Invalid email' });
+    }
+    if (email.length > 254) {
+      return res.status(400).json({ error: 'Email too long' });
+    }
+    const result = cogDB.saveBrainCheckEmail(email, score || null);
+    res.json({ ok: result.ok });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to save email' });
+  }
+});
+
 app.get('/api/brain-check/leaderboard', (req, res) => {
   if (!checkCogDB(res)) return;
   try {

@@ -117,6 +117,15 @@ function initDB() {
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
 
+      CREATE TABLE IF NOT EXISTS brain_check_emails (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL,
+        score INTEGER,
+        source TEXT DEFAULT 'brain-check',
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(email)
+      );
+
       CREATE INDEX IF NOT EXISTS idx_test_results_date ON test_results(date);
       CREATE INDEX IF NOT EXISTS idx_test_results_type ON test_results(test_type);
       CREATE INDEX IF NOT EXISTS idx_chess_elo_date ON chess_elo(date);
@@ -300,6 +309,12 @@ function prepareStatements() {
   stmts.brainCheckTop10 = db.prepare(
     'SELECT id, score, pvt_ms, dsst_score, created_at FROM public_brain_check ORDER BY score DESC LIMIT 10'
   );
+
+  // Email capture
+  stmts.insertBrainCheckEmail = db.prepare(
+    `INSERT OR IGNORE INTO brain_check_emails (email, score, source) VALUES (?, ?, 'brain-check')`
+  );
+  stmts.getBrainCheckEmailCount = db.prepare('SELECT COUNT(*) as total FROM brain_check_emails');
 }
 
 // chess_elo needs a unique constraint on date for upsert to work
@@ -559,6 +574,15 @@ module.exports = {
     const { cnt } = stmts.brainCheckCountBelow.get(score);
     const percentile = total > 0 ? Math.round((cnt / total) * 100) : 0;
     return { percentile, total };
+  },
+
+  saveBrainCheckEmail(email, score) {
+    try {
+      stmts.insertBrainCheckEmail.run(email.trim().toLowerCase(), score || null);
+      return { ok: true };
+    } catch (e) {
+      return { ok: false, error: e.message };
+    }
   },
 
   getBrainCheckLeaderboard() {
