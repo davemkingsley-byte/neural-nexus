@@ -2330,3 +2330,25 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Neural NeXus running on http://localhost:${PORT}`);
 });
 
+
+// DEBUG: Raw WHOOP API response (temporary)
+app.get('/api/whoop/debug-sync', dashboardAuth, async (req, res) => {
+  const accessToken = await getWhoopAccessToken();
+  if (!accessToken) return res.status(401).json({ error: 'No token' });
+
+  const headers = { Authorization: `Bearer ${accessToken}` };
+  try {
+    const [sleepRes, recoveryRes] = await Promise.all([
+      fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=5', { headers }),
+      fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=5', { headers }),
+    ]);
+    const sleepData = sleepRes.ok ? await sleepRes.json() : { status: sleepRes.status, error: await sleepRes.text() };
+    const recoveryData = recoveryRes.ok ? await recoveryRes.json() : { status: recoveryRes.status, error: await recoveryRes.text() };
+    res.json({ 
+      sleep: { status: sleepRes.status, data: sleepData },
+      recovery: { status: recoveryRes.status, data: recoveryData }
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
