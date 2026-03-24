@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charter 703 — Scientific Panel Architecture</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#111;color:#e0e0e0;padding:24px}
+a{color:#3b82f6;text-decoration:none}a:hover{text-decoration:underline}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:0.9rem;margin-bottom:24px;color:#888}.back:hover{color:#fff}
+h1{font-size:1.6rem;margin-bottom:6px;color:#fff}
+.subtitle{color:#888;margin-bottom:28px;font-size:0.9rem}
+.card{background:#1a1a2e;border-radius:16px;padding:24px;margin-bottom:20px;border:1px solid #333}
+.card-title{font-size:0.85rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#888;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #333}
+.charter-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.charter-item{padding:12px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a}
+.charter-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:3px}
+.charter-value{font-size:0.92rem;color:#fff}
+.objective{padding:14px;background:#ffffff06;border-radius:8px;border:1px solid #ffffff0a;margin-top:12px;line-height:1.6;font-size:0.92rem}
+.obj-label{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.5px;color:#666;margin-bottom:6px}
+.status-badge{display:inline-block;padding:4px 14px;border-radius:16px;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;background:#10b98122;color:#10b981;border:1px solid #10b98144}
+.sign-off-box{padding:16px;border-radius:10px;display:flex;align-items:center;gap:12px;font-size:0.95rem}
+.sign-off-box.approved{background:#10b9810d;border:1px solid #10b98133;color:#10b981}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+.scope-list{list-style:none;padding:0}
+.scope-list li{padding:8px 12px;margin-bottom:6px;background:#ffffff06;border-radius:6px;font-size:0.88rem;display:flex;align-items:center;gap:8px}
+.scope-list li::before{content:"✓";color:#10b981;font-weight:700;font-size:0.8rem}
+.trigger-list li::before{content:"⚡";color:#f59e0b}
+.agent-card{background:#0d0d1f;border:1px solid #333;border-radius:12px;padding:18px}
+.agent-name{font-size:1.1rem;font-weight:700;color:#fff;margin-bottom:4px}
+.agent-role{font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.role-primary{color:#3b82f6}
+.role-adversarial{color:#ef4444}
+.role-arbiter{color:#8b5cf6}
+.agent-model{font-size:0.78rem;color:#888;margin-bottom:10px;padding:4px 10px;background:#ffffff08;border-radius:6px;display:inline-block}
+.agent-scope{font-size:0.85rem;line-height:1.6;color:#aaa}
+.agent-tag{font-size:0.65rem;padding:2px 8px;border-radius:4px;font-weight:600;text-transform:uppercase;display:inline-block;margin:2px}
+.tag-blue{background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644}
+.tag-red{background:#ef444422;color:#ef4444;border:1px solid #ef444444}
+.tag-purple{background:#8b5cf622;color:#8b5cf6;border:1px solid #8b5cf644}
+.step{display:flex;gap:14px;padding:12px 14px;background:#ffffff06;border-radius:8px;margin-bottom:8px;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.8rem;font-weight:700;flex-shrink:0;margin-top:1px}
+.step-num.blue{background:#3b82f622;color:#3b82f6;border:1px solid #3b82f644}
+.step-title{font-weight:600;font-size:0.9rem;color:#fff;margin-bottom:3px}
+.step-desc{font-size:0.83rem;color:#aaa;line-height:1.5}
+.verdict-box{padding:14px 16px;border-radius:10px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px}
+.verdict-box.pass{background:#10b9810a;border:1px solid #10b98133}
+.verdict-box.mixed{background:#f59e0b0a;border:1px solid #f59e0b33}
+.verdict-box.fail{background:#ef44440a;border:1px solid #ef444433}
+.verdict-box.escalate{background:#8b5cf60a;border:1px solid #8b5cf633}
+.verdict-icon{font-size:1.3rem;flex-shrink:0;margin-top:1px}
+.verdict-label{font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px}
+.verdict-box.pass .verdict-label{color:#10b981}
+.verdict-box.mixed .verdict-label{color:#f59e0b}
+.verdict-box.fail .verdict-label{color:#ef4444}
+.verdict-box.escalate .verdict-label{color:#8b5cf6}
+.verdict-desc{font-size:0.85rem;color:#aaa;line-height:1.5}
+.tiebreak-item{display:flex;gap:10px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px;align-items:flex-start}
+.tiebreak-num{font-size:0.75rem;font-weight:700;color:#f59e0b;min-width:20px}
+.tiebreak-text{font-size:0.85rem;color:#ddd;line-height:1.5}
+.severity-item{display:flex;gap:10px;align-items:center;padding:10px 14px;border-radius:8px;margin-bottom:8px}
+.sev-critical{background:#ef44440a;border:1px solid #ef444433}
+.sev-minor{background:#f59e0b0a;border:1px solid #f59e0b33}
+.sev-accurate{background:#10b9810a;border:1px solid #10b98133}
+.sev-badge{font-size:0.8rem;min-width:90px;font-weight:600}
+.sev-badge.crit{color:#ef4444}
+.sev-badge.min{color:#f59e0b}
+.sev-badge.acc{color:#10b981}
+.sev-desc{font-size:0.85rem;color:#aaa;line-height:1.5}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.metric-box{background:#ffffff06;border-radius:10px;padding:16px;border:1px solid #ffffff0a;text-align:center}
+.metric-val{font-size:1.5rem;font-weight:700;color:#fff;margin-bottom:4px}
+.metric-label{font-size:0.72rem;color:#888;text-transform:uppercase;letter-spacing:0.5px}
+.arch-box{background:#0a0a1a;border:1px solid #333;border-radius:8px;padding:16px;font-family:'SF Mono',Monaco,monospace;font-size:0.82rem;line-height:1.9;color:#8b9dc3;white-space:pre}
+.decision-item{display:flex;gap:12px;padding:8px 12px;background:#ffffff06;border-radius:6px;margin-bottom:6px}
+.decision-date{color:#666;font-size:0.78rem;min-width:90px}
+.decision-text{font-size:0.85rem}
+</style>
+</head>
+<body>
+
+<a href="/pm-charters/project-management.html" class="back">← Project Management</a>
+
+<h1>🔬 Scientific Panel Architecture</h1>
+<p class="subtitle">Charter 703 · Multi-Model Adversarial Review System · Initiated 2026-03-23</p>
+
+<!-- Status -->
+<div class="card">
+<div class="card-title">Status</div>
+<span class="status-badge">✅ Live — Operational Protocol</span>
+<div class="objective" style="margin-top:16px">
+<div class="obj-label">Purpose</div>
+An adversarial multi-model review system that enforces scientific accuracy across all public Neural NeXus content and Treat Biosciences investor materials. Two independent AI reviewers — Curie (Claude Opus) and GPT-5.4 — assess claims in parallel, then Morpheus synthesizes conflicting outputs into a final verdict before anything ships.
+</div>
+<div class="objective" style="margin-top:8px">
+<div class="obj-label">Problem It Solves</div>
+Single-model review creates blind spots: each model has training biases and knowledge gaps. Adversarial parallel review catches what one model misses, creates accountability, and produces a documented audit trail — especially important where errors could mislead investors or damage credibility.
+</div>
+</div>
+
+<!-- Charter Details -->
+<div class="card">
+<div class="card-title">Charter</div>
+<div class="charter-grid">
+<div class="charter-item"><div class="charter-label">Charter ID</div><div class="charter-value">703</div></div>
+<div class="charter-item"><div class="charter-label">Type</div><div class="charter-value">Operational Protocol</div></div>
+<div class="charter-item"><div class="charter-label">Initiated</div><div class="charter-value">2026-03-23</div></div>
+<div class="charter-item"><div class="charter-label">Author</div><div class="charter-value">Morpheus</div></div>
+<div class="charter-item"><div class="charter-label">Prerequisites</div><div class="charter-value">Charter 702 (Org Charter v1.0)</div></div>
+<div class="charter-item"><div class="charter-label">Version</div><div class="charter-value">1.0</div></div>
+</div>
+</div>
+
+<!-- Sign-off -->
+<div class="card">
+<div class="card-title">Sign-Off</div>
+<div class="sign-off-box approved">✅ Charter adopted — Morpheus (Orchestrator) · 2026-03-23 · Supersedes informal "Opus + GPT-5.4 review" referenced in Charter 702</div>
+</div>
+
+<!-- Panel Composition -->
+<div class="card">
+<div class="card-title">Panel Composition</div>
+<div class="three-col">
+  <div class="agent-card">
+    <div class="agent-name">🧬 Curie</div>
+    <div class="agent-role role-primary">Primary Reviewer</div>
+    <div class="agent-model">Claude Opus (claude-opus-4-6)</div>
+    <div class="agent-scope">Deep mechanistic accuracy. Validates against established literature, flags regulatory missteps, catches biochemical errors. Specialist in drug development, receptor pharmacology, and neuroscience.</div>
+    <div style="margin-top:10px">
+      <span class="agent-tag tag-blue">Biochemistry</span>
+      <span class="agent-tag tag-blue">Pharmacology</span>
+      <span class="agent-tag tag-blue">Regulatory</span>
+      <span class="agent-tag tag-blue">Neuroscience</span>
+    </div>
+  </div>
+  <div class="agent-card">
+    <div class="agent-name">⚔️ GPT-5.4</div>
+    <div class="agent-role role-adversarial">Adversarial Challenger</div>
+    <div class="agent-model">GPT-5.4 (openai/gpt-5.4)</div>
+    <div class="agent-scope">Independent critique from a different training distribution. Challenges Curie's conclusions, surfaces alternative interpretations, probes recent clinical literature. Catches what Opus misses.</div>
+    <div style="margin-top:10px">
+      <span class="agent-tag tag-red">Alternative Views</span>
+      <span class="agent-tag tag-red">Recent Literature</span>
+      <span class="agent-tag tag-red">Statistics</span>
+      <span class="agent-tag tag-red">Epidemiology</span>
+    </div>
+  </div>
+  <div class="agent-card">
+    <div class="agent-name">🎭 Morpheus</div>
+    <div class="agent-role role-arbiter">Arbiter / Synthesizer</div>
+    <div class="agent-model">Claude Sonnet (orchestrator role)</div>
+    <div class="agent-scope">Routes work, maps consensus vs conflict, applies tiebreak rules, produces final verdict. Has final decision authority over the panel. Escalates to David only when evidence is irreconcilable.</div>
+    <div style="margin-top:10px">
+      <span class="agent-tag tag-purple">Routing</span>
+      <span class="agent-tag tag-purple">Synthesis</span>
+      <span class="agent-tag tag-purple">Tiebreaker</span>
+      <span class="agent-tag tag-purple">Escalation</span>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- Trigger Conditions -->
+<div class="two-col">
+<div class="card">
+<div class="card-title">Mandatory Triggers (auto-invoke)</div>
+<ul class="scope-list trigger-list">
+<li>Any Treat Biosciences investor-facing document</li>
+<li>Neural NeXus posts with drug mechanism claims</li>
+<li>Neural NeXus posts citing clinical trial results</li>
+<li>Supplement efficacy claims (dose, effect size, population)</li>
+<li>Statistical findings presented as conclusions</li>
+<li>Causal language applied to correlational data</li>
+<li>Content tagged [NEEDS-SCIENCE-REVIEW]</li>
+</ul>
+</div>
+<div class="card">
+<div class="card-title">Exempt from Panel (fast-track)</div>
+<ul class="scope-list">
+<li style="--before-content:'—'">BioWire Bytes editorial opinion / commentary</li>
+<li>Infrastructure and DevOps documentation</li>
+<li>UI/UX copy without scientific claims</li>
+<li>Internal project notes and status updates</li>
+<li>Marketing headlines (reviewed editorially, not scientifically)</li>
+</ul>
+<ul class="scope-list" style="margin-top:8px">
+<li style="before-content:'→'">David may invoke panel on any content at will</li>
+</ul>
+</div>
+</div>
+
+<!-- Workflow -->
+<div class="card">
+<div class="card-title">Review Workflow — 8 Steps</div>
+
+<div class="step">
+<div class="step-num blue">1</div>
+<div>
+<div class="step-title">SUBMIT</div>
+<div class="step-desc">Author or agent flags content with <code>[NEEDS-SCIENCE-REVIEW]</code> and sends to Morpheus with: (a) the content, (b) intended audience, (c) publication venue.</div>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num blue">2</div>
+<div>
+<div class="step-title">BRIEF</div>
+<div class="step-desc">Morpheus creates a standardized review brief: strips author attribution for blind review, annotates claims requiring validation, and attaches the standard rubric (accuracy, severity, citations).</div>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num blue">3</div>
+<div>
+<div class="step-title">PARALLEL DISPATCH</div>
+<div class="step-desc">Identical brief sent simultaneously to Curie and GPT-5.4. Each reviewer operates independently — no cross-contamination between reviewers before synthesis.</div>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num blue">4</div>
+<div>
+<div class="step-title">INDEPENDENT REVIEW</div>
+<div class="step-desc">Each reviewer returns a structured assessment: <strong>Overall score (1–10)</strong> · <strong>Claim-by-claim breakdown</strong> with severity flags (🔴 Critical / 🟡 Minor / 🟢 Accurate) · <strong>Specific corrections with citations</strong> where applicable.</div>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num blue">5</div>
+<div>
+<div class="step-title">COMPARISON MAP</div>
+<div class="step-desc">Morpheus maps overlapping vs divergent findings claim by claim. Identifies: full agreement, partial agreement, and contested claims. Quantifies agreement rate.</div>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num blue">6</div>
+<div>
+<div class="step-title">SYNTHESIS</div>
+<div class="step-desc">Morpheus applies tiebreak rules to contested claims. Produces unified correction list with source-of-truth attribution for each fix. Documents reasoning for audit trail.</div>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num blue">7</div>
+<div>
+<div class="step-title">VERDICT</div>
+<div class="step-desc">Final decision issued per the decision tree below. Verdict is binding for publication clearance.</div>
+</div>
+</div>
+
+<div class="step">
+<div class="step-num blue">8</div>
+<div>
+<div class="step-title">DELIVERY</div>
+<div class="step-desc">Morpheus returns to author: verdict, corrected content (or required fix list), agreement rate, and any escalation note. Review summary stored in project task log.</div>
+</div>
+</div>
+</div>
+
+<!-- Decision Tree -->
+<div class="card">
+<div class="card-title">Decision Tree — Verdict Logic</div>
+
+<div class="verdict-box pass">
+<div class="verdict-icon">✅</div>
+<div>
+<div class="verdict-label">Approved</div>
+<div class="verdict-desc"><strong>Condition:</strong> Both reviewers score ≥8/10 and no 🔴 Critical flags. <strong>Action:</strong> Content cleared for publication. Minor 🟡 notes may be optionally applied at author's discretion.</div>
+</div>
+</div>
+
+<div class="verdict-box mixed">
+<div class="verdict-icon">⚠️</div>
+<div>
+<div class="verdict-label">Approved with Required Corrections</div>
+<div class="verdict-desc"><strong>Condition:</strong> Scores diverge (one ≥8, one &lt;8) or minor 🟡 flags present with no 🔴 Critical disagreements. <strong>Action:</strong> Morpheus adjudicates using tiebreak rules. Targeted corrections required before publication. Author confirms fixes applied.</div>
+</div>
+</div>
+
+<div class="verdict-box fail">
+<div class="verdict-icon">❌</div>
+<div>
+<div class="verdict-label">Returned — Significant Revisions Required</div>
+<div class="verdict-desc"><strong>Condition:</strong> Both reviewers score &lt;7/10 or any 🔴 Critical flags from either reviewer. <strong>Action:</strong> Content returned with specific required fixes enumerated. Author must revise and resubmit — resubmission goes through full panel again.</div>
+</div>
+</div>
+
+<div class="verdict-box escalate">
+<div class="verdict-icon">🔺</div>
+<div>
+<div class="verdict-label">Escalated to David</div>
+<div class="verdict-desc"><strong>Condition:</strong> Curie and GPT-5.4 produce directly opposing verdicts with equal evidence and no applicable tiebreak rule. <strong>Action:</strong> Morpheus delivers both positions plus an explicit yes/no question to David. David's decision is final and logged.</div>
+</div>
+</div>
+</div>
+
+<!-- Tiebreak Rules -->
+<div class="card">
+<div class="card-title">Tiebreak Rules — Contested Claims</div>
+<div class="tiebreak-item"><span class="tiebreak-num">1</span><span class="tiebreak-text"><strong>Citation wins.</strong> The reviewer providing a peer-reviewed citation for their position wins the contested claim. If both cite, the more recent (post-2020) primary research wins over review articles.</span></div>
+<div class="tiebreak-item"><span class="tiebreak-num">2</span><span class="tiebreak-text"><strong>Curie priority domains:</strong> FDA/CVM regulatory matters, mechanistic biochemistry, receptor pharmacology, veterinary drug development. Curie's verdict is authoritative in these areas absent a contrary citation.</span></div>
+<div class="tiebreak-item"><span class="tiebreak-num">3</span><span class="tiebreak-text"><strong>GPT-5.4 priority domains:</strong> Post-2024 clinical literature, statistical methodology, epidemiological design, AI/ML research. GPT-5.4's verdict is authoritative here absent a contrary citation.</span></div>
+<div class="tiebreak-item"><span class="tiebreak-num">4</span><span class="tiebreak-text"><strong>Conservative default.</strong> When neither reviewer has priority and no citation resolves it, Morpheus applies the more conservative (less bold) claim. Safety over certainty.</span></div>
+<div class="tiebreak-item"><span class="tiebreak-num">5</span><span class="tiebreak-text"><strong>David arbitrates</strong> if tiebreak rules 1–4 produce equal outcomes. Morpheus delivers both positions + explicit question. No publication holds until David answers.</span></div>
+</div>
+
+<!-- Severity Definitions -->
+<div class="card">
+<div class="card-title">Severity Definitions</div>
+<div class="severity-item sev-critical">
+  <span class="sev-badge crit">🔴 Critical</span>
+  <span class="sev-desc">Factually incorrect claim that could mislead investors, damage credibility, or cause harm. Publication blocked until corrected. Examples: wrong mechanism of action, fabricated citation, incorrect dose claims.</span>
+</div>
+<div class="severity-item sev-minor">
+  <span class="sev-badge min">🟡 Minor</span>
+  <span class="sev-desc">Imprecise language, overclaiming, missing caveat, or unsupported extrapolation. Publication permitted with correction applied. Examples: "proven" instead of "shown to," missing N= citation, overstatement of effect size.</span>
+</div>
+<div class="severity-item sev-accurate">
+  <span class="sev-badge acc">🟢 Accurate</span>
+  <span class="sev-desc">Claim is factually correct and well-supported. No action required.</span>
+</div>
+</div>
+
+<!-- Architecture Diagram -->
+<div class="card">
+<div class="card-title">Architecture Diagram</div>
+<div class="arch-box">Author / Agent
+  ↓  [NEEDS-SCIENCE-REVIEW] + content + audience + venue
+Morpheus (Arbiter)
+  ↓  standardized blind brief (simultaneous)
+  ├─────────────────────────────────┐
+  ↓                                 ↓
+Curie (Opus)                   GPT-5.4
+Primary Review                 Adversarial Review
+  - Accuracy score (1-10)        - Accuracy score (1-10)
+  - Claim-by-claim flags         - Claim-by-claim flags
+  - Severity (🔴🟡🟢)           - Severity (🔴🟡🟢)
+  - Corrections + citations      - Corrections + citations
+  ↓                                 ↓
+  └─────────────────────────────────┘
+               ↓
+       Morpheus: Comparison Map
+       (consensus + contested claims)
+               ↓
+       Morpheus: Tiebreak + Synthesis
+               ↓
+    ┌──────────┬──────────┬──────────┐
+    ↓          ↓          ↓          ↓
+  ✅ Pass   ⚠️ Fix     ❌ Return   🔺 David
+  Publish   Required   Revise    Arbitrates</div>
+</div>
+
+<!-- Success Metrics -->
+<div class="card">
+<div class="card-title">Success Metrics</div>
+<div class="metric-grid">
+<div class="metric-box"><div class="metric-val" style="color:#ef4444">0</div><div class="metric-label">🔴 Critical Errors Reaching Publication</div></div>
+<div class="metric-box"><div class="metric-val" style="color:#10b981">&lt;30 min</div><div class="metric-label">Target Review Turnaround</div></div>
+<div class="metric-box"><div class="metric-val" style="color:#3b82f6">&gt;85%</div><div class="metric-label">Curie / GPT-5.4 Agreement Rate</div></div>
+<div class="metric-box"><div class="metric-val" style="color:#8b5cf6">&lt;10%</div><div class="metric-label">Reviews Escalated to David</div></div>
+</div>
+</div>
+
+<!-- Constraints -->
+<div class="card">
+<div class="card-title">Constraints</div>
+<ul class="scope-list">
+<li>Panel review is non-negotiable for mandatory trigger content — no exceptions without David sign-off</li>
+<li>Reviewers must not see each other's output before returning their independent review</li>
+<li>Morpheus documents tiebreak reasoning for every contested claim — not just the final verdict</li>
+<li>A failed review (❌ Return) requires full resubmission — authors cannot make fixes and declare the review passed without re-running the panel</li>
+<li>David's escalation decisions are logged in MEMORY.md and inform future tiebreak precedents</li>
+<li>Panel cannot override David's final editorial judgment on any content</li>
+</ul>
+</div>
+
+<!-- Decision Log -->
+<div class="card">
+<div class="card-title">Decision Log</div>
+<div class="decision-item"><span class="decision-date">2026-03-23</span><span class="decision-text">Scientific Panel Architecture v1.0 adopted. Curie (Opus) + GPT-5.4 as dual reviewers, Morpheus as arbiter.</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-23</span><span class="decision-text">Parallel (not sequential) dispatch selected to eliminate anchoring bias between reviewers.</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-23</span><span class="decision-text">Conservative default (tiebreak rule 4): when equal, the less bold claim wins. Scientific caution over narrative impact.</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-23</span><span class="decision-text">Resubmission rule established: fixes don't auto-clear a failed review — full re-run required.</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-23</span><span class="decision-text">Mandatory triggers include all Treat Biosciences investor materials regardless of content type.</span></div>
+</div>
+
+</body>
+</html>
