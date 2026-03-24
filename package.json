@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "sitemap": "node scripts/generate-sitemap.js"
+    "sitemap": "node scripts/generate-sitemap.js",
+    "seo-report": "node scripts/seo-report.js --save"
   },
   "dependencies": {
     "better-sqlite3": "^11.0.0",

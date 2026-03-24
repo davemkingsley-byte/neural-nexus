@@ -2304,6 +2304,28 @@ app.get('/api/cognitive/insights', dashboardAuth, (req, res) => {
   }
 });
 
+// SEO Reports
+const seoReportsPath = path.join(__dirname, "data", "seo-reports.json");
+app.get("/api/seo/report", dashboardAuth, (req, res) => {
+  try {
+    if (!fs.existsSync(seoReportsPath)) return res.status(404).json({ error: "No report yet" });
+    const reports = JSON.parse(fs.readFileSync(seoReportsPath, "utf8"));
+    res.json(reports[0] || { error: "Empty" });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+app.post("/api/seo/report/generate", dashboardAuth, async (req, res) => {
+  try {
+    const { generateSEOReport } = require("./src/seo-engine");
+    const report = await generateSEOReport();
+    let reports = [];
+    try { if (fs.existsSync(seoReportsPath)) reports = JSON.parse(fs.readFileSync(seoReportsPath, "utf8")); } catch {}
+    reports = reports.filter(r => r.weekOf !== report.weekOf);
+    reports.unshift(report); if (reports.length > 52) reports = reports.slice(0, 52);
+    fs.writeFileSync(seoReportsPath, JSON.stringify(reports, null, 2));
+    res.json({ ok: true, report });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Neural NeXus running on http://localhost:${PORT}`);
 });

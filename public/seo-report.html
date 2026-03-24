@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SEO Health Report — Neural NeXus</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', system-ui, sans-serif; background: #06060b; color: #e0e0e0; min-height: 100vh; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+  h1 { color: #c9a84c; font-size: 28px; margin-bottom: 24px; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 20px; text-align: center; }
+  .card-label { font-size: 12px; color: rgba(255,255,255,0.45); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .card-value { font-size: 32px; font-weight: 700; }
+  .score-green { color: #4ade80; }
+  .score-yellow { color: #facc15; }
+  .score-red { color: #f87171; }
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+  .badge-green { background: rgba(74,222,128,0.15); color: #4ade80; }
+  .badge-yellow { background: rgba(250,204,21,0.15); color: #facc15; }
+  .badge-red { background: rgba(248,113,113,0.15); color: #f87171; }
+  .toolbar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+  .toolbar button { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #e0e0e0; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-size: 13px; transition: all 0.2s; }
+  .toolbar button:hover { background: rgba(255,255,255,0.1); }
+  .toolbar button.active { background: rgba(201,168,76,0.15); color: #c9a84c; border-color: rgba(201,168,76,0.3); }
+  .regen-btn { background: rgba(201,168,76,0.15) !important; color: #c9a84c !important; border-color: rgba(201,168,76,0.3) !important; margin-left: auto; }
+  .regen-btn:hover { background: rgba(201,168,76,0.25) !important; }
+  .regen-btn:disabled { opacity: 0.5; cursor: wait !important; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13px; }
+  th { color: rgba(255,255,255,0.4); font-weight: 500; text-transform: uppercase; font-size: 11px; letter-spacing: 1px; }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+  .url-cell { max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .loading { text-align: center; padding: 60px; color: rgba(255,255,255,0.4); }
+  .error-msg { text-align: center; padding: 60px; color: #f87171; }
+  .status-ok { color: #4ade80; }
+  .status-err { color: #f87171; }
+</style>
+</head>
+<body>
+<script src="/shared/nav.js"></script>
+<div class="container">
+  <h1>SEO Health Report</h1>
+  <div id="content"><div class="loading">Loading report...</div></div>
+</div>
+<script>
+(function() {
+  if (!document.cookie.includes('dash_auth=authenticated')) {
+    window.location.href = '/dashboard';
+    return;
+  }
+
+  const $ = id => document.getElementById(id);
+  let report = null;
+  let filter = 'all';
+
+  function scoreClass(s) { return s >= 80 ? 'green' : s >= 60 ? 'yellow' : 'red'; }
+
+  function render() {
+    if (!report) return;
+    const sc = scoreClass(report.overallScore);
+    let html = `
+      <div class="cards">
+        <div class="card"><div class="card-label">Overall Score</div><div class="card-value score-${sc}">${report.overallScore}</div></div>
+        <div class="card"><div class="card-label">Pages Checked</div><div class="card-value">${report.totalPages}</div></div>
+        <div class="card"><div class="card-label">Pages with Issues</div><div class="card-value">${report.pagesWithIssues}</div></div>
+        <div class="card"><div class="card-label">Last Run</div><div class="card-value" style="font-size:16px">${new Date(report.generatedAt).toLocaleString()}</div></div>
+      </div>
+      <div class="toolbar">
+        <button class="${filter==='all'?'active':''}" onclick="setFilter('all')">All</button>
+        <button class="${filter==='issues'?'active':''}" onclick="setFilter('issues')">Issues Only</button>
+        <button class="${filter==='errors'?'active':''}" onclick="setFilter('errors')">Errors</button>
+        <button class="regen-btn" id="regenBtn" onclick="regenerate()">Regenerate Report</button>
+      </div>
+      <table><thead><tr><th>URL</th><th>Status</th><th>Score</th><th>Issues</th></tr></thead><tbody>`;
+    let pages = report.pages || [];
+    if (filter === 'issues') pages = pages.filter(p => p.issues.length > 0);
+    if (filter === 'errors') pages = pages.filter(p => p.status === 'error' || (typeof p.status === 'number' && p.status >= 400));
+    for (const p of pages) {
+      const psc = scoreClass(p.score);
+      const statusCls = p.status === 200 ? 'status-ok' : 'status-err';
+      html += `<tr>
+        <td class="url-cell" title="${p.url}">${p.url.replace(/https?:\/\/[^/]+/, '')}</td>
+        <td class="${statusCls}">${p.status}</td>
+        <td><span class="badge badge-${psc}">${p.score}</span></td>
+        <td>${p.issues.join(', ') || '—'}</td>
+      </tr>`;
+    }
+    html += '</tbody></table>';
+    $('content').innerHTML = html;
+  }
+
+  window.setFilter = function(f) { filter = f; render(); };
+
+  window.regenerate = async function() {
+    const btn = $('regenBtn');
+    btn.disabled = true; btn.textContent = 'Generating...';
+    try {
+      const res = await fetch('/api/seo/report/generate', { method: 'POST' });
+      const data = await res.json();
+      if (data.ok) { report = data.report; render(); }
+      else alert('Error: ' + (data.error || 'Unknown'));
+    } catch (e) { alert('Error: ' + e.message); }
+    btn.disabled = false; btn.textContent = 'Regenerate Report';
+  };
+
+  fetch('/api/seo/report')
+    .then(r => r.json())
+    .then(data => {
+      if (data.error) { $('content').innerHTML = '<div class="error-msg">No report available yet. Click "Regenerate Report" to generate one.</div><div class="toolbar"><button class="regen-btn" id="regenBtn" onclick="regenerate()">Regenerate Report</button></div>'; return; }
+      report = data;
+      render();
+    })
+    .catch(err => { $('content').innerHTML = '<div class="error-msg">Failed to load report: ' + err.message + '</div>'; });
+})();
+</script>
+</body>
+</html>

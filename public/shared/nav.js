@@ -13,6 +13,7 @@
         <a href="/pm/" data-path="/pm">Projects</a>
         <a href="/app/" data-path="/app">App</a>
         <a href="/brain-check" data-path="/brain-check">Brain Check</a>
+        <a href="/seo-report.html" data-path="/seo-report">SEO</a>
         <a href="/play" data-path="/play">Spelling Bee</a>
       </div>
       <button class="nn-nav-toggle" aria-label="Menu">☰</button>
