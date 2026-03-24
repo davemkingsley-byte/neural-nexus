@@ -198,7 +198,7 @@ function checkAuth() {
   const params = new URLSearchParams(window.location.search);
   const key = params.get('key');
   if (key) {
-    document.cookie = `dash_auth=${key};max-age=2592000;path=/`;
+    if(key==='nexus2026'){document.cookie='dash_auth=authenticated;max-age=2592000;path=/';}
     // Clean URL
     window.history.replaceState({}, '', window.location.pathname);
   }
@@ -211,7 +211,7 @@ function checkAuth() {
 function doAuth() {
   const p = document.getElementById('authPass').value;
   if (p) {
-    document.cookie = `dash_auth=${p};max-age=2592000;path=/`;
+    if(p==='nexus2026'){document.cookie='dash_auth=authenticated;max-age=2592000;path=/'}
     location.reload();
   }
 }

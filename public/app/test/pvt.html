@@ -100,7 +100,7 @@ p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:320px;mar
 
 <script>
 function checkAuth(){if(!document.cookie.includes('dash_auth=authenticated')){document.getElementById('authOverlay').style.display='flex';return false}return true}
-function doAuth(){const p=document.getElementById('authPass').value;if(p){document.cookie=`dash_auth=${p};max-age=2592000;path=/`;location.reload()}}
+function doAuth(){const p=document.getElementById('authPass').value;if(p==='nexus2026'){document.cookie='dash_auth=authenticated;max-age=2592000;path=/';location.reload()}else{document.getElementById('authPass').value='';document.getElementById('authPass').placeholder='Wrong password'}}
 document.addEventListener('DOMContentLoaded',()=>{
   if(!checkAuth())return;
   const ap=document.getElementById('authPass');if(ap)ap.addEventListener('keydown',e=>{if(e.key==='Enter')doAuth()});
