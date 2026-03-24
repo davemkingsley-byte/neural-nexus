@@ -1670,10 +1670,10 @@
         {
           "id": "704",
           "title": "Work Process Framework",
-          "status": "📋 Requirements",
-          "statusClean": "Requirements",
-          "phase": "📋 Requirements",
-          "phaseIndex": 0,
+          "status": "🟡 Review",
+          "statusClean": "Review",
+          "phase": "📝 Awaiting David approval",
+          "phaseIndex": 3,
           "liveUrl": null,
           "dateInitiated": "2026-03-23",
           "targetDate": "2026-03-25",
@@ -1688,7 +1688,7 @@
           "actualSpend": "$0",
           "dependencies": [],
           "enables": [],
-          "progress": 25,
+          "progress": 75,
           "objective": "Define end-to-end work process: task intake → planning → execution → verification → testing → shipping.",
           "successCriteria": "",
           "blockers": [],
@@ -1698,20 +1698,28 @@
               "text": "Charter approved by David"
             },
             {
-              "done": false,
-              "text": "Full work process document"
+              "done": true,
+              "text": "Full work process document written"
             },
             {
-              "done": false,
-              "text": "QA gates per risk level"
+              "done": true,
+              "text": "QA gates defined per risk level"
             },
             {
-              "done": false,
-              "text": "Org charter for agent structure"
+              "done": true,
+              "text": "Communication protocol defined"
+            },
+            {
+              "done": true,
+              "text": "Incident log with root causes"
             },
             {
               "done": false,
               "text": "David review and sign-off"
+            },
+            {
+              "done": false,
+              "text": "Org charter for agent structure"
             }
           ],
           "decisions": [
