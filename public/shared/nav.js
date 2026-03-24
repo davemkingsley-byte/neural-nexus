@@ -9,9 +9,9 @@
     <div class="nn-nav-inner">
       <a href="/" class="nn-nav-logo">Neural NeXus</a>
       <div class="nn-nav-links">
-        <a href="/cognitive/?key=nexus2026" data-path="/cognitive">Dashboard</a>
-        <a href="/pm/?key=nexus2026" data-path="/pm">Projects</a>
-        <a href="/app/?key=nexus2026" data-path="/app">App</a>
+        <a href="/cognitive/" data-path="/cognitive">Dashboard</a>
+        <a href="/pm/" data-path="/pm">Projects</a>
+        <a href="/app/" data-path="/app">App</a>
         <a href="/brain-check" data-path="/brain-check">Brain Check</a>
         <a href="/play" data-path="/play">Spelling Bee</a>
       </div>

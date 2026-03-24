@@ -53,6 +53,17 @@ const app = express();
 const PORT = process.env.PORT || 4000;
 
 app.use(express.json({ limit: '100kb' }));
+app.use(express.urlencoded({ extended: false }));
+
+const rateLimit = require('express-rate-limit');
+
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  message: 'Too many login attempts. Please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 // Security headers
 app.use((req, res, next) => {
@@ -68,11 +79,7 @@ const DASHBOARD_PASS = process.env.DASHBOARD_PASS || 'nexus2026';
 function dashboardAuth(req, res, next) {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
-  if (match && match[1] === DASHBOARD_PASS) return next();
-  if (req.query.key === DASHBOARD_PASS) {
-    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
-    return res.redirect(req.path);
-  }
+  if (match && match[1] === 'authenticated') return next();
   res.status(401).json({ error: 'unauthorized' });
 }
 app.use('/data', dashboardAuth);
@@ -80,22 +87,14 @@ app.use('/data', dashboardAuth);
 app.use('/pm', (req, res, next) => {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
-  if (match && match[1] === DASHBOARD_PASS) return next();
-  if (req.query.key === DASHBOARD_PASS) {
-    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
-    return res.redirect(req.path);
-  }
+  if (match && match[1] === 'authenticated') return next();
   res.redirect('/dashboard');
 }, express.static(path.join(__dirname, 'public', 'pm')));
 
 app.use('/pm-charters', (req, res, next) => {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
-  if (match && match[1] === DASHBOARD_PASS) return next();
-  if (req.query.key === DASHBOARD_PASS) {
-    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
-    return res.redirect(req.path);
-  }
+  if (match && match[1] === 'authenticated') return next();
   res.redirect('/dashboard');
 }, express.static(path.join(__dirname, 'public', 'pm-charters')));
 
@@ -103,11 +102,7 @@ app.use('/pm-charters', (req, res, next) => {
 app.use('/treat-docs', (req, res, next) => {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
-  if (match && match[1] === DASHBOARD_PASS) return next();
-  if (req.query.key === DASHBOARD_PASS) {
-    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
-    return res.redirect(req.path);
-  }
+  if (match && match[1] === 'authenticated') return next();
   res.redirect('/dashboard');
 }, express.static(path.join(__dirname, 'public', 'treat-docs')));
 
@@ -115,11 +110,7 @@ app.use('/treat-docs', (req, res, next) => {
 app.use('/cognitive', (req, res, next) => {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
-  if (match && match[1] === DASHBOARD_PASS) return next();
-  if (req.query.key === DASHBOARD_PASS) {
-    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
-    return res.redirect(req.path);
-  }
+  if (match && match[1] === 'authenticated') return next();
   res.redirect('/dashboard');
 }, express.static(path.join(__dirname, 'public', 'cognitive')));
 
@@ -311,11 +302,8 @@ app.get('/crossword', (req, res) => {
 function dashboardLoginPage(req, res, next) {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
-  if (match && match[1] === DASHBOARD_PASS) return next();
-  if (req.query.key === DASHBOARD_PASS) {
-    res.cookie('dash_auth', DASHBOARD_PASS, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
-    return res.redirect('/dashboard');
-  }
+  if (match && match[1] === 'authenticated') return next();
+  const failed = req.query.failed === '1';
   res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Dashboard Login</title>
 <style>body{background:#06060b;color:#f0f0f5;font-family:system-ui;display:flex;justify-content:center;align-items:center;min-height:100vh}
@@ -324,12 +312,20 @@ h2{font-size:1.4rem;margin-bottom:1rem}
 input{width:100%;padding:0.8rem 1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#f0f0f5;font-size:1rem;margin-bottom:1rem}
 button{width:100%;padding:0.8rem;background:#f0c040;color:#06060b;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer}
 button:hover{background:#e0b030}.err{color:#f87171;font-size:0.85rem;margin-bottom:0.5rem}</style></head>
-<body><div class="login"><h2>🔒 Dashboard</h2>${req.query.key ? '<p class="err">Wrong password</p>' : ''}<form method="GET">
+<body><div class="login"><h2>🔒 Dashboard</h2>${failed ? '<p class="err">Wrong password</p>' : ''}<form method="POST" action="/dashboard">
 <input type="password" name="key" placeholder="Enter password" autofocus>
 <button type="submit">Access</button></form></div></body></html>`);
 }
 app.get('/dashboard', dashboardLoginPage, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
+});
+app.post('/dashboard', loginLimiter, (req, res) => {
+  const key = req.body.key;
+  if (key === DASHBOARD_PASS) {
+    res.cookie('dash_auth', 'authenticated', { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+    return res.redirect('/dashboard');
+  }
+  res.redirect('/dashboard?failed=1');
 });
 
 // Topic pages

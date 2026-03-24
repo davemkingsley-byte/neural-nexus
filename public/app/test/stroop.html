@@ -123,7 +123,7 @@ p{color:rgba(255,255,255,0.5);font-size:15px;line-height:1.6;max-width:340px;mar
 </div>
 
 <script>
-function checkAuth(){if(!document.cookie.includes('dash_auth=nexus2026')){document.getElementById('authOverlay').style.display='flex';return false}return true}
+function checkAuth(){if(!document.cookie.includes('dash_auth=authenticated')){document.getElementById('authOverlay').style.display='flex';return false}return true}
 function doAuth(){const p=document.getElementById('authPass').value;if(p){document.cookie=`dash_auth=${p};max-age=2592000;path=/`;location.reload()}}
 document.addEventListener('DOMContentLoaded',()=>{
   if(!checkAuth())return;
