@@ -400,6 +400,23 @@ module.exports = {
       return { avg_correct: Math.round(avgCorrect * 100) / 100, count: parsed.length };
     }
 
+    if (test_type === 'stroop') {
+      const avgInterference = parsed.reduce((sum, s) => sum + (s.interference_score || 0), 0) / parsed.length;
+      const avgCongRT = parsed.reduce((sum, s) => sum + (s.congruent_rt || 0), 0) / parsed.length;
+      const avgIncongRT = parsed.reduce((sum, s) => sum + (s.incongruent_rt || 0), 0) / parsed.length;
+      return {
+        avg_interference: Math.round(avgInterference * 100) / 100,
+        avg_congruent_rt: Math.round(avgCongRT * 100) / 100,
+        avg_incongruent_rt: Math.round(avgIncongRT * 100) / 100,
+        count: parsed.length
+      };
+    }
+
+    if (test_type === 'avlt') {
+      const avgLearning = parsed.reduce((sum, s) => sum + (s.total_learning_score || 0), 0) / parsed.length;
+      return { avg_total_learning_score: Math.round(avgLearning * 100) / 100, count: parsed.length };
+    }
+
     return null;
   },
 

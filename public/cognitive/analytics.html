@@ -671,6 +671,8 @@ body {
         <div class="test-stat-row"><span class="stat-label">AM Mean</span><span class="stat-value am" id="stroop-am">—</span></div>
         <div class="test-stat-row"><span class="stat-label">PM Mean</span><span class="stat-value pm" id="stroop-pm">—</span></div>
         <div class="test-stat-row"><span class="stat-label">Differential</span><span class="stat-value" id="stroop-diff">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">Cong RT</span><span class="stat-value" id="stroop-cong-rt">—</span></div>
+        <div class="test-stat-row"><span class="stat-label">Incong RT</span><span class="stat-value" id="stroop-incong-rt">—</span></div>
       </div>
       <div class="card test-summary-card" id="avltSummary">
         <h4>AVLT (Best Trial /15)</h4>
@@ -1266,7 +1268,16 @@ async function init() {
   fillTestSummary('#nback', analytics.nback);
   fillTestSummary('#pvt', analytics.pvt, true);
   fillTestSummary('#dsst', analytics.dsst);
-  if (analytics.stroop) fillTestSummary('#stroop', analytics.stroop, true);
+  if (analytics.stroop) {
+    fillTestSummary('#stroop', analytics.stroop, true);
+    // Populate congruent / incongruent RT breakdown
+    if (analytics.stroop_congruent_rt && analytics.stroop_congruent_rt.overall_mean != null) {
+      $('#stroop-cong-rt').textContent = round(analytics.stroop_congruent_rt.overall_mean) + ' ms';
+    }
+    if (analytics.stroop_incongruent_rt && analytics.stroop_incongruent_rt.overall_mean != null) {
+      $('#stroop-incong-rt').textContent = round(analytics.stroop_incongruent_rt.overall_mean) + ' ms';
+    }
+  }
   if (analytics.avlt) fillTestSummary('#avlt', analytics.avlt);
 
   // ── Charts ──

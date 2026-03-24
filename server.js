@@ -1420,6 +1420,15 @@ app.get('/api/cognitive/analytics', dashboardAuth, (req, res) => {
     const pvt = computeMetrics('pvt', r => r.scores.median_rt);
     const dsst = computeMetrics('dsst', r => r.scores.correct);
 
+    // Stroop: primary metric is interference_score (incongRT - congRT); lower = better
+    const stroop = computeMetrics('stroop', r => r.scores.interference_score);
+    // Also track congruent/incongruent RT separately for richer insight
+    const stroopCongRT = computeMetrics('stroop', r => r.scores.congruent_rt);
+    const stroopIncongRT = computeMetrics('stroop', r => r.scores.incongruent_rt);
+
+    // AVLT: total learning score (words recalled across trials 1-5)
+    const avlt = computeMetrics('avlt', r => r.scores.total_learning_score);
+
     // Composite score: z-score each, average, scale to 0-100
     const compositeTimeSeries = [];
     const allDates = [...new Set(parsed.map(r => r.date))].sort();
@@ -1471,6 +1480,10 @@ app.get('/api/cognitive/analytics', dashboardAuth, (req, res) => {
       nback_accuracy: nbackAcc,
       pvt,
       dsst,
+      stroop,
+      stroop_congruent_rt: stroopCongRT,
+      stroop_incongruent_rt: stroopIncongRT,
+      avlt,
       composite: compositeTimeSeries,
       chess: chessTimeSeries,
       subjective: subjectiveTimeSeries,
