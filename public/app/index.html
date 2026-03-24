@@ -178,6 +178,7 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
   <a href="/app/analytics.html"><span class="icon">📊</span>Analytics</a>
   <a href="/cognitive/analytics.html#weekly-report"><span class="icon">📋</span>Weekly Report</a>
   <a href="/app/settings.html"><span class="icon">⚙️</span>Settings</a>
+  <a href="/dashboard"><span class="icon">📂</span>Dashboard</a>
 </nav>
 
 <!-- Auth Overlay -->
@@ -193,6 +194,14 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
 <script>
 // Auth
 function checkAuth() {
+  // Accept ?key= from URL and set cookie
+  const params = new URLSearchParams(window.location.search);
+  const key = params.get('key');
+  if (key) {
+    document.cookie = `dash_auth=${key};max-age=2592000;path=/`;
+    // Clean URL
+    window.history.replaceState({}, '', window.location.pathname);
+  }
   if (!document.cookie.includes('dash_auth=nexus2026')) {
     document.getElementById('authOverlay').style.display = 'flex';
     return false;
