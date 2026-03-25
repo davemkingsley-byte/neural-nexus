@@ -2025,8 +2025,8 @@ app.post('/api/whoop/sync', dashboardAuth, async (req, res) => {
 
   try {
     const [sleepRes, recoveryRes] = await Promise.all([
-      fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=30', { headers }),
-      fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=30', { headers }),
+      fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=25', { headers }),
+      fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=25', { headers }),
     ]);
 
     // Handle 401 — force-refresh and retry once before giving up
@@ -2040,8 +2040,8 @@ app.post('/api/whoop/sync', dashboardAuth, async (req, res) => {
         if (retryToken) {
           const retryHeaders = { Authorization: `Bearer ${retryToken}` };
           const [retrySleep, retryRecovery] = await Promise.all([
-            fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=30', { headers: retryHeaders }),
-            fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=30', { headers: retryHeaders }),
+            fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=25', { headers: retryHeaders }),
+            fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=25', { headers: retryHeaders }),
           ]);
           if (retrySleep.ok || retryRecovery.ok) {
             // Retry succeeded — continue with retried responses
@@ -2341,8 +2341,8 @@ app.get('/api/whoop/debug-sync', dashboardAuth, async (req, res) => {
   const headers = { Authorization: `Bearer ${accessToken}` };
   try {
     const [sleepRes, recoveryRes] = await Promise.all([
-      fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=30', { headers }),
-      fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=30', { headers }),
+      fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=25', { headers }),
+      fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=25', { headers }),
     ]);
     const sleepData = sleepRes.ok ? await sleepRes.json() : { status: sleepRes.status, error: await sleepRes.text() };
     const recoveryData = recoveryRes.ok ? await recoveryRes.json() : { status: recoveryRes.status, error: await recoveryRes.text() };
