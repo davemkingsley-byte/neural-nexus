@@ -2058,7 +2058,9 @@ app.post('/api/whoop/sync', dashboardAuth, async (req, res) => {
     }
 
     const sleepData = sleepRes.ok ? await sleepRes.json() : { records: [] };
+    console.log("WHOOP sync: sleep status=" + sleepRes.status + " records=" + (sleepData.records || []).length);
     const recoveryData = recoveryRes.ok ? await recoveryRes.json() : { records: [] };
+    console.log("WHOOP sync: recovery status=" + recoveryRes.status + " records=" + (recoveryData.records || []).length);
 
     return processWhoopSyncData(sleepData, recoveryData, res);
   } catch (err) {
