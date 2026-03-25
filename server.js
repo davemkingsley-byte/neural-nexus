@@ -2341,8 +2341,8 @@ app.get('/api/whoop/debug-sync', dashboardAuth, async (req, res) => {
   const headers = { Authorization: `Bearer ${accessToken}` };
   try {
     const [sleepRes, recoveryRes] = await Promise.all([
-      fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=5', { headers }),
-      fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=5', { headers }),
+      fetch('https://api.prod.whoop.com/developer/v2/activity/sleep?limit=30', { headers }),
+      fetch('https://api.prod.whoop.com/developer/v2/recovery?limit=30', { headers }),
     ]);
     const sleepData = sleepRes.ok ? await sleepRes.json() : { status: sleepRes.status, error: await sleepRes.text() };
     const recoveryData = recoveryRes.ok ? await recoveryRes.json() : { status: recoveryRes.status, error: await recoveryRes.text() };
