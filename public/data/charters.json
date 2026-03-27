@@ -1816,6 +1816,80 @@
           "milestones": []
         }
       ]
+    },
+    {
+      "name": "Colossal Biosciences",
+      "slug": "colossal-biosciences",
+      "charters": [
+        {
+          "id": "301",
+          "title": "ExoDev Protocol Optimization (Apollo 3-5)",
+          "status": "\ud83d\udfe1 In Progress",
+          "statusClean": "In Progress",
+          "phase": "Protocol review and hypothesis generation",
+          "phaseIndex": 2,
+          "dateInitiated": "2026-03-24",
+          "targetDate": null,
+          "daysActive": 3,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Morpheus",
+          "priority": "High",
+          "program": "Colossal Biosciences",
+          "budget": null,
+          "actualSpend": null,
+          "dependencies": [],
+          "enables": [],
+          "progress": 30,
+          "objective": "Optimize whole embryo culture (WEC) protocols for Apollo 3-5 Foxtrot. Address VYS swelling, yolk sac circulation failure, and cardiovascular compromise in extended culture.",
+          "successCriteria": "Successful VYS vascular remodeling and cardiovascular development through gastrulation window.",
+          "blockers": [],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "Apollo 3-5 protocol review completed"
+            },
+            {
+              "done": true,
+              "text": "Key insight: NAC likely harming VYS vascular development (ROS required for HIF-1\u03b1/VEGF signaling)"
+            },
+            {
+              "done": true,
+              "text": "NAC + ITS-X dual antioxidant assault identified during critical 48hr gastrulation window"
+            },
+            {
+              "done": true,
+              "text": "Recommendation: drop NAC, keep ITS-X (metabolic support > antioxidant harm)"
+            },
+            {
+              "done": false,
+              "text": "Protocol issues: NAC concentration unspecified, unit error persists"
+            },
+            {
+              "done": false,
+              "text": "Group 4 design needed for synergy testing (Hypothesis 2.1.3)"
+            },
+            {
+              "done": false,
+              "text": "Validate NAC removal improves VYS outcomes in next protocol run"
+            }
+          ],
+          "decisions": [
+            {
+              "date": "2026-03-24",
+              "text": "VYS swelling identified as primary failure mode"
+            },
+            {
+              "date": "2026-03-25",
+              "text": "NAC paradox: antioxidant suppresses ROS-dependent vascular signaling (HIF-1\u03b1, VEGF)"
+            },
+            {
+              "date": "2026-03-25",
+              "text": "Drop NAC, keep ITS-X \u2014 metabolic support without vascular harm"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
