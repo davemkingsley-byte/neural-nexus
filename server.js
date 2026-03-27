@@ -150,6 +150,23 @@ function loadCharterData() {
 app.get('/api/charters', dashboardAuth, (req, res) => {
   const data = loadCharterData();
   const charters = data.programs ? data.programs.flatMap(p => p.charters) : [];
+  // Compute daysUntilTarget and overdue dynamically
+  const now = new Date();
+  now.setHours(0, 0, 0, 0);
+  for (const c of charters) {
+    if (c.targetDate && !c.dateCompleted) {
+      const target = new Date(c.targetDate + 'T00:00:00');
+      const diffMs = target - now;
+      c.daysUntilTarget = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+      c.overdue = c.daysUntilTarget < 0;
+    } else if (c.dateCompleted) {
+      c.daysUntilTarget = null;
+      c.overdue = false;
+    } else {
+      c.daysUntilTarget = null;
+      c.overdue = false;
+    }
+  }
   res.json({ charters });
 });
 
