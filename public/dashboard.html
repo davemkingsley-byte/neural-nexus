@@ -669,7 +669,7 @@ function updateDashboard() {
 
   // Blockers
   allCharters.forEach(c => (c.blockers || []).forEach(b => {
-    items.push({ type: 'blocker', id: c.id, title: c.title, text: b });
+    items.push({ type: 'blocker', id: c.id, title: c.title, text: typeof b === 'object' ? b.text : b });
   }));
 
   // Overdue (exclude completed/live charters)
