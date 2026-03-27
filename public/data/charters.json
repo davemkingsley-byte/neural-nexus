@@ -1410,6 +1410,258 @@
               "text": "Ship imperfect drug \u2014 fix with data after ELISA proof"
             }
           ]
+        },
+        {
+          "id": "502",
+          "title": "TRT-001 Triple Incretin Agonist",
+          "status": "\ud83d\udfe1 In Progress",
+          "statusClean": "In Progress",
+          "phase": "Structural analysis complete, IP strategy drafted",
+          "phaseIndex": 2,
+          "dateInitiated": "2026-03-19",
+          "targetDate": "2026-06-19",
+          "daysActive": 8,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Morpheus",
+          "priority": "Critical",
+          "program": "Treat Biosciences",
+          "budget": null,
+          "actualSpend": null,
+          "dependencies": [
+            "501"
+          ],
+          "enables": [
+            "505"
+          ],
+          "progress": 45,
+          "objective": "Canine-optimized triple incretin agonist modeled on retatrutide (GLP-1/GIP/glucagon). Assess whether unmodified retatrutide works in dogs or needs species-specific modifications.",
+          "successCriteria": "Confirmed binding at all 3 canine receptors. IP strategy for composition-of-matter patent if modifications needed.",
+          "blockers": [
+            {
+              "text": "Lilly patent landscape analysis pending (David ChatGPT search)",
+              "severity": "medium"
+            }
+          ],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "Structural comparison: canine vs human incretin receptors (corrected)"
+            },
+            {
+              "done": true,
+              "text": "GLP-1R 93.1% conserved, GIPR 100%, GCGR 100% at binding contacts"
+            },
+            {
+              "done": true,
+              "text": "Probability revised to 80-90%+ unmodified retatrutide works"
+            },
+            {
+              "done": true,
+              "text": "IP strategy: 2-3 conservative AA substitutions at non-contact positions"
+            },
+            {
+              "done": true,
+              "text": "Structural biology + med chem expert reviews completed"
+            },
+            {
+              "done": false,
+              "text": "Lilly retatrutide patent \u2014 does it cover veterinary applications?"
+            },
+            {
+              "done": false,
+              "text": "Final decision: use unmodified vs modified analog"
+            }
+          ],
+          "decisions": [
+            {
+              "date": "2026-03-26",
+              "text": "GIPR and GCGR both 100% conserved at binding contacts (corrected sequences)"
+            },
+            {
+              "date": "2026-03-26",
+              "text": "Unmodified retatrutide probability revised to 80-90%+"
+            },
+            {
+              "date": "2026-03-26",
+              "text": "Patent strategy: conservative AA substitution at non-contact positions creates distinct CoM patent"
+            }
+          ]
+        },
+        {
+          "id": "503",
+          "title": "TRT-002 Engineered Follistatin Fragment",
+          "status": "\ud83d\udfe1 In Progress",
+          "statusClean": "In Progress",
+          "phase": "Drug design complete, gene synthesis spec ready",
+          "phaseIndex": 3,
+          "dateInitiated": "2026-03-25",
+          "targetDate": "2026-05-15",
+          "daysActive": 2,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Morpheus",
+          "priority": "Critical",
+          "program": "Treat Biosciences",
+          "budget": "~$2K to first binding data",
+          "actualSpend": "$0",
+          "dependencies": [
+            "501"
+          ],
+          "enables": [],
+          "progress": 60,
+          "objective": "Engineer follistatin ND-FSD1-FSD2 fragment as myostatin/activin antagonist for canine muscle preservation during weight loss. Second peptide in Treat platform.",
+          "successCriteria": "ELISA IC50 < 100 nM myostatin inhibition. Successful E. coli expression and refolding.",
+          "blockers": [],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "Follistatin peptide surrogate report completed"
+            },
+            {
+              "done": true,
+              "text": "FSD3 confirmed dispensable (0 binding contacts)"
+            },
+            {
+              "done": true,
+              "text": "3 salt bridges identified (R35-D1, E155-K39, R221-E91)"
+            },
+            {
+              "done": true,
+              "text": "46 immutable binding residues mapped"
+            },
+            {
+              "done": true,
+              "text": "Construct A selected as lead (ND-FSD1-FSD2, 215 aa)"
+            },
+            {
+              "done": true,
+              "text": "Manufacturing: E. coli SHuffle T7 primary, Pichia backup"
+            },
+            {
+              "done": false,
+              "text": "Gene synthesis order (~$400 GenScript)"
+            },
+            {
+              "done": false,
+              "text": "Expression, refolding, purification"
+            },
+            {
+              "done": false,
+              "text": "ELISA binding assay (go/no-go)"
+            }
+          ],
+          "decisions": [
+            {
+              "date": "2026-03-25",
+              "text": "Follistatin FSD1-FSD2 preferred over bimagrumab CDR mimetic"
+            },
+            {
+              "date": "2026-03-25",
+              "text": "Canine backbone (UniProt A0A8I3MAL3) required for regulatory"
+            },
+            {
+              "date": "2026-03-26",
+              "text": "Ship imperfect drug \u2014 fix with data after ELISA proof"
+            }
+          ]
+        },
+        {
+          "id": "504",
+          "title": "Fundraising & Investor Materials",
+          "status": "\ud83d\udfe1 In Progress",
+          "statusClean": "In Progress",
+          "phase": "Tony committed, finding remaining 2/3",
+          "phaseIndex": 2,
+          "dateInitiated": "2026-03-23",
+          "targetDate": "2026-05-01",
+          "daysActive": 4,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Morpheus",
+          "priority": "High",
+          "program": "Treat Biosciences",
+          "budget": null,
+          "actualSpend": null,
+          "dependencies": [
+            "501",
+            "502",
+            "503"
+          ],
+          "enables": [],
+          "progress": 35,
+          "objective": "Raise $500K seed round via SAFE notes. Build investor pitch deck, one-pager, and supporting materials for the two-peptide platform thesis.",
+          "successCriteria": "$500K committed from 3+ investors. Pitch deck rated 8+/10 across all slides.",
+          "blockers": [
+            {
+              "text": "Need 2-3 more investors for remaining ~$333K",
+              "severity": "high"
+            },
+            {
+              "text": "Gray market exclusivity term needs attorney review",
+              "severity": "medium"
+            }
+          ],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "Pitch deck v4 (10 slides)"
+            },
+            {
+              "done": true,
+              "text": "Slide 8 roadmap redesigned (5 stages)"
+            },
+            {
+              "done": true,
+              "text": "Slide 10 The Ask rebuilt (SAFE terms)"
+            },
+            {
+              "done": true,
+              "text": "Full 10-slide audit completed"
+            },
+            {
+              "done": true,
+              "text": "Tony call completed \u2014 ~$167K verbal commit"
+            },
+            {
+              "done": true,
+              "text": "Development cost analysis v3 (audit-corrected)"
+            },
+            {
+              "done": false,
+              "text": "Rework deck for two-peptide platform thesis"
+            },
+            {
+              "done": false,
+              "text": "Fix Slides 2, 5, 9 per audit"
+            },
+            {
+              "done": false,
+              "text": "Identify 2-3 additional investors"
+            },
+            {
+              "done": false,
+              "text": "Attorney review of gray market exclusivity"
+            }
+          ],
+          "decisions": [
+            {
+              "date": "2026-03-25",
+              "text": "Tony verbal commit ~$167K (1/3 of $500K), conditional on finding other 2/3"
+            },
+            {
+              "date": "2026-03-25",
+              "text": "Gray market exclusivity flagged as FDA/CVM compliance risk"
+            },
+            {
+              "date": "2026-03-23",
+              "text": "SAFE note instrument selected"
+            },
+            {
+              "date": "2026-03-23",
+              "text": "David deep review found cost estimates low by 3-5x"
+            }
+          ]
         }
       ]
     },
