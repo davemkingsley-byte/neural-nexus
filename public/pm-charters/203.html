@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Charter 203 — Mobile Cognitive App (PWA)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #06060b; color: #f0f0f5; font-family: 'DM Sans', sans-serif; padding: 2rem; max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.3rem; margin-top: 2rem; margin-bottom: 0.8rem; color: #d4a853; border-bottom: 1px solid rgba(212,168,83,0.3); padding-bottom: 0.3rem; }
+    a { color: #d4a853; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .back { display: inline-block; margin-bottom: 1.5rem; font-size: 0.95rem; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    th { color: #888; font-weight: 500; width: 35%; }
+    td { color: #f0f0f5; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+    .badge-critical { background: rgba(239,68,68,0.2); color: #ef4444; }
+    .badge-high { background: rgba(245,158,11,0.2); color: #f59e0b; }
+    .badge-progress { background: rgba(234,179,8,0.2); color: #eab308; }
+    .badge-done { background: rgba(34,197,94,0.2); color: #22c55e; }
+    .section-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    ul { padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; line-height: 1.5; }
+    .checked { color: #22c55e; }
+    .unchecked { color: #888; }
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem; text-align: center; }
+    .stat-value { font-size: 1.6rem; font-weight: 700; color: #d4a853; }
+    .stat-label { font-size: 0.75rem; color: #888; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+  <a href="/dashboard" class="back">← Dashboard</a>
+  <h1>Charter 203 — Mobile Cognitive App (PWA)</h1>
+  <p style="color:#888; margin-bottom: 1.5rem;">Cognitive Enhancements · 🟢 Live</p>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="stat-value">100%</div><div class="stat-label">Progress</div></div>
+    <div class="stat-box"><div class="stat-value">$0</div><div class="stat-label">Budget</div></div>
+    <div class="stat-box"><div class="stat-value">0</div><div class="stat-label">Blockers</div></div>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Sign-Off</h2>
+    <table>
+      <tr><th>Charter ID</th><td>203</td></tr>
+      <tr><th>Title</th><td><strong>Mobile Cognitive App (PWA)</strong></td></tr>
+      <tr><th>Owner</th><td>David Kingsley</td></tr>
+      <tr><th>Assignee</th><td>Forge</td></tr>
+      <tr><th>Priority</th><td><span class="badge badge-high">High</span></td></tr>
+      <tr><th>Status</th><td><span class="badge badge-progress">Live</span></td></tr>
+      <tr><th>Phase</th><td>✅ Deployed — Live at neuralnexus.press/app/</td></tr>
+      <tr><th>Date Initiated</th><td>2026-03-20</td></tr>
+      <tr><th>Target Date</th><td>2026-03-20</td></tr>
+      <tr><th>Program</th><td>Cognitive Enhancements</td></tr>
+    </table>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Objective</h2>
+    <p>Installable PWA with mobile-optimized cognitive tests, WHOOP summary, and Today view.</p>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Success Criteria</h2>
+    <p>PWA installable on iOS, mobile-optimized tests (PVT tap, DSST thumb grid, N-Back), service worker caching.</p>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Outstanding Items</h2>
+    <ul><li class="checked">✅ PWA manifest + service worker</li>
+<li class="checked">✅ Today view with WHOOP summary</li>
+<li class="checked">✅ Mobile PVT (tap anywhere)</li>
+<li class="checked">✅ Mobile DSST (thumb grid)</li>
+<li class="checked">✅ Mobile N-Back (large buttons)</li>
+<li class="checked">✅ Analytics page</li>
+<li class="checked">✅ Settings page</li>
+<li class="checked">✅ Bottom tab bar navigation</li>
+</ul>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Decisions</h2>
+    <ul><li><strong>2026-03-20</strong> — PWA over native app</li>
+<li><strong>2026-03-20</strong> — Telegram cron for reminders (iOS lacks Web Push)</li>
+<li><strong>2026-03-20</strong> — Bottom tab bar navigation</li>
+</ul>
+  </div>
+
+
+</body>
+</html>

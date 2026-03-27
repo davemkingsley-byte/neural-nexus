@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Charter 505 — TRT-002 In Silico Design Pipeline</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #06060b; color: #f0f0f5; font-family: 'DM Sans', sans-serif; padding: 2rem; max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.3rem; margin-top: 2rem; margin-bottom: 0.8rem; color: #d4a853; border-bottom: 1px solid rgba(212,168,83,0.3); padding-bottom: 0.3rem; }
+    a { color: #d4a853; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .back { display: inline-block; margin-bottom: 1.5rem; font-size: 0.95rem; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    th { color: #888; font-weight: 500; width: 35%; }
+    td { color: #f0f0f5; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+    .badge-critical { background: rgba(239,68,68,0.2); color: #ef4444; }
+    .badge-high { background: rgba(245,158,11,0.2); color: #f59e0b; }
+    .badge-progress { background: rgba(234,179,8,0.2); color: #eab308; }
+    .badge-done { background: rgba(34,197,94,0.2); color: #22c55e; }
+    .section-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    ul { padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; line-height: 1.5; }
+    .checked { color: #22c55e; }
+    .unchecked { color: #888; }
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem; text-align: center; }
+    .stat-value { font-size: 1.6rem; font-weight: 700; color: #d4a853; }
+    .stat-label { font-size: 0.75rem; color: #888; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+  <a href="/dashboard" class="back">← Dashboard</a>
+  <h1>Charter 505 — TRT-002 In Silico Design Pipeline</h1>
+  <p style="color:#888; margin-bottom: 1.5rem;">Treat Biosciences · 🟡 In Progress</p>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="stat-value">75%</div><div class="stat-label">Progress</div></div>
+    <div class="stat-box"><div class="stat-value">~$2K (gene synthesis + ELISA)</div><div class="stat-label">Budget</div></div>
+    <div class="stat-box"><div class="stat-value">2</div><div class="stat-label">Blockers</div></div>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Sign-Off</h2>
+    <table>
+      <tr><th>Charter ID</th><td>505</td></tr>
+      <tr><th>Title</th><td><strong>TRT-002 In Silico Design Pipeline</strong></td></tr>
+      <tr><th>Owner</th><td>David Kingsley</td></tr>
+      <tr><th>Assignee</th><td>Morpheus</td></tr>
+      <tr><th>Priority</th><td><span class="badge badge-critical">Critical</span></td></tr>
+      <tr><th>Status</th><td><span class="badge badge-progress">In Progress</span></td></tr>
+      <tr><th>Phase</th><td>Phase 2 complete — gene synthesis spec ready, AF2M running on Colab</td></tr>
+      <tr><th>Date Initiated</th><td>2026-03-25</td></tr>
+      <tr><th>Target Date</th><td>2026-04-15</td></tr>
+      <tr><th>Program</th><td>Treat Biosciences</td></tr>
+    </table>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Objective</h2>
+    <p>Engineer follistatin fragment (ND-FSD1-FSD2, 215 aa) as myostatin/activin antagonist for canine muscle preservation. Drug candidate: TRT-002a.</p>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Success Criteria</h2>
+    <p>ELISA IC50 < 100 nM myostatin inhibition = GO. Gene synthesis order placed, binding data in 6 weeks.</p>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Outstanding Items</h2>
+    <ul><li class="checked">✅ D1: Binding interface map (46 contacts, 3 salt bridges)</li>
+<li class="checked">✅ D2: Canine substitution safety analysis</li>
+<li class="checked">✅ D3: Truncation analysis (3 constructs)</li>
+<li class="checked">✅ D5: Lipidation sites (K110 primary, K241 backup)</li>
+<li class="checked">✅ D10: Gene synthesis order spec (GenScript, pET-32a)</li>
+<li class="checked">✅ D11: In silico binding validation (PRODIGY)</li>
+<li class="checked">✅ Track 1: 7 follistatin variants scored</li>
+<li class="checked">✅ ESMFold models for all constructs + variants</li>
+<li class="unchecked">⬜ AlphaFold2 Multimer complex prediction (running)</li>
+<li class="unchecked">⬜ Track 2: RFdiffusion de novo binder design</li>
+<li class="unchecked">⬜ GenScript gene synthesis order placed</li>
+<li class="unchecked">⬜ ELISA binding assay (go/no-go)</li>
+</ul>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Decisions</h2>
+    <ul><li><strong>2026-03-25</strong> — Construct A (ND-FSD1-FSD2, 212 aa) is lead drug candidate</li>
+<li><strong>2026-03-25</strong> — E. coli SHuffle T7 primary, Pichia backup</li>
+<li><strong>2026-03-26</strong> — V7 robust (N82Q+R140Q+R169Q) strongest canine variant</li>
+<li><strong>2026-03-26</strong> — PRODIGY validated for this target system</li>
+<li><strong>2026-03-26</strong> — Ship imperfect drug — fix with data after ELISA proof</li>
+</ul>
+  </div>
+
+<div class="section-card"><h2 style="margin-top:0;">Blockers</h2><ul><li style="color:#ef4444">AlphaFold2 Multimer running on Colab — awaiting results</li>
+<li style="color:#ef4444">RFdiffusion de novo design needs GPU execution</li>
+</ul></div>
+</body>
+</html>
