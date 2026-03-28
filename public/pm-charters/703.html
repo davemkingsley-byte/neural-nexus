@@ -92,7 +92,7 @@ h1{font-size:1.6rem;margin-bottom:6px;color:#fff}
 <span class="status-badge">✅ Live — Operational Protocol</span>
 <div class="objective" style="margin-top:16px">
 <div class="obj-label">Purpose</div>
-An adversarial multi-model review system that enforces scientific accuracy across all public Neural NeXus content and Treat Biosciences investor materials. Two independent AI reviewers — Curie (Claude Opus) and GPT-5.4 — assess claims in parallel, then Morpheus synthesizes conflicting outputs into a final verdict before anything ships.
+An adversarial multi-model review system that enforces scientific accuracy across all public Neural NeXus content and Treat Biosciences investor materials. Two independent AI reviewers — Archimedes (Claude Opus) and GPT-5.4 — assess claims in parallel, then Morpheus synthesizes conflicting outputs into a final verdict before anything ships.
 </div>
 <div class="objective" style="margin-top:8px">
 <div class="obj-label">Problem It Solves</div>
@@ -124,7 +124,7 @@ Single-model review creates blind spots: each model has training biases and know
 <div class="card-title">Panel Composition</div>
 <div class="three-col">
   <div class="agent-card">
-    <div class="agent-name">🧬 Curie</div>
+    <div class="agent-name">🧬 Archimedes</div>
     <div class="agent-role role-primary">Primary Reviewer</div>
     <div class="agent-model">Claude Opus (claude-opus-4-6)</div>
     <div class="agent-scope">Deep mechanistic accuracy. Validates against established literature, flags regulatory missteps, catches biochemical errors. Specialist in drug development, receptor pharmacology, and neuroscience.</div>
@@ -139,7 +139,7 @@ Single-model review creates blind spots: each model has training biases and know
     <div class="agent-name">⚔️ GPT-5.4</div>
     <div class="agent-role role-adversarial">Adversarial Challenger</div>
     <div class="agent-model">GPT-5.4 (openai/gpt-5.4)</div>
-    <div class="agent-scope">Independent critique from a different training distribution. Challenges Curie's conclusions, surfaces alternative interpretations, probes recent clinical literature. Catches what Opus misses.</div>
+    <div class="agent-scope">Independent critique from a different training distribution. Challenges Archimedes's conclusions, surfaces alternative interpretations, probes recent clinical literature. Catches what Opus misses.</div>
     <div style="margin-top:10px">
       <span class="agent-tag tag-red">Alternative Views</span>
       <span class="agent-tag tag-red">Recent Literature</span>
@@ -215,7 +215,7 @@ Single-model review creates blind spots: each model has training biases and know
 <div class="step-num blue">3</div>
 <div>
 <div class="step-title">PARALLEL DISPATCH</div>
-<div class="step-desc">Identical brief sent simultaneously to Curie and GPT-5.4. Each reviewer operates independently — no cross-contamination between reviewers before synthesis.</div>
+<div class="step-desc">Identical brief sent simultaneously to Archimedes and GPT-5.4. Each reviewer operates independently — no cross-contamination between reviewers before synthesis.</div>
 </div>
 </div>
 
@@ -292,7 +292,7 @@ Single-model review creates blind spots: each model has training biases and know
 <div class="verdict-icon">🔺</div>
 <div>
 <div class="verdict-label">Escalated to David</div>
-<div class="verdict-desc"><strong>Condition:</strong> Curie and GPT-5.4 produce directly opposing verdicts with equal evidence and no applicable tiebreak rule. <strong>Action:</strong> Morpheus delivers both positions plus an explicit yes/no question to David. David's decision is final and logged.</div>
+<div class="verdict-desc"><strong>Condition:</strong> Archimedes and GPT-5.4 produce directly opposing verdicts with equal evidence and no applicable tiebreak rule. <strong>Action:</strong> Morpheus delivers both positions plus an explicit yes/no question to David. David's decision is final and logged.</div>
 </div>
 </div>
 </div>
@@ -301,7 +301,7 @@ Single-model review creates blind spots: each model has training biases and know
 <div class="card">
 <div class="card-title">Tiebreak Rules — Contested Claims</div>
 <div class="tiebreak-item"><span class="tiebreak-num">1</span><span class="tiebreak-text"><strong>Citation wins.</strong> The reviewer providing a peer-reviewed citation for their position wins the contested claim. If both cite, the more recent (post-2020) primary research wins over review articles.</span></div>
-<div class="tiebreak-item"><span class="tiebreak-num">2</span><span class="tiebreak-text"><strong>Curie priority domains:</strong> FDA/CVM regulatory matters, mechanistic biochemistry, receptor pharmacology, veterinary drug development. Curie's verdict is authoritative in these areas absent a contrary citation.</span></div>
+<div class="tiebreak-item"><span class="tiebreak-num">2</span><span class="tiebreak-text"><strong>Archimedes priority domains:</strong> FDA/CVM regulatory matters, mechanistic biochemistry, receptor pharmacology, veterinary drug development. Archimedes's verdict is authoritative in these areas absent a contrary citation.</span></div>
 <div class="tiebreak-item"><span class="tiebreak-num">3</span><span class="tiebreak-text"><strong>GPT-5.4 priority domains:</strong> Post-2024 clinical literature, statistical methodology, epidemiological design, AI/ML research. GPT-5.4's verdict is authoritative here absent a contrary citation.</span></div>
 <div class="tiebreak-item"><span class="tiebreak-num">4</span><span class="tiebreak-text"><strong>Conservative default.</strong> When neither reviewer has priority and no citation resolves it, Morpheus applies the more conservative (less bold) claim. Safety over certainty.</span></div>
 <div class="tiebreak-item"><span class="tiebreak-num">5</span><span class="tiebreak-text"><strong>David arbitrates</strong> if tiebreak rules 1–4 produce equal outcomes. Morpheus delivers both positions + explicit question. No publication holds until David answers.</span></div>
@@ -333,7 +333,7 @@ Morpheus (Arbiter)
   ↓  standardized blind brief (simultaneous)
   ├─────────────────────────────────┐
   ↓                                 ↓
-Curie (Opus)                   GPT-5.4
+Archimedes (Opus)                   GPT-5.4
 Primary Review                 Adversarial Review
   - Accuracy score (1-10)        - Accuracy score (1-10)
   - Claim-by-claim flags         - Claim-by-claim flags
@@ -359,7 +359,7 @@ Primary Review                 Adversarial Review
 <div class="metric-grid">
 <div class="metric-box"><div class="metric-val" style="color:#ef4444">0</div><div class="metric-label">🔴 Critical Errors Reaching Publication</div></div>
 <div class="metric-box"><div class="metric-val" style="color:#10b981">&lt;30 min</div><div class="metric-label">Target Review Turnaround</div></div>
-<div class="metric-box"><div class="metric-val" style="color:#3b82f6">&gt;85%</div><div class="metric-label">Curie / GPT-5.4 Agreement Rate</div></div>
+<div class="metric-box"><div class="metric-val" style="color:#3b82f6">&gt;85%</div><div class="metric-label">Archimedes / GPT-5.4 Agreement Rate</div></div>
 <div class="metric-box"><div class="metric-val" style="color:#8b5cf6">&lt;10%</div><div class="metric-label">Reviews Escalated to David</div></div>
 </div>
 </div>
@@ -380,7 +380,7 @@ Primary Review                 Adversarial Review
 <!-- Decision Log -->
 <div class="card">
 <div class="card-title">Decision Log</div>
-<div class="decision-item"><span class="decision-date">2026-03-23</span><span class="decision-text">Scientific Panel Architecture v1.0 adopted. Curie (Opus) + GPT-5.4 as dual reviewers, Morpheus as arbiter.</span></div>
+<div class="decision-item"><span class="decision-date">2026-03-23</span><span class="decision-text">Scientific Panel Architecture v1.0 adopted. Archimedes (Opus) + GPT-5.4 as dual reviewers, Morpheus as arbiter.</span></div>
 <div class="decision-item"><span class="decision-date">2026-03-23</span><span class="decision-text">Parallel (not sequential) dispatch selected to eliminate anchoring bias between reviewers.</span></div>
 <div class="decision-item"><span class="decision-date">2026-03-23</span><span class="decision-text">Conservative default (tiebreak rule 4): when equal, the less bold claim wins. Scientific caution over narrative impact.</span></div>
 <div class="decision-item"><span class="decision-date">2026-03-23</span><span class="decision-text">Resubmission rule established: fixes don't auto-clear a failed review — full re-run required.</span></div>
