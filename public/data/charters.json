@@ -1420,6 +1420,21 @@
           ],
           "documents": [
             {
+              "title": "Final Design Report v2.1",
+              "url": "https://docs.google.com/document/d/1XIYioKmXyuZpaUjSSJoLCIgWlK-jPYPhZrNx3_7tEBw/edit",
+              "type": "report"
+            },
+            {
+              "title": "Phase 2 Report v2",
+              "url": "https://docs.google.com/document/d/1iroThjxtv-Ek3AsVSafIzNy_ExPxkJxOh_vf62d7zMc/edit",
+              "type": "report"
+            },
+            {
+              "title": "In Silico Binding Validation v2 (PRODIGY)",
+              "url": "https://docs.google.com/document/d/1D1TFBUKFch5c6vMMfQh5I2F8Yo7tkKaSWjvkY4IBgLs/edit",
+              "type": "validation"
+            },
+            {
               "title": "D10v2 Gene Synthesis Spec",
               "url": "https://docs.google.com/document/d/1FWM0q9S_6r6BlhbZbOadZXlURbNKYRo01Udfe1XHud8/edit",
               "type": "deliverable"
@@ -1428,16 +1443,6 @@
               "title": "BindCraft De Novo Design Plan v2",
               "url": "https://docs.google.com/document/d/1JAB5I7LQppDNK5JyUhWmngNgY_a2oedJvgO8zkFvGL8/edit",
               "type": "plan"
-            },
-            {
-              "title": "Final Design Report v2.1",
-              "url": "https://docs.google.com/document/d/1XIYioKmXyuZpaUjSSJoLCIgWlK-jPYPhZrNx3_7tEBw/edit",
-              "type": "report"
-            },
-            {
-              "title": "In Silico Binding Validation v2",
-              "url": "https://docs.google.com/document/d/1D1TFBUKFch5c6vMMfQh5I2F8Yo7tkKaSWjvkY4IBgLs/edit",
-              "type": "validation"
             },
             {
               "title": "Structural Biology Critique",
@@ -1722,12 +1727,12 @@
           "documents": [
             {
               "title": "Pitch Deck v4",
-              "url": "https://docs.google.com/document/d/1A-jAMY_-q2ljZWTgF9tLVpdDh-wJjo__G9mES2vfWhU/edit",
+              "url": "https://docs.google.com/presentation/d/1A-jAMY_-q2ljZWTgF9tLVpdDh-wJjo__G9mES2vfWhU/edit",
               "type": "deck"
             },
             {
               "title": "Tony Investor Deck",
-              "url": "https://docs.google.com/document/d/1b4c-0RyvbJ4DgAu0_fA-UczNdECnIS_ofje0fs-BiTQ/edit",
+              "url": "https://docs.google.com/presentation/d/1b4c-0RyvbJ4DgAu0_fA-UczNdECnIS_ofje0fs-BiTQ/edit",
               "type": "deck"
             },
             {
