@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Charter 705 — Multi-Agent Architecture</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #06060b; color: #f0f0f5; font-family: 'DM Sans', sans-serif; padding: 2rem; max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    h2 { font-size: 1.3rem; margin-top: 2rem; margin-bottom: 0.8rem; color: #d4a853; border-bottom: 1px solid rgba(212,168,83,0.3); padding-bottom: 0.3rem; }
+    a { color: #d4a853; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .back { display: inline-block; margin-bottom: 1.5rem; font-size: 0.95rem; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    th { color: #888; font-weight: 500; width: 35%; }
+    td { color: #f0f0f5; }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 600; }
+    .badge-critical { background: rgba(239,68,68,0.2); color: #ef4444; }
+    .badge-high { background: rgba(245,158,11,0.2); color: #f59e0b; }
+    .badge-progress { background: rgba(234,179,8,0.2); color: #eab308; }
+    .badge-done { background: rgba(34,197,94,0.2); color: #22c55e; }
+    .section-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem; }
+    ul { padding-left: 1.5rem; }
+    li { margin-bottom: 0.4rem; line-height: 1.5; }
+    .checked { color: #22c55e; }
+    .unchecked { color: #888; }
+    .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-box { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 1rem; text-align: center; }
+    .stat-value { font-size: 1.6rem; font-weight: 700; color: #d4a853; }
+    .stat-label { font-size: 0.75rem; color: #888; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+  <a href="/dashboard" class="back">← Dashboard</a>
+  <h1>Charter 705 — Multi-Agent Architecture</h1>
+  <p style="color:#888; margin-bottom: 1.5rem;">Project Management · 🟢 Deployed</p>
+
+  <div class="stat-row">
+    <div class="stat-box"><div class="stat-value">100%</div><div class="stat-label">Progress</div></div>
+    <div class="stat-box"><div class="stat-value">$0</div><div class="stat-label">Budget</div></div>
+    <div class="stat-box"><div class="stat-value">0</div><div class="stat-label">Blockers</div></div>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Sign-Off</h2>
+    <table>
+      <tr><th>Charter ID</th><td>705</td></tr>
+      <tr><th>Title</th><td><strong>Multi-Agent Architecture</strong></td></tr>
+      <tr><th>Owner</th><td>David Kingsley</td></tr>
+      <tr><th>Assignee</th><td>Morpheus</td></tr>
+      <tr><th>Priority</th><td><span class="badge badge-critical">Critical</span></td></tr>
+      <tr><th>Status</th><td><span class="badge badge-done">Deployed</span></td></tr>
+      <tr><th>Phase</th><td>✅ Deployed — 4-agent C-suite live on Telegram</td></tr>
+      <tr><th>Date Initiated</th><td>2026-03-27</td></tr>
+      <tr><th>Target Date</th><td>2026-03-27</td></tr>
+      <tr><th>Date Completed</th><td>2026-03-27</td></tr>
+      <tr><th>Program</th><td>Project Management</td></tr>
+    </table>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Objective</h2>
+    <p>Restructure single overloaded agent into four-agent C-suite with isolated context windows, dedicated workspaces, and clear domain ownership.</p>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Success Criteria</h2>
+    <p>All 4 agents live on Telegram, isolated workspaces, curated memory, bidirectional messaging, file drop pipeline operational.</p>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Outstanding Items</h2>
+    <ul>
+      <li class="checked">✅ Design 4-agent architecture (Morpheus COO, Archimedes CSO, Aristotle CMO, Arete CHO)</li>
+      <li class="checked">✅ Create isolated workspaces with symlinks</li>
+      <li class="checked">✅ Write curated MEMORY.md for each agent</li>
+      <li class="checked">✅ Configure Telegram bots + bindings</li>
+      <li class="checked">✅ Deploy and verify all 4 agents responsive</li>
+      <li class="checked">✅ Enable agent-to-agent messaging (Morpheus as hub)</li>
+      <li class="checked">✅ First file drop pipeline test (Archimedes → Morpheus)</li>
+    </ul>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">Decisions</h2>
+    <ul>
+      <li><strong>2026-03-27</strong> — Four-agent C-suite: Morpheus (COO), Archimedes (CSO), Aristotle (CMO), Arete (CHO)</li>
+      <li><strong>2026-03-27</strong> — Ancient Greek naming convention</li>
+      <li><strong>2026-03-27</strong> — All agents report directly to David, not through Morpheus</li>
+      <li><strong>2026-03-27</strong> — Separate workspaces (Option A) for true isolation</li>
+      <li><strong>2026-03-27</strong> — Sub-agents: Hypatia (Claude Opus) + Socrates (GPT-5.4) under Archimedes</li>
+      <li><strong>2026-03-27</strong> — Update triggers: charter status change, deliverable completion, decision needed, end of session</li>
+    </ul>
+  </div>
+
+  <div class="section-card">
+    <h2 style="margin-top:0;">📎 Reports & Documents</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+      <a href="https://docs.google.com/document/d/1O-uX9hz7QXyEE7EQj__8igGPoUrj-aST_pcUAAmpBr0/edit" target="_blank" style="background:rgba(212,168,83,0.05);border:1px solid rgba(212,168,83,0.15);border-radius:8px;padding:0.75rem 1rem;text-decoration:none;display:block;transition:border-color 0.2s;">
+        <div style="font-weight:600;font-size:0.9rem;color:#f0f0f5;">Multi-Agent Architecture</div>
+        <div style="font-size:0.8rem;color:#888;margin-top:0.25rem;">Google Doc · Charter Document</div>
+      </a>
+    </div>
+  </div>
+
+</body>
+</html>
