@@ -116,16 +116,6 @@ app.use('/cognitive', (req, res, next) => {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// PM data API
-app.get('/api/pm/data', dashboardAuth, (req, res) => {
-  try {
-    const data = JSON.parse(fs.readFileSync(path.join(__dirname, 'public', 'pm', 'pm-data.json'), 'utf8'));
-    res.json(data);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to load PM data' });
-  }
-});
-
 // Health check
 app.get('/health', (req, res) => {
   const fs = require('fs');
