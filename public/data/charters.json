@@ -1417,6 +1417,38 @@
               "date": "2026-03-27",
               "text": "Track 2 (BindCraft de novo) approved in parallel"
             }
+          ],
+          "documents": [
+            {
+              "title": "D10v2 Gene Synthesis Spec",
+              "url": "https://docs.google.com/document/d/1FWM0q9S_6r6BlhbZbOadZXlURbNKYRo01Udfe1XHud8/edit",
+              "type": "deliverable"
+            },
+            {
+              "title": "BindCraft De Novo Design Plan v2",
+              "url": "https://docs.google.com/document/d/1JAB5I7LQppDNK5JyUhWmngNgY_a2oedJvgO8zkFvGL8/edit",
+              "type": "plan"
+            },
+            {
+              "title": "Final Design Report v2.1",
+              "url": "https://docs.google.com/document/d/1XIYioKmXyuZpaUjSSJoLCIgWlK-jPYPhZrNx3_7tEBw/edit",
+              "type": "report"
+            },
+            {
+              "title": "In Silico Binding Validation v2",
+              "url": "https://docs.google.com/document/d/1D1TFBUKFch5c6vMMfQh5I2F8Yo7tkKaSWjvkY4IBgLs/edit",
+              "type": "validation"
+            },
+            {
+              "title": "Structural Biology Critique",
+              "url": "https://docs.google.com/document/d/1SlnszGw2iKP2s9sFW2e_zau7Uu8LCkaP48RwfARXDN4/edit",
+              "type": "review"
+            },
+            {
+              "title": "Med Chem Critique",
+              "url": "https://docs.google.com/document/d/1bgVYty_3KrW3taXNPAj3yyhtOfZHUWOSTvF-GE707E4/edit",
+              "type": "review"
+            }
           ]
         },
         {
@@ -1572,6 +1604,23 @@
               "date": "2026-03-26",
               "text": "Ship imperfect drug \u2014 fix with data after ELISA proof"
             }
+          ],
+          "documents": [
+            {
+              "title": "Follistatin Report",
+              "url": "https://docs.google.com/document/d/1SEwFCLboGmtAX6GXYamYA8lhT-1kLHtQ349CS0bqLuk/edit",
+              "type": "report"
+            },
+            {
+              "title": "Corrected Structural Comparison",
+              "url": "https://docs.google.com/document/d/12w0BA_PB6DhJ8NRkdmeZqiygWSIZ2jeBpcianhESers/edit",
+              "type": "analysis"
+            },
+            {
+              "title": "Phase 2 v2 Report",
+              "url": "https://docs.google.com/document/d/1iroThjxtv-Ek3AsVSafIzNy_ExPxkJxOh_vf62d7zMc/edit",
+              "type": "report"
+            }
           ]
         },
         {
@@ -1668,6 +1717,23 @@
             {
               "date": "2026-03-23",
               "text": "David deep review found cost estimates low by 3-5x"
+            }
+          ],
+          "documents": [
+            {
+              "title": "Pitch Deck v4",
+              "url": "https://docs.google.com/document/d/1A-jAMY_-q2ljZWTgF9tLVpdDh-wJjo__G9mES2vfWhU/edit",
+              "type": "deck"
+            },
+            {
+              "title": "Tony Investor Deck",
+              "url": "https://docs.google.com/document/d/1b4c-0RyvbJ4DgAu0_fA-UczNdECnIS_ofje0fs-BiTQ/edit",
+              "type": "deck"
+            },
+            {
+              "title": "Morning Briefing",
+              "url": "https://docs.google.com/document/d/1oBNl-FBA1xKRKz-m7dOj230dl5WDRhpcIF8aVtgYxSs/edit",
+              "type": "briefing"
             }
           ]
         }
@@ -2073,7 +2139,14 @@
             }
           ],
           "risks": [],
-          "milestones": []
+          "milestones": [],
+          "documents": [
+            {
+              "title": "Work Process Framework",
+              "url": "https://docs.google.com/document/d/1UkLqdbHBuiuFDBPRRQS6kIPXJtByfUZKGzcrL9hw_W4/edit",
+              "type": "charter"
+            }
+          ]
         },
         {
           "id": "705",

@@ -1083,6 +1083,14 @@ function renderProjectCard(c, compact) {
           <div class="detail-label" style="margin-bottom:8px;">Outstanding Items (${doneItems}/${totalItems})</div>
           ${checklistHtml}
         </div>
+        ${(c.documents && c.documents.length) || c.docUrl ? `
+        <div style="margin-bottom:20px;">
+          <div class="detail-label" style="margin-bottom:8px;">📄 Documents (${(c.documents?.length || 0) + (c.docUrl && !(c.documents||[]).some(d=>d.url===c.docUrl) ? 1 : 0)})</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;">
+            ${(c.documents||[]).map(d => `<a href="${escHtml(d.url)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:0.75rem;color:var(--text);text-decoration:none;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'"><span style="font-size:0.85rem;">${d.type === 'deck' ? '📊' : d.type === 'review' ? '🔍' : d.type === 'validation' ? '✅' : d.type === 'plan' ? '📋' : d.type === 'briefing' ? '☀️' : '📄'}</span>${escHtml(d.title)}<span style="color:var(--text-dim);font-size:0.65rem;">↗</span></a>`).join('')}
+            ${c.docUrl && !(c.documents||[]).some(d=>d.url===c.docUrl) ? `<a href="${escHtml(c.docUrl)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:0.75rem;color:var(--text);text-decoration:none;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'"><span style="font-size:0.85rem;">📄</span>Charter Document<span style="color:var(--text-dim);font-size:0.65rem;">↗</span></a>` : ''}
+          </div>
+        </div>` : ''}
         <div style="margin-bottom:20px;">
           <div class="detail-label" style="margin-bottom:8px;">Decision Log</div>
           ${decisionsHtml}
