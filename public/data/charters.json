@@ -1435,8 +1435,8 @@
               "type": "validation"
             },
             {
-              "title": "D10v2 Gene Synthesis Spec",
-              "url": "https://docs.google.com/document/d/1FWM0q9S_6r6BlhbZbOadZXlURbNKYRo01Udfe1XHud8/edit",
+              "title": "D10v2 Gene Synthesis Spec (with AF3 figures)",
+              "url": "https://docs.google.com/document/d/1GIoNFwRYuU-9QddnBmGoKgWisBkPTbM5RcxIfaWUaOw/edit",
               "type": "deliverable"
             },
             {
@@ -1627,9 +1627,9 @@
               "type": "report"
             },
             {
-              "title": "AF3 Structural Validation Report",
-              "url": "https://docs.google.com/document/d/1FV3cMwHDWME1445jAkt6oBj1cX66QgaG2rg598iasDU/edit",
-              "type": "validation"
+              "title": "D10v2 + AF3 Validation (with figures)",
+              "url": "https://docs.google.com/document/d/1GIoNFwRYuU-9QddnBmGoKgWisBkPTbM5RcxIfaWUaOw/edit",
+              "type": "report"
             }
           ]
         },
