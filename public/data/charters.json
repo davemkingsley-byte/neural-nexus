@@ -2287,6 +2287,76 @@
             }
           ],
           "docUrl": "https://docs.google.com/document/d/1O-uX9hz7QXyEE7EQj__8igGPoUrj-aST_pcUAAmpBr0/edit"
+        },
+        {
+          "id": "706",
+          "title": "Infrastructure Scale-Out (Mac Mini + KVM)",
+          "status": "🟡 Awaiting Purchase",
+          "statusClean": "Awaiting Purchase",
+          "assignee": "Morpheus",
+          "phase": "Hardware acquisition — M4 Mac mini + 4-port dual-monitor KVM switch",
+          "objective": "Resolve agent browser contention by splitting agents across two Mac minis with shared peripherals via KVM switch. Current: 4 agents competing for one cursor/screen. Target: Archimedes + sub-agents on dedicated mini, Morpheus/Aristotle/Arete on existing mini.",
+          "progress": 10,
+          "documents": [
+            {
+              "title": "ATLAHET 4-Port Dual Monitor KVM (Amazon)",
+              "url": "https://www.amazon.com/ATLAHET-Computers-Monitors-Switches-Accessories/dp/B0GFD9Q874",
+              "type": "reference"
+            },
+            {
+              "title": "Apple M4 Mac mini",
+              "url": "https://www.apple.com/shop/buy-mac/mac-mini",
+              "type": "reference"
+            }
+          ],
+          "decisions": [
+            {
+              "date": "2026-03-29",
+              "text": "Second Mac mini approved — M4 16GB/256GB ($499)"
+            },
+            {
+              "date": "2026-03-29",
+              "text": "Physical KVM preferred over headless/software — David still needs manual intervention access"
+            },
+            {
+              "date": "2026-03-29",
+              "text": "4-port dual-monitor KVM to support 3 machines now + future Mac Studio"
+            },
+            {
+              "date": "2026-03-29",
+              "text": "Opus across all agents — Sonnet default rejected"
+            }
+          ],
+          "outstanding": [
+            {
+              "done": false,
+              "text": "Purchase M4 Mac mini ($499)"
+            },
+            {
+              "done": false,
+              "text": "Purchase 4-port dual-monitor HDMI KVM switch (~$140)"
+            },
+            {
+              "done": false,
+              "text": "Set up M4 mini — OpenClaw install, Archimedes config, SSH access"
+            },
+            {
+              "done": false,
+              "text": "Migrate Archimedes workspace to new mini"
+            },
+            {
+              "done": false,
+              "text": "Configure KVM — 3 machines, 2 monitors, shared keyboard/mouse"
+            },
+            {
+              "done": false,
+              "text": "Test agent-to-agent messaging across machines"
+            },
+            {
+              "done": false,
+              "text": "Re-enable AF3 monitoring cron on dedicated browser"
+            }
+          ]
         }
       ]
     },
