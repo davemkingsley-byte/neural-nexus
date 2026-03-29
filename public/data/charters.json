@@ -2307,6 +2307,11 @@
               "title": "Apple M4 Mac mini",
               "url": "https://www.apple.com/shop/buy-mac/mac-mini",
               "type": "reference"
+            },
+            {
+              "title": "Charter 706: Mac Mini Migration Playbook (Google Doc)",
+              "url": "https://docs.google.com/document/d/1wCaDgYd5SMzSCV4tDBtJREXwGDIOud3AXnUgdhJsSLs/edit",
+              "type": "playbook"
             }
           ],
           "decisions": [
