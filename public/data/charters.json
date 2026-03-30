@@ -1307,7 +1307,7 @@
           "title": "TRT-002 In Silico Design Pipeline",
           "status": "🟡 Active",
           "statusClean": "Active",
-          "phase": "Track 2: BindCraft R1 PRODUCING HITS — 16+ accepted designs. Track 1: Parked, awaiting David GO on gene synthesis.",
+          "phase": "Track 2: AF3 VALIDATION IN PROGRESS — 9 designs from 5 scaffolds advancing (panel-reviewed triage). Track 1: Parked, awaiting David GO on gene synthesis.",
           "phaseIndex": 3,
           "dateInitiated": "2026-03-25",
           "targetDate": "2026-04-15",
@@ -1323,7 +1323,7 @@
             "501"
           ],
           "enables": [],
-          "progress": 90,
+          "progress": 92,
           "objective": "Two-track drug design pipeline for TRT-002. Track 1: Engineered follistatin fragment (ND-FSD1-FSD2, 212 aa canine) as myostatin/activin antagonist. Track 2: De novo dual ActRIIA/ActRIIB competitive blocker (bimagrumab MOA) designed from Morvan crystal structures (2.0Å).",
           "successCriteria": "ELISA IC50 < 100 nM myostatin inhibition = GO. Gene synthesis order placed, binding data in 6 weeks.",
           "blockers": [
@@ -1381,16 +1381,20 @@
               "text": "Track 2: Resolve final conditions from panel → v4 final → BindCraft execution"
             },
             {
-              "done": false,
-              "text": "Download BindCraft R1 PDB/CSV outputs from Colab (⚠️ time-sensitive: session expires ~11:18 AM Mon Mar 30)"
+              "done": true,
+              "text": "Download BindCraft R1 PDB/CSV outputs from Colab (backed up to Drive)"
+            },
+            {
+              "done": true,
+              "text": "Panel triage of 23 R1 designs → 9 advancing from 5 scaffolds"
             },
             {
               "done": false,
-              "text": "AF3 server validation of top BindCraft R1 designs"
+              "text": "AF3 server validation of top 9 BindCraft R1 designs (in progress)"
             },
             {
               "done": false,
-              "text": "Hypatia + Socrates rank BindCraft R1 candidates → David selects for gene synthesis"
+              "text": "David selects final candidates for gene synthesis"
             }
           ],
           "decisions": [
@@ -1448,11 +1452,15 @@
             },
             {
               "date": "2026-03-30",
-              "text": "BindCraft R1: 16 accepted de novo ActRIIB binder designs from ~30 trajectories (36% acceptance rate), lengths 80-120 aa, all passed Default filters"
+              "text": "BindCraft R1: 23 accepted de novo ActRIIB binder designs from ~60 trajectories (36% acceptance rate), lengths 80-120 aa"
             },
             {
               "date": "2026-03-29",
               "text": "Big funnel strategy: maximize designs → confirmed binders → optimize from data (David's direction)"
+            },
+            {
+              "date": "2026-03-30",
+              "text": "Panel triage complete: 9 designs from 5 scaffolds advance to AF3 validation. Top: l114_s404474_mpnn3 (i_pTM 0.83, dG -63.7). Best compact: l83_s36931_mpnn9 (83 aa, 1 Met)"
             }
           ],
           "documents": [
