@@ -1334,7 +1334,7 @@
           "title": "TRT-002 In Silico Design Pipeline",
           "status": "\ud83d\udfe1 Active",
           "statusClean": "Active",
-          "phase": "Track 2: AF3 VALIDATION COMPLETE \u2014 9/9 pass (ipTM 0.75-0.87). STRUCTURAL ANALYSIS in progress. Track 1: Parked, awaiting David GO on gene synthesis.",
+          "phase": "Track 2: STRUCTURAL DISCRIMINATION COMPLETE — 4 Tier 1 candidates from 2 scaffold families pass all mechanism gates. Day 2 AF3 next. Track 1: Parked, awaiting David GO on gene synthesis.",
           "phaseIndex": 3,
           "dateInitiated": "2026-03-25",
           "targetDate": "2026-04-15",
@@ -1350,7 +1350,7 @@
             "501"
           ],
           "enables": [],
-          "progress": 95,
+          "progress": 97,
           "objective": "Two-track drug design pipeline for TRT-002. Track 1: Engineered follistatin fragment (ND-FSD1-FSD2, 212 aa canine) as myostatin/activin antagonist. Track 2: De novo dual ActRIIA/ActRIIB competitive blocker (bimagrumab MOA) designed from Morvan crystal structures (2.0\u00c5).",
           "successCriteria": "ELISA IC50 < 100 nM myostatin inhibition = GO. Gene synthesis order placed, binding data in 6 weeks.",
           "blockers": [
@@ -1432,8 +1432,8 @@
               "text": "Track 2: Panel review of AF3 report \u2014 Hypatia GO, Socrates GO WITH CONDITIONS (folded in)"
             },
             {
-              "done": false,
-              "text": "Track 2: Structural analysis \u2014 steric clash overlay + contact mapping"
+              "done": true,
+              "text": "Track 2: Structural discrimination — 6-gate framework, 4 Tier 1 candidates from 2 scaffold families (s404474, s102094)"
             },
             {
               "done": false,
@@ -1519,10 +1519,19 @@
             },
             {
               "date": "2026-03-30",
-              "text": "ActRIIB selectivity confirmed: lead design vs BMPRII ipTM 0.49 \u2014 addresses ACE-031 off-target safety concern"
+              "text": "ActRIIB selectivity confirmed: lead design vs BMPRII ipTM 0.49 — addresses ACE-031 off-target safety concern"
+            },
+            {
+              "date": "2026-03-31",
+              "text": "Structural discrimination complete: 4 Tier 1 from 2 scaffold families (s404474, s102094). G5 (focused competitive-face contacts) is primary discriminator. N2 rejected design fails structural gates despite AF3 ipTM 0.79 — validates two-stage pipeline."
             }
           ],
           "documents": [
+            {
+              "title": "R1 Structural Discrimination Report",
+              "url": "https://docs.google.com/document/d/18T0ZjZO9ESo1D1DIvnKSgLOE611kJe6FABcc0BurnoA/edit",
+              "type": "analysis"
+            },
             {
               "title": "Final Design Report v2.1",
               "url": "https://docs.google.com/document/d/1XIYioKmXyuZpaUjSSJoLCIgWlK-jPYPhZrNx3_7tEBw/edit",
