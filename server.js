@@ -326,6 +326,9 @@ button:hover{background:#e0b030}.err{color:#f87171;font-size:0.85rem;margin-bott
 app.get('/dashboard', dashboardLoginPage, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
+app.get('/morpheus', dashboardLoginPage, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'morpheus.html'));
+});
 app.post('/dashboard', loginLimiter, (req, res) => {
   const key = req.body.key;
   if (key === DASHBOARD_PASS) {

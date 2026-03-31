@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Morpheus - Neural NeXus</title>
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root {
+  --bg: #06060b;
+  --surface: rgba(255,255,255,0.03);
+  --surface-2: rgba(255,255,255,0.06);
+  --surface-3: rgba(255,255,255,0.09);
+  --border: rgba(255,255,255,0.08);
+  --border-2: rgba(255,255,255,0.14);
+  --text: #f0f0f5;
+  --text-dim: rgba(255,255,255,0.42);
+  --text-mid: rgba(255,255,255,0.68);
+  --accent: #00d4ff;
+  --accent-2: #8b5cf6;
+  --monitoring: #38bdf8;
+  --active: #34d399;
+  --attention: #fbbf24;
+  --dormant: rgba(255,255,255,0.24);
+  --danger: #f87171;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(0,212,255,0.12), transparent 30%),
+    radial-gradient(circle at 80% 20%, rgba(139,92,246,0.10), transparent 28%),
+    radial-gradient(circle at 50% 100%, rgba(56,189,248,0.08), transparent 35%),
+    var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.018) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.018) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(circle at 50% 35%, black 15%, transparent 75%);
+  -webkit-mask-image: radial-gradient(circle at 50% 35%, black 15%, transparent 75%);
+}
+.shell {
+  position: relative;
+  z-index: 1;
+  width: min(1240px, calc(100vw - 32px));
+  margin: 0 auto;
+  padding: 28px 0 72px;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(0,212,255,0.18), rgba(139,92,246,0.18));
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: inset 0 0 24px rgba(255,255,255,0.04), 0 0 24px rgba(0,212,255,0.14);
+}
+.brand-copy small {
+  display: block;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.brand-copy strong {
+  display: block;
+  font-size: 1rem;
+  font-weight: 800;
+}
+.topbar-meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-mid);
+  font-size: 0.78rem;
+  font-weight: 600;
+  backdrop-filter: blur(18px);
+}
+.pill-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--monitoring);
+  box-shadow: 0 0 12px var(--monitoring);
+  animation: badgePulse 2.8s ease-in-out infinite;
+}
+@keyframes badgePulse {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.35); opacity: 1; }
+}
+.hero {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 22px;
+  margin-bottom: 22px;
+}
+.panel {
+  background: linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  backdrop-filter: blur(24px);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 18px 50px rgba(0,0,0,0.28);
+}
+.hero-main {
+  padding: 32px;
+  min-height: 520px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  position: relative;
+}
+.hero-main::before,
+.hero-main::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(20px);
+  pointer-events: none;
+}
+.hero-main::before {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(0,212,255,0.16), transparent 70%);
+  top: -30px;
+  left: -20px;
+}
+.hero-main::after {
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(139,92,246,0.16), transparent 70%);
+  bottom: -40px;
+  right: -20px;
+}
+.avatar-wrap {
+  width: min(100%, 420px);
+  aspect-ratio: 1;
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.orbit, .orbit::before, .orbit::after {
+  position: absolute;
+  border-radius: 50%;
+}
+.orbit {
+  inset: 12%;
+  border: 1px solid rgba(0,212,255,0.14);
+  box-shadow: 0 0 24px rgba(0,212,255,0.1);
+  animation: rotateSlow 26s linear infinite;
+}
+.orbit::before {
+  content: '';
+  inset: 10%;
+  border: 1px solid rgba(139,92,246,0.14);
+  animation: rotateReverse 20s linear infinite;
+}
+.orbit::after {
+  content: '';
+  inset: 22%;
+  border: 1px solid rgba(255,255,255,0.07);
+}
+.core {
+  width: 48%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  position: relative;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255,255,255,0.92) 0%, rgba(179,241,255,0.92) 8%, rgba(0,212,255,0.34) 28%, rgba(0,212,255,0.10) 48%, transparent 72%),
+    radial-gradient(circle at 62% 38%, rgba(167,139,250,0.22), transparent 36%);
+  box-shadow:
+    0 0 34px rgba(0,212,255,0.28),
+    0 0 82px rgba(0,212,255,0.18),
+    0 0 130px rgba(139,92,246,0.14);
+  animation: monitoringBreath 5.4s ease-in-out infinite;
+}
+.core::before,
+.core::after {
+  content: '';
+  position: absolute;
+  inset: -12%;
+  border-radius: 50%;
+  border: 1px solid rgba(0,212,255,0.12);
+}
+.core::before { animation: monitoringRing 4.8s ease-out infinite; }
+.core::after { animation: monitoringRing 4.8s ease-out 1.6s infinite; }
+.node {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(179,241,255,0.95);
+  box-shadow: 0 0 12px rgba(0,212,255,0.7);
+}
+.node::after {
+  content: '';
+  position: absolute;
+  inset: -26px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,255,0.12), transparent 68%);
+}
+.node.n1 { top: 18%; left: 48%; animation: nodeFloat 7s ease-in-out infinite; }
+.node.n2 { top: 34%; right: 18%; animation: nodeFloat 8s ease-in-out infinite 1s; }
+.node.n3 { bottom: 24%; right: 26%; animation: nodeFloat 9s ease-in-out infinite 1.7s; }
+.node.n4 { bottom: 20%; left: 22%; animation: nodeFloat 8.4s ease-in-out infinite 0.9s; }
+.node.n5 { top: 38%; left: 16%; animation: nodeFloat 7.8s ease-in-out infinite 1.3s; }
+.link {
+  position: absolute;
+  height: 1px;
+  transform-origin: left center;
+  background: linear-gradient(90deg, rgba(0,212,255,0.0), rgba(0,212,255,0.5), rgba(139,92,246,0.25), rgba(255,255,255,0.0));
+  opacity: 0.9;
+}
+.link.l1 { width: 118px; top: 26%; left: 50%; transform: rotate(24deg); }
+.link.l2 { width: 138px; top: 51%; left: 54%; transform: rotate(67deg); }
+.link.l3 { width: 130px; top: 60%; left: 36%; transform: rotate(152deg); }
+.link.l4 { width: 124px; top: 46%; left: 22%; transform: rotate(-28deg); }
+.link.l5 { width: 96px; top: 58%; left: 28%; transform: rotate(24deg); }
+@keyframes monitoringBreath {
+  0%, 100% { transform: scale(0.98); filter: brightness(0.98); }
+  50% { transform: scale(1.03); filter: brightness(1.08); }
+}
+@keyframes monitoringRing {
+  0% { transform: scale(0.82); opacity: 0.75; }
+  100% { transform: scale(1.24); opacity: 0; }
+}
+@keyframes rotateSlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes rotateReverse { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
+@keyframes nodeFloat {
+  0%,100% { transform: translateY(0px) scale(1); opacity: 0.7; }
+  50% { transform: translateY(-8px) scale(1.08); opacity: 1; }
+}
+.hero-side {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+.hero-side h1 {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  line-height: 0.95;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  margin-bottom: 12px;
+}
+.hero-side p.lead {
+  color: var(--text-mid);
+  font-size: 1rem;
+  line-height: 1.7;
+  max-width: 42ch;
+  margin-bottom: 22px;
+}
+.state-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  width: fit-content;
+  padding: 10px 14px;
+  border-radius: 999px;
+  background: rgba(56,189,248,0.10);
+  border: 1px solid rgba(56,189,248,0.24);
+  color: #bdefff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.2px;
+  margin-bottom: 16px;
+}
+.state-badge .state-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--monitoring);
+  box-shadow: 0 0 16px var(--monitoring);
+}
+.status-line {
+  color: var(--text);
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 26px;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.metric {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.metric strong {
+  display: block;
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+.metric span {
+  color: var(--text-dim);
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.content-grid {
+  display: grid;
+  grid-template-columns: 1.08fr 0.92fr;
+  gap: 22px;
+}
+.stack {
+  display: grid;
+  gap: 22px;
+}
+.card {
+  padding: 24px;
+}
+.card h2 {
+  font-size: 1rem;
+  font-weight: 800;
+  margin-bottom: 18px;
+}
+.card h2 small {
+  color: var(--text-dim);
+  font-size: 0.74rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  display: block;
+  margin-bottom: 6px;
+}
+.brief-date {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+  color: var(--text-mid);
+  font-size: 0.82rem;
+}
+.section-block + .section-block { margin-top: 18px; }
+.section-block h3 {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 1.4px;
+  color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.list {
+  display: grid;
+  gap: 10px;
+}
+.list-item {
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  color: var(--text-mid);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.list-item strong { color: var(--text); }
+.calendar-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+.calendar-row span:last-child {
+  color: var(--text-dim);
+  font-size: 0.82rem;
+}
+.fleet-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.agent-card {
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.agent-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: start;
+  margin-bottom: 10px;
+}
+.agent-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 800;
+}
+.agent-role,
+.agent-time {
+  color: var(--text-dim);
+  font-size: 0.76rem;
+}
+.status-mini {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.status-mini::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.status-online { color: #baf7e2; }
+.status-online::before { background: var(--active); box-shadow: 0 0 10px var(--active); }
+.status-idle { color: #bdefff; }
+.status-idle::before { background: var(--monitoring); box-shadow: 0 0 10px var(--monitoring); }
+.status-dormant { color: rgba(255,255,255,0.5); }
+.status-dormant::before { background: rgba(255,255,255,0.28); }
+.action-list {
+  display: grid;
+  gap: 10px;
+}
+.action-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: 18px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.priority {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.priority.high {
+  background: rgba(248,113,113,0.12);
+  color: #fecaca;
+  border: 1px solid rgba(248,113,113,0.24);
+}
+.priority.medium {
+  background: rgba(251,191,36,0.10);
+  color: #fde68a;
+  border: 1px solid rgba(251,191,36,0.20);
+}
+.priority.low {
+  background: rgba(96,165,250,0.10);
+  color: #bfdbfe;
+  border: 1px solid rgba(96,165,250,0.20);
+}
+.action-copy strong {
+  display: block;
+  font-size: 0.88rem;
+  margin-bottom: 3px;
+}
+.action-copy span {
+  color: var(--text-dim);
+  font-size: 0.8rem;
+}
+.action-meta {
+  color: var(--text-dim);
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+.footer-note {
+  margin-top: 22px;
+  color: var(--text-dim);
+  font-size: 0.75rem;
+  text-align: center;
+}
+@media (max-width: 1040px) {
+  .hero,
+  .content-grid { grid-template-columns: 1fr; }
+  .hero-main { min-height: 460px; }
+}
+@media (max-width: 760px) {
+  .shell { width: min(100vw - 20px, 1240px); padding-top: 18px; }
+  .topbar { flex-direction: column; align-items: stretch; }
+  .topbar-meta { justify-content: flex-start; }
+  .hero-main, .hero-side, .card { padding: 22px; }
+  .metrics, .fleet-grid { grid-template-columns: 1fr; }
+  .action-item { grid-template-columns: 1fr; align-items: start; }
+  .action-meta { white-space: normal; }
+}
+</style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div class="brand-copy">
+          <small>Neural NeXus</small>
+          <strong>Morpheus Presence Surface</strong>
+        </div>
+      </div>
+      <div class="topbar-meta">
+        <div class="pill"><span class="pill-dot"></span> Monitoring</div>
+        <div class="pill">/morpheus · V1 static scaffold</div>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="panel hero-main" aria-label="Morpheus visual identity">
+        <div class="avatar-wrap">
+          <div class="orbit"></div>
+          <div class="link l1"></div>
+          <div class="link l2"></div>
+          <div class="link l3"></div>
+          <div class="link l4"></div>
+          <div class="link l5"></div>
+          <div class="node n1"></div>
+          <div class="node n2"></div>
+          <div class="node n3"></div>
+          <div class="node n4"></div>
+          <div class="node n5"></div>
+          <div class="core"></div>
+        </div>
+      </div>
+
+      <aside class="panel hero-side">
+        <div class="label">Persistent Digital Embodiment</div>
+        <h1>Morpheus</h1>
+        <p class="lead">An abstract neural presence. Deliberate. Watchful. Always there when David needs to know what's happening across the organization.</p>
+        <div class="state-badge"><span class="state-dot"></span> Monitoring</div>
+        <p class="status-line">Monitoring 6 agents. <strong>2 items need David's attention.</strong></p>
+        <div class="metrics">
+          <div class="metric">
+            <strong>6</strong>
+            <span>Agents monitored</span>
+          </div>
+          <div class="metric">
+            <strong>2</strong>
+            <span>Pending decisions</span>
+          </div>
+          <div class="metric">
+            <strong>01:29</strong>
+            <span>Last sync</span>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <section class="content-grid">
+      <div class="stack">
+        <article class="panel card">
+          <h2><small>Morning Briefing</small>Today's Operating Snapshot</h2>
+          <div class="brief-date">
+            <span>Tuesday, March 31, 2026</span>
+            <span>Prepared for David Kingsley</span>
+          </div>
+
+          <div class="section-block">
+            <h3>Top Priorities</h3>
+            <div class="list">
+              <div class="list-item"><strong>Charter 505 (97%):</strong> Structural discrimination complete - 4 Tier 1 candidates from 2 scaffold families. Day 2 AF3 next, then gene synthesis go/no-go (~$2K).</div>
+              <div class="list-item"><strong>Charter 901:</strong> Hermes researching Durham rental comps overnight. Pricing recommendation due Apr 3. Property bleeding ~$1,400/month.</div>
+              <div class="list-item"><strong>Revenue:</strong> Substack paid tier launch, Durham rental listing, and AI guide identified as top 3 near-term revenue paths.</div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>Calendar Snapshot</h3>
+            <div class="list">
+              <div class="list-item calendar-row"><strong>No events scheduled</strong><span>Calendar clear for Tuesday</span></div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>Blockers Requiring David</h3>
+            <div class="list">
+              <div class="list-item"><strong>GenScript GO/NO-GO:</strong> ~$400 gene synthesis order for Track 1 D10v2. Charter 503 blocker.</div>
+              <div class="list-item"><strong>Property photos:</strong> 601 Eastway Ave interior/exterior - unblocks Charter 902 condition assessment.</div>
+              <div class="list-item"><strong>Arete needs /compact:</strong> at 154K tokens, last run aborted.</div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <h3>Agent Fleet Summary</h3>
+            <div class="list">
+              <div class="list-item"><strong>Morpheus (26K):</strong> Running overnight work queue - charter audits, fleet monitoring, Daedalus/Hermes coordination.</div>
+              <div class="list-item"><strong>Archimedes (28K):</strong> Fresh after compaction. Structural discrimination delivered. Ready for Day 2 AF3.</div>
+              <div class="list-item"><strong>Hermes (37K):</strong> First night online - executing Charter 901 rental market analysis.</div>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <div class="stack">
+        <article class="panel card">
+          <h2><small>Agent Fleet Status</small>Live Organization Surface</h2>
+          <div class="fleet-grid">
+            <div class="agent-card">
+              <div class="agent-top">
+                <div>
+                  <div class="agent-name">🧠 Morpheus</div>
+                  <div class="agent-role">COO · Operations / PM</div>
+                </div>
+                <div class="status-mini status-idle">Monitoring</div>
+              </div>
+              <div class="agent-time">Last active: just now</div>
+            </div>
+            <div class="agent-card">
+              <div class="agent-top">
+                <div>
+                  <div class="agent-name">🔬 Archimedes</div>
+                  <div class="agent-role">CSO · Science</div>
+                </div>
+                <div class="status-mini status-online">Online</div>
+              </div>
+              <div class="agent-time">Last active: 14 min ago</div>
+            </div>
+            <div class="agent-card">
+              <div class="agent-top">
+                <div>
+                  <div class="agent-name">📝 Aristotle</div>
+                  <div class="agent-role">CMO · Growth / Content</div>
+                </div>
+                <div class="status-mini status-online">Online</div>
+              </div>
+              <div class="agent-time">Last active: 9 min ago</div>
+            </div>
+            <div class="agent-card">
+              <div class="agent-top">
+                <div>
+                  <div class="agent-name">⚡ Arete</div>
+                  <div class="agent-role">CHO · Health</div>
+                </div>
+                <div class="status-mini status-idle">Idle</div>
+              </div>
+              <div class="agent-time">Last active: 41 min ago</div>
+            </div>
+            <div class="agent-card">
+              <div class="agent-top">
+                <div>
+                  <div class="agent-name">🔨 Daedalus</div>
+                  <div class="agent-role">CEngO · Engineering</div>
+                </div>
+                <div class="status-mini status-online">Online</div>
+              </div>
+              <div class="agent-time">Last active: 3 min ago</div>
+            </div>
+            <div class="agent-card">
+              <div class="agent-top">
+                <div>
+                  <div class="agent-name">💰 Hermes</div>
+                  <div class="agent-role">CRO · Revenue</div>
+                </div>
+                <div class="status-mini status-online">Online</div>
+              </div>
+              <div class="agent-time">Last active: working overnight</div>
+            </div>
+          </div>
+        </article>
+
+        <article class="panel card">
+          <h2><small>Action Items</small>What Needs David</h2>
+          <div class="action-list">
+            <div class="action-item">
+              <span class="priority high">High</span>
+              <div class="action-copy">
+                <strong>GenScript gene synthesis GO/NO-GO</strong>
+                <span>~$400 order for Track 1 D10v2 follistatin fragment. Spec is 5/5 ready.</span>
+              </div>
+              <div class="action-meta">Charter 503</div>
+            </div>
+            <div class="action-item">
+              <span class="priority high">High</span>
+              <div class="action-copy">
+                <strong>Send property photos (601 Eastway Ave)</strong>
+                <span>Interior/exterior photos unblock Charter 902 condition assessment and listing prep.</span>
+              </div>
+              <div class="action-meta">Charter 902</div>
+            </div>
+            <div class="action-item">
+              <span class="priority medium">Medium</span>
+              <div class="action-copy">
+                <strong>Send /compact to Arete</strong>
+                <span>At 154K tokens, last run aborted. Needs manual compaction on Telegram.</span>
+              </div>
+              <div class="action-meta">Fleet health</div>
+            </div>
+            <div class="action-item">
+              <span class="priority medium">Medium</span>
+              <div class="action-copy">
+                <strong>Review BWB 028 draft</strong>
+                <span>Aristotle's multivitamin/epigenetic aging article awaiting review.</span>
+              </div>
+              <div class="action-meta">Charter 101</div>
+            </div>
+            <div class="action-item">
+              <span class="priority low">Low</span>
+              <div class="action-copy">
+                <strong>Retatrutide order decision</strong>
+                <span>Aurora Bio, ~$330 crypto. Plan: order → Finnrick vial testing → use.</span>
+              </div>
+              <div class="action-meta">Charter 401</div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <p class="footer-note">V1 scaffold - monitoring state hardcoded by design. Live state integration comes later.</p>
+  </main>
+</body>
+</html>
