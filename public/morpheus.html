@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Morpheus - Neural NeXus</title>
 <meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="/img/neuron-logo.jpg">
 <style>
 :root {
   --bg: #06060b;
@@ -548,6 +549,7 @@ body::before {
         </div>
       </div>
       <div class="topbar-meta">
+        <a class="pill" href="/dashboard" style="text-decoration:none;"><span aria-hidden="true">←</span> Dashboard</a>
         <div class="pill"><span class="pill-dot"></span> Monitoring</div>
         <div class="pill">/morpheus · V1 static scaffold</div>
       </div>
@@ -587,7 +589,7 @@ body::before {
             <span>Pending decisions</span>
           </div>
           <div class="metric">
-            <strong>01:29</strong>
+            <strong id="last-sync-time">--:--</strong>
             <span>Last sync</span>
           </div>
         </div>
@@ -599,7 +601,7 @@ body::before {
         <article class="panel card">
           <h2><small>Morning Briefing</small>Today's Operating Snapshot</h2>
           <div class="brief-date">
-            <span>Tuesday, March 31, 2026</span>
+            <span id="briefing-date">Today</span>
             <span>Prepared for David Kingsley</span>
           </div>
 
@@ -754,7 +756,28 @@ body::before {
       </div>
     </section>
 
-    <p class="footer-note">V1 scaffold - monitoring state hardcoded by design. Live state integration comes later.</p>
+    <p class="footer-note">V1 scaffold — monitoring state hardcoded by design. Live state integration comes later.</p>
   </main>
+  <script>
+    (function () {
+      const now = new Date();
+      const dateEl = document.getElementById('briefing-date');
+      const timeEl = document.getElementById('last-sync-time');
+      if (dateEl) {
+        dateEl.textContent = now.toLocaleDateString('en-US', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      }
+      if (timeEl) {
+        timeEl.textContent = now.toLocaleTimeString('en-US', {
+          hour: 'numeric',
+          minute: '2-digit'
+        });
+      }
+    })();
+  </script>
 </body>
 </html>

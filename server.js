@@ -311,6 +311,7 @@ function dashboardLoginPage(req, res, next) {
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === 'authenticated') return next();
   const failed = req.query.failed === '1';
+  const returnTo = req.path || '/dashboard';
   res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Dashboard Login</title>
 <style>body{background:#06060b;color:#f0f0f5;font-family:system-ui;display:flex;justify-content:center;align-items:center;min-height:100vh}
@@ -319,7 +320,7 @@ h2{font-size:1.4rem;margin-bottom:1rem}
 input{width:100%;padding:0.8rem 1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#f0f0f5;font-size:1rem;margin-bottom:1rem}
 button{width:100%;padding:0.8rem;background:#f0c040;color:#06060b;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer}
 button:hover{background:#e0b030}.err{color:#f87171;font-size:0.85rem;margin-bottom:0.5rem}</style></head>
-<body><div class="login"><h2>🔒 Dashboard</h2>${failed ? '<p class="err">Wrong password</p>' : ''}<form method="POST" action="/dashboard">
+<body><div class="login"><h2>🔒 Dashboard</h2>${failed ? '<p class="err">Wrong password</p>' : ''}<form method="POST" action="/dashboard?return=${encodeURIComponent(returnTo)}">
 <input type="password" name="key" placeholder="Enter password" autofocus>
 <button type="submit">Access</button></form></div></body></html>`);
 }
@@ -331,11 +332,12 @@ app.get('/morpheus', dashboardLoginPage, (req, res) => {
 });
 app.post('/dashboard', loginLimiter, (req, res) => {
   const key = req.body.key;
+  const returnTo = req.query.return || '/dashboard';
   if (key === DASHBOARD_PASS) {
     res.cookie('dash_auth', 'authenticated', { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
-    return res.redirect('/dashboard');
+    return res.redirect(returnTo);
   }
-  res.redirect('/dashboard?failed=1');
+  res.redirect(returnTo + '?failed=1');
 });
 
 // Topic pages
