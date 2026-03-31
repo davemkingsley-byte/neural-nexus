@@ -1334,7 +1334,7 @@
           "title": "TRT-002 In Silico Design Pipeline",
           "status": "\ud83d\udfe1 Active",
           "statusClean": "Active",
-          "phase": "Track 2: AF3 VALIDATION IN PROGRESS \u2014 9 designs from 5 scaffolds advancing (panel-reviewed triage). Track 1: Parked, awaiting David GO on gene synthesis.",
+          "phase": "Track 2: AF3 VALIDATION COMPLETE \u2014 9/9 pass (ipTM 0.75-0.87). STRUCTURAL ANALYSIS in progress. Track 1: Parked, awaiting David GO on gene synthesis.",
           "phaseIndex": 3,
           "dateInitiated": "2026-03-25",
           "targetDate": "2026-04-15",
@@ -1350,7 +1350,7 @@
             "501"
           ],
           "enables": [],
-          "progress": 92,
+          "progress": 95,
           "objective": "Two-track drug design pipeline for TRT-002. Track 1: Engineered follistatin fragment (ND-FSD1-FSD2, 212 aa canine) as myostatin/activin antagonist. Track 2: De novo dual ActRIIA/ActRIIB competitive blocker (bimagrumab MOA) designed from Morvan crystal structures (2.0\u00c5).",
           "successCriteria": "ELISA IC50 < 100 nM myostatin inhibition = GO. Gene synthesis order placed, binding data in 6 weeks.",
           "blockers": [
@@ -1422,6 +1422,26 @@
             {
               "done": false,
               "text": "David selects final candidates for gene synthesis"
+            },
+            {
+              "done": true,
+              "text": "Track 2: AF3 binary validation \u2014 9/9 pass, controls establish dynamic range (0.11-0.84)"
+            },
+            {
+              "done": true,
+              "text": "Track 2: Panel review of AF3 report \u2014 Hypatia GO, Socrates GO WITH CONDITIONS (folded in)"
+            },
+            {
+              "done": false,
+              "text": "Track 2: Structural analysis \u2014 steric clash overlay + contact mapping"
+            },
+            {
+              "done": false,
+              "text": "Track 2: ESMFold standalone validation"
+            },
+            {
+              "done": false,
+              "text": "Track 2: Day 2 AF3 \u2014 re-seed top designs + ternary fold"
             }
           ],
           "decisions": [
@@ -1560,6 +1580,10 @@
               "title": "BindCraft Remediation v2 (R1)",
               "url": "treat-biosciences/structures/bindcraft/BINDCRAFT-REMEDIATION-v2.md",
               "type": "analysis"
+            },
+            {
+              "name": "AF3 Validation Report (Final)",
+              "url": "https://docs.google.com/document/d/1S_X8S6A_vNIdI9xKZ_MxYa4zuyItT0BXR4DSpxAIM7E/edit"
             }
           ]
         },
