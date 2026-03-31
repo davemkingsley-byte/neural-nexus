@@ -2633,6 +2633,64 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Miscellaneous",
+      "id": "misc",
+      "charters": [
+        {
+          "id": "601",
+          "title": "Morpheus Digital Embodiment V1",
+          "status": "\ud83d\udccb Planning",
+          "statusClean": "Planning",
+          "phase": "Charter approved. Awaiting V1 spec.",
+          "phaseIndex": 1,
+          "dateInitiated": "2026-03-30",
+          "targetDate": "TBD",
+          "daysActive": 0,
+          "overdue": false,
+          "owner": "Morpheus",
+          "assignee": "Daedalus",
+          "priority": "Low",
+          "program": "Miscellaneous",
+          "progress": 3,
+          "objective": "Persistent digital embodiment of Morpheus \u2014 visual identity, state system, interactive morning briefing. Utility first, not theater.",
+          "successCriteria": "David can glance at Morpheus and understand state, priorities, blockers, and pending decisions without opening a chat.",
+          "blockers": [],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "Charter drafted by Daedalus"
+            },
+            {
+              "done": true,
+              "text": "Charter approved by Morpheus + David"
+            },
+            {
+              "done": false,
+              "text": "Define visual identity"
+            },
+            {
+              "done": false,
+              "text": "Choose primary surface (neuralnexus.press/morpheus)"
+            },
+            {
+              "done": false,
+              "text": "V1 spec: state system + morning briefing"
+            },
+            {
+              "done": false,
+              "text": "MVP build + deploy"
+            }
+          ],
+          "documents": [
+            {
+              "name": "Charter Draft (Google Doc)",
+              "url": "https://docs.google.com/document/d/12Gm4n1RUF0JzAf-2_nxH4Geyz0y_10Dq9gf1jS1PO5s/edit"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
