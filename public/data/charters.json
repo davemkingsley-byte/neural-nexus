@@ -2663,10 +2663,10 @@
         {
           "id": "601",
           "title": "Morpheus Digital Embodiment V1",
-          "status": "\ud83d\udccb Planning",
-          "statusClean": "Planning",
-          "phase": "Charter approved. Awaiting V1 spec.",
-          "phaseIndex": 1,
+          "status": "🟡 Active",
+          "statusClean": "Active",
+          "phase": "V1 deployed to neuralnexus.press/morpheus. Static scaffold with glassmorphism neural visualization, fleet status, morning briefing, action items. Next: live data integration (V2).",
+          "phaseIndex": 2,
           "dateInitiated": "2026-03-30",
           "targetDate": "TBD",
           "daysActive": 0,
@@ -2675,7 +2675,7 @@
           "assignee": "Daedalus",
           "priority": "Low",
           "program": "Miscellaneous",
-          "progress": 3,
+          "progress": 35,
           "objective": "Persistent digital embodiment of Morpheus \u2014 visual identity, state system, interactive morning briefing. Utility first, not theater.",
           "successCriteria": "David can glance at Morpheus and understand state, priorities, blockers, and pending decisions without opening a chat.",
           "blockers": [],
@@ -2689,20 +2689,28 @@
               "text": "Charter approved by Morpheus + David"
             },
             {
-              "done": false,
-              "text": "Define visual identity"
+              "done": true,
+              "text": "Define visual identity — abstract neural presence with orbiting rings, pulsing core, floating nodes"
+            },
+            {
+              "done": true,
+              "text": "Choose primary surface — neuralnexus.press/morpheus (password protected)"
+            },
+            {
+              "done": true,
+              "text": "V1 spec: 4-state system (active/monitoring/attention/dormant) + morning briefing layout"
+            },
+            {
+              "done": true,
+              "text": "V1 build + deploy — static scaffold with placeholder data (Daedalus built, Morpheus reviewed)"
             },
             {
               "done": false,
-              "text": "Choose primary surface (neuralnexus.press/morpheus)"
+              "text": "V2: Live data integration — pull from charters.json, session APIs, heartbeat state"
             },
             {
               "done": false,
-              "text": "V1 spec: state system + morning briefing"
-            },
-            {
-              "done": false,
-              "text": "MVP build + deploy"
+              "text": "V3: Morning briefing auto-generation, real-time state updates"
             }
           ],
           "documents": [
