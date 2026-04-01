@@ -534,6 +534,22 @@ body.site-shell main {
 }
 
 @media (max-width: 768px) {
+  .grid-bg {
+    display: none;
+  }
+
+  .ambient::before {
+    width: 300px;
+    height: 300px;
+    opacity: 0.5;
+  }
+
+  .ambient::after {
+    width: 250px;
+    height: 250px;
+    opacity: 0.4;
+  }
+
   body.site-shell main {
     padding-top: 68px;
   }
