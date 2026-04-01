@@ -1,0 +1,48 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "Neural NeXus Topics",
+  "description": "Browse topic hubs across AI, biotech, robotics, semiconductors, health, venture capital, and the future.",
+  "url": "https://www.neuralnexus.press/topics"
+}
+</script>
+
+<section class="topics-index-hero">
+  <div class="topic-shell">
+    <%- include('../partials/breadcrumb', {
+      items: [
+        { label: 'Home', href: '/' },
+        { label: 'Topics' }
+      ]
+    }) %>
+
+    <div class="topic-hero-card">
+      <div class="topic-kicker"><span class="topic-kicker-emoji">🗂️</span> Coverage Map</div>
+      <h1><span class="topic-highlight">Topics</span><br>The Neural NeXus knowledge graph</h1>
+      <p class="topic-description">Browse every coverage area on the site — one hub per frontier domain, all driven by the shared topic data layer.</p>
+    </div>
+  </div>
+</section>
+
+<section class="topics-index-grid-section">
+  <div class="topic-shell">
+    <div class="section-label">Browse</div>
+    <h2 class="topic-section-title">All topic hubs</h2>
+
+    <div class="topics-index-grid">
+      <% topics.forEach((topic) => { %>
+        <a href="/topics/<%= topic.slug %>" class="topics-index-card">
+          <div class="topics-index-card-top">
+            <span class="topics-index-icon"><%= topic.emoji %></span>
+            <span class="topics-index-path">/topics/<%= topic.slug %></span>
+          </div>
+          <h3><%= topic.name %></h3>
+          <div class="topics-index-headline"><%= topic.headline %></div>
+          <p><%= topic.description %></p>
+          <span class="topics-index-link">Open topic →</span>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,125 @@
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  "name": "<%= topic.name %>",
+  "description": "<%= topic.description %>",
+  "url": "https://www.neuralnexus.press/topics/<%= topic.slug %>",
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": "Neural NeXus",
+    "url": "https://www.neuralnexus.press"
+  },
+  "about": {
+    "@type": "Thing",
+    "name": "<%= topic.name %>"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "David Kingsley"
+  }
+}
+</script>
+
+<section class="topic-hero">
+  <div class="topic-shell">
+    <%- include('../partials/breadcrumb', {
+      items: [
+        { label: 'Home', href: '/' },
+        { label: 'Topics', href: '/topics' },
+        { label: topic.name }
+      ]
+    }) %>
+
+    <div class="topic-hero-card">
+      <div class="topic-kicker"><span class="topic-kicker-emoji"><%= topic.emoji %></span> Topic Guide</div>
+      <h1><span class="topic-highlight"><%= topic.name %></span><br><%= topic.headline %></h1>
+      <p class="topic-description"><%= topic.description %></p>
+
+      <div class="topic-meta-row">
+        <div class="topic-author">
+          <img src="/img/david.jpg" alt="David Kingsley, PhD">
+          <div>
+            <div class="topic-author-name">David Kingsley, PhD</div>
+            <div class="topic-author-role">Scientist · Neural NeXus</div>
+          </div>
+        </div>
+        <div class="topic-slug-tag">/<%= topic.slug %></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="topic-content-section">
+  <div class="topic-shell">
+    <div class="topic-content-grid">
+      <article class="topic-main-card">
+        <div class="section-label">Overview</div>
+        <h2 class="topic-section-title">Why <%= topic.name %> matters</h2>
+        <p>
+          Neural NeXus tracks <strong><%= topic.name %></strong> through the lens of science, technology, and first-order consequences.
+          This page is the home base for future coverage — key ideas, major developments, and the companies, tools, and breakthroughs worth watching.
+        </p>
+        <p>
+          Right now this is a living topic hub. In Phase 2, article cards will populate here automatically from the editorial data layer.
+          For now, this page preserves the design language of the original topic guides while moving the site onto one reusable template.
+        </p>
+
+        <div class="topic-callout">
+          <p><strong>What to expect:</strong> explainers, market context, frontier research, and practical analysis on <%= topic.name.toLowerCase() %> as new coverage lands.</p>
+        </div>
+      </article>
+
+      <aside class="topic-side-card">
+        <div class="section-label">Snapshot</div>
+        <ul class="topic-facts">
+          <li><span>Topic</span><strong><%= topic.name %></strong></li>
+          <li><span>Signal</span><strong><%= topic.headline %></strong></li>
+          <li><span>Status</span><strong>Coverage hub</strong></li>
+        </ul>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<section class="topic-articles-section">
+  <div class="topic-shell">
+    <div class="section-label">Articles</div>
+    <div class="topic-section-head">
+      <h2 class="topic-section-title">Coverage coming here next</h2>
+      <p>Phase 2 will populate this section from <code>articles.json</code>. The route and template are ready.</p>
+    </div>
+
+    <div class="topic-placeholder-grid">
+      <article class="topic-placeholder-card">
+        <div class="topic-placeholder-pill">Coming soon</div>
+        <h3>Featured <%= topic.name %> article slot</h3>
+        <p>This slot will render the primary article for <%= topic.name.toLowerCase() %> once article-topic relationships are wired up.</p>
+      </article>
+      <article class="topic-placeholder-card">
+        <div class="topic-placeholder-pill">Phase 2</div>
+        <h3>Recent coverage feed</h3>
+        <p>Newest articles tagged to <%= topic.slug %> will appear here automatically, using the same card system as the rest of the site.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<% if (relatedTopics && relatedTopics.length) { %>
+<section class="topic-related-section">
+  <div class="topic-shell">
+    <div class="section-label">Related Topics</div>
+    <h2 class="topic-section-title">Explore adjacent territory</h2>
+    <div class="topic-related-grid">
+      <% relatedTopics.forEach((relatedTopic) => { %>
+        <a href="/topics/<%= relatedTopic.slug %>" class="topic-related-card">
+          <span class="topic-related-icon"><%= relatedTopic.emoji %></span>
+          <h3><%= relatedTopic.name %></h3>
+          <p><%= relatedTopic.description %></p>
+          <span class="topic-related-link">Explore topic →</span>
+        </a>
+      <% }) %>
+    </div>
+  </div>
+</section>
+<% } %>

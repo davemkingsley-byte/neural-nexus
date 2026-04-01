@@ -72,6 +72,7 @@ app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: false }));
 
 const packageJson = require('./package.json');
+const topics = require('./data/topics.json');
 const charterDataPath = path.join(__dirname, 'public', 'data', 'charters.json');
 
 app.get('/health', (req, res) => {
@@ -233,6 +234,7 @@ app.get('/sitemap.xml', (req, res) => {
     { path: '/app/test/stroop.html', changefreq: 'weekly', priority: '0.6' },
     { path: '/app/test/avlt.html', changefreq: 'weekly', priority: '0.6' },
     { path: '/app/test/tmtb.html', changefreq: 'weekly', priority: '0.6' },
+    { path: '/topics', changefreq: 'weekly', priority: '0.8' },
     { path: '/topics/de-extinction', changefreq: 'weekly', priority: '0.8' },
     { path: '/topics/artificial-womb', changefreq: 'weekly', priority: '0.8' },
     { path: '/topics/ai-agents', changefreq: 'weekly', priority: '0.8' },
@@ -541,35 +543,52 @@ app.post('/dashboard', loginLimiter, (req, res) => {
 });
 
 // Topic pages
-app.get('/topics/de-extinction', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'topics', 'de-extinction.html'));
+app.get('/topics', (req, res) => {
+  renderPage(res, 'pages/topics-index', {
+    title: 'Topics',
+    description: 'Browse Neural NeXus topic hubs across AI, biotech, robotics, semiconductors, health, longevity, venture capital, and the future.',
+    canonical: 'https://www.neuralnexus.press/topics',
+    activePage: 'topics',
+    pageType: 'topics-index',
+    pageCSS: 'topic.css',
+    bodyClass: 'topics-index-page',
+    topics,
+    ogType: 'website'
+  });
 });
-app.get('/topics/artificial-womb', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'topics', 'artificial-womb.html'));
-});
-app.get('/topics/ai-agents', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'topics', 'ai-agents.html'));
-});
-app.get('/topics/ai', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'topics', 'ai.html'));
-});
-app.get('/topics/biotech', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'topics', 'biotech.html'));
-});
-app.get('/topics/robotics', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'topics', 'robotics.html'));
-});
-app.get('/topics/semiconductors', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'topics', 'semiconductors.html'));
-});
-app.get('/topics/venture-capital', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'topics', 'venture-capital.html'));
-});
-app.get('/topics/health', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'topics', 'health.html'));
-});
-app.get('/topics/longevity', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'topics', 'longevity.html'));
+
+app.get('/topics/:slug', (req, res) => {
+  const topic = topics.find((entry) => entry.slug === req.params.slug);
+
+  if (!topic) {
+    return renderPage(res.status(404), 'pages/404', {
+      title: '404',
+      description: 'The page you requested could not be found on Neural NeXus.',
+      canonical: `https://www.neuralnexus.press${req.originalUrl}`,
+      activePage: null,
+      pageType: '404',
+      pageCSS: '404.css',
+      bodyClass: 'not-found-page'
+    });
+  }
+
+  const relatedTopics = (topic.relatedSlugs || [])
+    .map((slug) => topics.find((entry) => entry.slug === slug))
+    .filter(Boolean);
+
+  return renderPage(res, 'pages/topic', {
+    title: topic.name,
+    description: topic.description,
+    canonical: `https://www.neuralnexus.press/topics/${topic.slug}`,
+    activePage: 'topics',
+    pageType: 'topic',
+    pageCSS: 'topic.css',
+    bodyClass: 'topic-page',
+    topic,
+    relatedTopics,
+    ogImage: `https://www.neuralnexus.press/img/topics/${topic.slug}.jpg`,
+    ogType: 'article'
+  });
 });
 
 // Archive pages
