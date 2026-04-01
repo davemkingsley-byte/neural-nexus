@@ -1,3 +1,7 @@
+<%
+  const topicArticles = (locals.topicArticles || []).slice(0, 20);
+  const relatedArticles = locals.relatedArticles || [];
+%>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -58,15 +62,15 @@
         <h2 class="topic-section-title">Why <%= topic.name %> matters</h2>
         <p>
           Neural NeXus tracks <strong><%= topic.name %></strong> through the lens of science, technology, and first-order consequences.
-          This page is the home base for future coverage — key ideas, major developments, and the companies, tools, and breakthroughs worth watching.
+          This page is the home base for coverage, key ideas, and the breakthroughs worth watching.
         </p>
         <p>
-          Right now this is a living topic hub. In Phase 2, article cards will populate here automatically from the editorial data layer.
-          For now, this page preserves the design language of the original topic guides while moving the site onto one reusable template.
+          Every article below is pulled from the shared editorial index and tagged into this topic hub automatically.
+          That means the archive, topic pages, and feed now point at the same source of truth.
         </p>
 
         <div class="topic-callout">
-          <p><strong>What to expect:</strong> explainers, market context, frontier research, and practical analysis on <%= topic.name.toLowerCase() %> as new coverage lands.</p>
+          <p><strong>Coverage lens:</strong> explainers, market context, frontier research, and practical analysis on <%= topic.name.toLowerCase() %>.</p>
         </div>
       </article>
 
@@ -75,7 +79,7 @@
         <ul class="topic-facts">
           <li><span>Topic</span><strong><%= topic.name %></strong></li>
           <li><span>Signal</span><strong><%= topic.headline %></strong></li>
-          <li><span>Status</span><strong>Coverage hub</strong></li>
+          <li><span>Articles</span><strong><%= topicArticles.length %> recent matches</strong></li>
         </ul>
       </aside>
     </div>
@@ -86,24 +90,82 @@
   <div class="topic-shell">
     <div class="section-label">Articles</div>
     <div class="topic-section-head">
-      <h2 class="topic-section-title">Coverage coming here next</h2>
-      <p>Phase 2 will populate this section from <code>articles.json</code>. The route and template are ready.</p>
+      <div>
+        <h2 class="topic-section-title">Latest <%= topic.name %> coverage</h2>
+        <p>Newest tagged articles, sorted from most recent to oldest.</p>
+      </div>
+      <a href="/archive?topic=<%= topic.slug %>" class="topic-section-link">View all in archive →</a>
     </div>
 
-    <div class="topic-placeholder-grid">
-      <article class="topic-placeholder-card">
-        <div class="topic-placeholder-pill">Coming soon</div>
-        <h3>Featured <%= topic.name %> article slot</h3>
-        <p>This slot will render the primary article for <%= topic.name.toLowerCase() %> once article-topic relationships are wired up.</p>
-      </article>
-      <article class="topic-placeholder-card">
-        <div class="topic-placeholder-pill">Phase 2</div>
-        <h3>Recent coverage feed</h3>
-        <p>Newest articles tagged to <%= topic.slug %> will appear here automatically, using the same card system as the rest of the site.</p>
-      </article>
+    <% if (topicArticles.length) { %>
+      <div class="topic-article-grid">
+        <% topicArticles.forEach((article) => { %>
+          <article class="topic-article-card">
+            <a href="<%= article.url %>" target="_blank" rel="noopener noreferrer" class="topic-article-link">
+              <% if (article.thumbnail) { %>
+                <img src="<%= article.thumbnail %>" alt="<%= article.title %>" class="topic-article-thumb" loading="lazy">
+              <% } %>
+              <div class="topic-article-body">
+                <div class="topic-article-meta">
+                  <span><%= article.date %></span>
+                  <span class="topic-article-type"><%= article.type %></span>
+                </div>
+                <h3><%= article.title %></h3>
+                <p><%= article.description %></p>
+                <div class="topic-article-tags">
+                  <% (article.topics || []).forEach((topicSlug) => { %>
+                    <span><%= topicSlug %></span>
+                  <% }) %>
+                </div>
+                <span class="topic-related-link">Read on Substack →</span>
+              </div>
+            </a>
+          </article>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="topic-empty-card">
+        <h3>No tagged articles yet</h3>
+        <p>This topic hub is live, but the article index does not have any posts tagged to <%= topic.name %> yet.</p>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<% if (relatedArticles.length) { %>
+<section class="topic-articles-section">
+  <div class="topic-shell">
+    <div class="section-label">Related Reading</div>
+    <div class="topic-section-head">
+      <div>
+        <h2 class="topic-section-title">Adjacent articles worth reading</h2>
+        <p>Picked from related topics to keep people moving through the broader thesis.</p>
+      </div>
+    </div>
+
+    <div class="topic-article-grid related-article-grid">
+      <% relatedArticles.forEach((article) => { %>
+        <article class="topic-article-card related-article-card">
+          <a href="<%= article.url %>" target="_blank" rel="noopener noreferrer" class="topic-article-link">
+            <% if (article.thumbnail) { %>
+              <img src="<%= article.thumbnail %>" alt="<%= article.title %>" class="topic-article-thumb" loading="lazy">
+            <% } %>
+            <div class="topic-article-body">
+              <div class="topic-article-meta">
+                <span><%= article.date %></span>
+                <span class="topic-article-type"><%= article.type %></span>
+              </div>
+              <h3><%= article.title %></h3>
+              <p><%= article.description %></p>
+              <span class="topic-related-link">Read on Substack →</span>
+            </div>
+          </a>
+        </article>
+      <% }) %>
     </div>
   </div>
 </section>
+<% } %>
 
 <% if (relatedTopics && relatedTopics.length) { %>
 <section class="topic-related-section">

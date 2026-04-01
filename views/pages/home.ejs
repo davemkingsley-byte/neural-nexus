@@ -215,8 +215,8 @@
 document.getElementById('subscribe-btn').addEventListener('click', () => {
   const email = document.getElementById('email-input').value.trim();
   window.open(email 
-    ? 'https://blog.neuralnexus.press/subscribe?email=' + encodeURIComponent(email) 
-    : 'https://blog.neuralnexus.press/subscribe', '_blank');
+    ? 'https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=home-subscribe&email=' + encodeURIComponent(email) 
+    : 'https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=home-subscribe', '_blank');
 });
 document.getElementById('email-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('subscribe-btn').click();
@@ -238,8 +238,8 @@ document.querySelectorAll('.card, .about-card, .game-card, .article-card').forEa
 document.getElementById('subscribe-btn').addEventListener('click', () => {
   const email = document.getElementById('email-input').value.trim();
   window.open(email 
-    ? 'https://blog.neuralnexus.press/subscribe?email=' + encodeURIComponent(email) 
-    : 'https://blog.neuralnexus.press/subscribe', '_blank');
+    ? 'https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=home-subscribe&email=' + encodeURIComponent(email) 
+    : 'https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=home-subscribe', '_blank');
 });
 document.getElementById('email-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('subscribe-btn').click();

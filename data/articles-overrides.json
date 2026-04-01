@@ -1,0 +1,78 @@
+{
+  "the-muscle-problem-with-ozempic-has": {
+    "topics": ["biotech", "health", "longevity"],
+    "type": "deep-dive"
+  },
+  "a-liver-enzyme-reverses-brain-aging": {
+    "topics": ["biotech", "health", "longevity"],
+    "type": "biowire-byte"
+  },
+  "biowire-bytes-023-scientists-restarted": {
+    "topics": ["biotech", "health"],
+    "type": "biowire-byte"
+  },
+  "biowire-bytes-022-weight-loss-drugs": {
+    "topics": ["biotech", "health", "longevity"],
+    "type": "biowire-byte"
+  },
+  "biowire-bytes-021-grip-strength-predicts": {
+    "topics": ["health", "longevity"],
+    "type": "biowire-byte"
+  },
+  "neural-nexus-website-and-game-launch": {
+    "topics": ["ai", "robotics"],
+    "type": "announcement"
+  },
+  "ghost-in-the-machine": {
+    "topics": ["biotech", "robotics", "ai"],
+    "type": "deep-dive"
+  },
+  "lab-grown-neurons-learn-to-play-doom": {
+    "topics": ["biotech", "ai"],
+    "type": "deep-dive"
+  },
+  "the-2028-global-intelligence-renaissance": {
+    "topics": ["ai", "venture-capital"],
+    "type": "deep-dive"
+  },
+  "biowire-bytes-017-morning-coffee": {
+    "topics": ["health", "longevity"],
+    "type": "biowire-byte"
+  },
+  "the-agent-era": {
+    "topics": ["ai", "ai-agents"],
+    "type": "deep-dive"
+  },
+  "not-a-boring-conference-jp-morgan": {
+    "topics": ["biotech", "venture-capital"],
+    "type": "deep-dive"
+  },
+  "biowire-bytes-018-gene-editing-animals": {
+    "topics": ["biotech", "de-extinction"],
+    "type": "biowire-byte"
+  },
+  "biowire-bytes-018-the-information": {
+    "topics": ["biotech", "health", "longevity"],
+    "type": "biowire-byte"
+  },
+  "biowire-bytes-017-a-glimpse-of-how": {
+    "topics": ["biotech", "artificial-womb"],
+    "type": "biowire-byte"
+  },
+  "biowire-bytes-016-a-shot-at-curing": {
+    "topics": ["biotech", "health"],
+    "type": "biowire-byte"
+  },
+  "biowire-bytes-015-chatgpt-5": {
+    "topics": ["ai", "ai-agents"],
+    "type": "biowire-byte"
+  },
+  "biowire-bytes-014-weight-loss-drugs": {
+    "topics": ["biotech", "health", "longevity"],
+    "type": "biowire-byte"
+  },
+  "biowire-bytes-013-paying-ai-researchers": {
+    "topics": ["ai", "venture-capital"],
+    "type": "biowire-byte"
+  }
+}

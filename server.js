@@ -73,7 +73,20 @@ app.use(express.urlencoded({ extended: false }));
 
 const packageJson = require('./package.json');
 const topics = require('./data/topics.json');
+const articles = require('./data/articles.json');
 const charterDataPath = path.join(__dirname, 'public', 'data', 'charters.json');
+
+app.locals.articles = articles;
+app.locals.topics = topics;
+
+function xmlEscape(value = '') {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+}
 
 app.get('/health', (req, res) => {
   const timestamp = new Date().toISOString();
@@ -136,12 +149,15 @@ app.get('/', (req, res) => {
     canonical: 'https://www.neuralnexus.press/',
     activePage: 'home',
     pageType: 'home',
+    pageCampaign: 'home',
     pageCSS: 'home.css',
     bodyClass: 'home-page'
   });
 });
 
 app.get('/archive', (req, res) => {
+  const queryTopic = typeof req.query.topic === 'string' ? req.query.topic : '';
+
   renderPage(res, 'pages/archive', {
     title: 'Archive',
     description: 'Browse all Neural NeXus articles and game archives, including past Spelling Bee, Wordie, and Mini Crossword puzzles.',
@@ -149,7 +165,9 @@ app.get('/archive', (req, res) => {
     activePage: 'archive',
     pageType: 'archive',
     pageCSS: 'archive.css',
-    bodyClass: 'archive-page'
+    bodyClass: 'archive-page',
+    pageCampaign: 'archive',
+    queryTopic
   });
 });
 
@@ -212,6 +230,31 @@ app.use('/cognitive', (req, res, next) => {
 app.get('/app/sw.js', (req, res) => {
   res.setHeader('Service-Worker-Allowed', '/app/');
   res.sendFile(path.join(__dirname, 'public', 'app', 'sw.js'));
+});
+
+app.get('/feed.xml', (req, res) => {
+  const siteUrl = 'https://www.neuralnexus.press';
+  const lastBuildDate = articles[0]?.date ? new Date(`${articles[0].date}T12:00:00Z`).toUTCString() : new Date().toUTCString();
+  const itemsXml = articles.map((article) => `
+    <item>
+      <title>${xmlEscape(article.title)}</title>
+      <link>${xmlEscape(article.url)}</link>
+      <guid>${xmlEscape(article.url)}</guid>
+      <description>${xmlEscape(article.description || '')}</description>
+      <pubDate>${new Date(`${article.date || '1970-01-01'}T12:00:00Z`).toUTCString()}</pubDate>
+    </item>`).join('');
+
+  res.type('application/rss+xml');
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Neural NeXus</title>
+    <link>${siteUrl}</link>
+    <description>Weekly deep dives on AI, biotech, and the science of what comes next.</description>
+    <language>en-us</language>
+    <lastBuildDate>${lastBuildDate}</lastBuildDate>${itemsXml}
+  </channel>
+</rss>`);
 });
 
 app.get('/sitemap.xml', (req, res) => {
@@ -597,6 +640,18 @@ app.get('/topics/:slug', (req, res) => {
     .map((slug) => topics.find((entry) => entry.slug === slug))
     .filter(Boolean);
 
+  const topicArticles = articles
+    .filter((article) => Array.isArray(article.topics) && article.topics.includes(topic.slug))
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+    .slice(0, 20);
+
+  const relatedSlugSet = new Set(topic.relatedSlugs || []);
+  const relatedArticles = articles
+    .filter((article) => article.id && !topicArticles.some((entry) => entry.id === article.id))
+    .filter((article) => Array.isArray(article.topics) && article.topics.some((slug) => relatedSlugSet.has(slug)))
+    .sort((a, b) => String(b.date).localeCompare(String(a.date)))
+    .slice(0, 3);
+
   return renderPage(res, 'pages/topic', {
     title: topic.name,
     description: topic.description,
@@ -605,7 +660,10 @@ app.get('/topics/:slug', (req, res) => {
     pageType: 'topic',
     pageCSS: 'topic.css',
     bodyClass: 'topic-page',
+    pageCampaign: `topic-${topic.slug}`,
     topic,
+    topicArticles,
+    relatedArticles,
     relatedTopics,
     ogImage: `https://www.neuralnexus.press/img/topics/${topic.slug}.jpg`,
     ogType: 'article'

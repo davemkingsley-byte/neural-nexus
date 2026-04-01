@@ -56,4 +56,62 @@ body.archive-page main {
 .archive-page .play-link-wordie { background: rgba(34,197,94,0.1); color: #22c55e; border: 1px solid rgba(34,197,94,0.2); }
 .archive-page .play-link-cross { background: rgba(124,106,255,0.1); color: #7c6aff; border: 1px solid rgba(124,106,255,0.2); }
 .archive-page .play-link:hover { transform: translateY(-1px); }
-@media (max-width: 600px) { body.archive-page main { padding: 108px 16px 80px; } .archive-page .games-grid { grid-template-columns: 1fr; } .archive-page .play-today { padding: 22px; } .archive-page .play-links { flex-direction: column; } .archive-page .play-link { justify-content: center; } }
+.archive-page .archive-shell-card,
+.archive-page .archive-article-card,
+.archive-page .archive-games-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 12px 36px rgba(0,0,0,0.18);
+}
+.archive-page .archive-controls-card { padding: 28px; margin-bottom: 24px; }
+.archive-page .archive-controls-top { display:flex; justify-content:space-between; gap:16px; align-items:flex-start; flex-wrap:wrap; margin-bottom:20px; }
+.archive-page .archive-controls-top h2,
+.archive-page .archive-games-card h2 { font-family:'Instrument Serif', Georgia, serif; font-size:1.8rem; font-weight:400; }
+.archive-page .archive-puzzle-link { color:var(--gold); text-decoration:none; font-weight:700; }
+.archive-page .archive-search-row { display:grid; gap:8px; margin-bottom:18px; }
+.archive-page .archive-search-label,
+.archive-page .archive-filter-label { font-size:0.76rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-dim); font-weight:700; }
+.archive-page .archive-search-input,
+.archive-page .archive-type-select { width:100%; padding:14px 16px; border-radius:14px; border:1px solid var(--border); background:rgba(255,255,255,0.04); color:var(--text); font:inherit; }
+.archive-page .archive-filter-group { margin-bottom:18px; }
+.archive-page .archive-filter-chips { display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+.archive-page .archive-chip { padding:10px 16px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,0.04); color:var(--text-mid); cursor:pointer; font:inherit; font-size:0.84rem; }
+.archive-page .archive-chip.is-active,
+.archive-page .archive-chip:hover { color:var(--text); border-color:rgba(96,165,250,0.35); background:rgba(96,165,250,0.12); }
+.archive-page .archive-results-meta { margin: 0 0 18px; color:var(--text-mid); font-size:0.88rem; }
+.archive-page .archive-article-grid { display:grid; gap:18px; margin-bottom:28px; }
+.archive-page .archive-article-link { display:grid; grid-template-columns:minmax(220px, 280px) minmax(0, 1fr); text-decoration:none; color:inherit; }
+.archive-page .archive-article-thumb-wrap { min-height:100%; }
+.archive-page .archive-article-thumb { width:100%; height:100%; min-height:220px; object-fit:cover; border-radius:22px 0 0 22px; }
+.archive-page .archive-article-body { padding:24px; display:flex; flex-direction:column; gap:14px; }
+.archive-page .archive-article-meta-row,
+.archive-page .archive-article-meta { display:flex; gap:10px; flex-wrap:wrap; align-items:center; color:var(--text-dim); font-size:0.75rem; text-transform:uppercase; letter-spacing:1px; }
+.archive-page .archive-type-pill { padding:6px 10px; border-radius:999px; background:rgba(96,165,250,0.12); color:var(--accent); }
+.archive-page .archive-article-body h3 { font-size:1.5rem; line-height:1.2; }
+.archive-page .archive-article-body p,
+.archive-page .archive-games-card p { color:var(--text-mid); line-height:1.75; }
+.archive-page .archive-topic-tags { display:flex; gap:8px; flex-wrap:wrap; }
+.archive-page .archive-topic-tag { padding:7px 10px; border-radius:999px; background:rgba(255,255,255,0.06); color:var(--text-mid); font-size:0.76rem; }
+.archive-page .archive-article-cta { color:var(--accent); font-weight:700; }
+.archive-page .archive-empty-state { padding:24px; margin-bottom:28px; text-align:center; border:1px dashed var(--border); border-radius:18px; color:var(--text-mid); }
+.archive-page .archive-games-card { padding:28px; }
+.archive-page .archive-games-card .games-grid { margin-top:20px; }
+
+@media (max-width: 860px) {
+  .archive-page .archive-article-link { grid-template-columns:1fr; }
+  .archive-page .archive-article-thumb { border-radius:22px 22px 0 0; min-height:200px; }
+}
+
+@media (max-width: 600px) {
+  body.archive-page main { padding: 108px 16px 80px; }
+  .archive-page .games-grid { grid-template-columns: 1fr; }
+  .archive-page .play-today { padding: 22px; }
+  .archive-page .play-links { flex-direction: column; }
+  .archive-page .play-link { justify-content: center; }
+  .archive-page .archive-controls-card,
+  .archive-page .archive-games-card,
+  .archive-page .archive-article-body { padding:20px; }
+}

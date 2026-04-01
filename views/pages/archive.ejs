@@ -1,36 +1,183 @@
+<%
+  const allArticles = (locals.articles || []).slice().sort((a, b) => String(b.date).localeCompare(String(a.date)));
+  const topicOptions = (locals.topics || []).slice();
+  const typeOptions = [...new Set(allArticles.map((article) => article.type).filter(Boolean))].sort();
+  const initialTopic = typeof queryTopic === 'string' ? queryTopic : '';
+%>
+
 <section class="archive-page">
   <div class="page-badge">📚 Archive</div>
-  <h1>Game Archive</h1>
-  <p class="page-desc">Browse past puzzles, see the solutions, and check who made the leaderboard. Every day's puzzle lives here forever.</p>
+  <h1>Neural NeXus Archive</h1>
+  <p class="page-desc">Browse the full article library, filter by topic, and jump into the game archives when you want a different kind of brain fuel.</p>
 
-  <div class="games-grid">
-    <a href="/play/archive" class="game-archive-card card-bee">
-      <span class="card-emoji">🐝</span>
-      <div class="card-title">Spelling Bee</div>
-      <p class="card-desc">Past 7-letter puzzles with scores and leaderboards. See which words you missed.</p>
-      <div class="card-cta">Browse archive →</div>
-    </a>
-    <a href="/wordle/archive" class="game-archive-card card-wordie">
-      <span class="card-emoji">🟩</span>
-      <div class="card-title">Wordie</div>
-      <p class="card-desc">Past daily words with guess distributions and top solvers.</p>
-      <div class="card-cta">Browse archive →</div>
-    </a>
-    <a href="/crossword/archive" class="game-archive-card card-cross">
-      <span class="card-emoji">✏️</span>
-      <div class="card-title">Mini Crossword</div>
-      <p class="card-desc">Past 5×5 grids with solutions, clues, and fastest-time leaderboards.</p>
-      <div class="card-cta">Browse archive →</div>
-    </a>
+  <div class="archive-shell-card archive-controls-card">
+    <div class="archive-controls-top">
+      <div>
+        <div class="section-label">Discover</div>
+        <h2>Search the newsletter</h2>
+      </div>
+      <a href="/play" class="archive-puzzle-link">Play today's puzzle →</a>
+    </div>
+
+    <div class="archive-search-row">
+      <label class="archive-search-label" for="archive-search">Search articles</label>
+      <input id="archive-search" class="archive-search-input" type="search" placeholder="Search titles or descriptions…" autocomplete="off">
+    </div>
+
+    <div class="archive-filter-group">
+      <div class="archive-filter-label">Topics</div>
+      <div class="archive-filter-chips" id="topic-filters">
+        <button class="archive-chip is-active" type="button" data-topic="">All</button>
+        <% topicOptions.forEach((topicOption) => { %>
+          <button class="archive-chip <%= initialTopic === topicOption.slug ? 'is-active' : '' %>" type="button" data-topic="<%= topicOption.slug %>"><%= topicOption.name %></button>
+        <% }) %>
+      </div>
+    </div>
+
+    <div class="archive-type-row">
+      <label class="archive-filter-label" for="type-filter">Content type</label>
+      <select id="type-filter" class="archive-type-select">
+        <option value="">All types</option>
+        <% typeOptions.forEach((type) => { %>
+          <option value="<%= type %>"><%= type %></option>
+        <% }) %>
+      </select>
+    </div>
   </div>
 
-  <div class="play-today">
-    <h2>Play today's puzzles</h2>
-    <p>New puzzles drop every day. Jump in and compete on the live leaderboard.</p>
-    <div class="play-links">
-      <a href="/play" class="play-link play-link-bee">🐝 Spelling Bee</a>
-      <a href="/wordle" class="play-link play-link-wordie">🟩 Wordie</a>
-      <a href="/crossword" class="play-link play-link-cross">✏️ Mini Crossword</a>
+  <div class="archive-results-meta">
+    <p><span id="archive-results-count"><%= allArticles.length %></span> articles</p>
+  </div>
+
+  <div class="archive-article-grid" id="archive-results">
+    <% allArticles.forEach((article) => { %>
+      <article
+        class="archive-article-card"
+        data-title="<%= article.title.toLowerCase() %>"
+        data-description="<%= (article.description || '').toLowerCase() %>"
+        data-topics="<%= (article.topics || []).join(' ') %>"
+        data-type="<%= article.type || '' %>"
+        data-date="<%= article.date || '' %>"
+      >
+        <a href="<%= article.url %>" target="_blank" rel="noopener noreferrer" class="archive-article-link">
+          <% if (article.thumbnail) { %>
+            <div class="archive-article-thumb-wrap">
+              <img src="<%= article.thumbnail %>" alt="<%= article.title %>" class="archive-article-thumb" loading="lazy">
+            </div>
+          <% } %>
+
+          <div class="archive-article-body">
+            <div class="archive-article-meta-row">
+              <span class="archive-article-date"><%= article.date %></span>
+              <% if (article.type) { %><span class="archive-type-pill"><%= article.type %></span><% } %>
+            </div>
+            <h3><%= article.title %></h3>
+            <p><%= article.description %></p>
+
+            <% if (article.topics && article.topics.length) { %>
+              <div class="archive-topic-tags">
+                <% article.topics.forEach((topicSlug) => {
+                  const topic = topicOptions.find((entry) => entry.slug === topicSlug);
+                %>
+                  <span class="archive-topic-tag"><%= topic ? topic.name : topicSlug %></span>
+                <% }) %>
+              </div>
+            <% } %>
+
+            <div class="archive-article-cta">Read on Substack →</div>
+          </div>
+        </a>
+      </article>
+    <% }) %>
+  </div>
+
+  <div class="archive-empty-state" id="archive-empty-state" hidden>
+    No articles match your filters.
+  </div>
+
+  <div class="archive-games-card">
+    <div>
+      <div class="section-label">Game archives</div>
+      <h2>Need a break from reading?</h2>
+      <p>Browse previous puzzles, compare scores, and revisit the leaderboard history.</p>
+    </div>
+    <div class="games-grid">
+      <a href="/play/archive" class="game-archive-card card-bee">
+        <span class="card-emoji">🐝</span>
+        <div class="card-title">Spelling Bee</div>
+        <p class="card-desc">Past 7-letter puzzles with scores and leaderboards.</p>
+        <div class="card-cta">Browse archive →</div>
+      </a>
+      <a href="/wordle/archive" class="game-archive-card card-wordie">
+        <span class="card-emoji">🟩</span>
+        <div class="card-title">Wordie</div>
+        <p class="card-desc">Past daily words with guess distributions and top solvers.</p>
+        <div class="card-cta">Browse archive →</div>
+      </a>
+      <a href="/crossword/archive" class="game-archive-card card-cross">
+        <span class="card-emoji">✏️</span>
+        <div class="card-title">Mini Crossword</div>
+        <p class="card-desc">Past 5×5 grids with clues, solutions, and fastest times.</p>
+        <div class="card-cta">Browse archive →</div>
+      </a>
     </div>
   </div>
 </section>
+
+<script>
+(() => {
+  const searchInput = document.getElementById('archive-search');
+  const typeSelect = document.getElementById('type-filter');
+  const resultsCount = document.getElementById('archive-results-count');
+  const emptyState = document.getElementById('archive-empty-state');
+  const topicButtons = Array.from(document.querySelectorAll('#topic-filters [data-topic]'));
+  const cards = Array.from(document.querySelectorAll('#archive-results .archive-article-card'));
+  const initialTopic = <%- JSON.stringify(initialTopic) %>;
+  let activeTopic = initialTopic;
+
+  function setActiveTopic(nextTopic) {
+    activeTopic = nextTopic;
+    topicButtons.forEach((button) => {
+      button.classList.toggle('is-active', button.dataset.topic === nextTopic || (!nextTopic && button.dataset.topic === ''));
+    });
+  }
+
+  function applyFilters() {
+    const searchTerm = (searchInput.value || '').trim().toLowerCase();
+    const activeType = typeSelect.value;
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+      const matchesSearch = !searchTerm
+        || card.dataset.title.includes(searchTerm)
+        || card.dataset.description.includes(searchTerm);
+      const matchesTopic = !activeTopic || (card.dataset.topics || '').split(/\s+/).includes(activeTopic);
+      const matchesType = !activeType || card.dataset.type === activeType;
+      const matches = matchesSearch && matchesTopic && matchesType;
+
+      card.hidden = !matches;
+      if (matches) visibleCount += 1;
+    });
+
+    resultsCount.textContent = visibleCount;
+    emptyState.hidden = visibleCount !== 0;
+  }
+
+  topicButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const nextTopic = button.dataset.topic || '';
+      setActiveTopic(nextTopic);
+      applyFilters();
+      const url = new URL(window.location.href);
+      if (nextTopic) url.searchParams.set('topic', nextTopic);
+      else url.searchParams.delete('topic');
+      window.history.replaceState({}, '', url);
+    });
+  });
+
+  searchInput.addEventListener('input', applyFilters);
+  typeSelect.addEventListener('change', applyFilters);
+  setActiveTopic(initialTopic);
+  applyFilters();
+})();
+</script>
