@@ -1,0 +1,2515 @@
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0b0b12;
+  --text: #f0f0f5;
+  --accent: #7c6aff;
+  --accent-dim: rgba(124,106,255,0.15);
+  --green: #22c55e;
+  --red: #ef4444;
+  --cell-bg: rgba(255,255,255,0.06);
+  --cell-border: rgba(255,255,255,0.12);
+  --black-cell: rgba(0,0,0,0.6);
+  --card-bg: rgba(255,255,255,0.04);
+  --card-border: rgba(255,255,255,0.08);
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,106,255,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(34,197,94,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 10% 60%, rgba(96,165,250,0.04) 0%, transparent 50%),
+    var(--bg);
+}
+
+/* Nav */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; height: 56px;
+  background: rgba(14,14,22,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  backdrop-filter: blur(12px);
+}
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-brand img { height: 32px; border-radius: 6px; opacity: 1; }
+.nav-divider { width: 1px; height: 24px; background: rgba(255,255,255,0.15); }
+.nav-title { font-family: 'Instrument Serif', serif; font-size: 1.25rem; color: #fff; }
+.nav-links { display: flex; gap: 8px; }
+.nav-links a {
+  color: rgba(255,255,255,0.7); text-decoration: none; font-size: 0.875rem;
+  padding: 6px 12px; border-radius: 8px; transition: all 0.2s;
+}
+.nav-links a:hover { color: #fff; background: rgba(255,255,255,0.08); }
+.nav-pill { background: rgba(255,255,255,0.06) !important; }
+
+/* Layout */
+main {
+  max-width: 900px; margin: 0 auto; padding: 24px 16px 80px;
+  display: flex; flex-direction: column; align-items: center;
+}
+.game-header { text-align: center; margin-bottom: 20px; }
+.game-header h1 {
+  font-family: 'Instrument Serif', serif; font-size: 2rem;
+  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.game-subtitle { color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-top: 4px; }
+
+/* Timer + controls bar */
+.controls-bar {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 16px;
+  font-family: 'JetBrains Mono', monospace;
+}
+.timer { font-size: 1.1rem; color: var(--accent); min-width: 60px; text-align: center; }
+.btn {
+  padding: 6px 14px; border-radius: 8px; border: 1px solid var(--card-border);
+  background: var(--card-bg); color: var(--text); font-size: 0.8rem;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+}
+.btn:hover { background: rgba(255,255,255,0.1); }
+.btn-accent { border-color: var(--accent); color: var(--accent); }
+
+/* Game area */
+.game-area {
+  display: flex; gap: 24px; width: 100%; justify-content: center;
+  align-items: flex-start; flex-wrap: wrap;
+}
+
+/* Grid */
+.grid-container { position: relative; }
+.grid {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  gap: 2px; background: rgba(255,255,255,0.08); padding: 2px;
+  border-radius: 8px; overflow: hidden;
+  box-shadow: 0 0 30px rgba(124,106,255,0.08);
+}
+.cell {
+  width: 64px; height: 64px; position: relative;
+  background: var(--cell-bg); border: 1px solid var(--cell-border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif; font-size: 1.5rem; font-weight: 700;
+  color: var(--text); cursor: pointer; transition: all 0.15s;
+  text-transform: uppercase; user-select: none;
+}
+.cell.black {
+  background: var(--black-cell); cursor: default;
+  border-color: transparent;
+}
+.cell.selected {
+  background: var(--accent) !important;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(124,106,255,0.4);
+}
+.cell.highlighted {
+  background: var(--accent-dim);
+  border-color: rgba(124,106,255,0.3);
+}
+.cell.correct {
+  background: rgba(34,197,94,0.2);
+  border-color: rgba(34,197,94,0.4);
+}
+.cell.incorrect {
+  background: rgba(239,68,68,0.25);
+  border-color: rgba(239,68,68,0.5);
+}
+.cell-number {
+  position: absolute; top: 2px; left: 4px;
+  font-size: 0.6rem; font-weight: 600; color: rgba(255,255,255,0.5);
+  line-height: 1; pointer-events: none;
+}
+.cell-letter { pointer-events: none; }
+
+/* Clues */
+.clues-container {
+  display: flex; flex-direction: column; gap: 16px;
+  min-width: 240px; max-width: 320px; flex: 1;
+}
+.clue-section {
+  background: var(--card-bg); border: 1px solid var(--card-border);
+  border-radius: 12px; padding: 14px; backdrop-filter: blur(8px);
+}
+.clue-section h3 {
+  font-family: 'Instrument Serif', serif; font-size: 1rem;
+  margin-bottom: 8px; color: var(--accent);
+}
+.clue {
+  padding: 6px 8px; border-radius: 6px; cursor: pointer;
+  font-size: 0.85rem; line-height: 1.4; transition: all 0.15s;
+  color: rgba(255,255,255,0.7); display: flex; gap: 8px;
+}
+.clue:hover { background: rgba(255,255,255,0.06); }
+.clue.active {
+  background: var(--accent-dim); color: #fff;
+}
+.clue-num {
+  font-weight: 700; color: var(--accent); min-width: 18px;
+  font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;
+}
+
+/* Completion overlay */
+.overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center;
+}
+.overlay.show { display: flex; }
+.overlay-card {
+  background: rgba(20,20,30,0.95); border: 1px solid var(--card-border);
+  border-radius: 16px; padding: 32px; text-align: center;
+  max-width: 360px; width: 90%;
+  box-shadow: 0 0 60px rgba(124,106,255,0.15);
+}
+.overlay-card h2 {
+  font-family: 'Instrument Serif', serif; font-size: 1.8rem; margin-bottom: 8px;
+}
+.overlay-card .time-result {
+  font-family: 'JetBrains Mono', monospace; font-size: 2rem;
+  color: var(--green); margin: 12px 0;
+}
+.overlay-card .stats-row {
+  display: flex; justify-content: center; gap: 24px; margin: 16px 0;
+}
+.stat-item { text-align: center; }
+.stat-value { font-size: 1.5rem; font-weight: 700; }
+.stat-label { font-size: 0.7rem; color: rgba(255,255,255,0.5); }
+.share-btn {
+  padding: 12px 32px; border-radius: 10px; border: none;
+  background: var(--accent); color: #fff; font-size: 1rem;
+  font-weight: 600; cursor: pointer; margin-top: 12px;
+  font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+}
+.share-btn:hover { filter: brightness(1.15); }
+.share-btn.copied { background: var(--green); }
+/* Leaderboard in overlay */
+.nickname-row {
+  display: flex; gap: 8px; margin-top: 14px;
+}
+.nickname-in {
+  flex: 1; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);
+  color: #fff; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; outline: none;
+  transition: border-color 0.2s;
+}
+.nickname-in:focus { border-color: rgba(124,106,255,0.4); }
+.nickname-in::placeholder { color: rgba(255,255,255,0.2); }
+.submit-lb-btn {
+  padding: 10px 16px; border-radius: 10px; border: none;
+  background: var(--accent); color: #fff;
+  font-family: 'DM Sans', sans-serif; font-size: 0.8rem; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; white-space: nowrap;
+}
+.submit-lb-btn:disabled { opacity: 0.4; cursor: default; }
+.cw-lb-section { margin-top: 14px; text-align: left; }
+.cw-lb-title { font-size: 0.58rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 8px; text-align: center; }
+.cw-lb-list { display: flex; flex-direction: column; gap: 4px; max-height: 150px; overflow-y: auto; }
+.cw-lb-row { display: flex; justify-content: space-between; padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,0.03); font-size: 0.78rem; }
+.cw-lb-row:first-child { background: rgba(124,106,255,0.1); color: var(--accent); font-weight: 700; }
+.cw-lb-name { color: rgba(255,255,255,0.6); }
+.cw-lb-time { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.4); }
+.overlay-links { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
+.overlay-link {
+  padding: 8px 16px; border-radius: 8px; text-decoration: none;
+  font-size: 0.72rem; font-weight: 700; transition: all 0.2s;
+  border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.04);
+}
+.overlay-link:hover { color: #fff; background: rgba(255,255,255,0.08); }
+
+/* Confetti */
+.confetti-piece {
+  position: fixed; width: 10px; height: 10px;
+  z-index: 300; pointer-events: none;
+  animation: confettiFall 3s ease-out forwards;
+}
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg) scale(0.3); opacity: 0; }
+}
+
+/* Mobile */
+@media (max-width: 700px) {
+  .game-area { flex-direction: column; align-items: center; }
+  .clues-container { max-width: 100%; min-width: 0; width: 100%; flex-direction: row; }
+  .clue-section { flex: 1; }
+  .cell { width: 56px; height: 56px; font-size: 1.3rem; }
+}
+@media (max-width: 400px) {
+  .cell { width: 48px; height: 48px; font-size: 1.1rem; }
+  .clues-container { flex-direction: column; }
+}
+
+/* Hidden input for mobile keyboard */
+#hiddenInput {
+  position: absolute; opacity: 0; width: 1px; height: 1px;
+  top: -100px; left: -100px;
+}
+
+.game-subscribe-cta {
+  width: min(100%, 520px);
+  margin: 8px auto 0;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
+}
+.game-subscribe-copy {
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.58);
+}
+.game-subscribe-button {
+  color: rgba(124,106,255,0.9);
+  text-decoration: none;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+.game-subscribe-button:hover {
+  color: rgba(196,181,253,0.98);
+}
+
+@media (max-width: 640px) {
+  .game-subscribe-cta {
+    padding: 12px 14px;
+  }
+}
+</style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Neural NeXus Mini Crossword",
+  "url": "https://www.neuralnexus.press/crossword",
+  "description": "Free daily 5×5 mini crossword puzzle. Quick, fun, and new every day from Neural NeXus.",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "David Kingsley"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://www.neuralnexus.press/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Mini Crossword",
+      "item": "https://www.neuralnexus.press/crossword"
+    }
+  ]
+}
+</script>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-B0X6HBHKH3"></script>
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-B0X6HBHKH3');
+</script>
+
+<script>
+// ═══════════════ PUZZLES ═══════════════
+const PUZZLES = [
+  {
+    "grid": [
+      [
+        "H",
+        "E",
+        "A",
+        "R",
+        "T"
+      ],
+      [
+        "E",
+        "M",
+        "B",
+        "E",
+        "R"
+      ],
+      [
+        "A",
+        "B",
+        "U",
+        "S",
+        "E"
+      ],
+      [
+        "R",
+        "E",
+        "S",
+        "I",
+        "N"
+      ],
+      [
+        "T",
+        "R",
+        "E",
+        "N",
+        "D"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Vital organ",
+        "6": "Glowing coal",
+        "7": "Misuse",
+        "8": "Sticky tree sap",
+        "9": "Fashion direction"
+      },
+      "down": {
+        "1": "Courage or core",
+        "2": "Group member",
+        "3": "Mistreat",
+        "4": "Coating material",
+        "5": "Popular craze"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "O",
+        "N",
+        "S",
+        "E",
+        "T"
+      ],
+      [
+        "N",
+        "I",
+        "C",
+        "E",
+        "R"
+      ],
+      [
+        "S",
+        "C",
+        "O",
+        "R",
+        "E"
+      ],
+      [
+        "E",
+        "E",
+        "R",
+        "I",
+        "E"
+      ],
+      [
+        "T",
+        "R",
+        "E",
+        "E",
+        "S"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Beginning",
+        "6": "More pleasant",
+        "7": "Game points",
+        "8": "Creepy",
+        "9": "Forest plants"
+      },
+      "down": {
+        "1": "Start of something",
+        "2": "Kinder",
+        "3": "Tally",
+        "4": "Spooky feeling",
+        "5": "Oaks and pines"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "A",
+        "B",
+        "O",
+        "V",
+        "E"
+      ],
+      [
+        "B",
+        "A",
+        "R",
+        "O",
+        "N"
+      ],
+      [
+        "O",
+        "R",
+        "B",
+        "I",
+        "T"
+      ],
+      [
+        "V",
+        "O",
+        "I",
+        "C",
+        "E"
+      ],
+      [
+        "E",
+        "N",
+        "T",
+        "E",
+        "R"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Higher than",
+        "6": "Nobleman",
+        "7": "Path around a planet",
+        "8": "Speaking sound",
+        "9": "Come in"
+      },
+      "down": {
+        "1": "Overhead",
+        "2": "Medieval lord",
+        "3": "Satellite path",
+        "4": "Vocal expression",
+        "5": "Walk through a door"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "B",
+        "E",
+        "A",
+        "S",
+        "T"
+      ],
+      [
+        "E",
+        "A",
+        "R",
+        "T",
+        "H"
+      ],
+      [
+        "A",
+        "R",
+        "M",
+        "O",
+        "R"
+      ],
+      [
+        "S",
+        "T",
+        "O",
+        "N",
+        "E"
+      ],
+      [
+        "T",
+        "H",
+        "R",
+        "E",
+        "E"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Wild animal",
+        "6": "Our planet",
+        "7": "Knight's protection",
+        "8": "Rock",
+        "9": "Number after two"
+      },
+      "down": {
+        "1": "Fierce creature",
+        "2": "Soil",
+        "3": "Protective covering",
+        "4": "Pebble material",
+        "5": "A small crowd"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "A",
+        "P",
+        "A",
+        "R",
+        "T"
+      ],
+      [
+        "P",
+        "O",
+        "L",
+        "A",
+        "R"
+      ],
+      [
+        "A",
+        "L",
+        "I",
+        "V",
+        "E"
+      ],
+      [
+        "R",
+        "A",
+        "V",
+        "E",
+        "N"
+      ],
+      [
+        "T",
+        "R",
+        "E",
+        "N",
+        "D"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Separated",
+        "6": "Arctic or Antarctic",
+        "7": "Living",
+        "8": "Black bird",
+        "9": "Popular direction"
+      },
+      "down": {
+        "1": "In pieces",
+        "2": "Opposite ends",
+        "3": "Not dead",
+        "4": "Edgar Allan Poe bird",
+        "5": "What's hot right now"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "C",
+        "R",
+        "A",
+        "N",
+        "E"
+      ],
+      [
+        "R",
+        "I",
+        "V",
+        "A",
+        "L"
+      ],
+      [
+        "A",
+        "V",
+        "O",
+        "I",
+        "D"
+      ],
+      [
+        "N",
+        "A",
+        "I",
+        "V",
+        "E"
+      ],
+      [
+        "E",
+        "L",
+        "D",
+        "E",
+        "R"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Construction machine",
+        "6": "Competitor",
+        "7": "Stay away from",
+        "8": "Innocent",
+        "9": "Older person"
+      },
+      "down": {
+        "1": "Tall bird",
+        "2": "Opponent",
+        "3": "Dodge",
+        "4": "Gullible",
+        "5": "Senior"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "C",
+        "L",
+        "O",
+        "S",
+        "E"
+      ],
+      [
+        "L",
+        "I",
+        "V",
+        "E",
+        "N"
+      ],
+      [
+        "O",
+        "V",
+        "E",
+        "R",
+        "T"
+      ],
+      [
+        "S",
+        "E",
+        "R",
+        "V",
+        "E"
+      ],
+      [
+        "E",
+        "N",
+        "T",
+        "E",
+        "R"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Shut",
+        "6": "Energize",
+        "7": "Open and obvious",
+        "8": "Dish up food",
+        "9": "Come inside"
+      },
+      "down": {
+        "1": "Nearby",
+        "2": "Perk up",
+        "3": "Not hidden",
+        "4": "Wait on",
+        "5": "Type in a password"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "A",
+        "L",
+        "I",
+        "V",
+        "E"
+      ],
+      [
+        "L",
+        "I",
+        "N",
+        "E",
+        "N"
+      ],
+      [
+        "I",
+        "N",
+        "E",
+        "R",
+        "T"
+      ],
+      [
+        "V",
+        "E",
+        "R",
+        "S",
+        "E"
+      ],
+      [
+        "E",
+        "N",
+        "T",
+        "E",
+        "R"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Living",
+        "6": "Bed sheet fabric",
+        "7": "Not reactive",
+        "8": "Poem section",
+        "9": "Go in"
+      },
+      "down": {
+        "1": "Breathing",
+        "2": "Table cloth material",
+        "3": "Motionless",
+        "4": "Line of poetry",
+        "5": "Key on a keyboard"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "A",
+        "R",
+        "O",
+        "S",
+        "E"
+      ],
+      [
+        "R",
+        "A",
+        "V",
+        "E",
+        "N"
+      ],
+      [
+        "O",
+        "V",
+        "E",
+        "R",
+        "T"
+      ],
+      [
+        "S",
+        "E",
+        "R",
+        "V",
+        "E"
+      ],
+      [
+        "E",
+        "N",
+        "T",
+        "E",
+        "R"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Got up",
+        "6": "Black bird",
+        "7": "Obvious",
+        "8": "Dish up",
+        "9": "Walk in"
+      },
+      "down": {
+        "1": "Woke",
+        "2": "Poe's bird",
+        "3": "Unconcealed",
+        "4": "Help customers",
+        "5": "Type in"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "C",
+        "H",
+        "E",
+        "A",
+        "T"
+      ],
+      [
+        "H",
+        "O",
+        "R",
+        "S",
+        "E"
+      ],
+      [
+        "E",
+        "R",
+        "A",
+        "S",
+        "E"
+      ],
+      [
+        "A",
+        "S",
+        "S",
+        "E",
+        "T"
+      ],
+      [
+        "T",
+        "E",
+        "E",
+        "T",
+        "H"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Break the rules",
+        "6": "Galloping animal",
+        "7": "Wipe clean",
+        "8": "Valuable resource",
+        "9": "What you brush"
+      },
+      "down": {
+        "1": "Copy answers",
+        "2": "Stallion or mare",
+        "3": "Delete",
+        "4": "Advantage",
+        "5": "Bite with these"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "B",
+        "E",
+        "A",
+        "S",
+        "T"
+      ],
+      [
+        "E",
+        "M",
+        "B",
+        "E",
+        "R"
+      ],
+      [
+        "A",
+        "B",
+        "O",
+        "V",
+        "E"
+      ],
+      [
+        "S",
+        "E",
+        "V",
+        "E",
+        "N"
+      ],
+      [
+        "T",
+        "R",
+        "E",
+        "N",
+        "D"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Monster",
+        "6": "Hot coal",
+        "7": "Up higher",
+        "8": "Lucky number",
+        "9": "Direction things are going"
+      },
+      "down": {
+        "1": "Wild creature",
+        "2": "Dying fire remnant",
+        "3": "Overhead",
+        "4": "Days in a week",
+        "5": "Viral movement"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "B",
+        "L",
+        "A",
+        "S",
+        "T"
+      ],
+      [
+        "L",
+        "U",
+        "N",
+        "A",
+        "R"
+      ],
+      [
+        "A",
+        "N",
+        "G",
+        "L",
+        "E"
+      ],
+      [
+        "S",
+        "A",
+        "L",
+        "O",
+        "N"
+      ],
+      [
+        "T",
+        "R",
+        "E",
+        "N",
+        "D"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Explosion",
+        "6": "Moon-related",
+        "7": "Corner measure",
+        "8": "Hair styling place",
+        "9": "Fashion movement"
+      },
+      "down": {
+        "1": "Have a ___!",
+        "2": "Eclipse type",
+        "3": "Geometry shape",
+        "4": "Beauty shop",
+        "5": "What's trending"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "A",
+        "P",
+        "P",
+        "L",
+        "E"
+      ],
+      [
+        "P",
+        "L",
+        "A",
+        "I",
+        "N"
+      ],
+      [
+        "P",
+        "A",
+        "I",
+        "N",
+        "T"
+      ],
+      [
+        "L",
+        "I",
+        "N",
+        "E",
+        "R"
+      ],
+      [
+        "E",
+        "N",
+        "T",
+        "R",
+        "Y"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "iPhone maker's fruit",
+        "6": "Simple",
+        "7": "Wall coating",
+        "8": "Cruise ship",
+        "9": "Way in"
+      },
+      "down": {
+        "1": "Pie filling fruit",
+        "2": "Not fancy",
+        "3": "Artist's medium",
+        "4": "Eye cosmetic",
+        "5": "Journal record"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "A",
+        "S",
+        "S",
+        "E",
+        "T"
+      ],
+      [
+        "S",
+        "O",
+        "L",
+        "A",
+        "R"
+      ],
+      [
+        "S",
+        "L",
+        "A",
+        "T",
+        "E"
+      ],
+      [
+        "E",
+        "A",
+        "T",
+        "E",
+        "N"
+      ],
+      [
+        "T",
+        "R",
+        "E",
+        "N",
+        "D"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Something valuable",
+        "6": "Sun-powered",
+        "7": "Writing tablet",
+        "8": "Consumed",
+        "9": "Popular direction"
+      },
+      "down": {
+        "1": "Resource",
+        "2": "Panel on a roof",
+        "3": "Clean ___",
+        "4": "Had a meal",
+        "5": "Going viral"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "C",
+        "O",
+        "M",
+        "E",
+        "T"
+      ],
+      [
+        "O",
+        "P",
+        "E",
+        "R",
+        "A"
+      ],
+      [
+        "M",
+        "E",
+        "T",
+        "A",
+        "L"
+      ],
+      [
+        "E",
+        "R",
+        "A",
+        "S",
+        "E"
+      ],
+      [
+        "T",
+        "A",
+        "L",
+        "E",
+        "S"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Icy space traveler",
+        "6": "Singing drama",
+        "7": "Iron or steel",
+        "8": "Delete",
+        "9": "Stories"
+      },
+      "down": {
+        "1": "Halley's ___",
+        "2": "La Scala show",
+        "3": "Rock music genre",
+        "4": "Rub out",
+        "5": "Fairy ___"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "C",
+        "H",
+        "O",
+        "S",
+        "E"
+      ],
+      [
+        "H",
+        "A",
+        "V",
+        "E",
+        "N"
+      ],
+      [
+        "O",
+        "V",
+        "E",
+        "R",
+        "T"
+      ],
+      [
+        "S",
+        "E",
+        "R",
+        "V",
+        "E"
+      ],
+      [
+        "E",
+        "N",
+        "T",
+        "E",
+        "R"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Picked",
+        "6": "Safe place",
+        "7": "Obvious",
+        "8": "Pour drinks",
+        "9": "Go through a door"
+      },
+      "down": {
+        "1": "Selected",
+        "2": "Shelter",
+        "3": "Not secret",
+        "4": "Ace in tennis",
+        "5": "Join a contest"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "C",
+        "R",
+        "E",
+        "S",
+        "T"
+      ],
+      [
+        "R",
+        "A",
+        "N",
+        "C",
+        "H"
+      ],
+      [
+        "E",
+        "N",
+        "T",
+        "E",
+        "R"
+      ],
+      [
+        "S",
+        "C",
+        "E",
+        "N",
+        "E"
+      ],
+      [
+        "T",
+        "H",
+        "R",
+        "E",
+        "E"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Wave top",
+        "6": "Cattle farm",
+        "7": "Come in",
+        "8": "Movie location",
+        "9": "Trio number"
+      },
+      "down": {
+        "1": "Toothpaste brand",
+        "2": "Cowboy's home",
+        "3": "Join",
+        "4": "Act of a play",
+        "5": "Little number"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "B",
+        "R",
+        "A",
+        "S",
+        "S"
+      ],
+      [
+        "R",
+        "I",
+        "G",
+        "H",
+        "T"
+      ],
+      [
+        "A",
+        "G",
+        "R",
+        "E",
+        "E"
+      ],
+      [
+        "S",
+        "H",
+        "E",
+        "E",
+        "R"
+      ],
+      [
+        "S",
+        "T",
+        "E",
+        "R",
+        "N"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Trumpet material",
+        "6": "Correct",
+        "7": "See eye to eye",
+        "8": "Very thin fabric",
+        "9": "Ship's back end"
+      },
+      "down": {
+        "1": "Bold nerve",
+        "2": "Not left",
+        "3": "Nod along",
+        "4": "Pure or total",
+        "5": "Serious expression"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "A",
+        "M",
+        "B",
+        "L",
+        "E"
+      ],
+      [
+        "M",
+        "O",
+        "R",
+        "A",
+        "L"
+      ],
+      [
+        "B",
+        "R",
+        "A",
+        "N",
+        "D"
+      ],
+      [
+        "L",
+        "A",
+        "N",
+        "C",
+        "E"
+      ],
+      [
+        "E",
+        "L",
+        "D",
+        "E",
+        "R"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Leisurely walk",
+        "6": "Story's lesson",
+        "7": "Company name",
+        "8": "Knight's weapon",
+        "9": "Senior person"
+      },
+      "down": {
+        "1": "Stroll",
+        "2": "Ethical",
+        "3": "Logo",
+        "4": "Pointed spear",
+        "5": "Older sibling"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "C",
+        "A",
+        "R",
+        "G",
+        "O"
+      ],
+      [
+        "A",
+        "B",
+        "O",
+        "R",
+        "T"
+      ],
+      [
+        "R",
+        "O",
+        "B",
+        "O",
+        "T"
+      ],
+      [
+        "G",
+        "R",
+        "O",
+        "V",
+        "E"
+      ],
+      [
+        "O",
+        "T",
+        "T",
+        "E",
+        "R"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Ship's freight",
+        "6": "Cancel mission",
+        "7": "Mechanical worker",
+        "8": "Small forest",
+        "9": "Playful swimmer"
+      },
+      "down": {
+        "1": "Shipping load",
+        "2": "Call off",
+        "3": "AI body",
+        "4": "Orange juice brand",
+        "5": "River mammal"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "B",
+        "L",
+        "A",
+        "S",
+        "T"
+      ],
+      [
+        "L",
+        "U",
+        "N",
+        "C",
+        "H"
+      ],
+      [
+        "A",
+        "N",
+        "G",
+        "E",
+        "R"
+      ],
+      [
+        "S",
+        "C",
+        "E",
+        "N",
+        "E"
+      ],
+      [
+        "T",
+        "H",
+        "R",
+        "E",
+        "W"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Explosion",
+        "6": "Midday meal",
+        "7": "Strong fury",
+        "8": "Movie setting",
+        "9": "Tossed"
+      },
+      "down": {
+        "1": "Sudden gust",
+        "2": "Noon break",
+        "3": "Rage",
+        "4": "Location",
+        "5": "Hurled"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "B",
+        "U",
+        "R",
+        "S",
+        "T"
+      ],
+      [
+        "U",
+        "N",
+        "I",
+        "T",
+        "E"
+      ],
+      [
+        "R",
+        "I",
+        "D",
+        "E",
+        "R"
+      ],
+      [
+        "S",
+        "T",
+        "E",
+        "A",
+        "M"
+      ],
+      [
+        "T",
+        "E",
+        "R",
+        "M",
+        "S"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Pop suddenly",
+        "6": "Join together",
+        "7": "Horseback person",
+        "8": "Hot vapor",
+        "9": "Conditions"
+      },
+      "down": {
+        "1": "Sudden break",
+        "2": "Come as one",
+        "3": "Motorcycle user",
+        "4": "Boiling water output",
+        "5": "Agreement words"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "C",
+        "L",
+        "A",
+        "S",
+        "S"
+      ],
+      [
+        "L",
+        "I",
+        "G",
+        "H",
+        "T"
+      ],
+      [
+        "A",
+        "G",
+        "R",
+        "E",
+        "E"
+      ],
+      [
+        "S",
+        "H",
+        "E",
+        "A",
+        "R"
+      ],
+      [
+        "S",
+        "T",
+        "E",
+        "R",
+        "N"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "School session",
+        "6": "Not heavy",
+        "7": "Say yes",
+        "8": "Cut wool",
+        "9": "Ship's rear"
+      },
+      "down": {
+        "1": "Group or rank",
+        "2": "Brightness",
+        "3": "Be in accord",
+        "4": "Cutting force",
+        "5": "Serious look"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "F",
+        "O",
+        "R",
+        "C",
+        "E"
+      ],
+      [
+        "O",
+        "P",
+        "E",
+        "R",
+        "A"
+      ],
+      [
+        "R",
+        "E",
+        "F",
+        "E",
+        "R"
+      ],
+      [
+        "C",
+        "R",
+        "E",
+        "S",
+        "T"
+      ],
+      [
+        "E",
+        "A",
+        "R",
+        "T",
+        "H"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Power or push",
+        "6": "Sung drama",
+        "7": "Point to",
+        "8": "Wave top",
+        "9": "Our planet"
+      },
+      "down": {
+        "1": "Strength",
+        "2": "Musical theater",
+        "3": "Mention",
+        "4": "Peak",
+        "5": "Soil"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "F",
+        "O",
+        "R",
+        "G",
+        "E"
+      ],
+      [
+        "O",
+        "P",
+        "E",
+        "R",
+        "A"
+      ],
+      [
+        "R",
+        "E",
+        "F",
+        "E",
+        "R"
+      ],
+      [
+        "G",
+        "R",
+        "E",
+        "E",
+        "T"
+      ],
+      [
+        "E",
+        "A",
+        "R",
+        "T",
+        "H"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Blacksmith shop",
+        "6": "Sung drama",
+        "7": "Point to",
+        "8": "Say hello",
+        "9": "Our planet"
+      },
+      "down": {
+        "1": "Shape metal",
+        "2": "Musical theater",
+        "3": "Mention",
+        "4": "Welcome",
+        "5": "Soil"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "G",
+        "L",
+        "A",
+        "S",
+        "S"
+      ],
+      [
+        "L",
+        "I",
+        "G",
+        "H",
+        "T"
+      ],
+      [
+        "A",
+        "G",
+        "R",
+        "E",
+        "E"
+      ],
+      [
+        "S",
+        "H",
+        "E",
+        "E",
+        "R"
+      ],
+      [
+        "S",
+        "T",
+        "E",
+        "R",
+        "N"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Window material",
+        "6": "Not heavy",
+        "7": "Say yes",
+        "8": "Very thin",
+        "9": "Ship's rear"
+      },
+      "down": {
+        "1": "Drinking vessel",
+        "2": "Brightness",
+        "3": "Be in accord",
+        "4": "Absolute",
+        "5": "Serious look"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "G",
+        "R",
+        "A",
+        "S",
+        "S"
+      ],
+      [
+        "R",
+        "I",
+        "G",
+        "H",
+        "T"
+      ],
+      [
+        "A",
+        "G",
+        "R",
+        "E",
+        "E"
+      ],
+      [
+        "S",
+        "H",
+        "E",
+        "E",
+        "R"
+      ],
+      [
+        "S",
+        "T",
+        "E",
+        "R",
+        "N"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Lawn green",
+        "6": "Correct",
+        "7": "Say yes",
+        "8": "Very thin",
+        "9": "Ship's rear"
+      },
+      "down": {
+        "1": "Yard covering",
+        "2": "Not left",
+        "3": "Be in accord",
+        "4": "Absolute",
+        "5": "Serious look"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "Q",
+        "U",
+        "O",
+        "T",
+        "E"
+      ],
+      [
+        "U",
+        "L",
+        "T",
+        "R",
+        "A"
+      ],
+      [
+        "O",
+        "T",
+        "H",
+        "E",
+        "R"
+      ],
+      [
+        "T",
+        "R",
+        "E",
+        "A",
+        "T"
+      ],
+      [
+        "E",
+        "A",
+        "R",
+        "T",
+        "H"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Repeat words",
+        "6": "Extreme",
+        "7": "Different one",
+        "8": "Special reward",
+        "9": "Our planet"
+      },
+      "down": {
+        "1": "Price estimate",
+        "2": "Beyond",
+        "3": "Alternative",
+        "4": "Pay for someone",
+        "5": "Soil"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "T",
+        "R",
+        "U",
+        "S",
+        "T"
+      ],
+      [
+        "R",
+        "A",
+        "N",
+        "C",
+        "H"
+      ],
+      [
+        "U",
+        "N",
+        "D",
+        "E",
+        "R"
+      ],
+      [
+        "S",
+        "C",
+        "E",
+        "N",
+        "E"
+      ],
+      [
+        "T",
+        "H",
+        "R",
+        "E",
+        "E"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Believe in",
+        "6": "Cattle farm",
+        "7": "Below",
+        "8": "Movie setting",
+        "9": "After two"
+      },
+      "down": {
+        "1": "Confidence",
+        "2": "Western estate",
+        "3": "Beneath",
+        "4": "Location",
+        "5": "A prime number"
+      }
+    }
+  },
+  {
+    "grid": [
+      [
+        "B",
+        "U",
+        "R",
+        "S",
+        "T"
+      ],
+      [
+        "U",
+        "N",
+        "I",
+        "T",
+        "E"
+      ],
+      [
+        "R",
+        "I",
+        "V",
+        "E",
+        "R"
+      ],
+      [
+        "S",
+        "T",
+        "E",
+        "A",
+        "M"
+      ],
+      [
+        "T",
+        "E",
+        "R",
+        "M",
+        "S"
+      ]
+    ],
+    "clues": {
+      "across": {
+        "1": "Pop suddenly",
+        "6": "Join together",
+        "7": "Flowing water",
+        "8": "Hot vapor",
+        "9": "Conditions"
+      },
+      "down": {
+        "1": "Sudden break",
+        "2": "Come as one",
+        "3": "Stream's big sibling",
+        "4": "Boiling water output",
+        "5": "Agreement words"
+      }
+    }
+  }
+];
+
+// ═══════════════ GAME STATE ═══════════════
+let puzzle, userGrid, selectedCell, direction, timerInterval, seconds, started, solved;
+let cellNumbers = {};
+
+function getTodayIndex() {
+  const d = new Date().toLocaleDateString('en-US', { timeZone: 'America/New_York' });
+  let hash = 0;
+  for (let i = 0; i < d.length; i++) { hash = ((hash << 5) - hash) + d.charCodeAt(i); hash |= 0; }
+  return Math.abs(hash) % PUZZLES.length;
+}
+
+function init() {
+  puzzle = PUZZLES[getTodayIndex()];
+  userGrid = puzzle.grid.map(row => row.map(c => c === '#' ? '#' : ''));
+  selectedCell = null;
+  direction = 'across';
+  seconds = 0;
+  started = false;
+  solved = false;
+  cellNumbers = {};
+  numberCells();
+  renderGrid();
+  renderClues();
+  updateTimer();
+}
+
+function numberCells() {
+  let num = 1;
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      if (puzzle.grid[r][c] === '#') continue;
+      const needsAcross = (c === 0 || puzzle.grid[r][c-1] === '#') && c < 4 && puzzle.grid[r][c+1] !== '#';
+      const needsDown = (r === 0 || puzzle.grid[r-1][c] === '#') && r < 4 && puzzle.grid[r+1][c] !== '#';
+      if (needsAcross || needsDown) {
+        cellNumbers[`${r},${c}`] = num++;
+      }
+    }
+  }
+}
+
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell' + (puzzle.grid[r][c] === '#' ? ' black' : '');
+      cell.dataset.row = r;
+      cell.dataset.col = c;
+      const num = cellNumbers[`${r},${c}`];
+      if (num) cell.innerHTML = `<span class="cell-number">${num}</span>`;
+      if (userGrid[r][c] && userGrid[r][c] !== '#') {
+        cell.innerHTML += `<span class="cell-letter">${userGrid[r][c]}</span>`;
+      }
+      if (puzzle.grid[r][c] !== '#') {
+        cell.addEventListener('click', () => selectCell(r, c));
+      }
+      grid.appendChild(cell);
+    }
+  }
+  highlightWord();
+}
+
+function renderClues() {
+  const acrossDiv = document.getElementById('acrossClues');
+  const downDiv = document.getElementById('downClues');
+  acrossDiv.innerHTML = '';
+  downDiv.innerHTML = '';
+  for (const [num, text] of Object.entries(puzzle.clues.across)) {
+    const el = document.createElement('div');
+    el.className = 'clue';
+    el.innerHTML = `<span class="clue-num">${num}</span><span>${text}</span>`;
+    el.addEventListener('click', () => selectClue(parseInt(num), 'across'));
+    el.dataset.num = num;
+    el.dataset.dir = 'across';
+    acrossDiv.appendChild(el);
+  }
+  for (const [num, text] of Object.entries(puzzle.clues.down)) {
+    const el = document.createElement('div');
+    el.className = 'clue';
+    el.innerHTML = `<span class="clue-num">${num}</span><span>${text}</span>`;
+    el.addEventListener('click', () => selectClue(parseInt(num), 'down'));
+    el.dataset.num = num;
+    el.dataset.dir = 'down';
+    downDiv.appendChild(el);
+  }
+}
+
+function selectCell(r, c) {
+  if (puzzle.grid[r][c] === '#') return;
+  if (selectedCell && selectedCell[0] === r && selectedCell[1] === c) {
+    direction = direction === 'across' ? 'down' : 'across';
+  }
+  selectedCell = [r, c];
+  highlightWord();
+  document.getElementById('hiddenInput').focus();
+}
+
+function selectClue(num, dir) {
+  direction = dir;
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      if (cellNumbers[`${r},${c}`] === num) {
+        selectedCell = [r, c];
+        highlightWord();
+        document.getElementById('hiddenInput').focus();
+        return;
+      }
+    }
+  }
+}
+
+function getWordCells(r, c, dir) {
+  const cells = [];
+  if (dir === 'across') {
+    let start = c;
+    while (start > 0 && puzzle.grid[r][start-1] !== '#') start--;
+    for (let i = start; i < 5 && puzzle.grid[r][i] !== '#'; i++) cells.push([r, i]);
+  } else {
+    let start = r;
+    while (start > 0 && puzzle.grid[start-1][c] !== '#') start--;
+    for (let i = start; i < 5 && puzzle.grid[i][c] !== '#'; i++) cells.push([i, c]);
+  }
+  return cells;
+}
+
+function highlightWord() {
+  document.querySelectorAll('.cell').forEach(el => {
+    el.classList.remove('selected', 'highlighted');
+  });
+  document.querySelectorAll('.clue').forEach(el => el.classList.remove('active'));
+
+  if (!selectedCell) return;
+  const [r, c] = selectedCell;
+  const wordCells = getWordCells(r, c, direction);
+  wordCells.forEach(([wr, wc]) => {
+    const el = document.querySelector(`.cell[data-row="${wr}"][data-col="${wc}"]`);
+    if (el) el.classList.add('highlighted');
+  });
+  const selEl = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+  if (selEl) selEl.classList.add('selected');
+
+  // Highlight active clue
+  const startCell = wordCells[0];
+  const num = cellNumbers[`${startCell[0]},${startCell[1]}`];
+  if (num) {
+    const clueEl = document.querySelector(`.clue[data-num="${num}"][data-dir="${direction}"]`);
+    if (clueEl) {
+      clueEl.classList.add('active');
+      clueEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
+}
+
+function handleKey(e) {
+  if (solved || !selectedCell) return;
+  const [r, c] = selectedCell;
+  const key = e.key;
+
+  if (key === 'Tab') {
+    e.preventDefault();
+    direction = direction === 'across' ? 'down' : 'across';
+    highlightWord();
+    return;
+  }
+
+  if (key === 'Backspace') {
+    e.preventDefault();
+    if (userGrid[r][c]) {
+      userGrid[r][c] = '';
+      renderGrid();
+    } else {
+      movePrev();
+    }
+    return;
+  }
+
+  if (key === 'ArrowUp') { e.preventDefault(); moveDir(-1, 0); return; }
+  if (key === 'ArrowDown') { e.preventDefault(); moveDir(1, 0); return; }
+  if (key === 'ArrowLeft') { e.preventDefault(); moveDir(0, -1); return; }
+  if (key === 'ArrowRight') { e.preventDefault(); moveDir(0, 1); return; }
+
+  if (/^[a-zA-Z]$/.test(key)) {
+    e.preventDefault();
+    if (!started) startTimer();
+    userGrid[r][c] = key.toUpperCase();
+    renderGrid();
+    moveNext();
+    checkCompletion();
+  }
+}
+
+function moveNext() {
+  if (!selectedCell) return;
+  const [r, c] = selectedCell;
+  const wordCells = getWordCells(r, c, direction);
+  const idx = wordCells.findIndex(([wr, wc]) => wr === r && wc === c);
+  if (idx < wordCells.length - 1) {
+    selectedCell = wordCells[idx + 1];
+    highlightWord();
+  }
+}
+
+function movePrev() {
+  if (!selectedCell) return;
+  const [r, c] = selectedCell;
+  const wordCells = getWordCells(r, c, direction);
+  const idx = wordCells.findIndex(([wr, wc]) => wr === r && wc === c);
+  if (idx > 0) {
+    selectedCell = wordCells[idx - 1];
+    userGrid[selectedCell[0]][selectedCell[1]] = '';
+    renderGrid();
+  }
+}
+
+function moveDir(dr, dc) {
+  if (!selectedCell) return;
+  let [r, c] = selectedCell;
+  r += dr; c += dc;
+  while (r >= 0 && r < 5 && c >= 0 && c < 5) {
+    if (puzzle.grid[r][c] !== '#') {
+      selectedCell = [r, c];
+      if (dr !== 0) direction = 'down';
+      if (dc !== 0) direction = 'across';
+      highlightWord();
+      return;
+    }
+    r += dr; c += dc;
+  }
+}
+
+// Timer
+function startTimer() {
+  if (started) return;
+  started = true;
+  timerInterval = setInterval(() => {
+    seconds++;
+    updateTimer();
+  }, 1000);
+}
+
+function updateTimer() {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  document.getElementById('timer').textContent = `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+// Check
+function checkCompletion() {
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      if (puzzle.grid[r][c] !== '#' && userGrid[r][c] !== puzzle.grid[r][c]) return;
+    }
+  }
+  // Solved!
+  solved = true;
+  clearInterval(timerInterval);
+  showCompletion();
+}
+
+document.getElementById('checkBtn').addEventListener('click', () => {
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      if (puzzle.grid[r][c] === '#' || !userGrid[r][c]) continue;
+      const el = document.querySelector(`.cell[data-row="${r}"][data-col="${c}"]`);
+      if (userGrid[r][c] === puzzle.grid[r][c]) {
+        el.classList.add('correct');
+      } else {
+        el.classList.add('incorrect');
+      }
+      setTimeout(() => { el.classList.remove('correct', 'incorrect'); }, 1500);
+    }
+  }
+});
+
+document.getElementById('revealBtn').addEventListener('click', () => {
+  if (!started) startTimer();
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      if (puzzle.grid[r][c] !== '#') userGrid[r][c] = puzzle.grid[r][c];
+    }
+  }
+  renderGrid();
+  checkCompletion();
+});
+
+// Completion
+function showCompletion() {
+  launchConfetti();
+  const stats = loadStats();
+  stats.played++;
+  stats.streak++;
+  if (!stats.best || seconds < stats.best) stats.best = seconds;
+  saveStats(stats);
+
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }).split(',')[0];
+
+  document.getElementById('finalTime').textContent = formatTime(seconds);
+  document.getElementById('statPlayed').textContent = stats.played;
+  document.getElementById('statStreak').textContent = stats.streak;
+  document.getElementById('statBest').textContent = stats.best ? formatTime(stats.best) : '—';
+
+  // Mark all cells correct
+  document.querySelectorAll('.cell:not(.black)').forEach(el => el.classList.add('correct'));
+
+  // Hide nickname row if already submitted today
+  const alreadySubmitted = localStorage.getItem('nn-crossword-submitted-' + todayStr);
+  if (alreadySubmitted) {
+    document.getElementById('nicknameRow').style.display = 'none';
+    loadCrosswordLeaderboard(todayStr);
+  }
+
+  // Submit score handler
+  document.getElementById('submitLbBtn').onclick = async () => {
+    const nickname = document.getElementById('nicknameInput').value.trim();
+    if (!nickname) { document.getElementById('nicknameInput').style.borderColor = 'rgba(239,68,68,0.5)'; return; }
+    const btn = document.getElementById('submitLbBtn');
+    btn.disabled = true; btn.textContent = '...';
+    try {
+      await fetch('/api/crossword/score', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: todayStr, nickname, timeSeconds: seconds, completed: true })
+      });
+      localStorage.setItem('nn-crossword-submitted-' + todayStr, '1');
+      document.getElementById('nicknameRow').style.display = 'none';
+      loadCrosswordLeaderboard(todayStr);
+    } catch(e) { btn.disabled = false; btn.textContent = 'Retry'; }
+  };
+  document.getElementById('nicknameInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('submitLbBtn').click();
+  });
+
+  setTimeout(() => {
+    document.getElementById('overlay').classList.add('show');
+    if (alreadySubmitted) loadCrosswordLeaderboard(todayStr);
+  }, 800);
+}
+
+async function loadCrosswordLeaderboard(dateStr) {
+  try {
+    const res = await fetch(`/api/crossword/leaderboard?date=${dateStr}`);
+    const data = await res.json();
+    const entries = data.entries || [];
+    if (!entries.length) return;
+    const medals = ['🥇','🥈','🥉'];
+    const lbSection = document.getElementById('cwLbSection');
+    const lbList = document.getElementById('cwLbList');
+    lbList.innerHTML = entries.map((e, i) => `
+      <div class="cw-lb-row">
+        <span>${i < 3 ? medals[i] : i+1} <span class="cw-lb-name">${e.nickname.replace(/</g,'&lt;')}</span></span>
+        <span class="cw-lb-time">${formatTime(e.time_seconds)}</span>
+      </div>
+    `).join('');
+    lbSection.style.display = 'block';
+  } catch(e) {}
+}
+
+document.getElementById('overlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('overlay')) {
+    document.getElementById('overlay').classList.remove('show');
+  }
+});
+
+// Share
+document.getElementById('shareBtn').addEventListener('click', () => {
+  let grid = '';
+  for (let r = 0; r < 5; r++) {
+    for (let c = 0; c < 5; c++) {
+      grid += puzzle.grid[r][c] === '#' ? '⬛' : '🟩';
+    }
+    grid += '\n';
+  }
+  const text = `Neural NeXus Mini Crossword\n⏱️ ${formatTime(seconds)}\n\n${grid}\nneuralnexus.press/crossword`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.getElementById('shareBtn');
+    btn.textContent = 'Copied! ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Share 📋'; btn.classList.remove('copied'); }, 2000);
+  });
+});
+
+// Stats
+function loadStats() {
+  try { return JSON.parse(localStorage.getItem('nn-crossword-stats')) || { played: 0, streak: 0, best: null }; }
+  catch { return { played: 0, streak: 0, best: null }; }
+}
+function saveStats(s) { localStorage.setItem('nn-crossword-stats', JSON.stringify(s)); }
+
+// Confetti
+function launchConfetti() {
+  const colors = ['#7c6aff', '#22c55e', '#eab308', '#ef4444', '#60a5fa', '#f472b6'];
+  for (let i = 0; i < 60; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.top = -10 + 'px';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.width = (Math.random() * 8 + 5) + 'px';
+    piece.style.height = (Math.random() * 8 + 5) + 'px';
+    piece.style.animationDelay = (Math.random() * 2) + 's';
+    piece.style.animationDuration = (Math.random() * 2 + 2) + 's';
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 5000);
+  }
+}
+
+// Keyboard handling
+document.addEventListener('keydown', handleKey);
+document.getElementById('hiddenInput').addEventListener('input', (e) => {
+  const val = e.target.value;
+  if (val && /^[a-zA-Z]$/.test(val)) {
+    if (!started) startTimer();
+    if (selectedCell) {
+      userGrid[selectedCell[0]][selectedCell[1]] = val.toUpperCase();
+      renderGrid();
+      moveNext();
+      checkCompletion();
+    }
+  }
+  e.target.value = '';
+});
+
+// Auto-select first cell on load
+init();
+for (let r = 0; r < 5; r++) {
+  for (let c = 0; c < 5; c++) {
+    if (puzzle.grid[r][c] !== '#') {
+      selectCell(r, c);
+      r = 5; break;
+    }
+  }
+}
+</script>
+
+<nav>
+  <div class="nav-left">
+    <a href="/" class="nav-brand"><img src="/img/neuron-logo.jpg" alt="Neural NeXus"></a>
+    <div class="nav-divider"></div>
+    <span class="nav-title">Mini Crossword</span>
+  </div>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/crossword/archive">Archive</a>
+    <a href="/play" class="nav-pill">🐝 Bee</a>
+    <a href="/wordle" class="nav-pill">🟩 Wordie</a>
+  </div>
+</nav>
+
+<main>
+  <div class="game-header">
+    <h1>Mini Crossword</h1>
+    <p class="game-subtitle">5×5 · new puzzle daily</p>
+  </div>
+
+  <div class="controls-bar">
+    <div class="timer" id="timer">0:00</div>
+    <button class="btn" id="checkBtn">Check</button>
+    <button class="btn" id="revealBtn">Reveal</button>
+  </div>
+
+  <div class="game-area">
+    <div class="grid-container">
+      <div class="grid" id="grid"></div>
+      <input type="text" id="hiddenInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    </div>
+    <div class="clues-container">
+      <div class="clue-section">
+        <h3>Across</h3>
+        <div id="acrossClues"></div>
+      </div>
+      <div class="clue-section">
+        <h3>Down</h3>
+        <div id="downClues"></div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<div class="game-subscribe-cta">
+  <p class="game-subscribe-copy">
+    Enjoyed the puzzle? Get weekly deep dives on AI and biotech →
+    <a class="game-subscribe-button" href="https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=game-crossword" onclick="gtag('event', 'subscribe_click', {page_type: 'game', campaign: 'game-crossword'})">Subscribe</a>
+  </p>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="overlay-card">
+    <h2>🎉 Solved!</h2>
+    <div class="time-result" id="finalTime">0:00</div>
+    <div class="stats-row">
+      <div class="stat-item"><div class="stat-value" id="statPlayed">0</div><div class="stat-label">Played</div></div>
+      <div class="stat-item"><div class="stat-value" id="statStreak">0</div><div class="stat-label">Streak</div></div>
+      <div class="stat-item"><div class="stat-value" id="statBest">—</div><div class="stat-label">Best</div></div>
+    </div>
+    <button class="share-btn" id="shareBtn">Share 📋</button>
+    <div class="nickname-row" id="nicknameRow">
+      <input class="nickname-in" id="nicknameInput" placeholder="Your nickname" maxlength="20" autocomplete="off">
+      <button class="submit-lb-btn" id="submitLbBtn">Submit →</button>
+    </div>
+    <div class="cw-lb-section" id="cwLbSection" style="display:none">
+      <div class="cw-lb-title">🏆 Today's Fastest</div>
+      <div class="cw-lb-list" id="cwLbList"></div>
+    </div>
+    <div class="overlay-links">
+      <a href="/crossword/archive" class="overlay-link">📅 Archive</a>
+      <a href="/play" class="overlay-link">🐝 Spelling Bee</a>
+      <a href="/wordle" class="overlay-link">🟩 Wordie</a>
+    </div>
+  </div>
+</div>

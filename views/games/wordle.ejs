@@ -1,0 +1,707 @@
+<style>
+:root {
+  --bg: #0b0b12;
+  --green: #22c55e;
+  --green-dark: #16a34a;
+  --yellow: #eab308;
+  --yellow-dark: #ca8a04;
+  --absent: rgba(255,255,255,0.1);
+  --absent-text: rgba(255,255,255,0.35);
+  --tile-border: rgba(255,255,255,0.12);
+  --tile-filled: rgba(255,255,255,0.35);
+  --key-bg: rgba(255,255,255,0.12);
+  --text: #f0f0f5;
+  --text-dim: rgba(255,255,255,0.4);
+  --accent: #60a5fa;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: flex; flex-direction: column;
+  overflow-x: hidden; min-height: 100vh; width: 100%;
+}
+
+/* ── Rich background ── */
+.bg-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse at 50% 0%, rgba(34,197,94,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 20% 100%, rgba(96,165,250,0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(234,179,8,0.05) 0%, transparent 50%);
+}
+
+/* ── Nav ── */
+nav {
+  position: relative; z-index: 10;
+  padding: 10px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: rgba(14,14,22,0.95);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  flex-shrink: 0;
+}
+.nav-left { display: flex; align-items: center; gap: 12px; }
+.nav-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+.nav-brand img { height: 24px; border-radius: 5px; }
+.nav-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+.nav-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.1rem; color: #fff;
+}
+.nav-links { display: flex; gap: 14px; align-items: center; }
+.nav-links a {
+  color: rgba(255,255,255,0.6); text-decoration: none;
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.5px;
+  text-transform: uppercase; transition: color 0.2s;
+}
+.nav-links a:hover { color: #fff; }
+.nav-pill {
+  background: rgba(255,255,255,0.08) !important; border: 1px solid rgba(255,255,255,0.12);
+  padding: 5px 12px; border-radius: 6px; color: rgba(255,255,255,0.8) !important;
+}
+
+/* ── Game container ── */
+main {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 8px 12px 6px; position: relative; z-index: 1;
+  min-height: 0; gap: 10px;
+}
+
+/* ── Header ── */
+.game-header {
+  text-align: center; flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(34,197,94,0.08), rgba(234,179,8,0.06));
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px; padding: 10px 28px;
+}
+.game-header h1 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1rem; font-weight: 400; color: #fff;
+  margin-bottom: 1px;
+}
+.game-subtitle {
+  font-size: 0.58rem; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 2.5px; font-weight: 700;
+}
+
+/* ── Board ── */
+#board {
+  display: grid; grid-template-rows: repeat(6, 1fr);
+  gap: 5px;
+  width: min(340px, 75vw);
+  height: min(408px, 52vh);
+  flex-shrink: 1;
+}
+.row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; }
+.tile {
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif;
+  font-size: clamp(1.3rem, 5vw, 1.8rem); font-weight: 800;
+  text-transform: uppercase;
+  border: 2px solid var(--tile-border);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.02);
+  color: var(--text);
+  transition: border-color 0.1s, background 0.1s;
+}
+.tile.filled {
+  border-color: var(--tile-filled);
+  background: rgba(255,255,255,0.04);
+  animation: pop 0.08s ease;
+}
+@keyframes pop { 50% { transform: scale(1.06); } }
+.tile.flip { animation: flipIn 0.3s ease forwards; }
+@keyframes flipIn {
+  0% { transform: rotateX(0deg); }
+  50% { transform: rotateX(-90deg); }
+  100% { transform: rotateX(0deg); }
+}
+.tile.correct {
+  background: linear-gradient(145deg, var(--green), var(--green-dark));
+  border-color: var(--green); color: #fff;
+  box-shadow: 0 0 24px rgba(34,197,94,0.2), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.tile.present {
+  background: linear-gradient(145deg, var(--yellow), var(--yellow-dark));
+  border-color: var(--yellow); color: #fff;
+  box-shadow: 0 0 24px rgba(234,179,8,0.15), inset 0 1px 0 rgba(255,255,255,0.15);
+}
+.tile.absent {
+  background: var(--absent); border-color: transparent;
+  color: var(--absent-text);
+}
+.tile.win { animation: winBounce 0.5s ease; }
+@keyframes winBounce {
+  0%, 100% { transform: translateY(0); }
+  40% { transform: translateY(-16px); }
+  60% { transform: translateY(-6px); }
+}
+.row.shake { animation: shake 0.4s ease; }
+@keyframes shake {
+  10%, 90% { transform: translateX(-2px); }
+  20%, 80% { transform: translateX(4px); }
+  30%, 50%, 70% { transform: translateX(-6px); }
+  40%, 60% { transform: translateX(6px); }
+}
+
+/* ── Keyboard ── */
+#keyboard {
+  width: 100%; max-width: 500px;
+  flex-shrink: 0; padding: 2px 0 4px;
+}
+.kb-row { display: flex; gap: 4px; justify-content: center; margin-bottom: 4px; }
+.key {
+  height: 50px; min-width: 30px; flex: 1; max-width: 42px;
+  border-radius: 6px;
+  background: var(--key-bg); border: none; color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem; font-weight: 700;
+  cursor: pointer; transition: all 0.1s;
+  text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.key:active { transform: scale(0.93); background: rgba(255,255,255,0.18); }
+.key.wide {
+  max-width: 64px; flex: 1.5;
+  font-size: 0.6rem; letter-spacing: 0.5px; font-weight: 800;
+}
+.key.correct {
+  background: linear-gradient(145deg, var(--green), var(--green-dark)); color: #fff;
+  box-shadow: 0 2px 10px rgba(34,197,94,0.25);
+}
+.key.present {
+  background: linear-gradient(145deg, var(--yellow), var(--yellow-dark)); color: #fff;
+  box-shadow: 0 2px 10px rgba(234,179,8,0.2);
+}
+.key.absent { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.25); }
+
+/* ── Toast ── */
+#toast {
+  position: fixed; top: 60px; left: 50%; transform: translateX(-50%);
+  background: #fff; color: #111; padding: 10px 20px;
+  border-radius: 8px; font-weight: 700; font-size: 0.8rem;
+  opacity: 0; pointer-events: none; z-index: 100;
+  transition: opacity 0.25s; box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+}
+#toast.show { opacity: 1; }
+
+/* ── Modal ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,0.8); backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  align-items: center; justify-content: center; padding: 20px;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: linear-gradient(180deg, #181820, #111118);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 20px; padding: 32px 28px;
+  max-width: 360px; width: 100%; text-align: center;
+  animation: modalIn 0.3s ease;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+@keyframes modalIn {
+  0% { opacity: 0; transform: scale(0.95) translateY(10px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal h2 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: 1.5rem; font-weight: 400; margin-bottom: 4px;
+}
+.modal .result-msg { color: var(--text-dim); font-size: 0.82rem; margin-bottom: 20px; }
+.stats-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 6px; margin-bottom: 20px;
+}
+.stat-item {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 10px 4px;
+}
+.stat-val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.3rem; font-weight: 700; line-height: 1;
+}
+.stat-lbl {
+  font-size: 0.5rem; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.8px; margin-top: 3px;
+}
+.share-grid {
+  font-family: monospace; font-size: 1.1rem; line-height: 1.4;
+  margin-bottom: 16px; letter-spacing: 3px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px; padding: 14px; display: inline-block;
+}
+.modal-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+.btn-modal {
+  padding: 11px 22px; border-radius: 10px; border: none;
+  font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 700;
+  cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; gap: 6px; text-decoration: none;
+}
+.btn-share {
+  background: linear-gradient(135deg, var(--green), var(--green-dark)); color: #fff;
+  box-shadow: 0 4px 16px rgba(34,197,94,0.25);
+}
+.btn-share:hover { transform: translateY(-1px); }
+.btn-alt {
+  background: rgba(255,255,255,0.06); color: var(--text);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+/* Nickname + leaderboard in modal */
+.nickname-section {
+  margin-bottom: 16px; display: flex; gap: 8px;
+}
+.nickname-input {
+  flex: 1; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);
+  color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 0.85rem; outline: none;
+  transition: border-color 0.2s;
+}
+.nickname-input:focus { border-color: rgba(34,197,94,0.4); }
+.nickname-input::placeholder { color: rgba(255,255,255,0.2); }
+.btn-submit-lb {
+  padding: 10px 16px; border-radius: 10px; border: none;
+  background: linear-gradient(135deg, var(--green), var(--green-dark)); color: #fff;
+  font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 700;
+  cursor: pointer; transition: all 0.15s; white-space: nowrap;
+}
+.btn-submit-lb:disabled { opacity: 0.4; cursor: default; }
+.lb-section { margin-top: 12px; text-align: left; }
+.lb-title { font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 8px; text-align: center; }
+.lb-list { display: flex; flex-direction: column; gap: 4px; max-height: 150px; overflow-y: auto; }
+.lb-row { display: flex; justify-content: space-between; align-items: center; padding: 6px 10px; border-radius: 8px; background: rgba(255,255,255,0.03); font-size: 0.78rem; }
+.lb-row:first-child { background: rgba(34,197,94,0.08); color: var(--green); font-weight: 700; }
+.lb-row-name { color: var(--text-mid); }
+.lb-row-score { font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.5); }
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  nav { padding: 8px 14px; }
+  .nav-title { font-size: 0.95rem; }
+  .game-header { padding: 8px 20px; }
+  .game-header h1 { font-size: 0.9rem; }
+  #board { width: min(320px, 80vw); height: min(384px, 50vh); }
+  .key { height: 46px; min-width: 26px; font-size: 0.75rem; }
+  .key.wide { max-width: 54px; font-size: 0.55rem; }
+  .kb-row { gap: 3px; margin-bottom: 3px; }
+}
+@media (max-width: 360px) {
+  #board { width: 90vw; height: 48vh; }
+  .key { height: 42px; min-width: 22px; font-size: 0.7rem; }
+  .game-header { padding: 6px 16px; }
+}
+@media (max-height: 650px) {
+  .game-header { padding: 6px 20px; margin: 0; }
+  .game-header h1 { font-size: 0.85rem; }
+  .game-subtitle { display: none; }
+  #board { height: 46vh; }
+  .key { height: 40px; }
+}
+@media (min-width: 768px) {
+  #board { width: 360px; height: 432px; }
+  .key { height: 54px; max-width: 46px; }
+  .key.wide { max-width: 70px; }
+}
+
+.game-subscribe-cta {
+  width: min(100% - 24px, 520px);
+  margin: 0 auto 24px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+.game-subscribe-copy {
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.58);
+}
+.game-subscribe-button {
+  color: rgba(96,165,250,0.9);
+  text-decoration: none;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+.game-subscribe-button:hover {
+  color: rgba(147,197,253,0.98);
+}
+
+@media (max-width: 640px) {
+  .game-subscribe-cta {
+    width: calc(100% - 24px);
+    padding: 12px 14px;
+  }
+}
+</style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Wordie — Neural NeXus",
+  "url": "https://www.neuralnexus.press/wordle",
+  "description": "Free daily 5-letter word puzzle. Guess the word in 6 tries. New word every day at midnight.",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "Web",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "David Kingsley"
+  }
+}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://www.neuralnexus.press/"
+    },
+    {
+      "@type": "ListItem",
+      "position": 2,
+      "name": "Wordie",
+      "item": "https://www.neuralnexus.press/wordle"
+    }
+  ]
+}
+</script>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-B0X6HBHKH3"></script>
+
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-B0X6HBHKH3');
+</script>
+
+<script>
+const ROWS = 6, COLS = 5;
+let currentRow = 0, currentCol = 0;
+let gameOver = false, revealing = false;
+let todayWord = '', todayDate = '';
+let guesses = [];
+
+const board = document.getElementById('board');
+for (let r = 0; r < ROWS; r++) {
+  const row = document.createElement('div');
+  row.className = 'row'; row.id = `row${r}`;
+  for (let c = 0; c < COLS; c++) {
+    const tile = document.createElement('div');
+    tile.className = 'tile'; tile.id = `t${r}${c}`;
+    row.appendChild(tile);
+  }
+  board.appendChild(row);
+}
+
+const KB = [
+  ['Q','W','E','R','T','Y','U','I','O','P'],
+  ['A','S','D','F','G','H','J','K','L'],
+  ['ENTER','Z','X','C','V','B','N','M','⌫']
+];
+const keyboard = document.getElementById('keyboard');
+KB.forEach(row => {
+  const kr = document.createElement('div'); kr.className = 'kb-row';
+  row.forEach(k => {
+    const btn = document.createElement('button');
+    btn.className = 'key' + (k.length > 1 ? ' wide' : '');
+    btn.textContent = k; btn.id = 'k-' + k;
+    btn.addEventListener('click', () => handleKey(k));
+    kr.appendChild(btn);
+  });
+  keyboard.appendChild(kr);
+});
+
+document.addEventListener('keydown', e => {
+  if (gameOver || revealing) return;
+  if (e.key === 'Enter') handleKey('ENTER');
+  else if (e.key === 'Backspace') handleKey('⌫');
+  else if (/^[a-zA-Z]$/.test(e.key)) handleKey(e.key.toUpperCase());
+});
+
+function handleKey(key) {
+  if (gameOver || revealing) return;
+  if (key === '⌫') {
+    if (currentCol > 0) {
+      currentCol--;
+      const t = document.getElementById(`t${currentRow}${currentCol}`);
+      t.textContent = ''; t.classList.remove('filled');
+    }
+  } else if (key === 'ENTER') {
+    if (currentCol === COLS) submitGuess();
+  } else if (currentCol < COLS) {
+    const t = document.getElementById(`t${currentRow}${currentCol}`);
+    t.textContent = key; t.classList.add('filled');
+    currentCol++;
+  }
+}
+
+async function submitGuess() {
+  const guess = [];
+  for (let c = 0; c < COLS; c++) guess.push(document.getElementById(`t${currentRow}${c}`).textContent.toLowerCase());
+  const word = guess.join('');
+
+  try {
+    const res = await fetch('/api/wordle/guess', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ guess: word })
+    });
+    const data = await res.json();
+
+    if (!data.valid) {
+      showToast('Not in word list');
+      document.getElementById(`row${currentRow}`).classList.add('shake');
+      setTimeout(() => document.getElementById(`row${currentRow}`).classList.remove('shake'), 500);
+      return;
+    }
+
+    guesses.push({ word, result: data.result });
+    revealing = true;
+    const delay = 280, total = COLS * delay + 350;
+
+    for (let c = 0; c < COLS; c++) {
+      const tile = document.getElementById(`t${currentRow}${c}`);
+      const state = data.result[c];
+      setTimeout(() => {
+        tile.classList.add('flip');
+        setTimeout(() => { tile.classList.add(state); updateKey(guess[c].toUpperCase(), state); }, 150);
+      }, c * delay);
+    }
+
+    setTimeout(() => {
+      revealing = false;
+      if (data.correct) {
+        gameOver = true;
+        for (let c = 0; c < COLS; c++)
+          setTimeout(() => document.getElementById(`t${currentRow}${c}`).classList.add('win'), c * 80);
+        showToast(['Genius!','Magnificent!','Impressive!','Splendid!','Great!','Phew!'][currentRow] || 'Nice!');
+        updateStats(true);
+        setTimeout(() => showModal(true), 1800);
+      } else if (currentRow === ROWS - 1) {
+        gameOver = true;
+        showToast(todayWord.toUpperCase());
+        updateStats(false);
+        setTimeout(() => showModal(false), 1800);
+      }
+      currentRow++; currentCol = 0;
+    }, total);
+  } catch (e) { showToast('Something went wrong'); }
+}
+
+const keyStates = {};
+function updateKey(letter, state) {
+  const p = { correct: 3, present: 2, absent: 1 };
+  if (p[state] > (keyStates[letter] || 0)) {
+    keyStates[letter] = p[state];
+    const k = document.getElementById('k-' + letter);
+    if (k) { k.classList.remove('correct','present','absent'); k.classList.add(state); }
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t); t._t = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function getStats() {
+  try { return JSON.parse(localStorage.getItem('nn-wordle-stats')) || { played:0,won:0,streak:0,maxStreak:0,lastDate:'' }; }
+  catch { return { played:0,won:0,streak:0,maxStreak:0,lastDate:'' }; }
+}
+function updateStats(won) {
+  const s = getStats(); s.played++;
+  if (won) { s.won++; s.streak = s.lastDate === getYesterday() ? s.streak+1 : 1; s.maxStreak = Math.max(s.maxStreak, s.streak); }
+  else s.streak = 0;
+  s.lastDate = todayDate;
+  localStorage.setItem('nn-wordle-stats', JSON.stringify(s));
+  localStorage.setItem('nn-wordle-' + todayDate, JSON.stringify({ guesses, gameOver: true, won }));
+}
+function getYesterday() { const d = new Date(); d.setDate(d.getDate()-1); return d.toISOString().slice(0,10); }
+
+function showModal(won) {
+  const s = getStats();
+  document.getElementById('modal-title').textContent = won ? 'Brilliant' : 'Next time';
+  document.getElementById('modal-msg').textContent = won ? `Solved in ${guesses.length}/6` : `The word was ${todayWord.toUpperCase()}`;
+  document.getElementById('stat-played').textContent = s.played;
+  document.getElementById('stat-win').textContent = s.played ? Math.round(s.won/s.played*100) : 0;
+  document.getElementById('stat-streak').textContent = s.streak;
+  document.getElementById('stat-max').textContent = s.maxStreak;
+  const em = { correct:'🟩', present:'🟨', absent:'⬛' };
+  const grid = guesses.map(g => g.result.map(r => em[r]).join('')).join('\n');
+  document.getElementById('share-grid').textContent = grid;
+  document.getElementById('modal').classList.add('show');
+
+  // Show nickname section only if not already submitted
+  const alreadySubmitted = localStorage.getItem('nn-wordle-submitted-' + todayDate);
+  if (alreadySubmitted) {
+    document.getElementById('nickname-section').style.display = 'none';
+    loadLeaderboard();
+  } else {
+    document.getElementById('nickname-section').style.display = 'flex';
+  }
+
+  document.getElementById('btn-submit-lb').onclick = async () => {
+    const nickname = document.getElementById('nickname-input').value.trim();
+    if (!nickname) { document.getElementById('nickname-input').style.borderColor = 'rgba(239,68,68,0.5)'; return; }
+    const btn = document.getElementById('btn-submit-lb');
+    btn.disabled = true; btn.textContent = '...';
+    try {
+      await fetch('/api/wordle/score', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ date: todayDate, nickname, guesses: guesses.length, won, guessDetails: guesses.map(g => g.result) })
+      });
+      localStorage.setItem('nn-wordle-submitted-' + todayDate, '1');
+      document.getElementById('nickname-section').style.display = 'none';
+      btn.textContent = '✓';
+      loadLeaderboard();
+    } catch(e) { btn.disabled = false; btn.textContent = 'Retry'; }
+  };
+  document.getElementById('nickname-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('btn-submit-lb').click();
+  });
+
+  document.getElementById('btn-share').onclick = () => {
+    const text = `Neural NeXus Wordie · ${todayDate}\n\n${grid}\n\nneuralnexus.press/wordle`;
+    if (navigator.share) navigator.share({ text }).catch(() => navigator.clipboard.writeText(text).then(() => showToast('Copied!')));
+    else navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
+  };
+  document.getElementById('modal').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal')) document.getElementById('modal').classList.remove('show');
+  });
+}
+
+async function loadLeaderboard() {
+  try {
+    const res = await fetch(`/api/wordle/leaderboard?date=${todayDate}`);
+    const data = await res.json();
+    const entries = data.entries || [];
+    const medals = ['🥇','🥈','🥉'];
+    const lbSection = document.getElementById('lb-section');
+    const lbList = document.getElementById('lb-list');
+    if (entries.length) {
+      lbList.innerHTML = entries.map((e, i) => `
+        <div class="lb-row">
+          <span>${i < 3 ? medals[i] : i+1} <span class="lb-row-name">${e.nickname.replace(/</g,'&lt;')}</span></span>
+          <span class="lb-row-score">${e.guesses}/6</span>
+        </div>
+      `).join('');
+      lbSection.style.display = 'block';
+    }
+  } catch(e) {}
+}
+
+function restoreGame(saved) {
+  saved.guesses.forEach((g, ri) => {
+    for (let c = 0; c < COLS; c++) {
+      const t = document.getElementById(`t${ri}${c}`);
+      t.textContent = g.word[c].toUpperCase();
+      t.classList.add('filled', g.result[c]);
+      updateKey(g.word[c].toUpperCase(), g.result[c]);
+    }
+  });
+  guesses = saved.guesses; currentRow = saved.guesses.length;
+  if (saved.gameOver) { gameOver = true; setTimeout(() => showModal(saved.won), 600); }
+}
+
+async function init() {
+  try {
+    const res = await fetch('/api/wordle/today');
+    const data = await res.json();
+    todayDate = data.date; todayWord = data.word || '';
+    const saved = localStorage.getItem('nn-wordle-' + todayDate);
+    if (saved) restoreGame(JSON.parse(saved));
+  } catch (e) { showToast('Failed to load puzzle'); }
+}
+init();
+</script>
+
+<div class="bg-layer"></div>
+
+<nav>
+  <div class="nav-left">
+    <a href="/" class="nav-brand"><img src="/img/neuron-logo.jpg" alt="Neural NeXus"></a>
+    <div class="nav-divider"></div>
+    <span class="nav-title">Wordie</span>
+  </div>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/wordle/archive">Archive</a>
+    <a href="/play" class="nav-pill">🐝 Bee</a>
+    <a href="/crossword" class="nav-pill">✏️ Cross</a>
+  </div>
+</nav>
+
+<main>
+  <div class="game-header">
+    <h1>Guess the word</h1>
+    <p class="game-subtitle">6 tries · 5 letters · new word daily</p>
+  </div>
+
+  <div id="board"></div>
+  <div id="keyboard"></div>
+</main>
+
+<div class="game-subscribe-cta">
+  <p class="game-subscribe-copy">
+    Enjoyed the puzzle? Get weekly deep dives on AI and biotech →
+    <a class="game-subscribe-button" href="https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=game-wordle" onclick="gtag('event', 'subscribe_click', {page_type: 'game', campaign: 'game-wordle'})">Subscribe</a>
+  </p>
+</div>
+
+<div id="toast"></div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">Brilliant</h2>
+    <p class="result-msg" id="modal-msg">You solved it</p>
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-val" id="stat-played">0</div><div class="stat-lbl">Played</div></div>
+      <div class="stat-item"><div class="stat-val" id="stat-win">0</div><div class="stat-lbl">Win %</div></div>
+      <div class="stat-item"><div class="stat-val" id="stat-streak">0</div><div class="stat-lbl">Streak</div></div>
+      <div class="stat-item"><div class="stat-val" id="stat-max">0</div><div class="stat-lbl">Best</div></div>
+    </div>
+    <div class="share-grid" id="share-grid"></div>
+    <div class="nickname-section" id="nickname-section">
+      <input class="nickname-input" id="nickname-input" placeholder="Your nickname" maxlength="20" autocomplete="off">
+      <button class="btn-submit-lb" id="btn-submit-lb">Submit →</button>
+    </div>
+    <div class="lb-section" id="lb-section" style="display:none">
+      <div class="lb-title">🏆 Today's Leaderboard</div>
+      <div class="lb-list" id="lb-list"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal btn-share" id="btn-share">Share 📋</button>
+      <a href="/wordle/archive" class="btn-modal btn-alt">Archive 📅</a>
+      <a href="/play" class="btn-modal btn-alt">Bee 🐝</a>
+    </div>
+  </div>
+</div>

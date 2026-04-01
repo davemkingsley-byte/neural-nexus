@@ -34,13 +34,17 @@
   <% if (locals.pageCSS) { %><link rel="stylesheet" href="/css/<%= locals.pageCSS %>"><% } %>
 </head>
 <body class="site-shell <%= locals.bodyClass || '' %>">
-  <div class="ambient"></div>
-  <div class="grid-bg"></div>
-  <div class="main-shell">
-    <%- include('../partials/header') %>
-    <main><%- body %></main>
-    <%- include('../partials/subscribe-cta') %>
-    <%- include('../partials/footer') %>
-  </div>
+  <% if (locals.hideSiteChrome) { %>
+    <%- body %>
+  <% } else { %>
+    <div class="ambient"></div>
+    <div class="grid-bg"></div>
+    <div class="main-shell">
+      <%- include('../partials/header') %>
+      <main><%- body %></main>
+      <%- include('../partials/subscribe-cta') %>
+      <%- include('../partials/footer') %>
+    </div>
+  <% } %>
 </body>
 </html>

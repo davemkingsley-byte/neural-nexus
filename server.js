@@ -498,13 +498,34 @@ app.post('/api/charters', dashboardAuth, (req, res) => {
 
 // Serve game pages
 app.get('/play', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'play.html'));
+  renderPage(res, 'games/spelling-bee', {
+    title: 'Spelling Bee',
+    description: 'Play the daily Neural NeXus Spelling Bee puzzle',
+    canonical: 'https://www.neuralnexus.press/play',
+    activePage: 'games',
+    pageType: 'game',
+    hideSiteChrome: true
+  });
 });
 app.get('/wordle', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'wordle.html'));
+  renderPage(res, 'games/wordle', {
+    title: 'Wordle',
+    description: 'Play the daily Neural NeXus Wordle puzzle',
+    canonical: 'https://www.neuralnexus.press/wordle',
+    activePage: 'games',
+    pageType: 'game',
+    hideSiteChrome: true
+  });
 });
 app.get('/crossword', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'crossword.html'));
+  renderPage(res, 'games/crossword', {
+    title: 'Mini Crossword',
+    description: 'Play the daily Neural NeXus Mini Crossword',
+    canonical: 'https://www.neuralnexus.press/crossword',
+    activePage: 'games',
+    pageType: 'game',
+    hideSiteChrome: true
+  });
 });
 
 // Dashboard (password-protected)
@@ -593,13 +614,34 @@ app.get('/topics/:slug', (req, res) => {
 
 // Archive pages
 app.get('/play/archive', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'spelling-bee-archive.html'));
+  renderPage(res, 'games/spelling-bee-archive', {
+    title: 'Spelling Bee Archive',
+    description: 'Browse past Spelling Bee puzzles from Neural NeXus, review historical boards, and revisit previous daily word challenges.',
+    canonical: 'https://www.neuralnexus.press/play/archive',
+    activePage: 'games',
+    pageType: 'game',
+    hideSiteChrome: true
+  });
 });
 app.get('/wordle/archive', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'wordle-archive.html'));
+  renderPage(res, 'games/wordle-archive', {
+    title: 'Wordie Archive',
+    description: 'Browse previous Wordie puzzles on Neural NeXus, revisit past answers, and track your daily word-game history.',
+    canonical: 'https://www.neuralnexus.press/wordle/archive',
+    activePage: 'games',
+    pageType: 'game',
+    hideSiteChrome: true
+  });
 });
 app.get('/crossword/archive', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'crossword-archive.html'));
+  renderPage(res, 'games/crossword-archive', {
+    title: 'Mini Crossword Archive',
+    description: 'Browse previous Neural NeXus Mini Crossword puzzles and revisit the daily 5x5 archive anytime.',
+    canonical: 'https://www.neuralnexus.press/crossword/archive',
+    activePage: 'games',
+    pageType: 'game',
+    hideSiteChrome: true
+  });
 });
 
 // --- Wordle API ---
