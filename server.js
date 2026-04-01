@@ -161,7 +161,77 @@ app.get('/sitemap.xml', (req, res) => {
   res.send(xml);
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+function sanitizeBlockers(blockers) {
+  if (!Array.isArray(blockers)) return [];
+  return blockers.map((item) => {
+    if (typeof item === 'string') return { text: item };
+    if (item && typeof item === 'object') {
+      return {
+        text: item.text || null,
+        severity: item.severity || null,
+      };
+    }
+    return { text: String(item) };
+  });
+}
+
+function sanitizeProgressItems(items) {
+  if (!Array.isArray(items)) return [];
+  return items.map((item) => ({
+    done: Boolean(item?.done),
+    text: item?.text || null,
+  }));
+}
+
+function sanitizeDecisions(decisions) {
+  if (!Array.isArray(decisions)) return [];
+  return decisions.map((item) => ({
+    date: item?.date || null,
+    text: item?.text || null,
+  }));
+}
+
+function sanitizeRisks(risks) {
+  if (!Array.isArray(risks)) return [];
+  return risks.map((item) => ({
+    risk: item?.risk || null,
+    likelihood: item?.likelihood || null,
+    impact: item?.impact || null,
+    mitigation: item?.mitigation || null,
+  }));
+}
+
+function sanitizeMilestones(milestones) {
+  if (!Array.isArray(milestones)) return [];
+  return milestones.map((item) => ({
+    name: item?.name || null,
+    tasks: item?.tasks || null,
+    status: item?.status || null,
+  }));
+}
+
+function sanitizeCharter(charter) {
+  return {
+    id: charter.id,
+    name: charter.title || null,
+    status: charter.statusClean || charter.status || null,
+    progress: typeof charter.progress === 'number' ? charter.progress : null,
+    priority: charter.priority || null,
+    updated: charter.dateCompleted || charter.targetDate || charter.dateInitiated || null,
+    phase: charter.phase || null,
+    program: charter.program || null,
+    liveUrl: charter.liveUrl || null,
+    objective: charter.objective || null,
+    successCriteria: charter.successCriteria || null,
+    dependencies: Array.isArray(charter.dependencies) ? charter.dependencies : [],
+    enables: Array.isArray(charter.enables) ? charter.enables : [],
+    blockers: sanitizeBlockers(charter.blockers),
+    progressItems: sanitizeProgressItems(charter.outstanding),
+    decisions: sanitizeDecisions(charter.decisions),
+    risks: sanitizeRisks(charter.risks),
+    milestones: sanitizeMilestones(charter.milestones)
+  };
+}
 
 // Health check
 app.get('/health', (req, res) => {
@@ -182,39 +252,28 @@ const activityPath = path.join(__dirname, 'data', 'activity.json');
 function loadCharterData() {
   try {
     return JSON.parse(fs.readFileSync(charterDataPath, 'utf8'));
-  } catch { return { programs: [], generated: null }; }
+  } catch (err) {
+    console.error('Failed to load charter data:', err.message);
+    return { programs: [], generated: null };
+  }
 }
 
-app.get('/api/charters', dashboardAuth, (req, res) => {
+app.get('/api/charters', (req, res) => {
   const data = loadCharterData();
-  const charters = data.programs ? data.programs.flatMap(p => p.charters) : [];
-  // Compute daysUntilTarget and overdue dynamically
-  const now = new Date();
-  now.setHours(0, 0, 0, 0);
-  for (const c of charters) {
-    if (c.targetDate && !c.dateCompleted) {
-      const target = new Date(c.targetDate + 'T00:00:00');
-      const diffMs = target - now;
-      c.daysUntilTarget = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-      c.overdue = c.daysUntilTarget < 0;
-    } else if (c.dateCompleted) {
-      c.daysUntilTarget = null;
-      c.overdue = false;
-    } else {
-      c.daysUntilTarget = null;
-      c.overdue = false;
-    }
-  }
-  res.json({ charters });
+  const charters = data.programs ? data.programs.flatMap(p => p.charters || []) : [];
+  const payload = charters.map(sanitizeCharter);
+  res.json(payload);
 });
 
-app.get('/api/charters/:id', dashboardAuth, (req, res) => {
+app.get('/api/charters/:id', (req, res) => {
   const data = loadCharterData();
-  const charters = data.programs ? data.programs.flatMap(p => p.charters) : [];
-  const charter = charters.find(c => c.id === req.params.id);
-  if (!charter) return res.status(404).json({ error: 'Not found' });
-  res.json(charter);
+  const charters = data.programs ? data.programs.flatMap(p => p.charters || []) : [];
+  const charter = charters.find(c => String(c.id) === String(req.params.id));
+  if (!charter) return res.status(404).json({ error: 'Charter not found' });
+  res.json(sanitizeCharter(charter));
 });
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/api/health', dashboardAuth, async (req, res) => {
   const data = loadCharterData();
