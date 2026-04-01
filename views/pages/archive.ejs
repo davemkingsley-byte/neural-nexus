@@ -6,9 +6,12 @@
 %>
 
 <section class="archive-page">
+  <% if (locals.breadcrumbItems && locals.breadcrumbItems.length) { %>
+    <%- include('../partials/breadcrumb', { items: locals.breadcrumbItems }) %>
+  <% } %>
   <div class="page-badge">📚 Archive</div>
   <h1>Neural NeXus Archive</h1>
-  <p class="page-desc">Browse the full article library, filter by topic, and jump into the game archives when you want a different kind of brain fuel.</p>
+  <p class="page-desc">Browse the full article library, filter by topic, explore the <a href="/topics">topic hubs</a>, and jump into the game archives when you want a different kind of brain fuel.</p>
 
   <div class="archive-shell-card archive-controls-card">
     <div class="archive-controls-top">

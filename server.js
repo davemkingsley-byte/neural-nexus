@@ -88,6 +88,101 @@ function xmlEscape(value = '') {
     .replace(/'/g, '&apos;');
 }
 
+const SITE_URL = 'https://www.neuralnexus.press';
+const CANONICAL_HOST = 'www.neuralnexus.press';
+const NOINDEX_PATHS = [
+  '/dashboard',
+  '/morpheus',
+  '/seo-report',
+];
+const NOINDEX_PREFIXES = [
+  '/pm-charters/',
+  '/treat-docs/',
+  '/cognitive/',
+];
+
+function shouldNoindexPath(pathname = '') {
+  return NOINDEX_PATHS.includes(pathname) || NOINDEX_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+}
+
+function buildBreadcrumbJsonLd(items = []) {
+  if (!Array.isArray(items) || !items.length) return null;
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: items.map((item, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: item.label,
+      item: `${SITE_URL}${item.href || ''}`
+    }))
+  };
+}
+
+function buildCollectionPageJsonLd({ name, description, url }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name,
+    description,
+    url,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'Neural NeXus',
+      url: SITE_URL
+    }
+  };
+}
+
+function buildGameJsonLd({ name, description, url }) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Game',
+    name,
+    url,
+    description,
+    publisher: {
+      '@type': 'Person',
+      name: 'David Kingsley, PhD'
+    },
+    isAccessibleForFree: true,
+    inLanguage: 'en-US'
+  };
+}
+
+function getArticleLastmodByTopic(slug) {
+  const dates = articles
+    .filter((article) => Array.isArray(article.topics) && article.topics.includes(slug) && article.date)
+    .map((article) => article.date)
+    .sort()
+    .reverse();
+  return dates[0] || null;
+}
+
+function buildSitemapEntries() {
+  const topicEntries = topics.map((topic) => ({
+    loc: `${SITE_URL}/topics/${topic.slug}`,
+    priority: '0.8',
+    changefreq: 'weekly',
+    lastmod: getArticleLastmodByTopic(topic.slug)
+  }));
+
+  return [
+    { loc: `${SITE_URL}/`, priority: '1.0', changefreq: 'daily', lastmod: articles[0]?.date || null },
+    { loc: `${SITE_URL}/topics`, priority: '0.8', changefreq: 'weekly', lastmod: topicEntries.map((entry) => entry.lastmod).find(Boolean) || null },
+    ...topicEntries,
+    { loc: `${SITE_URL}/archive`, priority: '0.7', changefreq: 'weekly', lastmod: articles[0]?.date || null },
+    { loc: `${SITE_URL}/play`, priority: '0.6', changefreq: 'daily', lastmod: new Date().toISOString().split('T')[0] },
+    { loc: `${SITE_URL}/wordle`, priority: '0.6', changefreq: 'daily', lastmod: new Date().toISOString().split('T')[0] },
+    { loc: `${SITE_URL}/crossword`, priority: '0.6', changefreq: 'daily', lastmod: new Date().toISOString().split('T')[0] },
+    { loc: `${SITE_URL}/play/archive`, priority: '0.6', changefreq: 'weekly', lastmod: new Date().toISOString().split('T')[0] },
+    { loc: `${SITE_URL}/wordle/archive`, priority: '0.6', changefreq: 'weekly', lastmod: new Date().toISOString().split('T')[0] },
+    { loc: `${SITE_URL}/crossword/archive`, priority: '0.6', changefreq: 'weekly', lastmod: new Date().toISOString().split('T')[0] },
+    { loc: `${SITE_URL}/privacy`, priority: '0.3', changefreq: 'monthly', lastmod: null },
+    { loc: `${SITE_URL}/brain-check`, priority: '0.3', changefreq: 'monthly', lastmod: null },
+  ];
+}
+
 app.get('/health', (req, res) => {
   const timestamp = new Date().toISOString();
   let db;
@@ -134,6 +229,27 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  const host = (req.headers.host || '').toLowerCase();
+  const isLocal = host.startsWith('localhost') || host.startsWith('127.0.0.1');
+  if (host && !isLocal && host !== CANONICAL_HOST) {
+    return res.redirect(301, `${SITE_URL}${req.originalUrl}`);
+  }
+
+  if (req.path.length > 1 && req.path.endsWith('/')) {
+    const normalizedPath = req.path.replace(/\/+$/, '');
+    const search = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+    return res.redirect(301, `${normalizedPath}${search}`);
+  }
+
+  if (shouldNoindexPath(req.path)) {
+    res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+    res.locals.noindex = true;
+  }
+
+  next();
+});
+
 // Protect dashboard data from public access
 const DASHBOARD_PASS = process.env.DASHBOARD_PASS || 'nexus2026';
 function dashboardAuth(req, res, next) {
@@ -147,6 +263,17 @@ app.get('/', (req, res) => {
     title: 'Neural NeXus',
     description: 'Weekly deep dives on AI, biotech, robotics, semiconductors, health, and the future by David Kingsley, PhD. Read Neural NeXus.',
     canonical: 'https://www.neuralnexus.press/',
+    structuredData: [{
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      name: 'Neural NeXus',
+      url: 'https://www.neuralnexus.press',
+      description: 'Weekly deep dives on AI, biotech, and the science of what comes next',
+      publisher: {
+        '@type': 'Person',
+        name: 'David Kingsley, PhD'
+      }
+    }],
     activePage: 'home',
     pageType: 'home',
     pageCampaign: 'home',
@@ -167,6 +294,21 @@ app.get('/archive', (req, res) => {
     pageCSS: 'archive.css',
     bodyClass: 'archive-page',
     pageCampaign: 'archive',
+    breadcrumbItems: [
+      { label: 'Home', href: '/' },
+      { label: 'Archive', href: '/archive' }
+    ],
+    structuredData: [
+      buildBreadcrumbJsonLd([
+        { label: 'Home', href: '/' },
+        { label: 'Archive', href: '/archive' }
+      ]),
+      buildCollectionPageJsonLd({
+        name: 'Neural NeXus Archive',
+        description: 'Browse all Neural NeXus articles and game archives, including past Spelling Bee, Wordie, and Mini Crossword puzzles.',
+        url: 'https://www.neuralnexus.press/archive'
+      })
+    ],
     queryTopic
   });
 });
@@ -187,7 +329,7 @@ app.get(['/brain-check', '/brain-check/'], (req, res) => {
   renderPage(res, 'pages/brain-check', {
     title: 'Brain Check',
     description: 'Take the free Brain Check on Neural NeXus to benchmark reaction time, memory, focus, and cognitive sharpness in minutes.',
-    canonical: 'https://www.neuralnexus.press/brain-check/',
+    canonical: 'https://www.neuralnexus.press/brain-check',
     activePage: 'brain-check',
     pageType: 'brain-check',
     pageCSS: 'brain-check.css',
@@ -258,43 +400,21 @@ app.get('/feed.xml', (req, res) => {
 });
 
 app.get('/sitemap.xml', (req, res) => {
-  const baseUrl = 'https://www.neuralnexus.press';
-  const lastmod = new Date().toISOString().split('T')[0];
-  const urls = [
-    { path: '/', changefreq: 'daily', priority: '1.0' },
-    { path: '/play', changefreq: 'weekly', priority: '0.8' },
-    { path: '/wordle', changefreq: 'weekly', priority: '0.8' },
-    { path: '/crossword', changefreq: 'weekly', priority: '0.8' },
-    { path: '/archive', changefreq: 'weekly', priority: '0.6' },
-    { path: '/play/archive', changefreq: 'weekly', priority: '0.6' },
-    { path: '/wordle/archive', changefreq: 'weekly', priority: '0.6' },
-    { path: '/crossword/archive', changefreq: 'weekly', priority: '0.6' },
-    { path: '/app', changefreq: 'weekly', priority: '0.8' },
-    { path: '/app/test', changefreq: 'weekly', priority: '0.6' },
-    { path: '/app/test/pvt.html', changefreq: 'weekly', priority: '0.6' },
-    { path: '/app/test/dsst.html', changefreq: 'weekly', priority: '0.6' },
-    { path: '/app/test/nback.html', changefreq: 'weekly', priority: '0.6' },
-    { path: '/app/test/stroop.html', changefreq: 'weekly', priority: '0.6' },
-    { path: '/app/test/avlt.html', changefreq: 'weekly', priority: '0.6' },
-    { path: '/app/test/tmtb.html', changefreq: 'weekly', priority: '0.6' },
-    { path: '/topics', changefreq: 'weekly', priority: '0.8' },
-    { path: '/topics/de-extinction', changefreq: 'weekly', priority: '0.8' },
-    { path: '/topics/artificial-womb', changefreq: 'weekly', priority: '0.8' },
-    { path: '/topics/ai-agents', changefreq: 'weekly', priority: '0.8' },
-    { path: '/topics/ai', changefreq: 'weekly', priority: '0.8' },
-    { path: '/topics/biotech', changefreq: 'weekly', priority: '0.8' },
-    { path: '/topics/robotics', changefreq: 'weekly', priority: '0.8' },
-    { path: '/topics/semiconductors', changefreq: 'weekly', priority: '0.8' },
-    { path: '/topics/venture-capital', changefreq: 'weekly', priority: '0.8' },
-    { path: '/topics/health', changefreq: 'weekly', priority: '0.8' },
-    { path: '/topics/longevity', changefreq: 'weekly', priority: '0.8' },
-    { path: '/privacy', changefreq: 'monthly', priority: '0.4' }
-  ];
-
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n` +
-    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
-    urls.map(({ path, changefreq, priority }) => `  <url>\n    <loc>${baseUrl}${path}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`).join('\n') +
-    `\n</urlset>\n`;
+  const urls = buildSitemapEntries();
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+` +
+    urls.map(({ loc, changefreq, priority, lastmod }) => `  <url>
+    <loc>${xmlEscape(loc)}</loc>${lastmod ? `
+    <lastmod>${xmlEscape(lastmod)}</lastmod>` : ''}
+    <changefreq>${changefreq}</changefreq>
+    <priority>${priority}</priority>
+  </url>`).join('
+') +
+    `
+</urlset>
+`;
 
   res.type('application/xml');
   res.send(xml);
@@ -547,6 +667,14 @@ app.get('/play', (req, res) => {
     canonical: 'https://www.neuralnexus.press/play',
     activePage: 'games',
     pageType: 'game',
+    structuredData: [
+      buildBreadcrumbJsonLd([
+        { label: 'Home', href: '/' },
+        { label: 'Games', href: '/play' },
+        { label: 'Spelling Bee', href: '/play' }
+      ]),
+      buildGameJsonLd({ name: 'Neural NeXus Spelling Bee', description: 'Daily Spelling Bee word puzzle. Seven letters, one center — find every word in 5 minutes. New puzzle every day with leaderboard.', url: 'https://www.neuralnexus.press/play' })
+    ],
     hideSiteChrome: true
   });
 });
@@ -557,6 +685,14 @@ app.get('/wordle', (req, res) => {
     canonical: 'https://www.neuralnexus.press/wordle',
     activePage: 'games',
     pageType: 'game',
+    structuredData: [
+      buildBreadcrumbJsonLd([
+        { label: 'Home', href: '/' },
+        { label: 'Games', href: '/wordle' },
+        { label: 'Wordie', href: '/wordle' }
+      ]),
+      buildGameJsonLd({ name: 'Wordie — Neural NeXus', description: 'Free daily 5-letter word puzzle. Guess the word in 6 tries. New word every day at midnight.', url: 'https://www.neuralnexus.press/wordle' })
+    ],
     hideSiteChrome: true
   });
 });
@@ -567,6 +703,14 @@ app.get('/crossword', (req, res) => {
     canonical: 'https://www.neuralnexus.press/crossword',
     activePage: 'games',
     pageType: 'game',
+    structuredData: [
+      buildBreadcrumbJsonLd([
+        { label: 'Home', href: '/' },
+        { label: 'Games', href: '/crossword' },
+        { label: 'Mini Crossword', href: '/crossword' }
+      ]),
+      buildGameJsonLd({ name: 'Neural NeXus Mini Crossword', description: 'Free daily 5×5 mini crossword puzzle. Quick, fun, and new every day from Neural NeXus.', url: 'https://www.neuralnexus.press/crossword' })
+    ],
     hideSiteChrome: true
   });
 });
@@ -578,7 +722,7 @@ function dashboardLoginPage(req, res, next) {
   if (match && match[1] === 'authenticated') return next();
   const failed = req.query.failed === '1';
   const returnTo = req.path || '/dashboard';
-  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="robots" content="noindex, nofollow">
 <title>Dashboard Login</title>
 <style>body{background:#06060b;color:#f0f0f5;font-family:system-ui;display:flex;justify-content:center;align-items:center;min-height:100vh}
 .login{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:2.5rem;max-width:360px;width:90%}
@@ -617,7 +761,22 @@ app.get('/topics', (req, res) => {
     pageCSS: 'topic.css',
     bodyClass: 'topics-index-page',
     topics,
-    ogType: 'website'
+    ogType: 'website',
+    breadcrumbItems: [
+      { label: 'Home', href: '/' },
+      { label: 'Topics', href: '/topics' }
+    ],
+    structuredData: [
+      buildBreadcrumbJsonLd([
+        { label: 'Home', href: '/' },
+        { label: 'Topics', href: '/topics' }
+      ]),
+      buildCollectionPageJsonLd({
+        name: 'Neural NeXus Topics',
+        description: 'Browse Neural NeXus topic hubs across AI, biotech, robotics, semiconductors, health, venture capital, and the future.',
+        url: 'https://www.neuralnexus.press/topics'
+      })
+    ]
   });
 });
 
@@ -666,7 +825,28 @@ app.get('/topics/:slug', (req, res) => {
     relatedArticles,
     relatedTopics,
     ogImage: `https://www.neuralnexus.press/img/topics/${topic.slug}.jpg`,
-    ogType: 'article'
+    ogType: 'article',
+    breadcrumbItems: [
+      { label: 'Home', href: '/' },
+      { label: 'Topics', href: '/topics' },
+      { label: topic.name, href: `/topics/${topic.slug}` }
+    ],
+    structuredData: [
+      buildBreadcrumbJsonLd([
+        { label: 'Home', href: '/' },
+        { label: 'Topics', href: '/topics' },
+        { label: topic.name, href: `/topics/${topic.slug}` }
+      ]),
+      {
+        ...buildCollectionPageJsonLd({
+          name: topic.name,
+          description: topic.description,
+          url: `https://www.neuralnexus.press/topics/${topic.slug}`
+        }),
+        about: { '@type': 'Thing', name: topic.name },
+        author: { '@type': 'Person', name: 'David Kingsley, PhD' }
+      }
+    ]
   });
 });
 

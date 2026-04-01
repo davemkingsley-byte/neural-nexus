@@ -1,21 +1,6 @@
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  "name": "Neural NeXus Topics",
-  "description": "Browse topic hubs across AI, biotech, robotics, semiconductors, health, venture capital, and the future.",
-  "url": "https://www.neuralnexus.press/topics"
-}
-</script>
-
 <section class="topics-index-hero">
   <div class="topic-shell">
-    <%- include('../partials/breadcrumb', {
-      items: [
-        { label: 'Home', href: '/' },
-        { label: 'Topics' }
-      ]
-    }) %>
+    <%- include('../partials/breadcrumb', { items: locals.breadcrumbItems || [{ label: 'Home', href: '/' }, { label: 'Topics' }] }) %>
 
     <div class="topic-hero-card">
       <div class="topic-kicker"><span class="topic-kicker-emoji">🗂️</span> Coverage Map</div>

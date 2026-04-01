@@ -1,44 +1,3 @@
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "name": "Neural NeXus",
-  "url": "https://www.neuralnexus.press",
-  "description": "Weekly deep dives on biotech, AI, and the science of what comes next — by David Kingsley, PhD.",
-  "publisher": {
-    "@type": "Person",
-    "name": "David Kingsley",
-    "jobTitle": "PhD Scientist",
-    "worksFor": {
-      "@type": "Organization",
-      "name": "Colossal Biosciences"
-    },
-    "url": "https://www.neuralnexus.press",
-    "image": "https://www.neuralnexus.press/img/david.jpg"
-  }
-}
-</script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Person",
-  "name": "David Kingsley",
-  "jobTitle": "PhD Scientist",
-  "worksFor": {
-    "@type": "Organization",
-    "name": "Colossal Biosciences",
-    "url": "https://colossalbiosciences.com"
-  },
-  "url": "https://www.neuralnexus.press",
-  "image": "https://www.neuralnexus.press/img/david.jpg",
-  "sameAs": [
-    "https://www.instagram.com/Davidkingsley.phd",
-    "https://blog.neuralnexus.press"
-  ],
-  "description": "PhD scientist at Colossal Biosciences working on de-extinction and artificial womb technology. Writes Neural NeXus newsletter on biotech, AI, and health."
-}
-</script>
-
 <!-- Hero -->
 <section class="hero">
   <div class="hero-badge"><span class="pulse"></span> Read by 1,000+ subscribers</div>
@@ -63,7 +22,7 @@
         <p class="desc">A fly brain was uploaded and given a body.</p>
         <div class="article-cta">Read →</div>
       </div>
-      <img class="article-thumb" src="https://substack-post-media.s3.amazonaws.com/public/images/359ea00e-241c-4da6-8c57-29df71727c8f_1920x1080.gif" alt="Ghost in the Machine" loading="lazy">
+      <img class="article-thumb" src="https://substack-post-media.s3.amazonaws.com/public/images/359ea00e-241c-4da6-8c57-29df71727c8f_1920x1080.gif" alt="Ghost in the Machine" loading="lazy" width="1920" height="1080">
     </a>
     <a href="https://blog.neuralnexus.press/p/lab-grown-neurons-learn-to-play-doom" target="_blank" class="article-card">
       <div class="article-meta">
@@ -72,7 +31,7 @@
         <p class="desc">What neurons learning video games tells us about the nature of intelligence.</p>
         <div class="article-cta">Read →</div>
       </div>
-      <img class="article-thumb" src="https://substack-post-media.s3.amazonaws.com/public/images/f430f59e-584e-44f3-a85e-5316cded0f56_1200x800.jpeg" alt="Lab Grown Neurons" loading="lazy">
+      <img class="article-thumb" src="https://substack-post-media.s3.amazonaws.com/public/images/f430f59e-584e-44f3-a85e-5316cded0f56_1200x800.jpeg" alt="Lab Grown Neurons" loading="lazy" width="1200" height="800">
     </a>
     <a href="https://blog.neuralnexus.press/p/the-2028-global-intelligence-renaissance" target="_blank" class="article-card">
       <div class="article-meta">
@@ -81,7 +40,7 @@
         <p class="desc">A bullish rebuttal to The 2028 Global Intelligence Crisis.</p>
         <div class="article-cta">Read →</div>
       </div>
-      <img class="article-thumb" src="https://substack-post-media.s3.amazonaws.com/public/images/ae01eb85-de75-4300-a00c-d9834eb54435_480x480.gif" alt="Intelligence Renaissance" loading="lazy">
+      <img class="article-thumb" src="https://substack-post-media.s3.amazonaws.com/public/images/ae01eb85-de75-4300-a00c-d9834eb54435_480x480.gif" alt="Intelligence Renaissance" loading="lazy" width="480" height="480">
     </a>
     <a href="https://blog.neuralnexus.press/p/the-agent-era" target="_blank" class="article-card">
       <div class="article-meta">
@@ -90,11 +49,12 @@
         <p class="desc">Welcome to the Agent Internet.</p>
         <div class="article-cta">Read →</div>
       </div>
-      <img class="article-thumb" src="https://substack-post-media.s3.amazonaws.com/public/images/37fd4f03-9ecb-40b1-911b-fbfec4b17b1c_622x356.gif" alt="The Agent Era" loading="lazy">
+      <img class="article-thumb" src="https://substack-post-media.s3.amazonaws.com/public/images/37fd4f03-9ecb-40b1-911b-fbfec4b17b1c_622x356.gif" alt="The Agent Era" loading="lazy" width="622" height="356">
     </a>
   </div>
   <div class="archive-link">
-    <a href="https://blog.neuralnexus.press/archive" target="_blank">View full archive →</a>
+    <a href="/archive">Explore the on-site archive →</a>
+    <a href="https://blog.neuralnexus.press/archive" target="_blank" rel="noopener noreferrer">View the full Substack archive →</a>
   </div>
 </section>
 
@@ -103,7 +63,7 @@
   <div class="section-label">About</div>
   <h2 class="section-title">Who writes this</h2>
   <div class="about-card">
-    <div class="about-photo"><img src="/img/david.jpg" alt="David Kingsley, PhD"></div>
+    <div class="about-photo"><img src="/img/david.jpg" alt="David Kingsley, PhD" width="519" height="499" loading="lazy" decoding="async"></div>
     <div class="about-text">
       <div class="about-name">David Kingsley, PhD</div>
       <div class="about-role">Scientist · Colossal Biosciences</div>
@@ -222,6 +182,7 @@ document.getElementById('email-input').addEventListener('keydown', e => {
   if (e.key === 'Enter') document.getElementById('subscribe-btn').click();
 });
 
+window.addEventListener('load', () => {
 const observer = new IntersectionObserver(entries => {
   entries.forEach(e => {
     if (e.isIntersecting) { e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)'; }
@@ -232,27 +193,7 @@ document.querySelectorAll('.card, .about-card, .game-card, .article-card').forEa
   el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
   observer.observe(el);
 });
-</script>
-
-<script>
-document.getElementById('subscribe-btn').addEventListener('click', () => {
-  const email = document.getElementById('email-input').value.trim();
-  window.open(email 
-    ? 'https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=home-subscribe&email=' + encodeURIComponent(email) 
-    : 'https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=home-subscribe', '_blank');
-});
-document.getElementById('email-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('subscribe-btn').click();
-});
-
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) { e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)'; }
-  });
-}, { threshold: 0.1 });
-document.querySelectorAll('.card, .about-card, .game-card, .article-card').forEach(el => {
-  el.style.opacity = '0'; el.style.transform = 'translateY(16px)';
-  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-  observer.observe(el);
 });
 </script>
+
+

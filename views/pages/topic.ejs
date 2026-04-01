@@ -2,38 +2,9 @@
   const topicArticles = (locals.topicArticles || []).slice(0, 20);
   const relatedArticles = locals.relatedArticles || [];
 %>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  "name": "<%= topic.name %>",
-  "description": "<%= topic.description %>",
-  "url": "https://www.neuralnexus.press/topics/<%= topic.slug %>",
-  "isPartOf": {
-    "@type": "WebSite",
-    "name": "Neural NeXus",
-    "url": "https://www.neuralnexus.press"
-  },
-  "about": {
-    "@type": "Thing",
-    "name": "<%= topic.name %>"
-  },
-  "author": {
-    "@type": "Person",
-    "name": "David Kingsley"
-  }
-}
-</script>
-
 <section class="topic-hero">
   <div class="topic-shell">
-    <%- include('../partials/breadcrumb', {
-      items: [
-        { label: 'Home', href: '/' },
-        { label: 'Topics', href: '/topics' },
-        { label: topic.name }
-      ]
-    }) %>
+    <%- include('../partials/breadcrumb', { items: locals.breadcrumbItems || [{ label: 'Home', href: '/' }, { label: 'Topics', href: '/topics' }, { label: topic.name }] }) %>
 
     <div class="topic-hero-card">
       <div class="topic-kicker"><span class="topic-kicker-emoji"><%= topic.emoji %></span> Topic Guide</div>
@@ -42,7 +13,7 @@
 
       <div class="topic-meta-row">
         <div class="topic-author">
-          <img src="/img/david.jpg" alt="David Kingsley, PhD">
+          <img src="/img/david.jpg" alt="David Kingsley, PhD" width="519" height="499" decoding="async">
           <div>
             <div class="topic-author-name">David Kingsley, PhD</div>
             <div class="topic-author-role">Scientist · Neural NeXus</div>
@@ -114,7 +85,7 @@
                 <p><%= article.description %></p>
                 <div class="topic-article-tags">
                   <% (article.topics || []).forEach((topicSlug) => { %>
-                    <span><%= topicSlug %></span>
+                    <a href="/topics/<%= topicSlug %>"><%= ((locals.topics || []).find((entry) => entry.slug === topicSlug) || {}).name || topicSlug %></a>
                   <% }) %>
                 </div>
                 <span class="topic-related-link">Read on Substack →</span>
