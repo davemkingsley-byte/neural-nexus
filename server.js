@@ -410,8 +410,7 @@ app.get('/sitemap.xml', (req, res) => {
     <lastmod>${xmlEscape(lastmod)}</lastmod>` : ''}
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
-  </url>`).join('
-') +
+  </url>`).join('\n') +
     `
 </urlset>
 `;
