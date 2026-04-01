@@ -54,8 +54,7 @@
   .status-err { color: #f87171; }
 </style>
 </head>
-<body>
-<script src="/shared/nav.js"></script>
+<body data-site-shell-mode="full" data-site-shell-active="home">
 <div class="container">
   <h1>SEO Health Report</h1>
   <div id="content"><div class="loading">Loading report...</div></div>
@@ -131,5 +130,6 @@
     .catch(err => { $('content').innerHTML = '<div class="error-msg">Failed to load report: ' + err.message + '</div>'; });
 })();
 </script>
+<script src="/shared/site-shell.js"></script>
 </body>
 </html>

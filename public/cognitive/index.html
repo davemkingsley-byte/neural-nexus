@@ -570,7 +570,7 @@ body {
 .insight-msg { font-size: 0.84rem; color: var(--text-mid); line-height: 1.5; }
 </style>
 </head>
-<body>
+<body data-site-shell-mode="back" data-site-shell-back-href="/" data-site-shell-back-label="← Back to Neural NeXus">
 
 <div class="ambient">
   <div class="blob blob-1"></div>
@@ -1704,5 +1704,6 @@ async function initPhases() { await loadPhases(); }
 init();
 initPhases();
 </script>
+<script src="/shared/site-shell.js"></script>
 </body>
 </html>
