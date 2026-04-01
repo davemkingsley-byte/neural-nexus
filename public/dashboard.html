@@ -337,6 +337,125 @@ select.field-select {
   opacity:0; transform:translateY(8px); transition:all 0.25s;
 }
 .toast.show { opacity:1; transform:translateY(0); }
+@media (max-width: 768px) {
+  .layout { flex-direction:column; }
+  .sidebar {
+    position:relative;
+    top:auto; left:auto; bottom:auto;
+    width:100%;
+    border-right:none;
+    border-bottom:1px solid var(--border);
+    padding:12px;
+    gap:8px;
+    flex-direction:row;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  .sidebar-brand {
+    width:100%;
+    padding:0 4px 12px;
+    margin-bottom:0;
+  }
+  .sidebar-section {
+    width:100%;
+    padding:8px 4px 0;
+  }
+  .nav-item {
+    min-height:44px;
+    padding:10px 14px;
+    margin:0;
+    flex:0 0 auto;
+  }
+  .main {
+    margin-left:0;
+    padding:20px 16px 28px;
+  }
+  .page-header {
+    flex-direction:column;
+    gap:14px;
+  }
+  .page-header > * {
+    width:100%;
+  }
+  .page-header .btn-primary {
+    width:100%;
+  }
+  .summary-grid {
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:12px;
+  }
+  .toolbar {
+    flex-direction:column;
+    align-items:stretch;
+  }
+  .search-box,
+  .sort-select,
+  .filter-btn,
+  .btn-primary,
+  .btn-cancel,
+  .health-btn {
+    width:100%;
+    min-height:44px;
+  }
+  .search-box,
+  .sort-select,
+  .filter-btn,
+  .btn-primary,
+  .btn-cancel,
+  .health-btn,
+  .modal-field input,
+  .modal-field textarea {
+    font-size:16px;
+  }
+  .modal {
+    max-width:none;
+    margin:16px;
+    padding:20px;
+  }
+  .modal-actions {
+    flex-direction:column-reverse;
+  }
+  .health-grid {
+    grid-template-columns:1fr;
+  }
+  .gantt-wrap {
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:6px;
+  }
+  .gantt-table {
+    min-width:720px;
+  }
+}
+
+@media (max-width: 375px) {
+  .main {
+    padding:16px 12px 24px;
+  }
+  .summary-grid {
+    grid-template-columns:1fr;
+  }
+  .summary-card {
+    padding:16px;
+  }
+  .page-header h1 {
+    font-size:1.2rem;
+  }
+  .sidebar {
+    padding:10px;
+  }
+  .sidebar-brand {
+    padding-bottom:10px;
+  }
+  .nav-item {
+    width:100%;
+    justify-content:flex-start;
+  }
+  .modal {
+    margin:12px;
+    padding:16px;
+  }
+}
 </style>
 </head>
 <body>
