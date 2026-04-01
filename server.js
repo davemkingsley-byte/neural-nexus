@@ -2447,11 +2447,6 @@ app.post("/api/seo/report/generate", dashboardAuth, async (req, res) => {
   } catch (err) { res.status(500).json({ error: err.message }); }
 });
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Neural NeXus running on http://localhost:${PORT}`);
-});
-
-
 // DEBUG: Raw WHOOP API response (temporary)
 app.get('/api/whoop/debug-sync', dashboardAuth, async (req, res) => {
   const accessToken = await getWhoopAccessToken();
@@ -2472,4 +2467,15 @@ app.get('/api/whoop/debug-sync', dashboardAuth, async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+app.use((req, res) => {
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'Not found' });
+  }
+  return res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Neural NeXus running on http://localhost:${PORT}`);
 });
