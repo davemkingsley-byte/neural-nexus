@@ -1,0 +1,59 @@
+body.archive-page main {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 132px 24px 100px;
+}
+.archive-page .page-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-2);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  margin-bottom: 20px;
+}
+.archive-page h1 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: clamp(2.2rem, 6vw, 3.5rem);
+  font-weight: 400;
+  line-height: 1.1;
+  margin-bottom: 12px;
+}
+.archive-page .page-desc { color: var(--text-mid); font-size: 1rem; line-height: 1.7; margin-bottom: 56px; }
+.archive-page .games-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+.archive-page .game-archive-card { display: block; text-decoration: none; padding: 28px 24px; border-radius: 18px; border: 1px solid var(--border); background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); transition: all 0.3s; position: relative; overflow: hidden; }
+.archive-page .game-archive-card::before { content: ''; position: absolute; top: -50%; right: -20%; width: 200px; height: 200px; border-radius: 50%; opacity: 0; transition: opacity 0.3s; }
+.archive-page .game-archive-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); }
+.archive-page .game-archive-card:hover::before { opacity: 1; }
+.archive-page .card-bee::before { background: radial-gradient(circle, rgba(240,192,64,0.08) 0%, transparent 70%); }
+.archive-page .card-wordie::before { background: radial-gradient(circle, rgba(34,197,94,0.08) 0%, transparent 70%); }
+.archive-page .card-cross::before { background: radial-gradient(circle, rgba(124,106,255,0.08) 0%, transparent 70%); }
+.archive-page .card-bee { border-color: rgba(240,192,64,0.12); }
+.archive-page .card-bee:hover { border-color: rgba(240,192,64,0.25); }
+.archive-page .card-wordie { border-color: rgba(34,197,94,0.12); }
+.archive-page .card-wordie:hover { border-color: rgba(34,197,94,0.25); }
+.archive-page .card-cross { border-color: rgba(124,106,255,0.12); }
+.archive-page .card-cross:hover { border-color: rgba(124,106,255,0.25); }
+.archive-page .card-emoji { font-size: 2.2rem; margin-bottom: 14px; display: block; }
+.archive-page .card-title { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.35rem; font-weight: 400; margin-bottom: 6px; color: var(--text); }
+.archive-page .card-desc { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; margin-bottom: 18px; }
+.archive-page .card-cta { display: inline-flex; align-items: center; gap: 5px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+.archive-page .card-bee .card-cta { color: var(--gold); }
+.archive-page .card-wordie .card-cta { color: #22c55e; }
+.archive-page .card-cross .card-cta { color: #7c6aff; }
+.archive-page .play-today { margin-top: 56px; padding: 32px; background: var(--surface); border: 1px solid var(--border-2); border-radius: 18px; backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+.archive-page .play-today h2 { font-family: 'Instrument Serif', Georgia, serif; font-size: 1.4rem; margin-bottom: 8px; }
+.archive-page .play-today p { color: var(--text-mid); font-size: 0.88rem; margin-bottom: 20px; }
+.archive-page .play-links { display: flex; gap: 10px; flex-wrap: wrap; }
+.archive-page .play-link { display: inline-flex; align-items: center; gap: 7px; padding: 10px 20px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; text-decoration: none; transition: all 0.2s; }
+.archive-page .play-link-bee { background: rgba(240,192,64,0.1); color: var(--gold); border: 1px solid rgba(240,192,64,0.2); }
+.archive-page .play-link-wordie { background: rgba(34,197,94,0.1); color: #22c55e; border: 1px solid rgba(34,197,94,0.2); }
+.archive-page .play-link-cross { background: rgba(124,106,255,0.1); color: #7c6aff; border: 1px solid rgba(124,106,255,0.2); }
+.archive-page .play-link:hover { transform: translateY(-1px); }
+@media (max-width: 600px) { body.archive-page main { padding: 108px 16px 80px; } .archive-page .games-grid { grid-template-columns: 1fr; } .archive-page .play-today { padding: 22px; } .archive-page .play-links { flex-direction: column; } .archive-page .play-link { justify-content: center; } }

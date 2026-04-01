@@ -55,6 +55,19 @@ const PORT = process.env.PORT || 4000;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+function renderPage(res, view, options) {
+  res.render(view, options, (err, html) => {
+    if (err) {
+      console.error(`Render error for ${view}:`, err);
+      return res.status(500).send('Template render error');
+    }
+    return res.render('layouts/base', {
+      ...options,
+      body: html,
+    });
+  });
+}
+
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: false }));
 
@@ -115,6 +128,54 @@ function dashboardAuth(req, res, next) {
   if (match && match[1] === 'authenticated') return next();
   res.status(401).json({ error: 'unauthorized' });
 }
+app.get('/', (req, res) => {
+  renderPage(res, 'pages/home', {
+    title: 'Neural NeXus',
+    description: 'Weekly deep dives on AI, biotech, robotics, semiconductors, health, and the future by David Kingsley, PhD. Read Neural NeXus.',
+    canonical: 'https://www.neuralnexus.press/',
+    activePage: 'home',
+    pageType: 'home',
+    pageCSS: 'home.css',
+    bodyClass: 'home-page'
+  });
+});
+
+app.get('/archive', (req, res) => {
+  renderPage(res, 'pages/archive', {
+    title: 'Archive',
+    description: 'Browse all Neural NeXus articles and game archives, including past Spelling Bee, Wordie, and Mini Crossword puzzles.',
+    canonical: 'https://www.neuralnexus.press/archive',
+    activePage: 'archive',
+    pageType: 'archive',
+    pageCSS: 'archive.css',
+    bodyClass: 'archive-page'
+  });
+});
+
+app.get('/privacy', (req, res) => {
+  renderPage(res, 'pages/privacy', {
+    title: 'Privacy Policy',
+    description: 'Read the Neural NeXus privacy policy covering website usage, newsletter interactions, and data handling practices.',
+    canonical: 'https://www.neuralnexus.press/privacy',
+    activePage: 'privacy',
+    pageType: 'privacy',
+    pageCSS: 'privacy.css',
+    bodyClass: 'privacy-page'
+  });
+});
+
+app.get(['/brain-check', '/brain-check/'], (req, res) => {
+  renderPage(res, 'pages/brain-check', {
+    title: 'Brain Check',
+    description: 'Take the free Brain Check on Neural NeXus to benchmark reaction time, memory, focus, and cognitive sharpness in minutes.',
+    canonical: 'https://www.neuralnexus.press/brain-check/',
+    activePage: 'brain-check',
+    pageType: 'brain-check',
+    pageCSS: 'brain-check.css',
+    bodyClass: 'brain-check-page'
+  });
+});
+
 app.use('/data', dashboardAuth);
 // PM Dashboard (password-protected)
 app.use('/pm', (req, res, next) => {
@@ -512,9 +573,6 @@ app.get('/topics/longevity', (req, res) => {
 });
 
 // Archive pages
-app.get('/archive', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'archive.html'));
-});
 app.get('/play/archive', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'spelling-bee-archive.html'));
 });
@@ -2505,7 +2563,15 @@ app.use((req, res) => {
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ error: 'Not found' });
   }
-  return res.status(404).sendFile(path.join(__dirname, 'public', '404.html'));
+  return renderPage(res.status(404), 'pages/404', {
+    title: '404',
+    description: 'The page you requested could not be found on Neural NeXus.',
+    canonical: `https://www.neuralnexus.press${req.originalUrl}`,
+    activePage: null,
+    pageType: '404',
+    pageCSS: '404.css',
+    bodyClass: 'not-found-page'
+  });
 });
 
 app.listen(PORT, '0.0.0.0', () => {

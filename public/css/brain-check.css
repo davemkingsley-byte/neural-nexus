@@ -1,0 +1,12 @@
+body.brain-check-page main {
+  padding-top: 0;
+}
+.brain-check-shell {
+  position: relative;
+  z-index: 1;
+}
+.brain-check-page .subscribe-cta-wrap,
+.brain-check-page .site-footer {
+  position: relative;
+  z-index: 1;
+}

@@ -1,0 +1,14 @@
+body.privacy-page main {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 132px 24px 100px;
+  line-height: 1.7;
+}
+.privacy-page h1 { font-size: 1.8rem; margin-bottom: 0.5rem; color: #f0f0f5; }
+.privacy-page h2 { font-size: 1.2rem; margin-top: 2rem; margin-bottom: 0.5rem; color: #d4a853; }
+.privacy-page p { margin-bottom: 1rem; font-size: 0.95rem; color: #ccc; }
+.privacy-page a { color: #d4a853; }
+.privacy-page .updated { color: #888; font-size: 0.85rem; margin-bottom: 2rem; }
+.privacy-page ul { padding-left: 1.5rem; margin-bottom: 1rem; }
+.privacy-page li { margin-bottom: 0.4rem; font-size: 0.95rem; color: #ccc; }
+@media (max-width: 640px) { body.privacy-page main { padding: 108px 20px 80px; } }
