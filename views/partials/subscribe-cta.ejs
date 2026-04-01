@@ -1,0 +1,16 @@
+<section class="subscribe-cta-wrap" aria-label="Subscribe call to action">
+  <div class="subscribe-cta">
+    <div class="subscribe-cta-copy">
+      <div class="section-label">Newsletter</div>
+      <h2>Stay ahead of the curve</h2>
+      <p>Weekly deep dives on AI, biotech, and the science of what comes next.</p>
+    </div>
+    <a
+      href="https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=<%= locals.pageType || 'general' %>"
+      class="btn-primary"
+      target="_blank"
+      rel="noopener noreferrer"
+      onclick="gtag('event', 'subscribe_click', {page_type: '<%= locals.pageType || 'general' %>', campaign: '<%= locals.pageType || 'general' %>'})"
+    >Subscribe free →</a>
+  </div>
+</section>

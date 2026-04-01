@@ -1,0 +1,9 @@
+<a href="<%= href %>" class="article-card" <%= target ? `target="${target}" rel="noopener noreferrer"` : '' %>>
+  <div class="article-meta">
+    <% if (date) { %><div class="article-date"><%= date %></div><% } %>
+    <h3><%= title %></h3>
+    <% if (description) { %><p class="desc"><%= description %></p><% } %>
+    <div class="article-cta"><%= cta || 'Read →' %></div>
+  </div>
+  <% if (image) { %><img class="article-thumb" src="<%= image %>" alt="<%= imageAlt || title %>" loading="lazy"><% } %>
+</a>

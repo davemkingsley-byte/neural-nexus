@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= title %> — Neural NeXus</title>
+  <meta name="description" content="<%= description %>">
+  <link rel="canonical" href="<%= canonical %>">
+  <link rel="icon" type="image/x-icon" href="/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+  <meta name="msapplication-config" content="/browserconfig.xml">
+  <meta name="theme-color" content="#0a0a1a">
+  <meta property="og:title" content="<%= title %> — Neural NeXus">
+  <meta property="og:description" content="<%= description %>">
+  <meta property="og:image" content="<%= locals.ogImage || 'https://www.neuralnexus.press/img/neuron-logo.jpg' %>">
+  <meta property="og:url" content="<%= canonical %>">
+  <meta property="og:type" content="<%= locals.ogType || 'website' %>">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="<%= title %> — Neural NeXus">
+  <meta name="twitter:description" content="<%= description %>">
+  <meta name="twitter:image" content="<%= locals.ogImage || 'https://www.neuralnexus.press/img/neuron-logo.jpg' %>">
+  <meta name="google-site-verification" content="kW4a01m15KuJy1nc9RStj2h4bXvGCTIBrMhCHTxUiSs">
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-B0X6HBHKH3"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-B0X6HBHKH3');
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Instrument+Serif&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/base.css">
+  <% if (locals.pageCSS) { %><link rel="stylesheet" href="/css/<%= locals.pageCSS %>"><% } %>
+</head>
+<body class="site-shell <%= locals.bodyClass || '' %>">
+  <div class="ambient"></div>
+  <div class="grid-bg"></div>
+  <div class="main-shell">
+    <%- include('../partials/header') %>
+    <main><%- body %></main>
+    <%- include('../partials/subscribe-cta') %>
+    <%- include('../partials/footer') %>
+  </div>
+</body>
+</html>

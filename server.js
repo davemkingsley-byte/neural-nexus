@@ -52,6 +52,9 @@ try {
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: false }));
 
@@ -292,6 +295,17 @@ app.get('/api/charters/:id', (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+app.get('/test-ejs', (req, res) => {
+  res.render('layouts/base', {
+    title: 'Test',
+    description: 'Test page',
+    canonical: 'https://www.neuralnexus.press/test',
+    body: '<section class="section-wrap"><div class="section-label">Test</div><h1 class="section-title">EJS Working</h1><p style="color: var(--text-mid); font-size: 1rem; line-height: 1.7;">Shared layout, partials, and CSS are rendering correctly.</p></section>',
+    activePage: 'home',
+    pageType: 'test'
+  });
+});
 
 app.get('/api/health', dashboardAuth, async (req, res) => {
   const data = loadCharterData();
