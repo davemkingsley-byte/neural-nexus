@@ -316,6 +316,50 @@ main {
   position: absolute; opacity: 0; width: 1px; height: 1px;
   top: -100px; left: -100px;
 }
+
+.game-subscribe-cta {
+  width: min(100%, 600px);
+  margin: 4px auto 0;
+  padding: 18px 20px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 14px;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.game-subscribe-copy {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: rgba(255,255,255,0.78);
+}
+.game-subscribe-button {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #60a5fa, #4f8fef);
+  color: #fff;
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  box-shadow: 0 10px 24px rgba(96,165,250,0.18);
+}
+
+@media (max-width: 640px) {
+  .game-subscribe-cta {
+    padding: 16px;
+    flex-direction: column;
+    text-align: center;
+  }
+  .game-subscribe-button { width: 100%; }
+}
 </style>
 
 <!-- Google Analytics (GA4) -->
@@ -373,6 +417,11 @@ main {
     </div>
   </div>
 </main>
+
+<div class="game-subscribe-cta">
+  <p class="game-subscribe-copy">Enjoyed the puzzle? Get weekly deep dives on AI, biotech, and the future.</p>
+  <a class="game-subscribe-button" href="https://davidkingsley.substack.com/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=game-crossword">Subscribe Free →</a>
+</div>
 
 <div class="overlay" id="overlay">
   <div class="overlay-card">
