@@ -1,11 +1,11 @@
 {
-  "name": "Neural NeXus",
-  "short_name": "NeXus",
+  "name": "Neural NeXus Cognitive Suite",
+  "short_name": "NN Cognition",
   "description": "Cognitive Performance Tracker",
   "start_url": "/app/",
   "display": "standalone",
-  "theme_color": "#06060b",
-  "background_color": "#06060b",
+  "theme_color": "#667eea",
+  "background_color": "#0a0a0a",
   "icons": [
     {
       "src": "/app/icons/icon-192.png",
@@ -22,5 +22,6 @@
       "sizes": "any",
       "type": "image/svg+xml"
     }
-  ]
+  ],
+  "scope": "/app/"
 }

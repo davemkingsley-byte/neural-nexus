@@ -271,5 +271,13 @@ async function loadCorrelations() {
   } catch {}
 }
 </script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' });
+  });
+}
+</script>
 </body>
 </html>

@@ -114,6 +114,11 @@ app.use('/cognitive', (req, res, next) => {
   res.redirect('/dashboard');
 }, express.static(path.join(__dirname, 'public', 'cognitive')));
 
+app.get('/app/sw.js', (req, res) => {
+  res.setHeader('Service-Worker-Allowed', '/app/');
+  res.sendFile(path.join(__dirname, 'public', 'app', 'sw.js'));
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Health check

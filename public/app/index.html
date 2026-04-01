@@ -418,9 +418,10 @@ async function loadDaily() {
   } catch {}
 }
 
-// Register SW
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/app/sw.js');
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' });
+  });
 }
 </script>
 </body>

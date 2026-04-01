@@ -122,5 +122,13 @@ document.addEventListener('DOMContentLoaded',async()=>{
   }catch{document.getElementById('whoopStatus').textContent='Unable to check status'}
 });
 </script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' });
+  });
+}
+</script>
 </body>
 </html>

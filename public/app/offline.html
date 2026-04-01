@@ -27,5 +27,13 @@
     <p>Neural NeXus requires an internet connection for test data sync.</p>
     <p style="margin-top:24px"><a href="/app/" style="color:#d4a853">Try Again</a></p>
   </div>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/app/sw.js', { scope: '/app/' });
+  });
+}
+</script>
 </body>
 </html>
