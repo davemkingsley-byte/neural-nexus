@@ -119,6 +119,48 @@ app.get('/app/sw.js', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'app', 'sw.js'));
 });
 
+app.get('/sitemap.xml', (req, res) => {
+  const baseUrl = 'https://www.neuralnexus.press';
+  const lastmod = new Date().toISOString().split('T')[0];
+  const urls = [
+    { path: '/', changefreq: 'daily', priority: '1.0' },
+    { path: '/play', changefreq: 'weekly', priority: '0.8' },
+    { path: '/wordle', changefreq: 'weekly', priority: '0.8' },
+    { path: '/crossword', changefreq: 'weekly', priority: '0.8' },
+    { path: '/archive', changefreq: 'weekly', priority: '0.6' },
+    { path: '/play/archive', changefreq: 'weekly', priority: '0.6' },
+    { path: '/wordle/archive', changefreq: 'weekly', priority: '0.6' },
+    { path: '/crossword/archive', changefreq: 'weekly', priority: '0.6' },
+    { path: '/app', changefreq: 'weekly', priority: '0.8' },
+    { path: '/app/test', changefreq: 'weekly', priority: '0.6' },
+    { path: '/app/test/pvt.html', changefreq: 'weekly', priority: '0.6' },
+    { path: '/app/test/dsst.html', changefreq: 'weekly', priority: '0.6' },
+    { path: '/app/test/nback.html', changefreq: 'weekly', priority: '0.6' },
+    { path: '/app/test/stroop.html', changefreq: 'weekly', priority: '0.6' },
+    { path: '/app/test/avlt.html', changefreq: 'weekly', priority: '0.6' },
+    { path: '/app/test/tmtb.html', changefreq: 'weekly', priority: '0.6' },
+    { path: '/topics/de-extinction', changefreq: 'weekly', priority: '0.8' },
+    { path: '/topics/artificial-womb', changefreq: 'weekly', priority: '0.8' },
+    { path: '/topics/ai-agents', changefreq: 'weekly', priority: '0.8' },
+    { path: '/topics/ai', changefreq: 'weekly', priority: '0.8' },
+    { path: '/topics/biotech', changefreq: 'weekly', priority: '0.8' },
+    { path: '/topics/robotics', changefreq: 'weekly', priority: '0.8' },
+    { path: '/topics/semiconductors', changefreq: 'weekly', priority: '0.8' },
+    { path: '/topics/venture-capital', changefreq: 'weekly', priority: '0.8' },
+    { path: '/topics/health', changefreq: 'weekly', priority: '0.8' },
+    { path: '/topics/longevity', changefreq: 'weekly', priority: '0.8' },
+    { path: '/privacy', changefreq: 'monthly', priority: '0.4' }
+  ];
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n` +
+    `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n` +
+    urls.map(({ path, changefreq, priority }) => `  <url>\n    <loc>${baseUrl}${path}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`).join('\n') +
+    `\n</urlset>\n`;
+
+  res.type('application/xml');
+  res.send(xml);
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Health check
@@ -131,6 +173,7 @@ app.get('/health', (req, res) => {
     time: new Date().toISOString() 
   });
 });
+
 
 // ── PM Dashboard API (reads from static data/charters.json) ──────────────────
 const charterDataPath = path.join(__dirname, 'public', 'data', 'charters.json');
