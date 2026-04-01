@@ -55,6 +55,36 @@ const PORT = process.env.PORT || 4000;
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: false }));
 
+const packageJson = require('./package.json');
+const charterDataPath = path.join(__dirname, 'public', 'data', 'charters.json');
+
+app.get('/health', (req, res) => {
+  const timestamp = new Date().toISOString();
+  let db;
+  try {
+    const raw = fs.readFileSync(charterDataPath, 'utf8');
+    const parsed = JSON.parse(raw);
+    db = {
+      status: Array.isArray(parsed?.programs) ? 'ok' : 'error'
+    };
+    if (db.status === 'error') db.message = 'Charter data is not in the expected format';
+  } catch (err) {
+    console.error('Health check DB error:', err.message);
+    db = {
+      status: 'error',
+      message: 'Charter data unavailable'
+    };
+  }
+
+  res.status(200).json({
+    status: db.status === 'ok' ? 'ok' : 'degraded',
+    uptime: process.uptime(),
+    version: packageJson.version || 'unknown',
+    timestamp,
+    db
+  });
+});
+
 const rateLimit = require('express-rate-limit');
 
 const loginLimiter = rateLimit({
@@ -233,20 +263,8 @@ function sanitizeCharter(charter) {
   };
 }
 
-// Health check
-app.get('/health', (req, res) => {
-  const fs = require('fs');
-  res.json({ 
-    status: 'ok', 
-    dbReady, 
-    volumeMounted: fs.existsSync('/data'),
-    time: new Date().toISOString() 
-  });
-});
-
 
 // ── PM Dashboard API (reads from static data/charters.json) ──────────────────
-const charterDataPath = path.join(__dirname, 'public', 'data', 'charters.json');
 const activityPath = path.join(__dirname, 'data', 'activity.json');
 
 function loadCharterData() {
