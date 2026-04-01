@@ -378,50 +378,45 @@ main {
 }
 
 .game-subscribe-cta {
-  width: min(100% - 24px, 600px);
-  margin: 0 auto 28px;
-  padding: 18px 20px;
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.06);
+  width: min(100% - 24px, 520px);
+  margin: 0 auto 24px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.07);
   border-radius: 14px;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: center;
+  gap: 8px;
   position: relative;
   z-index: 1;
+  text-align: center;
 }
 .game-subscribe-copy {
-  font-size: 0.95rem;
-  line-height: 1.5;
-  color: rgba(255,255,255,0.78);
+  font-size: 0.76rem;
+  line-height: 1.45;
+  color: rgba(255,255,255,0.58);
 }
 .game-subscribe-button {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 18px;
-  border-radius: 999px;
-  background: linear-gradient(135deg, #60a5fa, #4f8fef);
-  color: #fff;
+  color: rgba(96,165,250,0.9);
   text-decoration: none;
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.01em;
-  box-shadow: 0 10px 24px rgba(96,165,250,0.18);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+.game-subscribe-button:hover {
+  color: rgba(147,197,253,0.98);
 }
 
 @media (max-width: 640px) {
   .game-subscribe-cta {
     width: calc(100% - 24px);
-    padding: 16px;
-    flex-direction: column;
-    text-align: center;
+    padding: 12px 14px;
   }
-  .game-subscribe-button { width: 100%; }
 }
 </style>
 
@@ -464,8 +459,10 @@ main {
 </main>
 
 <div class="game-subscribe-cta">
-  <p class="game-subscribe-copy">Enjoyed the puzzle? Get weekly deep dives on AI, biotech, and the future.</p>
-  <a class="game-subscribe-button" href="https://davidkingsley.substack.com/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=game-wordle">Subscribe Free →</a>
+  <p class="game-subscribe-copy">
+    Enjoyed the puzzle? Get weekly deep dives on AI and biotech →
+    <a class="game-subscribe-button" href="https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=game-wordle" onclick="gtag('event', 'subscribe_click', {page_type: 'game', campaign: 'game-wordle'})">Subscribe</a>
+  </p>
 </div>
 
 <div id="toast"></div>
