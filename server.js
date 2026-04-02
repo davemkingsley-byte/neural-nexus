@@ -469,19 +469,30 @@ function sanitizeMilestones(milestones) {
 }
 
 function sanitizeCharter(charter) {
+  // Pass through all fields the dashboard needs — don't strip useful data
   return {
-    id: charter.id,
+    ...charter,
+    // Ensure critical fields exist with fallbacks
     title: charter.title || null,
     name: charter.title || null,
-    status: charter.statusClean || charter.status || null,
+    status: charter.status || null,
+    statusClean: charter.statusClean || (charter.status || '').replace(/^[^\w]*/, '').trim() || null,
     progress: typeof charter.progress === 'number' ? charter.progress : null,
     priority: charter.priority || null,
-    updated: charter.dateCompleted || charter.targetDate || charter.dateInitiated || null,
+    owner: charter.owner || null,
+    assignee: charter.assignee || null,
+    dateInitiated: charter.dateInitiated || null,
+    targetDate: charter.targetDate || null,
+    dateCompleted: charter.dateCompleted || null,
     phase: charter.phase || null,
+    phaseIndex: typeof charter.phaseIndex === 'number' ? charter.phaseIndex : null,
     program: charter.program || null,
     liveUrl: charter.liveUrl || null,
     objective: charter.objective || null,
     successCriteria: charter.successCriteria || null,
+    daysActive: charter.daysActive || null,
+    overdue: charter.overdue || false,
+    daysUntilTarget: charter.daysUntilTarget ?? null,
     dependencies: Array.isArray(charter.dependencies) ? charter.dependencies : [],
     enables: Array.isArray(charter.enables) ? charter.enables : [],
     blockers: sanitizeBlockers(charter.blockers),
