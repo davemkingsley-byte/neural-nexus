@@ -508,7 +508,7 @@ app.get('/api/charters', (req, res) => {
   const data = loadCharterData();
   const charters = data.programs ? data.programs.flatMap(p => p.charters || []) : [];
   const payload = charters.map(sanitizeCharter);
-  res.json(payload);
+  res.json({ charters: payload });
 });
 
 app.get('/api/charters/:id', (req, res) => {
