@@ -471,6 +471,7 @@ function sanitizeMilestones(milestones) {
 function sanitizeCharter(charter) {
   return {
     id: charter.id,
+    title: charter.title || null,
     name: charter.title || null,
     status: charter.statusClean || charter.status || null,
     progress: typeof charter.progress === 'number' ? charter.progress : null,
