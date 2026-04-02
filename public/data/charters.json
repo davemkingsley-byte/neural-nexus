@@ -1334,7 +1334,7 @@
           "title": "TRT-002 In Silico Design Pipeline",
           "status": "\ud83d\udfe1 Active",
           "statusClean": "Active",
-          "phase": "Track 2: STRUCTURAL DISCRIMINATION COMPLETE — 4 Tier 1 candidates from 2 scaffold families pass all mechanism gates. Day 2 AF3 next. Track 1: Parked, awaiting David GO on gene synthesis.",
+          "phase": "Track 2: STRUCTURAL DISCRIMINATION COMPLETE \u2014 4 Tier 1 candidates from 2 scaffold families pass all mechanism gates. Day 2 AF3 next. Track 1: Parked, awaiting David GO on gene synthesis.",
           "phaseIndex": 3,
           "dateInitiated": "2026-03-25",
           "targetDate": "2026-04-15",
@@ -1433,7 +1433,7 @@
             },
             {
               "done": true,
-              "text": "Track 2: Structural discrimination — 6-gate framework, 4 Tier 1 candidates from 2 scaffold families (s404474, s102094)"
+              "text": "Track 2: Structural discrimination \u2014 6-gate framework, 4 Tier 1 candidates from 2 scaffold families (s404474, s102094)"
             },
             {
               "done": false,
@@ -1519,11 +1519,11 @@
             },
             {
               "date": "2026-03-30",
-              "text": "ActRIIB selectivity confirmed: lead design vs BMPRII ipTM 0.49 — addresses ACE-031 off-target safety concern"
+              "text": "ActRIIB selectivity confirmed: lead design vs BMPRII ipTM 0.49 \u2014 addresses ACE-031 off-target safety concern"
             },
             {
               "date": "2026-03-31",
-              "text": "Structural discrimination complete: 4 Tier 1 from 2 scaffold families (s404474, s102094). G5 (focused competitive-face contacts) is primary discriminator. N2 rejected design fails structural gates despite AF3 ipTM 0.79 — validates two-stage pipeline."
+              "text": "Structural discrimination complete: 4 Tier 1 from 2 scaffold families (s404474, s102094). G5 (focused competitive-face contacts) is primary discriminator. N2 rejected design fails structural gates despite AF3 ipTM 0.79 \u2014 validates two-stage pipeline."
             }
           ],
           "documents": [
@@ -1976,6 +1976,17 @@
               "type": "financial"
             }
           ]
+        },
+        {
+          "id": "506",
+          "title": "Campaign R2: De Novo Miniprotein Blocker (ActRIIB)",
+          "status": "\ud83d\udfe2 Active",
+          "statusClean": "Active",
+          "phase": "Day 0.5 complete \u2014 multi-seed validation PASS",
+          "phaseIndex": 2,
+          "dateInitiated": "2026-04-01",
+          "owner": "Archimedes",
+          "progress": 15
         }
       ]
     },
@@ -2663,7 +2674,7 @@
         {
           "id": "601",
           "title": "Morpheus Digital Embodiment V1",
-          "status": "🟡 Active",
+          "status": "\ud83d\udfe1 Active",
           "statusClean": "Active",
           "phase": "V1 deployed to neuralnexus.press/morpheus. Static scaffold with glassmorphism neural visualization, fleet status, morning briefing, action items. Next: live data integration (V2).",
           "phaseIndex": 2,
@@ -2690,11 +2701,11 @@
             },
             {
               "done": true,
-              "text": "Define visual identity — abstract neural presence with orbiting rings, pulsing core, floating nodes"
+              "text": "Define visual identity \u2014 abstract neural presence with orbiting rings, pulsing core, floating nodes"
             },
             {
               "done": true,
-              "text": "Choose primary surface — neuralnexus.press/morpheus (password protected)"
+              "text": "Choose primary surface \u2014 neuralnexus.press/morpheus (password protected)"
             },
             {
               "done": true,
@@ -2702,11 +2713,11 @@
             },
             {
               "done": true,
-              "text": "V1 build + deploy — static scaffold with placeholder data (Daedalus built, Morpheus reviewed)"
+              "text": "V1 build + deploy \u2014 static scaffold with placeholder data (Daedalus built, Morpheus reviewed)"
             },
             {
               "done": false,
-              "text": "V2: Live data integration — pull from charters.json, session APIs, heartbeat state"
+              "text": "V2: Live data integration \u2014 pull from charters.json, session APIs, heartbeat state"
             },
             {
               "done": false,
@@ -2729,7 +2740,7 @@
         {
           "id": "901",
           "title": "Market Research & Pricing Strategy",
-          "status": "🟡 In Progress",
+          "status": "\ud83d\udfe1 In Progress",
           "statusClean": "In Progress",
           "phase": "Researching rental comps and pricing models",
           "phaseIndex": 2,
@@ -2742,26 +2753,47 @@
           "priority": "High",
           "program": "Durham Property Management",
           "progress": 0,
-          "objective": "Determine optimal rental strategy and pricing for 601 Eastway Ave, Durham NC — furnished 3bed/2bath, 1,300 sqft. Evaluate whole-house, furnished mid-term, rent-by-room, and Airbnb models.",
+          "objective": "Determine optimal rental strategy and pricing for 601 Eastway Ave, Durham NC \u2014 furnished 3bed/2bath, 1,300 sqft. Evaluate whole-house, furnished mid-term, rent-by-room, and Airbnb models.",
           "successCriteria": "Pricing recommendation with comps data covering all viable rental models, with clear recommendation on model that maximizes monthly cash flow.",
           "blockers": [],
           "outstanding": [
-            { "done": false, "text": "Pull rental comps (furnished + unfurnished, 1mi radius)" },
-            { "done": false, "text": "Evaluate 4 rental models (traditional, mid-term, room, Airbnb)" },
-            { "done": false, "text": "Research Durham landlord requirements and zoning for room rentals" },
-            { "done": false, "text": "Identify target tenant profiles" },
-            { "done": false, "text": "Deliver pricing recommendation doc" }
+            {
+              "done": false,
+              "text": "Pull rental comps (furnished + unfurnished, 1mi radius)"
+            },
+            {
+              "done": false,
+              "text": "Evaluate 4 rental models (traditional, mid-term, room, Airbnb)"
+            },
+            {
+              "done": false,
+              "text": "Research Durham landlord requirements and zoning for room rentals"
+            },
+            {
+              "done": false,
+              "text": "Identify target tenant profiles"
+            },
+            {
+              "done": false,
+              "text": "Deliver pricing recommendation doc"
+            }
           ],
           "decisions": [
-            { "date": "2026-03-31", "text": "Charter created" },
-            { "date": "2026-03-31", "text": "Rent-by-room added as evaluation option per David" }
+            {
+              "date": "2026-03-31",
+              "text": "Charter created"
+            },
+            {
+              "date": "2026-03-31",
+              "text": "Rent-by-room added as evaluation option per David"
+            }
           ],
           "documents": []
         },
         {
           "id": "902",
           "title": "Property Preparation",
-          "status": "🔴 Not Started",
+          "status": "\ud83d\udd34 Not Started",
           "statusClean": "Not Started",
           "phase": "Awaiting photos from David",
           "phaseIndex": 1,
@@ -2774,27 +2806,45 @@
           "priority": "High",
           "program": "Durham Property Management",
           "progress": 0,
-          "objective": "Prepare 601 Eastway Ave for rental — cleaning, listing photos, self-showing lockbox, furniture inventory.",
+          "objective": "Prepare 601 Eastway Ave for rental \u2014 cleaning, listing photos, self-showing lockbox, furniture inventory.",
           "successCriteria": "Property is move-in ready with professional-quality listing photos and self-showing capability.",
           "blockers": [
             "Waiting for David to provide property photos"
           ],
           "outstanding": [
-            { "done": false, "text": "David provides property photos" },
-            { "done": false, "text": "Coordinate deep cleaning (find Durham service, schedule)" },
-            { "done": false, "text": "Property condition audit from photos" },
-            { "done": false, "text": "Self-showing lockbox setup" },
-            { "done": false, "text": "Room-by-room furniture inventory" }
+            {
+              "done": false,
+              "text": "David provides property photos"
+            },
+            {
+              "done": false,
+              "text": "Coordinate deep cleaning (find Durham service, schedule)"
+            },
+            {
+              "done": false,
+              "text": "Property condition audit from photos"
+            },
+            {
+              "done": false,
+              "text": "Self-showing lockbox setup"
+            },
+            {
+              "done": false,
+              "text": "Room-by-room furniture inventory"
+            }
           ],
           "decisions": [
-            { "date": "2026-03-31", "text": "Charter created" }
+            {
+              "date": "2026-03-31",
+              "text": "Charter created"
+            }
           ],
           "documents": []
         },
         {
           "id": "903",
           "title": "Listing & Tenant Acquisition",
-          "status": "🔴 Not Started",
+          "status": "\ud83d\udd34 Not Started",
           "statusClean": "Not Started",
           "phase": "Blocked on 901 + 902",
           "phaseIndex": 0,
@@ -2814,22 +2864,43 @@
             "Depends on Charter 902 (property ready)"
           ],
           "outstanding": [
-            { "done": false, "text": "Draft listing copy (multi-platform versions)" },
-            { "done": false, "text": "Deploy listings (Zillow, Furnished Finder, SpareRoom, etc.)" },
-            { "done": false, "text": "Set up inquiry response templates" },
-            { "done": false, "text": "Tenant screening workflow (credit, background, income)" },
-            { "done": false, "text": "NC-compliant lease execution" },
-            { "done": false, "text": "Move-in coordination" }
+            {
+              "done": false,
+              "text": "Draft listing copy (multi-platform versions)"
+            },
+            {
+              "done": false,
+              "text": "Deploy listings (Zillow, Furnished Finder, SpareRoom, etc.)"
+            },
+            {
+              "done": false,
+              "text": "Set up inquiry response templates"
+            },
+            {
+              "done": false,
+              "text": "Tenant screening workflow (credit, background, income)"
+            },
+            {
+              "done": false,
+              "text": "NC-compliant lease execution"
+            },
+            {
+              "done": false,
+              "text": "Move-in coordination"
+            }
           ],
           "decisions": [
-            { "date": "2026-03-31", "text": "Charter created" }
+            {
+              "date": "2026-03-31",
+              "text": "Charter created"
+            }
           ],
           "documents": []
         },
         {
           "id": "904",
           "title": "Operations & Management System",
-          "status": "🔴 Not Started",
+          "status": "\ud83d\udd34 Not Started",
           "statusClean": "Not Started",
           "phase": "Blocked on 903",
           "phaseIndex": 0,
@@ -2842,28 +2913,49 @@
           "priority": "Medium",
           "program": "Durham Property Management",
           "progress": 0,
-          "objective": "Build a fully automated rental management system — rent collection, maintenance dispatch, expense tracking — that an AI agent can operate with minimal David involvement.",
+          "objective": "Build a fully automated rental management system \u2014 rent collection, maintenance dispatch, expense tracking \u2014 that an AI agent can operate with minimal David involvement.",
           "successCriteria": "Rent collected automatically, maintenance handled within 24h, expenses tracked for Schedule E, David touches nothing unless major decision needed.",
           "blockers": [
             "Depends on Charter 903 (tenant placed)"
           ],
           "outstanding": [
-            { "done": false, "text": "Rent collection automation setup" },
-            { "done": false, "text": "Maintenance request workflow" },
-            { "done": false, "text": "Recruit Durham vendor network (handyman, plumber, electrician, HVAC)" },
-            { "done": false, "text": "Expense tracking system for Schedule E" },
-            { "done": false, "text": "Emergency protocol documented" },
-            { "done": false, "text": "Operational playbook complete" }
+            {
+              "done": false,
+              "text": "Rent collection automation setup"
+            },
+            {
+              "done": false,
+              "text": "Maintenance request workflow"
+            },
+            {
+              "done": false,
+              "text": "Recruit Durham vendor network (handyman, plumber, electrician, HVAC)"
+            },
+            {
+              "done": false,
+              "text": "Expense tracking system for Schedule E"
+            },
+            {
+              "done": false,
+              "text": "Emergency protocol documented"
+            },
+            {
+              "done": false,
+              "text": "Operational playbook complete"
+            }
           ],
           "decisions": [
-            { "date": "2026-03-31", "text": "Charter created" }
+            {
+              "date": "2026-03-31",
+              "text": "Charter created"
+            }
           ],
           "documents": []
         },
         {
           "id": "905",
           "title": "Financial & Tax Optimization",
-          "status": "🔴 Not Started",
+          "status": "\ud83d\udd34 Not Started",
           "statusClean": "Not Started",
           "phase": "Pending",
           "phaseIndex": 0,
@@ -2876,19 +2968,40 @@
           "priority": "Medium",
           "program": "Durham Property Management",
           "progress": 0,
-          "objective": "Optimize rental property financial structure — tax deductions, depreciation, insurance, LLC consideration — for maximum after-tax cash flow.",
+          "objective": "Optimize rental property financial structure \u2014 tax deductions, depreciation, insurance, LLC consideration \u2014 for maximum after-tax cash flow.",
           "successCriteria": "Tax-optimized structure in place before first filing; all deductions captured; appropriate insurance; LLC decision made.",
           "blockers": [],
           "outstanding": [
-            { "done": false, "text": "Schedule E deduction analysis (mortgage interest, depreciation, repairs)" },
-            { "done": false, "text": "Furniture depreciation schedule (5-7 year)" },
-            { "done": false, "text": "Landlord insurance switch (from homeowner policy)" },
-            { "done": false, "text": "LLC cost/benefit analysis" },
-            { "done": false, "text": "Separate bank account for rental income" },
-            { "done": false, "text": "Accounting system setup" }
+            {
+              "done": false,
+              "text": "Schedule E deduction analysis (mortgage interest, depreciation, repairs)"
+            },
+            {
+              "done": false,
+              "text": "Furniture depreciation schedule (5-7 year)"
+            },
+            {
+              "done": false,
+              "text": "Landlord insurance switch (from homeowner policy)"
+            },
+            {
+              "done": false,
+              "text": "LLC cost/benefit analysis"
+            },
+            {
+              "done": false,
+              "text": "Separate bank account for rental income"
+            },
+            {
+              "done": false,
+              "text": "Accounting system setup"
+            }
           ],
           "decisions": [
-            { "date": "2026-03-31", "text": "Charter created" }
+            {
+              "date": "2026-03-31",
+              "text": "Charter created"
+            }
           ],
           "documents": []
         }
