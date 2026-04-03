@@ -1982,11 +1982,47 @@
           "title": "Campaign R2: De Novo Miniprotein Blocker (ActRIIB)",
           "status": "\ud83d\udfe2 Active",
           "statusClean": "Active",
-          "phase": "Day 0.5 complete \u2014 multi-seed validation PASS",
+          "phase": "Day 0.5 CLOSED, R2 Stage 1 report FINAL (v4) — awaiting David GO for 250 BindCraft trajectories",
           "phaseIndex": 2,
           "dateInitiated": "2026-04-01",
           "owner": "Archimedes",
-          "progress": 15
+          "assignee": "Archimedes",
+          "priority": "Critical",
+          "program": "Treat Biosciences",
+          "budget": "~$50 (Colab Pro+)",
+          "actualSpend": "$0",
+          "dependencies": ["505"],
+          "progress": 35,
+          "objective": "R2 campaign: 250 BindCraft trajectories across 2 stages (R2a: 180, R2b: 70) to expand de novo ActRIIB blocker pool. Builds on R1 structural discrimination (4 Tier 1 candidates from 2 scaffold families).",
+          "successCriteria": "R2 designs pass AF3 validation and structural discrimination. Top candidates advance to synthesis alongside R1 leads.",
+          "blockers": [
+            {"text": "David GO needed for R2 Stage 1 launch (250 trajectories, ~$50 Colab)", "severity": "high"}
+          ],
+          "outstanding": [
+            {"done": true, "text": "Day 0: Scoring calibration & cross-receptor testing"},
+            {"done": true, "text": "Day 0.5: Multi-seed validation — all 4 R1 designs PASS (≤0.08 ipTM range)"},
+            {"done": true, "text": "Day 0.5 report v4 FINAL — panel reviewed (Hypatia GO, Socrates GO WITH CONDITIONS resolved)"},
+            {"done": true, "text": "Day 1: Corrected control AF3 results — scoring calibration confirmed (errors inconsequential)"},
+            {"done": true, "text": "R2 Stage 1 Pre-Experiment Report v4 FINAL — panel audited, all fixes applied"},
+            {"done": true, "text": "R2 configs locked with SHA-256 hashes (R2a: 180 traj / 11 hotspots, R2b: 70 traj / 9 hotspots)"},
+            {"done": false, "text": "David GO for R2 Stage 1 launch"},
+            {"done": false, "text": "Execute R2 BindCraft campaigns on Colab"},
+            {"done": false, "text": "R2 AF3 validation + structural discrimination"},
+            {"done": false, "text": "Final candidate selection for synthesis"}
+          ],
+          "decisions": [
+            {"date": "2026-04-01", "text": "Charter 506 created — R2 campaign building on R1 results"},
+            {"date": "2026-04-01", "text": "s102094 family confirmed as primary R2 seed (reproducible dual-receptor signal: ActRIIA 0.80, ActRIIB 0.84)"},
+            {"date": "2026-04-01", "text": "s404474_mpnn2 dropped from dual-receptor track (ActRIIA 0.29 — confirmed non-binder)"},
+            {"date": "2026-04-02", "text": "Day 0.5 CLOSED — David approved. All 4 designs passed multi-seed criterion"},
+            {"date": "2026-04-02", "text": "Corrected controls confirm scoring calibration — no threshold changes needed"},
+            {"date": "2026-04-02", "text": "R2 Stage 1 report v4 FINAL — 250 trajectories, Cys allowed (≤2 per design), all inputs two-database verified"}
+          ],
+          "documents": [
+            {"title": "Day 0.5 Multi-Seed Validation Report v4 (FINAL)", "url": "https://docs.google.com/document/d/115BLqe7kCpYIlBH9UFH5sn5HvF0e2hIcKjHAwKv96g8/edit", "type": "report"},
+            {"title": "R2 Stage 1 Pre-Experiment Report v4 (FINAL)", "url": "https://docs.google.com/document/d/1BsVq4vV-a6LwtwK08ouAnIqmzYGHcuoCdyIW2SUD0xs/edit", "type": "report"},
+            {"title": "Day 0.5 Report v2 (initial)", "url": "https://docs.google.com/document/d/1Jnu9rLPoZf8R5AYerBq7m9TtIq-n5YIh9Z5tsfQlS1c/edit", "type": "report"}
+          ]
         }
       ]
     },
@@ -2742,40 +2778,50 @@
           "title": "Market Research & Pricing Strategy",
           "status": "\ud83d\udfe1 In Progress",
           "statusClean": "In Progress",
-          "phase": "Researching rental comps and pricing models",
+          "phase": "Decision-ready pricing recommendation drafted — awaiting property photos for final call",
           "phaseIndex": 2,
           "dateInitiated": "2026-03-31",
           "targetDate": "2026-04-03",
-          "daysActive": 0,
+          "daysActive": 3,
           "overdue": false,
           "owner": "Morpheus",
-          "assignee": "Daedalus",
+          "assignee": "Hermes",
           "priority": "High",
           "program": "Durham Property Management",
-          "progress": 0,
-          "objective": "Determine optimal rental strategy and pricing for 601 Eastway Ave, Durham NC \u2014 furnished 3bed/2bath, 1,300 sqft. Evaluate whole-house, furnished mid-term, rent-by-room, and Airbnb models.",
+          "progress": 70,
+          "objective": "Determine optimal rental strategy and pricing for 601 Eastway Ave, Durham NC — furnished 3bed/2bath, 1,300 sqft. Evaluate whole-house, furnished mid-term, rent-by-room, and Airbnb models.",
           "successCriteria": "Pricing recommendation with comps data covering all viable rental models, with clear recommendation on model that maximizes monthly cash flow.",
-          "blockers": [],
+          "blockers": [
+            {"text": "Property photos needed from David to finalize furnished vs unfurnished recommendation", "severity": "high"}
+          ],
           "outstanding": [
             {
-              "done": false,
-              "text": "Pull rental comps (furnished + unfurnished, 1mi radius)"
+              "done": true,
+              "text": "Pull rental comps (furnished + unfurnished)"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Evaluate 4 rental models (traditional, mid-term, room, Airbnb)"
             },
             {
-              "done": false,
-              "text": "Research Durham landlord requirements and zoning for room rentals"
+              "done": true,
+              "text": "Pricing recommendation drafted (unfurnished ~$2,250, furnished ~$2,595)"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Identify target tenant profiles"
             },
             {
               "done": false,
-              "text": "Deliver pricing recommendation doc"
+              "text": "Review property photos to finalize furnished vs cleaned-out"
+            },
+            {
+              "done": false,
+              "text": "Convert analysis into listing-positioning guidance"
+            },
+            {
+              "done": false,
+              "text": "Confirm zip code (27701 vs 27703)"
             }
           ],
           "decisions": [
@@ -2786,9 +2832,27 @@
             {
               "date": "2026-03-31",
               "text": "Rent-by-room added as evaluation option per David"
+            },
+            {
+              "date": "2026-03-31",
+              "text": "Whole-home lease recommended over room-by-room (single household or pre-formed 3-person group)"
+            },
+            {
+              "date": "2026-03-31",
+              "text": "Tenant-paid utilities as default stance"
+            },
+            {
+              "date": "2026-03-31",
+              "text": "Zillow anchor ($1,760) too low — minimum viable ask ~$2,100 given carrying costs"
             }
           ],
-          "documents": []
+          "documents": [
+            {
+              "title": "Durham Rental Market Analysis",
+              "url": "https://docs.google.com/document/d/1clLfRTFtLwrvTrxWr3MdjLyJQfPPVuVPk1RwZsz1iAw/edit",
+              "type": "analysis"
+            }
+          ]
         },
         {
           "id": "902",
