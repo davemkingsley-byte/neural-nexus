@@ -83,14 +83,16 @@
                 </div>
                 <h3><%= article.title %></h3>
                 <p><%= article.description %></p>
-                <div class="topic-article-tags">
-                  <% (article.topics || []).forEach((topicSlug) => { %>
-                    <a href="/topics/<%= topicSlug %>"><%= ((locals.topics || []).find((entry) => entry.slug === topicSlug) || {}).name || topicSlug %></a>
-                  <% }) %>
-                </div>
                 <span class="topic-related-link">Read on Substack →</span>
               </div>
             </a>
+            <% if (article.topics && article.topics.length) { %>
+              <div class="topic-article-tags">
+                <% (article.topics || []).forEach((topicSlug) => { %>
+                  <a href="/topics/<%= topicSlug %>"><%= ((locals.topics || []).find((entry) => entry.slug === topicSlug) || {}).name || topicSlug %></a>
+                <% }) %>
+              </div>
+            <% } %>
           </article>
         <% }) %>
       </div>
