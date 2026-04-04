@@ -263,6 +263,7 @@ app.get('/', (req, res) => {
     title: 'Neural NeXus',
     description: 'Weekly deep dives on AI, biotech, robotics, semiconductors, health, and the future by David Kingsley, PhD. Read Neural NeXus.',
     canonical: 'https://www.neuralnexus.press/',
+    featuredArticles: articles.slice(0, 4),
     structuredData: [{
       '@context': 'https://schema.org',
       '@type': 'WebSite',
