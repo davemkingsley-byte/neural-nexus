@@ -532,7 +532,10 @@ app.get('/api/charters/:id', (req, res) => {
   res.json(sanitizeCharter(charter));
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+// redirect: false prevents the trailing-slash 301 redirect for directory URLs,
+// which was causing a /topics <-> /topics/ loop (public/topics/ exists as a dir
+// with no index.html, and app.get('/topics') handles that URL itself).
+app.use(express.static(path.join(__dirname, 'public'), { redirect: false }));
 
 app.get('/test-ejs', (req, res) => {
   res.render('layouts/base', {
