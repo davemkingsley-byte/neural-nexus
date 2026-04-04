@@ -1,0 +1,1176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Charter 707 — API Billing Migration Plan</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface-2: #1a1a25;
+    --border: #2a2a3a;
+    --text: #e0e0e8;
+    --text-muted: #8888a0;
+    --accent: #6c63ff;
+    --accent-glow: rgba(108, 99, 255, 0.15);
+    --green: #4ade80;
+    --yellow: #fbbf24;
+    --red: #f87171;
+    --orange: #fb923c;
+    --blue: #60a5fa;
+  }
+  
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 0;
+  }
+  
+  .report-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 30px;
+  }
+  
+  /* Header */
+  .report-header {
+    text-align: center;
+    padding: 60px 20px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+    background: linear-gradient(180deg, rgba(108,99,255,0.08) 0%, transparent 100%);
+    border-radius: 16px 16px 0 0;
+  }
+  
+  .report-header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #6c63ff, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  
+  .report-header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+  }
+  
+  .meta-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .meta-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: left;
+  }
+  
+  .meta-item .label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 2px;
+  }
+  
+  .meta-item .value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text);
+  }
+  
+  .meta-item .value.critical { color: var(--red); }
+  .meta-item .value.warning { color: var(--yellow); }
+  
+  /* Sections */
+  .section {
+    margin-bottom: 48px;
+  }
+  
+  .section h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .section h2 .num {
+    background: var(--accent);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 20px;
+  }
+  
+  .section h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 24px 0 12px;
+    color: var(--blue);
+  }
+  
+  p, li {
+    font-size: 0.92rem;
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  
+  ul { padding-left: 20px; }
+  li { margin-bottom: 6px; }
+  
+  strong { color: #fff; }
+  
+  /* Executive Summary Box */
+  .exec-summary {
+    background: linear-gradient(135deg, rgba(108,99,255,0.1), rgba(96,165,250,0.08));
+    border: 1px solid rgba(108,99,255,0.3);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 40px;
+  }
+  
+  .exec-summary h2 {
+    border-bottom: none;
+    margin-bottom: 16px;
+    padding-bottom: 0;
+  }
+  
+  .exec-summary .key-number {
+    display: inline-block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 4px 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    margin: 0 4px;
+  }
+  
+  .exec-summary .key-number.red { color: var(--red); border-color: rgba(248,113,113,0.3); }
+  .exec-summary .key-number.green { color: var(--green); border-color: rgba(74,222,128,0.3); }
+  .exec-summary .key-number.yellow { color: var(--yellow); border-color: rgba(251,191,36,0.3); }
+  
+  /* Cards */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 16px;
+  }
+  
+  .card.alert {
+    border-color: rgba(248,113,113,0.4);
+    background: linear-gradient(135deg, rgba(248,113,113,0.05), transparent);
+  }
+  
+  .card.success {
+    border-color: rgba(74,222,128,0.3);
+    background: linear-gradient(135deg, rgba(74,222,128,0.05), transparent);
+  }
+  
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0;
+    font-size: 0.85rem;
+  }
+  
+  th {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  
+  td {
+    padding: 10px 12px;
+    border-bottom: 1px solid rgba(42,42,58,0.5);
+    vertical-align: top;
+  }
+  
+  tr:hover td { background: rgba(108,99,255,0.04); }
+  
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .badge.opus { background: rgba(248,113,113,0.15); color: var(--red); }
+  .badge.sonnet { background: rgba(251,191,36,0.15); color: var(--yellow); }
+  .badge.free { background: rgba(74,222,128,0.15); color: var(--green); }
+  .badge.local { background: rgba(96,165,250,0.15); color: var(--blue); }
+  
+  /* Charts */
+  .chart-container {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 20px 0;
+  }
+  
+  .chart-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  
+  .bar-chart {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .bar-label {
+    width: 110px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-align: right;
+    flex-shrink: 0;
+  }
+  
+  .bar-track {
+    flex: 1;
+    height: 28px;
+    background: var(--surface-2);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    transition: width 0.5s ease;
+  }
+  
+  .bar-value {
+    width: 70px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  
+  /* Comparison chart */
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 20px 0;
+  }
+  
+  .comparison-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+  }
+  
+  .comparison-card.before { border-color: rgba(248,113,113,0.3); }
+  .comparison-card.after { border-color: rgba(74,222,128,0.3); }
+  
+  .comparison-card .comp-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  
+  .comparison-card .comp-value {
+    font-size: 2.4rem;
+    font-weight: 700;
+  }
+  
+  .comparison-card.before .comp-value { color: var(--red); }
+  .comparison-card.after .comp-value { color: var(--green); }
+  
+  .comparison-card .comp-detail {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding-left: 30px;
+  }
+  
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 8px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+  
+  .timeline-item {
+    position: relative;
+    margin-bottom: 28px;
+  }
+  
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 6px;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+  }
+  
+  .timeline-item.active::before {
+    background: var(--accent);
+    box-shadow: 0 0 8px var(--accent);
+  }
+  
+  .timeline-item .phase-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+  
+  .timeline-item .phase-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  
+  .timeline-item .phase-date {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+  
+  .timeline-item ul {
+    margin-top: 8px;
+  }
+  
+  .timeline-item li {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+  }
+  
+  .owner-tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-right: 4px;
+  }
+  .owner-tag.david { background: rgba(251,191,36,0.2); color: var(--yellow); }
+  .owner-tag.morpheus { background: rgba(108,99,255,0.2); color: var(--accent); }
+  
+  /* Decision table */
+  .decision-row {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  
+  .decision-id {
+    background: var(--accent);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+  
+  .decision-content {
+    flex: 1;
+  }
+  
+  .decision-content .d-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 2px;
+  }
+  
+  .decision-content .d-detail {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  
+  .decision-impact {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  
+  .decision-impact .savings {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--green);
+  }
+  
+  /* Fleet diagram */
+  .fleet-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 20px 0;
+  }
+  
+  .fleet-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  
+  .fleet-card .agent-emoji { font-size: 1.8rem; margin-bottom: 6px; }
+  .fleet-card .agent-name { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+  .fleet-card .agent-role { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 8px; }
+  .fleet-card .agent-model { margin-bottom: 4px; }
+  .fleet-card .agent-subs { font-size: 0.75rem; color: var(--text-muted); }
+  
+  /* Risk matrix */
+  .risk-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(42,42,58,0.4);
+  }
+  
+  .risk-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+  .risk-dot.high { background: var(--red); }
+  .risk-dot.medium { background: var(--yellow); }
+  .risk-dot.low { background: var(--green); }
+  
+  .risk-text { flex: 1; font-size: 0.85rem; }
+  .risk-mitigation { font-size: 0.8rem; color: var(--text-muted); margin-top: 4px; }
+  
+  /* Footer */
+  .report-footer {
+    text-align: center;
+    padding: 40px 20px;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  
+  .report-footer p {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  
+  /* Arrow */
+  .arrow-down {
+    text-align: center;
+    font-size: 1.5rem;
+    color: var(--accent);
+    margin: 16px 0;
+  }
+
+  .callout {
+    background: rgba(251,191,36,0.08);
+    border-left: 3px solid var(--yellow);
+    padding: 12px 16px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 0.85rem;
+  }
+
+  .callout.danger {
+    background: rgba(248,113,113,0.08);
+    border-left-color: var(--red);
+  }
+
+  .callout.info {
+    background: rgba(96,165,250,0.08);
+    border-left-color: var(--blue);
+  }
+</style>
+</head>
+<body>
+
+<div class="report-container">
+
+<!-- HEADER -->
+<div class="report-header">
+  <h1>Charter 707</h1>
+  <div class="subtitle">API Billing Migration Plan</div>
+  <div class="meta-grid">
+    <div class="meta-item">
+      <div class="label">Version</div>
+      <div class="value">v3.0</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Date Produced</div>
+      <div class="value">April 3, 2026</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Status</div>
+      <div class="value critical">🔴 Critical</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Deadline</div>
+      <div class="value critical">Apr 4, 2pm CT</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Owner</div>
+      <div class="value">David Kingsley</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Assignee</div>
+      <div class="value">Morpheus (COO)</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Budget</div>
+      <div class="value warning">$600–1,000/mo</div>
+    </div>
+    <div class="meta-item">
+      <div class="label">Review Score</div>
+      <div class="value" style="color: var(--green);">8.5–9 / 10</div>
+    </div>
+  </div>
+</div>
+
+<!-- VERSION HISTORY -->
+<div class="card" style="margin-bottom: 40px;">
+  <h3 style="margin-top: 0; color: var(--text-muted); font-size: 0.85rem;">VERSION HISTORY</h3>
+  <table>
+    <tr><th>Version</th><th>Date</th><th>Changes</th><th>Review Scores</th></tr>
+    <tr><td>v1.0</td><td>Apr 3, 2026 20:20</td><td>Initial draft — strategy outline</td><td>Tank: 6/10 · Dozer: 4/10</td></tr>
+    <tr><td>v2.0</td><td>Apr 3, 2026 20:30</td><td>Added token math, staged rollout, rollback plans, per-agent keys, Hypatia decision</td><td>Tank: 8/10 · Dozer: 7/10</td></tr>
+    <tr><td>v3.0</td><td>Apr 3, 2026 20:37</td><td>Agent-specific compaction, heartbeat acceptance tests, migration runbook, Codex OAuth validation gate, contingency plans</td><td>Tank: 9/10 · Dozer: 8.5/10</td></tr>
+  </table>
+</div>
+
+<!-- EXECUTIVE SUMMARY -->
+<div class="exec-summary">
+  <h2>📋 Executive Summary</h2>
+  <p>
+    Anthropic is revoking third-party API access for Claude Max subscriptions effective <strong>April 4, 2026 at 2:00 PM CT</strong>. 
+    This affects all four Opus-based agents in our fleet. Without action, the entire C-suite AI infrastructure goes dark tomorrow afternoon.
+  </p>
+  <p>
+    Running the current fleet unconstrained on API billing would cost approximately 
+    <span class="key-number red">$3,780/mo</span> — 4–6× over budget. This plan restructures the fleet to hit a target of 
+    <span class="key-number green">$600–810/mo</span> through model downgrades, delegation to free sub-agents, local model heartbeats, and aggressive cost controls.
+  </p>
+  <p>
+    Subscription savings from cancelling ChatGPT Pro and Claude Max #2 free up 
+    <span class="key-number yellow">$400/mo</span>, combined with $400/mo new budget allocation for a total API envelope of $600–1,000/mo.
+  </p>
+  <p style="margin-bottom: 0;">
+    <strong>7 decisions require David's approval before migration can proceed.</strong> Phase 0 (cost controls) begins tonight. Billing setup is needed from David by tomorrow morning.
+  </p>
+</div>
+
+<!-- SECTION 1: THE PROBLEM -->
+<div class="section">
+  <h2><span class="num">1</span> The Problem</h2>
+  
+  <p>Our agent fleet was built on flat-rate Claude Max subscriptions ($200/mo each × 2 accounts = $400/mo) providing unlimited Opus API access. Anthropic is ending this for high-usage accounts, forcing a transition to pay-per-token billing where every API call costs real money.</p>
+  
+  <div class="callout danger">
+    <strong>Critical insight:</strong> Every message to an Opus agent sends the <em>entire conversation history</em> as input tokens. A session at 100K context costs ~$1.50 per message in input alone — and it compounds with every turn. This is why an hour of casual use cost $20-25 on API billing.
+  </div>
+
+  <h3>Current Monthly Costs</h3>
+  <div class="chart-container">
+    <div class="chart-title">Monthly Subscriptions (Current)</div>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <div class="bar-label">Claude Max #1</div>
+        <div class="bar-track"><div class="bar-fill" style="width: 50%; background: linear-gradient(90deg, #6c63ff, #8b83ff);">Keep</div></div>
+        <div class="bar-value" style="color: var(--yellow);">$200</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Claude Max #2</div>
+        <div class="bar-track"><div class="bar-fill" style="width: 50%; background: linear-gradient(90deg, #f87171, #fca5a5);">Cancel</div></div>
+        <div class="bar-value" style="color: var(--red);">$200</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">ChatGPT Pro</div>
+        <div class="bar-track"><div class="bar-fill" style="width: 50%; background: linear-gradient(90deg, #f87171, #fca5a5);">Cancel</div></div>
+        <div class="bar-value" style="color: var(--red);">$200</div>
+      </div>
+    </div>
+    <p style="text-align: right; font-size: 0.8rem; color: var(--text-muted); margin-top: 10px;">Current total: $600/mo → New total: $200/mo + API usage</p>
+  </div>
+</div>
+
+<!-- SECTION 2: COST ANALYSIS -->
+<div class="section">
+  <h2><span class="num">2</span> Cost Analysis</h2>
+  
+  <h3>API Pricing (Claude Opus 4.6)</h3>
+  <table>
+    <tr><th>Token Type</th><th>Cost per Million Tokens</th><th>Notes</th></tr>
+    <tr><td>Input</td><td style="color: var(--yellow);">$15.00</td><td>Full context sent every turn</td></tr>
+    <tr><td>Output</td><td style="color: var(--red);">$75.00</td><td>Agent responses</td></tr>
+    <tr><td>Cache Write</td><td style="color: var(--orange);">$18.75</td><td>First message in session</td></tr>
+    <tr><td>Cache Read</td><td style="color: var(--green);">$1.50</td><td>Subsequent turns (10× cheaper)</td></tr>
+    <tr><td colspan="3" style="border-top: 2px solid var(--border);"></td></tr>
+    <tr><td><strong>Sonnet Input</strong></td><td style="color: var(--green);">$3.00</td><td>5× cheaper than Opus</td></tr>
+    <tr><td><strong>Sonnet Output</strong></td><td style="color: var(--yellow);">$15.00</td><td>5× cheaper than Opus</td></tr>
+  </table>
+
+  <h3>Projected Monthly Spend</h3>
+  <div class="comparison">
+    <div class="comparison-card before">
+      <div class="comp-label">Unconstrained</div>
+      <div class="comp-value">$3,780</div>
+      <div class="comp-detail">~$126/day · All agents on Opus</div>
+    </div>
+    <div class="comparison-card after">
+      <div class="comp-label">After Optimization</div>
+      <div class="comp-value">$600–810</div>
+      <div class="comp-detail">~$20–27/day · Delegation + downgrades</div>
+    </div>
+  </div>
+  
+  <div class="arrow-down">↓ 79% reduction ↓</div>
+
+  <h3>Daily Cost Breakdown (Optimized Target)</h3>
+  <div class="chart-container">
+    <div class="chart-title">Estimated Daily Spend by Agent</div>
+    <div class="bar-chart">
+      <div class="bar-row">
+        <div class="bar-label">Morpheus</div>
+        <div class="bar-track"><div class="bar-fill" style="width: 74%; background: linear-gradient(90deg, #f87171, #fca5a5);">Opus</div></div>
+        <div class="bar-value" style="color: var(--red);">$20/day</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Archimedes</div>
+        <div class="bar-track"><div class="bar-fill" style="width: 56%; background: linear-gradient(90deg, #f87171, #fca5a5);">Opus</div></div>
+        <div class="bar-value" style="color: var(--red);">$15/day</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Hypatia</div>
+        <div class="bar-track"><div class="bar-fill" style="width: 15%; background: linear-gradient(90deg, #fbbf24, #fcd34d);">Sonnet</div></div>
+        <div class="bar-value" style="color: var(--yellow);">$4/day</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Aristotle</div>
+        <div class="bar-track"><div class="bar-fill" style="width: 15%; background: linear-gradient(90deg, #fbbf24, #fcd34d);">Sonnet</div></div>
+        <div class="bar-value" style="color: var(--yellow);">$4/day</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Arete</div>
+        <div class="bar-track"><div class="bar-fill" style="width: 7%; background: linear-gradient(90deg, #fbbf24, #fcd34d);">Sonnet</div></div>
+        <div class="bar-value" style="color: var(--yellow);">$2/day</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Heartbeats</div>
+        <div class="bar-track"><div class="bar-fill" style="width: 4%; background: linear-gradient(90deg, #4ade80, #86efac);">Local/Free</div></div>
+        <div class="bar-value" style="color: var(--green);">$0–1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Crons</div>
+        <div class="bar-track"><div class="bar-fill" style="width: 4%; background: linear-gradient(90deg, #4ade80, #86efac);">Local/Free</div></div>
+        <div class="bar-value" style="color: var(--green);">$0–1</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Daedalus</div>
+        <div class="bar-track"><div class="bar-fill" style="width: 3%; background: linear-gradient(90deg, #4ade80, #86efac);">Free</div></div>
+        <div class="bar-value" style="color: var(--green);">$0</div>
+      </div>
+      <div class="bar-row">
+        <div class="bar-label">Hermes</div>
+        <div class="bar-track"><div class="bar-fill" style="width: 3%; background: linear-gradient(90deg, #4ade80, #86efac);">Free</div></div>
+        <div class="bar-value" style="color: var(--green);">$0</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: FLEET RESTRUCTURE -->
+<div class="section">
+  <h2><span class="num">3</span> Fleet Restructure</h2>
+  
+  <h3>Post-Migration Fleet Architecture</h3>
+  <div class="fleet-grid">
+    <div class="fleet-card" style="border-color: rgba(248,113,113,0.3);">
+      <div class="agent-emoji">🏛️</div>
+      <div class="agent-name">Morpheus</div>
+      <div class="agent-role">COO · Operations</div>
+      <div class="agent-model"><span class="badge opus">Opus API</span></div>
+      <div class="agent-subs">Tank (GPT-5.4) · Dozer (Sonnet)</div>
+    </div>
+    <div class="fleet-card" style="border-color: rgba(248,113,113,0.3);">
+      <div class="agent-emoji">🔬</div>
+      <div class="agent-name">Archimedes</div>
+      <div class="agent-role">CSO · Science</div>
+      <div class="agent-model"><span class="badge opus">Opus API</span></div>
+      <div class="agent-subs">Hypatia (Sonnet) · Socrates (GPT-5.4)</div>
+    </div>
+    <div class="fleet-card" style="border-color: rgba(251,191,36,0.3);">
+      <div class="agent-emoji">📝</div>
+      <div class="agent-name">Aristotle</div>
+      <div class="agent-role">CMO · Content</div>
+      <div class="agent-model"><span class="badge sonnet">Sonnet API</span></div>
+      <div class="agent-subs">—</div>
+    </div>
+    <div class="fleet-card" style="border-color: rgba(251,191,36,0.3);">
+      <div class="agent-emoji">⚡</div>
+      <div class="agent-name">Arete</div>
+      <div class="agent-role">CHO · Health</div>
+      <div class="agent-model"><span class="badge sonnet">Sonnet API</span></div>
+      <div class="agent-subs">—</div>
+    </div>
+    <div class="fleet-card" style="border-color: rgba(74,222,128,0.3);">
+      <div class="agent-emoji">🔨</div>
+      <div class="agent-name">Daedalus</div>
+      <div class="agent-role">CTO · Engineering</div>
+      <div class="agent-model"><span class="badge free">GPT-5.4 Free</span></div>
+      <div class="agent-subs">Icarus (Sonnet)</div>
+    </div>
+    <div class="fleet-card" style="border-color: rgba(74,222,128,0.3);">
+      <div class="agent-emoji">💰</div>
+      <div class="agent-name">Hermes</div>
+      <div class="agent-role">CRO · Revenue</div>
+      <div class="agent-model"><span class="badge free">GPT-5.4 Free</span></div>
+      <div class="agent-subs">Plutus (Sonnet)</div>
+    </div>
+  </div>
+  
+  <div class="callout info">
+    <strong>New delegation pattern:</strong> Opus agents act as "brain" — planning, reviewing, deciding. GPT-5.4 sub-agents act as "hands" — executing, gathering data, formatting. This reduces Opus token burn by 50-70% while keeping reasoning quality where it matters.
+  </div>
+
+  <h3>Heartbeats & Background Operations</h3>
+  <div class="fleet-grid" style="grid-template-columns: 1fr 1fr;">
+    <div class="fleet-card" style="border-color: rgba(96,165,250,0.3);">
+      <div class="agent-emoji">💓</div>
+      <div class="agent-name">Heartbeats</div>
+      <div class="agent-role">All agents · Every 2-4h</div>
+      <div class="agent-model"><span class="badge local">Ollama Local</span></div>
+      <div class="agent-subs">Haiku fallback if local fails</div>
+    </div>
+    <div class="fleet-card" style="border-color: rgba(96,165,250,0.3);">
+      <div class="agent-emoji">⏰</div>
+      <div class="agent-name">Cron Jobs</div>
+      <div class="agent-role">Reminders, syncs, audits</div>
+      <div class="agent-model"><span class="badge local">Local / Haiku</span></div>
+      <div class="agent-subs">Monday briefing: Sonnet</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 4: DECISIONS REQUIRED -->
+<div class="section">
+  <h2><span class="num">4</span> Decisions Required</h2>
+  <p>These 7 decisions need David's approval before migration can proceed.</p>
+  
+  <div class="decision-row">
+    <div class="decision-id">D1</div>
+    <div class="decision-content">
+      <div class="d-title">Hypatia → Sonnet</div>
+      <div class="d-detail">Scientific reviewer under Archimedes. Currently Opus ($17/day). Sonnet handles review tasks well.</div>
+    </div>
+    <div class="decision-impact"><div class="savings">−$400/mo</div></div>
+  </div>
+  
+  <div class="decision-row">
+    <div class="decision-id">D2</div>
+    <div class="decision-content">
+      <div class="d-title">Icarus → Sonnet or Kill</div>
+      <div class="d-detail">Code reviewer under Daedalus. Hidden Opus cost. Sonnet sufficient for code review.</div>
+    </div>
+    <div class="decision-impact"><div class="savings">−$100-200/mo</div></div>
+  </div>
+  
+  <div class="decision-row">
+    <div class="decision-id">D3</div>
+    <div class="decision-content">
+      <div class="d-title">Plutus → Sonnet or Kill</div>
+      <div class="d-detail">Financial advisor under Hermes. Hidden Opus cost. Sonnet sufficient for financial analysis.</div>
+    </div>
+    <div class="decision-impact"><div class="savings">−$100-200/mo</div></div>
+  </div>
+  
+  <div class="decision-row">
+    <div class="decision-id">D4</div>
+    <div class="decision-content">
+      <div class="d-title">Separate API Keys Per Agent</div>
+      <div class="d-detail">One key per top-level agent. Only way to track who's burning what. 5 keys total.</div>
+    </div>
+    <div class="decision-impact"><div class="savings" style="color: var(--blue);">Visibility</div></div>
+  </div>
+  
+  <div class="decision-row">
+    <div class="decision-id">D5</div>
+    <div class="decision-content">
+      <div class="d-title">15-20 Turn Session Caps</div>
+      <div class="d-detail">Prevents context window cost compounding. After 15 turns, agents pause and summarize. Enforced via SOUL.md.</div>
+    </div>
+    <div class="decision-impact"><div class="savings">Cost control</div></div>
+  </div>
+  
+  <div class="decision-row">
+    <div class="decision-id">D6</div>
+    <div class="decision-content">
+      <div class="d-title">Local Model for Heartbeats</div>
+      <div class="d-detail">Ollama qwen3:8b on Mac mini. If acceptance test fails → default to Haiku ($0.25/MTok).</div>
+    </div>
+    <div class="decision-impact"><div class="savings">$0 heartbeats</div></div>
+  </div>
+  
+  <div class="decision-row">
+    <div class="decision-id">D7</div>
+    <div class="decision-content">
+      <div class="d-title">Cancel Max #2 on April 4</div>
+      <div class="d-detail">After smoke tests pass. No reason to pay for a dead subscription.</div>
+    </div>
+    <div class="decision-impact"><div class="savings">−$200/mo</div></div>
+  </div>
+</div>
+
+<!-- SECTION 5: EXECUTION TIMELINE -->
+<div class="section">
+  <h2><span class="num">5</span> Execution Timeline</h2>
+  
+  <div class="timeline">
+    <div class="timeline-item active">
+      <div class="phase-label">Phase 0 — Tonight</div>
+      <div class="phase-title">Cost Controls & Baseline</div>
+      <div class="phase-date">April 3 evening</div>
+      <ul>
+        <li><span class="owner-tag morpheus">Morpheus</span> Add Human Override to ALL agent SOUL.md files</li>
+        <li><span class="owner-tag morpheus">Morpheus</span> Test Ollama heartbeat capability (pass/fail)</li>
+        <li><span class="owner-tag morpheus">Morpheus</span> Document baseline turn counts from session logs</li>
+        <li><span class="owner-tag morpheus">Morpheus</span> Prepare config changes in draft</li>
+        <li><span class="owner-tag morpheus">Morpheus</span> Disable autonomous task runner cron</li>
+      </ul>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="phase-label">Phase 1 — Tomorrow Morning</div>
+      <div class="phase-title">Billing Setup</div>
+      <div class="phase-date">April 4, before 2pm CT</div>
+      <ul>
+        <li><span class="owner-tag david">David</span> Redeem one-time credit (~$200)</li>
+        <li><span class="owner-tag david">David</span> Set up Anthropic API billing + verify spend cap type</li>
+        <li><span class="owner-tag david">David</span> Create separate API keys (5 keys)</li>
+        <li><span class="owner-tag morpheus">Morpheus</span> Configure auth profiles + smoke test</li>
+      </ul>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="phase-label">Phase 2 — Tomorrow Afternoon</div>
+      <div class="phase-title">Low-Risk Migrations</div>
+      <div class="phase-date">April 4 afternoon</div>
+      <ul>
+        <li>Aristotle → Sonnet + smoke test</li>
+        <li>Arete → Sonnet + smoke test</li>
+        <li>Heartbeats → local model (if test passed) or Haiku</li>
+        <li>Simple cron jobs → local/Haiku</li>
+      </ul>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="phase-label">Phase 3 — Saturday</div>
+      <div class="phase-title">High-Risk Migrations</div>
+      <div class="phase-date">April 5</div>
+      <ul>
+        <li>Hypatia → Sonnet</li>
+        <li>Icarus, Plutus → Sonnet</li>
+        <li>Apply "brain + hands" delegation to Morpheus & Archimedes</li>
+        <li>End-to-end science workflow test (Archimedes)</li>
+      </ul>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="phase-label">Phase 4 — Week 1</div>
+      <div class="phase-title">Monitor & Adjust</div>
+      <div class="phase-date">April 5–11</div>
+      <ul>
+        <li>Daily spend review every morning</li>
+        <li>Per-agent cost attribution via separate API keys</li>
+        <li>Quality check: any degradation?</li>
+        <li>Day 3: first cost projection</li>
+        <li>Day 7: weekly review + adjustments</li>
+      </ul>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="phase-label">Phase 4.5</div>
+      <div class="phase-title">Codex OAuth Validation</div>
+      <div class="phase-date">April 6–7 (before any cancellation)</div>
+      <ul>
+        <li><span class="owner-tag morpheus">Morpheus</span> Test Daedalus, Hermes, Tank on Codex OAuth</li>
+        <li><span class="owner-tag morpheus">Morpheus</span> Verify Codex OAuth independent of ChatGPT Pro</li>
+        <li>If any test fails → DO NOT cancel ChatGPT Pro</li>
+      </ul>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="phase-label">Phase 5 — After Validation</div>
+      <div class="phase-title">Subscription Cleanup</div>
+      <div class="phase-date">April 7–10</div>
+      <ul>
+        <li><span class="owner-tag david">David</span> Cancel Claude Max #2 (−$200/mo)</li>
+        <li><span class="owner-tag david">David</span> Cancel ChatGPT Pro (−$200/mo) — only after Codex validation</li>
+        <li>Final monthly outlay: ~$200 (Max #1) + $600-800 (API)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 6: COST CONTROLS -->
+<div class="section">
+  <h2><span class="num">6</span> Cost Controls</h2>
+  
+  <div class="card alert">
+    <h3 style="margin-top: 0; color: var(--red);">⚠️ All controls must be in place BEFORE cutover</h3>
+    <p>Every uncontrolled turn on API billing costs real money. Controls go live in Phase 0, before any migration.</p>
+  </div>
+  
+  <table>
+    <tr><th>Control</th><th>Mechanism</th><th>Threshold</th></tr>
+    <tr><td><strong>Monthly spend cap</strong></td><td>Anthropic API billing (verify if hard/soft)</td><td>$1,000/mo</td></tr>
+    <tr><td><strong>Budget floor alert</strong></td><td>Anthropic billing alert</td><td>$600/mo (75%)</td></tr>
+    <tr><td><strong>Budget ceiling alert</strong></td><td>Anthropic billing alert</td><td>$800/mo</td></tr>
+    <tr><td><strong>Daily spend alert</strong></td><td>Morning check in HEARTBEAT.md</td><td>$27/day</td></tr>
+    <tr><td><strong>Session turn cap</strong></td><td>SOUL.md enforcement per agent</td><td>15-20 turns</td></tr>
+    <tr><td><strong>Anti-spiral rule</strong></td><td>Human Override in all SOUL.md files</td><td>Immediate stop</td></tr>
+    <tr><td><strong>Compaction (Morpheus)</strong></td><td>reserveTokens config</td><td>35,000</td></tr>
+    <tr><td><strong>Compaction (Archimedes)</strong></td><td>reserveTokens config</td><td>45,000</td></tr>
+    <tr><td><strong>Compaction (Aristotle/Arete)</strong></td><td>reserveTokens config</td><td>30,000</td></tr>
+    <tr><td><strong>Per-agent attribution</strong></td><td>Separate API keys</td><td>Every dollar traced</td></tr>
+  </table>
+</div>
+
+<!-- SECTION 7: RISK REGISTER -->
+<div class="section">
+  <h2><span class="num">7</span> Risk Register</h2>
+  
+  <div class="risk-item">
+    <div class="risk-dot high"></div>
+    <div>
+      <div class="risk-text"><strong>Archimedes spiraling burns budget</strong> — Long science loops compound context window costs</div>
+      <div class="risk-mitigation">Mitigation: Human Override in SOUL.md, session turn limits, delegation to GPT-5.4 subs</div>
+    </div>
+  </div>
+  
+  <div class="risk-item">
+    <div class="risk-dot high"></div>
+    <div>
+      <div class="risk-text"><strong>Context window costs compound silently</strong> — Each turn gets more expensive as context grows</div>
+      <div class="risk-mitigation">Mitigation: Agent-specific reserveTokens (35-45K), delegation pattern, session turn limits</div>
+    </div>
+  </div>
+  
+  <div class="risk-item">
+    <div class="risk-dot medium"></div>
+    <div>
+      <div class="risk-text"><strong>API costs exceed $1,000/mo</strong> — Budget projections are estimates, not guarantees</div>
+      <div class="risk-mitigation">Mitigation: Hard cap, daily $27 alert, per-agent attribution, escalation protocol</div>
+    </div>
+  </div>
+  
+  <div class="risk-item">
+    <div class="risk-dot medium"></div>
+    <div>
+      <div class="risk-text"><strong>Fallback auth silently routes to expensive model</strong> — Misconfigured routing burns money invisibly</div>
+      <div class="risk-mitigation">Mitigation: Explicit model pinning per agent, log audits, no default Opus fallback</div>
+    </div>
+  </div>
+  
+  <div class="risk-item">
+    <div class="risk-dot medium"></div>
+    <div>
+      <div class="risk-text"><strong>Hypatia quality drops on Sonnet</strong> — May miss scientific errors Opus would catch</div>
+      <div class="risk-mitigation">Mitigation: Compare first review against Opus baseline, rollback plan ready</div>
+    </div>
+  </div>
+  
+  <div class="risk-item">
+    <div class="risk-dot medium"></div>
+    <div>
+      <div class="risk-text"><strong>Local model fails heartbeat tool calls</strong> — 8B model may not handle multi-tool orchestration</div>
+      <div class="risk-mitigation">Mitigation: Acceptance test suite (6 scenarios), Haiku fallback pre-configured</div>
+    </div>
+  </div>
+  
+  <div class="risk-item">
+    <div class="risk-dot low"></div>
+    <div>
+      <div class="risk-text"><strong>OpenAI kills free GPT-5.4 Codex access</strong> — 4 agents depend on this free tier</div>
+      <div class="risk-mitigation">Mitigation: Move affected agents to Sonnet, accept ~$200-300/mo increase, evaluate open-source</div>
+    </div>
+  </div>
+  
+  <div class="risk-item">
+    <div class="risk-dot low"></div>
+    <div>
+      <div class="risk-text"><strong>Cancelling ChatGPT Pro breaks Codex OAuth</strong> — Dependency unknown</div>
+      <div class="risk-mitigation">Mitigation: Phase 4.5 validation gate — test before cancelling, do not cancel if tests fail</div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 8: ROLLBACK PLAN -->
+<div class="section">
+  <h2><span class="num">8</span> Rollback Plan</h2>
+  
+  <table>
+    <tr><th>Change</th><th>Success Signal</th><th>Failure Signal</th><th>Rollback</th></tr>
+    <tr>
+      <td>Aristotle → Sonnet</td>
+      <td style="color: var(--green);">Quality maintained</td>
+      <td style="color: var(--red);">Worse writing, frequent corrections</td>
+      <td>Revert to Opus, reduce turns instead</td>
+    </tr>
+    <tr>
+      <td>Arete → Sonnet</td>
+      <td style="color: var(--green);">Reminders work, accurate recs</td>
+      <td style="color: var(--red);">Missed context, wrong recommendations</td>
+      <td>Revert to Opus, reduce turns instead</td>
+    </tr>
+    <tr>
+      <td>Hypatia → Sonnet</td>
+      <td style="color: var(--green);">Catches real issues</td>
+      <td style="color: var(--red);">Misses scientific errors</td>
+      <td>Revert to Opus, accept budget hit</td>
+    </tr>
+    <tr>
+      <td>Local heartbeats</td>
+      <td style="color: var(--green);">Tool calls succeed, urgency detected</td>
+      <td style="color: var(--red);">Failed tools, missed urgency, garbled output</td>
+      <td>Switch to Haiku immediately</td>
+    </tr>
+    <tr>
+      <td>Compaction at 35-45K</td>
+      <td style="color: var(--green);">Sessions stay controlled</td>
+      <td style="color: var(--red);">Lost context, agents repeat themselves</td>
+      <td>Raise by 5K increments</td>
+    </tr>
+  </table>
+</div>
+
+<!-- SECTION 9: CONTINGENCIES -->
+<div class="section">
+  <h2><span class="num">9</span> Contingency Plans</h2>
+  
+  <div class="card">
+    <h3 style="margin-top: 0;">If budget still too high after full optimization</h3>
+    <ol>
+      <li>Move Archimedes to Sonnet + Opus only for panel reviews</li>
+      <li>Move Morpheus to Sonnet + Opus only for complex planning</li>
+      <li>Reduce heartbeat frequency to 8h or on-demand only</li>
+      <li>Kill all cron jobs except reminders</li>
+      <li><strong>Nuclear option:</strong> consolidate to 2-3 agents total</li>
+    </ol>
+  </div>
+  
+  <div class="card">
+    <h3 style="margin-top: 0;">If OpenAI kills free Codex access</h3>
+    <ol>
+      <li>Move Tank to local model (qwen3:8b)</li>
+      <li>Move Daedalus/Hermes to Sonnet</li>
+      <li>Accept ~$200-300/mo budget increase</li>
+      <li>Evaluate open-source alternatives (Llama, Mistral)</li>
+    </ol>
+  </div>
+  
+  <div class="card">
+    <h3 style="margin-top: 0;">If Anthropic flags Account 1 Max subscription</h3>
+    <ol>
+      <li>API billing already in place — no disruption to agents</li>
+      <li>Lose personal claude.ai access</li>
+      <li>Save $200/mo on subscription</li>
+      <li>Net impact: neutral (redirect savings to API)</li>
+    </ol>
+  </div>
+</div>
+
+<!-- SECTION 10: SUCCESS METRICS -->
+<div class="section">
+  <h2><span class="num">10</span> Success Metrics</h2>
+  
+  <table>
+    <tr><th>Metric</th><th>Target</th><th>Measurement</th></tr>
+    <tr><td>Monthly API spend</td><td style="color: var(--green);"><strong>$600–1,000</strong></td><td>Anthropic billing dashboard</td></tr>
+    <tr><td>Daily spend</td><td style="color: var(--green);"><strong>&lt;$27/day avg</strong></td><td>Daily morning check</td></tr>
+    <tr><td>Heartbeat cost</td><td style="color: var(--green);"><strong>$0–1/day</strong></td><td>Local model attribution</td></tr>
+    <tr><td>Agent uptime</td><td><strong>All 6 responsive</strong></td><td>Daily smoke test</td></tr>
+    <tr><td>Quality (Aristotle)</td><td><strong>No complaints Week 1</strong></td><td>David feedback</td></tr>
+    <tr><td>Quality (Hypatia)</td><td><strong>Same catch rate</strong></td><td>Review output comparison</td></tr>
+    <tr><td>Cost attribution</td><td><strong>&gt;90% traced</strong></td><td>Per-agent API keys</td></tr>
+    <tr><td>Spiral incidents</td><td style="color: var(--green);"><strong>0 in Week 1</strong></td><td>Session monitoring</td></tr>
+    <tr><td>Failed heartbeats</td><td><strong>&lt;2/week</strong></td><td>Log monitoring</td></tr>
+  </table>
+</div>
+
+<!-- FOOTER -->
+<div class="report-footer">
+  <p><strong>Charter 707 — API Billing Migration Plan v3.0</strong></p>
+  <p>Prepared by Morpheus (COO) · Reviewed by Tank (9/10) & Dozer (8.5/10)</p>
+  <p>April 3, 2026 · Neural NeXus Operations</p>
+</div>
+
+</div>
+</body>
+</html>
