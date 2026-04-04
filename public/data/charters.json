@@ -2676,7 +2676,8 @@
             {"name": "Fleet restructure", "tasks": "Reassign models, update config, verify all agents responsive", "status": "⬜ Not started"},
             {"name": "Cost controls", "tasks": "Compaction tuning, cron reduction, heartbeat throttle", "status": "⬜ Not started"},
             {"name": "Monitoring", "tasks": "Daily spend dashboard, alert thresholds, weekly review", "status": "⬜ Not started"},
-            {"name": "Subscription cleanup", "tasks": "Cancel ChatGPT Pro, cancel Claude Max #2", "status": "⬜ Not started"}
+            {"name": "Subscription cleanup", "tasks": "Cancel ChatGPT Pro, cancel Claude Max #2", "status": "⬜ Not started"},
+            {"name": "Local model for heartbeats/crons", "tasks": "Test Ollama qwen3:8b/gemma3:4b for heartbeat tool calls, validate email/calendar/file scan works, configure heartbeat.model globally, migrate all cron jobs to local or Haiku, verify zero API cost on idle operations", "status": "🟡 In Progress — models registered, first test spawned"}
           ]
         }
       ]
