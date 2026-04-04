@@ -2614,6 +2614,70 @@
               "text": "Re-enable AF3 monitoring cron on dedicated browser"
             }
           ]
+        },
+        {
+          "id": "707",
+          "title": "API Billing Migration",
+          "status": "🔴 Critical",
+          "statusClean": "Critical",
+          "phase": "Planning — deadline April 4 2pm CT",
+          "phaseIndex": 1,
+          "dateInitiated": "2026-04-03",
+          "targetDate": "2026-04-04",
+          "daysActive": 0,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Morpheus",
+          "priority": "Critical",
+          "program": "Project Management",
+          "budget": "$600-1,000/mo (API spend cap)",
+          "actualSpend": "$0",
+          "dependencies": [],
+          "enables": [],
+          "progress": 5,
+          "objective": "Migrate the agent fleet from Claude Max subscription-based API access to pay-per-token API billing before Anthropic cuts off third-party access on April 4 at 12pm PT / 2pm CT. Restructure fleet model assignments and implement cost controls to stay within $600-1,000/mo budget.",
+          "successCriteria": "All agents operational on API billing or free tiers. Monthly spend stays within $600-1,000. No service interruption. Daily cost monitoring in place.",
+          "blockers": [
+            {"text": "Hard deadline: Account 1 loses third-party access April 4 2pm CT", "severity": "critical"},
+            {"text": "Account 2 still active but may get flagged under heavy use", "severity": "high"}
+          ],
+          "outstanding": [
+            {"done": false, "text": "Redeem one-time credit on Account 1 (~$200)"},
+            {"done": false, "text": "Cancel ChatGPT Pro subscription (-$200/mo saved)"},
+            {"done": false, "text": "Cancel Claude Max Account 2 (-$200/mo saved)"},
+            {"done": false, "text": "Set up Anthropic API billing with spend cap"},
+            {"done": false, "text": "Migrate Morpheus to Opus API billing"},
+            {"done": false, "text": "Migrate Archimedes to Opus API billing"},
+            {"done": false, "text": "Migrate Aristotle to Sonnet API billing"},
+            {"done": false, "text": "Migrate Arete to Sonnet API billing"},
+            {"done": false, "text": "Confirm Daedalus + Hermes on free GPT-5.4 Codex OAuth (no change)"},
+            {"done": false, "text": "Reduce heartbeat frequency (2h → 4h or on-demand)"},
+            {"done": false, "text": "Aggressive compaction settings (lower reserveTokens)"},
+            {"done": false, "text": "Disable non-essential cron jobs"},
+            {"done": false, "text": "Set up daily cost monitoring / alerts"},
+            {"done": false, "text": "First week: daily spend review and adjustment"}
+          ],
+          "decisions": [
+            {"date": "2026-04-03", "text": "Charter created — Anthropic notified Account 1 that Max subscription no longer covers third-party API access effective April 4"},
+            {"date": "2026-04-03", "text": "Targeted enforcement — only high-usage accounts flagged, not global policy"},
+            {"date": "2026-04-03", "text": "Budget: $600-1,000/mo from cancelling ChatGPT Pro ($200), Claude Max #2 ($200), plus $400 new spend"},
+            {"date": "2026-04-03", "text": "Fleet restructure: Morpheus + Archimedes stay Opus, Aristotle + Arete move to Sonnet, Daedalus + Hermes stay GPT-5.4 (free)"},
+            {"date": "2026-04-03", "text": "Cost driver insight: every API call sends full context window as input tokens — spiraling agents at deep context burn money fast"}
+          ],
+          "risks": [
+            {"risk": "Account 2 gets flagged before migration complete", "likelihood": "Medium", "impact": "High", "mitigation": "Spread load, reduce concurrent Opus sessions"},
+            {"risk": "API costs exceed $1,000/mo", "likelihood": "High", "impact": "High", "mitigation": "Hard spend cap, aggressive compaction, daily monitoring"},
+            {"risk": "Sonnet insufficient for Aristotle/Arete tasks", "likelihood": "Low", "impact": "Medium", "mitigation": "Test for 1 week, escalate to Opus on-demand only"},
+            {"risk": "Agent spiraling burns budget rapidly", "likelihood": "High", "impact": "High", "mitigation": "Human Override rule in all SOUL.md files, kill spirals immediately"},
+            {"risk": "Context window cost compounds across long sessions", "likelihood": "High", "impact": "High", "mitigation": "Aggressive compaction, shorter sessions, fewer heartbeats"}
+          ],
+          "milestones": [
+            {"name": "Emergency prep", "tasks": "Redeem credits, set up API billing, configure spend cap", "status": "⬜ Not started"},
+            {"name": "Fleet restructure", "tasks": "Reassign models, update config, verify all agents responsive", "status": "⬜ Not started"},
+            {"name": "Cost controls", "tasks": "Compaction tuning, cron reduction, heartbeat throttle", "status": "⬜ Not started"},
+            {"name": "Monitoring", "tasks": "Daily spend dashboard, alert thresholds, weekly review", "status": "⬜ Not started"},
+            {"name": "Subscription cleanup", "tasks": "Cancel ChatGPT Pro, cancel Claude Max #2", "status": "⬜ Not started"}
+          ]
         }
       ]
     },
