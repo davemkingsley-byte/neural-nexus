@@ -1158,7 +1158,8 @@ function renderProjectCard(c, compact) {
   `).join('') || '<div style="color:var(--text-dim);font-size:0.82rem">No decisions logged</div>';
 
   const liveUrlHtml = c.liveUrl ? `<a href="${escAttr(c.liveUrl)}" target="_blank" style="color:var(--accent);font-size:0.78rem;text-decoration:none;">🔗 ${escHtml(c.liveUrl)} →</a>` : '';
-  const charterPageHtml = `<a href="/pm-charters/${c.id}.html" style="color:var(--accent-2);font-size:0.78rem;text-decoration:none;margin-left:8px;">📜 View Charter →</a>`;
+  const docsHtml = (c.documents && c.documents.length) ? c.documents.map(d => `<a href="${escAttr(d.url)}" target="_blank" style="color:var(--accent-2);font-size:0.78rem;text-decoration:none;margin-left:8px;">📜 ${escHtml(d.label)} →</a>`).join('') : '';
+  const charterPageHtml = docsHtml;
 
   // Priority badge
   const priCls = c.priority ? 'priority-' + c.priority.toLowerCase() : 'priority-medium';
