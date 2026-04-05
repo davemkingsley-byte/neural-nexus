@@ -7,9 +7,9 @@
         {
           "id": "101",
           "title": "Spelling Bee Game",
-          "status": "🟢 Live",
+          "status": "\ud83d\udfe2 Live",
           "statusClean": "Live",
-          "phase": "✅ Deployed — Live at www.neuralnexus.press/play",
+          "phase": "\u2705 Deployed \u2014 Live at www.neuralnexus.press/play",
           "phaseIndex": 5,
           "liveUrl": "https://www.neuralnexus.press/play",
           "dateInitiated": "2026-03-14",
@@ -91,7 +91,7 @@
             },
             {
               "date": "2026-03-14",
-              "text": "Hosting TBD — prototype first"
+              "text": "Hosting TBD \u2014 prototype first"
             },
             {
               "date": "2026-03-14",
@@ -128,31 +128,31 @@
             {
               "name": "Core engine",
               "tasks": "Puzzle generator, word validation, scoring",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Game UI",
               "tasks": "Honeycomb, input, timer, found words",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Scoreboard",
               "tasks": "Backend, storage, leaderboard view",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Polish",
               "tasks": "Responsive design, share button, animations",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             }
           ]
         },
         {
           "id": "102",
           "title": "Neural NeXus Website",
-          "status": "🟢 Live",
+          "status": "\ud83d\udfe2 Live",
           "statusClean": "Live",
-          "phase": "✅ Deployed — Live at www.neuralnexus.press",
+          "phase": "\u2705 Deployed \u2014 Live at www.neuralnexus.press",
           "phaseIndex": 5,
           "liveUrl": "https://www.neuralnexus.press",
           "dateInitiated": "2026-03-15",
@@ -174,7 +174,7 @@
             "108"
           ],
           "progress": 90,
-          "objective": "Build a professional website for the Neural NeXus newsletter brand — landing page, about, newsletter signup, and Spelling Bee game integration.",
+          "objective": "Build a professional website for the Neural NeXus newsletter brand \u2014 landing page, about, newsletter signup, and Spelling Bee game integration.",
           "successCriteria": "Fully externalized website on neuralnexus.press with newsletter signup, brand presence, and playable Spelling Bee game accessible to the public.",
           "blockers": [
             "Bare domain SSL (needs Cloudflare migration)"
@@ -265,31 +265,31 @@
             {
               "name": "Landing page",
               "tasks": "Hero, about, topics, signup form",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Game integration",
               "tasks": "Spelling Bee, Wordle, Crossword links",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Domain setup",
               "tasks": "DNS, hosting, SSL",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Polish",
               "tasks": "Animations, responsive, SEO",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             }
           ]
         },
         {
           "id": "105",
           "title": "Wordle Game",
-          "status": "🟢 Live",
+          "status": "\ud83d\udfe2 Live",
           "statusClean": "Live",
-          "phase": "✅ Deployed — Live at www.neuralnexus.press/wordle",
+          "phase": "\u2705 Deployed \u2014 Live at www.neuralnexus.press/wordle",
           "phaseIndex": 5,
           "liveUrl": "https://www.neuralnexus.press/wordle",
           "dateInitiated": "2026-03-15",
@@ -361,9 +361,9 @@
         {
           "id": "106",
           "title": "Substack to TikTok Pipeline",
-          "status": "⏸️ Paused",
+          "status": "\u23f8\ufe0f Paused",
           "statusClean": "Paused",
-          "phase": "⏸️ Paused — M1-M3 done, blocked on assets",
+          "phase": "\u23f8\ufe0f Paused \u2014 M1-M3 done, blocked on assets",
           "phaseIndex": 2,
           "liveUrl": null,
           "dateInitiated": "2026-03-16",
@@ -383,7 +383,7 @@
           "enables": [],
           "progress": 60,
           "objective": "Automated pipeline that converts Neural NeXus Substack posts into TikTok-ready short-form video content, designed to drive traffic back to Substack for subscriber growth.",
-          "successCriteria": "One Substack post → multiple TikTok-ready clips (30-90s), with hooks, captions, CTA overlay pointing to Substack. Minimal manual effort per post.",
+          "successCriteria": "One Substack post \u2192 multiple TikTok-ready clips (30-90s), with hooks, captions, CTA overlay pointing to Substack. Minimal manual effort per post.",
           "blockers": [
             "ElevenLabs voice clone needs David's voice sample + API key",
             "Pexels API key for stock footage"
@@ -391,15 +391,15 @@
           "outstanding": [
             {
               "done": true,
-              "text": "TikTok account — @science.chad"
+              "text": "TikTok account \u2014 @science.chad"
             },
             {
               "done": true,
-              "text": "Voice — Clone David's voice via ElevenLabs."
+              "text": "Voice \u2014 Clone David's voice via ElevenLabs."
             },
             {
               "done": true,
-              "text": "Approval — David reviews and approves scripts before rendering."
+              "text": "Approval \u2014 David reviews and approves scripts before rendering."
             },
             {
               "done": false,
@@ -445,7 +445,7 @@
             },
             {
               "date": "2026-03-16",
-              "text": "Blur-behind layout for landscape→portrait footage"
+              "text": "Blur-behind layout for landscape\u2192portrait footage"
             },
             {
               "date": "2026-03-16",
@@ -487,48 +487,48 @@
               "risk": "Scope creep into full video production suite",
               "likelihood": "High",
               "impact": "Medium",
-              "mitigation": "Keep it Substack→TikTok only, not general purpose"
+              "mitigation": "Keep it Substack\u2192TikTok only, not general purpose"
             }
           ],
           "milestones": [
             {
               "name": "M1: Content Parser",
-              "tasks": "Substack RSS/URL → structured data",
-              "status": "✅ Complete"
+              "tasks": "Substack RSS/URL \u2192 structured data",
+              "status": "\u2705 Complete"
             },
             {
               "name": "M2: Script Generator",
               "tasks": "LLM pipeline: hooks, TikTok scripts",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "M3: Video Assembly",
               "tasks": "ffmpeg + TTS + Pillow captions",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "M4: Voice Clone",
               "tasks": "ElevenLabs clone of David's voice",
-              "status": "⬜ Blocked"
+              "status": "\u2b1c Blocked"
             },
             {
               "name": "M5: Batch Pipeline",
-              "tasks": "URL → 3-5 ready clips",
-              "status": "⬜ Not started"
+              "tasks": "URL \u2192 3-5 ready clips",
+              "status": "\u2b1c Not started"
             },
             {
               "name": "M6: Distribution",
               "tasks": "TikTok caption, UTM tracking",
-              "status": "⬜ Not started"
+              "status": "\u2b1c Not started"
             }
           ]
         },
         {
           "id": "107",
           "title": "Mini Crossword",
-          "status": "🟢 Live",
+          "status": "\ud83d\udfe2 Live",
           "statusClean": "Live",
-          "phase": "✅ Deployed — Live at www.neuralnexus.press/crossword",
+          "phase": "\u2705 Deployed \u2014 Live at www.neuralnexus.press/crossword",
           "phaseIndex": 5,
           "liveUrl": "https://www.neuralnexus.press/crossword",
           "dateInitiated": "2026-03-15",
@@ -547,8 +547,8 @@
           ],
           "enables": [],
           "progress": 100,
-          "objective": "Build a daily mini crossword game for www.neuralnexus.press/crossword — a 5×5 grid with science/tech-themed clues, inspired by the NYT Mini. Quick to play (2-5 min), shareable results, daily rotation.",
-          "successCriteria": "- 5×5 crossword grid with across/down clues",
+          "objective": "Build a daily mini crossword game for www.neuralnexus.press/crossword \u2014 a 5\u00d75 grid with science/tech-themed clues, inspired by the NYT Mini. Quick to play (2-5 min), shareable results, daily rotation.",
+          "successCriteria": "- 5\u00d75 crossword grid with across/down clues",
           "blockers": [],
           "outstanding": [
             {
@@ -575,7 +575,7 @@
             },
             {
               "date": "2026-03-16",
-              "text": "5×5 grid (not 7×7 or larger)"
+              "text": "5\u00d75 grid (not 7\u00d77 or larger)"
             },
             {
               "date": "2026-03-16",
@@ -624,36 +624,36 @@
             {
               "name": "Puzzle data",
               "tasks": "30 puzzles authored",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Game engine",
               "tasks": "Grid, input, validation",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "UI/UX",
               "tasks": "Dark theme, animations, mobile",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Daily rotation",
               "tasks": "Stats + sharing",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Deploy",
               "tasks": "Production",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             }
           ]
         },
         {
           "id": "108",
           "title": "SEO & Analytics Strategy",
-          "status": "🟢 Implementation",
+          "status": "\ud83d\udfe2 Implementation",
           "statusClean": "Implementation",
-          "phase": "⚙️ Implementation — Core deployed, content building",
+          "phase": "\u2699\ufe0f Implementation \u2014 Core deployed, content building",
           "phaseIndex": 2,
           "liveUrl": null,
           "dateInitiated": "2026-03-18",
@@ -674,7 +674,7 @@
             "106"
           ],
           "progress": 90,
-          "objective": "Transform neuralnexus.press from a static hub into a search-discoverable, traffic-generating asset that complements Substack — driving organic visitors to the newsletter, games, and David's brand.",
+          "objective": "Transform neuralnexus.press from a static hub into a search-discoverable, traffic-generating asset that complements Substack \u2014 driving organic visitors to the newsletter, games, and David's brand.",
           "successCriteria": "",
           "blockers": [
             "Bare domain SSL fix (Cloudflare migration)"
@@ -782,9 +782,9 @@
         {
           "id": "110",
           "title": "Content Distribution Automation",
-          "status": "📋 Planned",
+          "status": "\ud83d\udccb Planned",
           "statusClean": "Planned",
-          "phase": "📋 Requirements",
+          "phase": "\ud83d\udccb Requirements",
           "phaseIndex": 0,
           "liveUrl": null,
           "dateInitiated": "2026-03-22",
@@ -833,9 +833,9 @@
         {
           "id": "201",
           "title": "Oral Supplementation",
-          "status": "🟡 In Progress",
+          "status": "\ud83d\udfe1 In Progress",
           "statusClean": "In Progress",
-          "phase": "⚙️ Implementation (Phase 1 active)",
+          "phase": "\u2699\ufe0f Implementation (Phase 1 active)",
           "phaseIndex": 2,
           "liveUrl": null,
           "dateInitiated": "2026-03-17",
@@ -854,7 +854,7 @@
             "202"
           ],
           "progress": 50,
-          "objective": "Design a personalized, evidence-based oral supplementation protocol targeting cognitive performance — memory, focus, processing speed, neuroprotection, and long-term brain health.",
+          "objective": "Design a personalized, evidence-based oral supplementation protocol targeting cognitive performance \u2014 memory, focus, processing speed, neuroprotection, and long-term brain health.",
           "successCriteria": "- [ ] Literature review of top-tier nootropic compounds completed",
           "blockers": [],
           "outstanding": [
@@ -868,7 +868,7 @@
             },
             {
               "done": true,
-              "text": "Novel pathways research (TrkB, σ1, mGluR5, PDE4/5, Nrf2)"
+              "text": "Novel pathways research (TrkB, \u03c31, mGluR5, PDE4/5, Nrf2)"
             },
             {
               "done": true,
@@ -964,7 +964,7 @@
               "risk": "Overcomplicated protocol leads to poor adherence",
               "likelihood": "Medium",
               "impact": "High",
-              "mitigation": "Keep daily stack ≤8 supplements; simple AM/PM split"
+              "mitigation": "Keep daily stack \u22648 supplements; simple AM/PM split"
             }
           ],
           "milestones": []
@@ -972,9 +972,9 @@
         {
           "id": "202",
           "title": "Cognitive Performance Dashboard",
-          "status": "🟢 Live",
+          "status": "\ud83d\udfe2 Live",
           "statusClean": "Live",
-          "phase": "✅ Deployed — Live at neuralnexus.press/cognitive/",
+          "phase": "\u2705 Deployed \u2014 Live at neuralnexus.press/cognitive/",
           "phaseIndex": 5,
           "liveUrl": "https://www.neuralnexus.press/cognitive/",
           "dateInitiated": "2026-03-20",
@@ -993,7 +993,7 @@
           ],
           "enables": [],
           "progress": 85,
-          "objective": "Build a longitudinal cognitive performance measurement system that combines standardized testing, chess ELO tracking, and Neural NeXus game analytics — with supplement/intervention phase markers — to objectively evaluate whether cognitive enhancement strategies are working.",
+          "objective": "Build a longitudinal cognitive performance measurement system that combines standardized testing, chess ELO tracking, and Neural NeXus game analytics \u2014 with supplement/intervention phase markers \u2014 to objectively evaluate whether cognitive enhancement strategies are working.",
           "successCriteria": "- [ ] Standardized cognitive battery built and deployed on neuralnexus.press",
           "blockers": [],
           "outstanding": [
@@ -1123,9 +1123,9 @@
         {
           "id": "203",
           "title": "Mobile Cognitive App (PWA)",
-          "status": "🟢 Live",
+          "status": "\ud83d\udfe2 Live",
           "statusClean": "Live",
-          "phase": "✅ Deployed — Live at neuralnexus.press/app/",
+          "phase": "\u2705 Deployed \u2014 Live at neuralnexus.press/app/",
           "phaseIndex": 5,
           "liveUrl": "https://www.neuralnexus.press/app/",
           "dateInitiated": "2026-03-20",
@@ -1203,12 +1203,12 @@
     {
       "name": "Treat Biosciences",
       "slug": "treat-biosciences",
-      "description": "Canine therapeutic development — TRT-001 triple incretin agonist for canine obesity.",
+      "description": "Canine therapeutic development \u2014 TRT-001 triple incretin agonist for canine obesity.",
       "charters": [
         {
           "id": "501",
           "title": "Triple Incretin Program (TRT-001)",
-          "status": "🟡 In Progress",
+          "status": "\ud83d\udfe1 In Progress",
           "statusClean": "In Progress",
           "phase": "Two-peptide platform: TRT-001 (triple incretin) + TRT-002 (follistatin)",
           "phaseIndex": 2,
@@ -1332,9 +1332,9 @@
         {
           "id": "505",
           "title": "TRT-002 In Silico Design Pipeline",
-          "status": "🟡 Active",
+          "status": "\ud83d\udfe1 Active",
           "statusClean": "Active",
-          "phase": "Track 2: STRUCTURAL DISCRIMINATION COMPLETE — 4 Tier 1 candidates from 2 scaffold families pass all mechanism gates. Day 2 AF3 next. Track 1: Parked, awaiting David GO on gene synthesis.",
+          "phase": "Track 2: STRUCTURAL DISCRIMINATION COMPLETE \u2014 4 Tier 1 candidates from 2 scaffold families pass all mechanism gates. Day 2 AF3 next. Track 1: Parked, awaiting David GO on gene synthesis.",
           "phaseIndex": 3,
           "dateInitiated": "2026-03-25",
           "targetDate": "2026-04-15",
@@ -1351,7 +1351,7 @@
           ],
           "enables": [],
           "progress": 97,
-          "objective": "Two-track drug design pipeline for TRT-002. Track 1: Engineered follistatin fragment (ND-FSD1-FSD2, 212 aa canine) as myostatin/activin antagonist. Track 2: De novo dual ActRIIA/ActRIIB competitive blocker (bimagrumab MOA) designed from Morvan crystal structures (2.0Å).",
+          "objective": "Two-track drug design pipeline for TRT-002. Track 1: Engineered follistatin fragment (ND-FSD1-FSD2, 212 aa canine) as myostatin/activin antagonist. Track 2: De novo dual ActRIIA/ActRIIB competitive blocker (bimagrumab MOA) designed from Morvan crystal structures (2.0\u00c5).",
           "successCriteria": "ELISA IC50 < 100 nM myostatin inhibition = GO. Gene synthesis order placed, binding data in 6 weeks.",
           "blockers": [
             {
@@ -1381,7 +1381,7 @@
             },
             {
               "done": true,
-              "text": "Phase 6: Expert panel review (Hypatia + Socrates) — GO WITH CONDITIONS, all met"
+              "text": "Phase 6: Expert panel review (Hypatia + Socrates) \u2014 GO WITH CONDITIONS, all met"
             },
             {
               "done": true,
@@ -1389,7 +1389,7 @@
             },
             {
               "done": true,
-              "text": "Track 2: Dual ActRII blocker design — review complete, BindCraft execution pending"
+              "text": "Track 2: Dual ActRII blocker design \u2014 review complete, BindCraft execution pending"
             },
             {
               "done": false,
@@ -1405,7 +1405,7 @@
             },
             {
               "done": true,
-              "text": "Track 2: Resolve final conditions from panel → v4 final → BindCraft execution"
+              "text": "Track 2: Resolve final conditions from panel \u2192 v4 final \u2192 BindCraft execution"
             },
             {
               "done": true,
@@ -1413,7 +1413,7 @@
             },
             {
               "done": true,
-              "text": "Panel triage of 23 R1 designs → 9 advancing from 5 scaffolds"
+              "text": "Panel triage of 23 R1 designs \u2192 9 advancing from 5 scaffolds"
             },
             {
               "done": true,
@@ -1425,15 +1425,15 @@
             },
             {
               "done": true,
-              "text": "Track 2: AF3 binary validation — 9/9 pass, controls establish dynamic range (0.11-0.84)"
+              "text": "Track 2: AF3 binary validation \u2014 9/9 pass, controls establish dynamic range (0.11-0.84)"
             },
             {
               "done": true,
-              "text": "Track 2: Panel review of AF3 report — Hypatia GO, Socrates GO WITH CONDITIONS (folded in)"
+              "text": "Track 2: Panel review of AF3 report \u2014 Hypatia GO, Socrates GO WITH CONDITIONS (folded in)"
             },
             {
               "done": true,
-              "text": "Track 2: Structural discrimination — 6-gate framework, 4 Tier 1 candidates from 2 scaffold families (s404474, s102094)"
+              "text": "Track 2: Structural discrimination \u2014 6-gate framework, 4 Tier 1 candidates from 2 scaffold families (s404474, s102094)"
             },
             {
               "done": false,
@@ -1441,7 +1441,7 @@
             },
             {
               "done": false,
-              "text": "Track 2: Day 2 AF3 — re-seed top designs + ternary fold"
+              "text": "Track 2: Day 2 AF3 \u2014 re-seed top designs + ternary fold"
             }
           ],
           "decisions": [
@@ -1463,11 +1463,11 @@
             },
             {
               "date": "2026-03-26",
-              "text": "Ship imperfect drug — fix with data after ELISA proof"
+              "text": "Ship imperfect drug \u2014 fix with data after ELISA proof"
             },
             {
               "date": "2026-03-27",
-              "text": "Sequence corrected: 215aa human → 212aa canine backbone"
+              "text": "Sequence corrected: 215aa human \u2192 212aa canine backbone"
             },
             {
               "date": "2026-03-27",
@@ -1475,7 +1475,7 @@
             },
             {
               "date": "2026-03-27",
-              "text": "Expert panel GO WITH CONDITIONS — all conditions resolved"
+              "text": "Expert panel GO WITH CONDITIONS \u2014 all conditions resolved"
             },
             {
               "date": "2026-03-27",
@@ -1483,15 +1483,15 @@
             },
             {
               "date": "2026-03-28",
-              "text": "Track 2 pivoted: myostatin-specific binder → dual ActRII competitive blocker (bimagrumab MOA)"
+              "text": "Track 2 pivoted: myostatin-specific binder \u2192 dual ActRII competitive blocker (bimagrumab MOA)"
             },
             {
               "date": "2026-03-28",
-              "text": "Design basis: Morvan et al. PNAS 2017 crystal structures (ActRIIA 2.35Å, ActRIIB 2.00Å)"
+              "text": "Design basis: Morvan et al. PNAS 2017 crystal structures (ActRIIA 2.35\u00c5, ActRIIB 2.00\u00c5)"
             },
             {
               "date": "2026-03-28",
-              "text": "Canine ActRIIB ECD = 100% identical to human (116/116 aa) — zero species translation risk"
+              "text": "Canine ActRIIB ECD = 100% identical to human (116/116 aa) \u2014 zero species translation risk"
             },
             {
               "date": "2026-03-28",
@@ -1503,7 +1503,7 @@
             },
             {
               "date": "2026-03-29",
-              "text": "Big funnel strategy: maximize designs → confirmed binders → optimize from data (David's direction)"
+              "text": "Big funnel strategy: maximize designs \u2192 confirmed binders \u2192 optimize from data (David's direction)"
             },
             {
               "date": "2026-03-30",
@@ -1511,7 +1511,7 @@
             },
             {
               "date": "2026-03-30",
-              "text": "AF3 validation 9/9 PASS — ipTM range 0.75-0.87 (mean 0.82). Best: s666280_mpnn20 (ipTM 0.87)"
+              "text": "AF3 validation 9/9 PASS \u2014 ipTM range 0.75-0.87 (mean 0.82). Best: s666280_mpnn20 (ipTM 0.87)"
             },
             {
               "date": "2026-03-30",
@@ -1519,11 +1519,11 @@
             },
             {
               "date": "2026-03-30",
-              "text": "ActRIIB selectivity confirmed: lead design vs BMPRII ipTM 0.49 — addresses ACE-031 off-target safety concern"
+              "text": "ActRIIB selectivity confirmed: lead design vs BMPRII ipTM 0.49 \u2014 addresses ACE-031 off-target safety concern"
             },
             {
               "date": "2026-03-31",
-              "text": "Structural discrimination complete: 4 Tier 1 from 2 scaffold families (s404474, s102094). G5 (focused competitive-face contacts) is primary discriminator. N2 rejected design fails structural gates despite AF3 ipTM 0.79 — validates two-stage pipeline."
+              "text": "Structural discrimination complete: 4 Tier 1 from 2 scaffold families (s404474, s102094). G5 (focused competitive-face contacts) is primary discriminator. N2 rejected design fails structural gates despite AF3 ipTM 0.79 \u2014 validates two-stage pipeline."
             }
           ],
           "documents": [
@@ -1612,7 +1612,7 @@
         {
           "id": "502",
           "title": "TRT-001 Triple Incretin Agonist",
-          "status": "🟡 In Progress",
+          "status": "\ud83d\udfe1 In Progress",
           "statusClean": "In Progress",
           "phase": "Structural analysis complete, IP strategy drafted",
           "phaseIndex": 2,
@@ -1664,7 +1664,7 @@
             },
             {
               "done": false,
-              "text": "Lilly retatrutide patent — does it cover veterinary applications?"
+              "text": "Lilly retatrutide patent \u2014 does it cover veterinary applications?"
             },
             {
               "done": false,
@@ -1716,9 +1716,9 @@
         {
           "id": "503",
           "title": "TRT-002 Engineered Follistatin Fragment",
-          "status": "🟡 Awaiting GO",
+          "status": "\ud83d\udfe1 Awaiting GO",
           "statusClean": "Awaiting GO",
-          "phase": "Drug design complete, gene synthesis spec ready — awaiting David GO",
+          "phase": "Drug design complete, gene synthesis spec ready \u2014 awaiting David GO",
           "phaseIndex": 3,
           "dateInitiated": "2026-03-25",
           "targetDate": "2026-05-15",
@@ -1787,7 +1787,7 @@
             },
             {
               "date": "2026-03-26",
-              "text": "Ship imperfect drug — fix with data after ELISA proof"
+              "text": "Ship imperfect drug \u2014 fix with data after ELISA proof"
             }
           ],
           "documents": [
@@ -1841,7 +1841,7 @@
         {
           "id": "504",
           "title": "Fundraising & Investor Materials",
-          "status": "🟡 In Progress",
+          "status": "\ud83d\udfe1 In Progress",
           "statusClean": "In Progress",
           "phase": "Tony committed, finding remaining 2/3",
           "phaseIndex": 2,
@@ -1893,7 +1893,7 @@
             },
             {
               "done": true,
-              "text": "Tony call completed — ~$167K verbal commit"
+              "text": "Tony call completed \u2014 ~$167K verbal commit"
             },
             {
               "done": true,
@@ -1980,9 +1980,9 @@
         {
           "id": "506",
           "title": "Campaign R2: De Novo Miniprotein Blocker (ActRIIB)",
-          "status": "🟡 Active",
+          "status": "\ud83d\udfe1 Active",
           "statusClean": "Active",
-          "phase": "R2 Stage 1 report v4 FINAL — awaiting David GO for 250 BindCraft trajectories (~$50)",
+          "phase": "R2 Stage 1 report v4 FINAL \u2014 awaiting David GO for 250 BindCraft trajectories (~$50)",
           "phaseIndex": 2,
           "dateInitiated": "2026-04-01",
           "owner": "Archimedes",
@@ -2010,19 +2010,19 @@
             },
             {
               "done": true,
-              "text": "Day 0.5: Multi-seed validation — all 4 R1 designs PASS (≤0.08 ipTM range)"
+              "text": "Day 0.5: Multi-seed validation \u2014 all 4 R1 designs PASS (\u22640.08 ipTM range)"
             },
             {
               "done": true,
-              "text": "Day 0.5 report v4 FINAL — panel reviewed (Hypatia GO, Socrates GO WITH CONDITIONS resolved)"
+              "text": "Day 0.5 report v4 FINAL \u2014 panel reviewed (Hypatia GO, Socrates GO WITH CONDITIONS resolved)"
             },
             {
               "done": true,
-              "text": "Day 1: Corrected control AF3 results — scoring calibration confirmed (errors inconsequential)"
+              "text": "Day 1: Corrected control AF3 results \u2014 scoring calibration confirmed (errors inconsequential)"
             },
             {
               "done": true,
-              "text": "R2 Stage 1 Pre-Experiment Report v4 FINAL — panel audited, all fixes applied"
+              "text": "R2 Stage 1 Pre-Experiment Report v4 FINAL \u2014 panel audited, all fixes applied"
             },
             {
               "done": true,
@@ -2048,7 +2048,7 @@
           "decisions": [
             {
               "date": "2026-04-01",
-              "text": "Charter 506 created — R2 campaign building on R1 results"
+              "text": "Charter 506 created \u2014 R2 campaign building on R1 results"
             },
             {
               "date": "2026-04-01",
@@ -2056,19 +2056,19 @@
             },
             {
               "date": "2026-04-01",
-              "text": "s404474_mpnn2 dropped from dual-receptor track (ActRIIA 0.29 — confirmed non-binder)"
+              "text": "s404474_mpnn2 dropped from dual-receptor track (ActRIIA 0.29 \u2014 confirmed non-binder)"
             },
             {
               "date": "2026-04-02",
-              "text": "Day 0.5 CLOSED — David approved. All 4 designs passed multi-seed criterion"
+              "text": "Day 0.5 CLOSED \u2014 David approved. All 4 designs passed multi-seed criterion"
             },
             {
               "date": "2026-04-02",
-              "text": "Corrected controls confirm scoring calibration — no threshold changes needed"
+              "text": "Corrected controls confirm scoring calibration \u2014 no threshold changes needed"
             },
             {
               "date": "2026-04-02",
-              "text": "R2 Stage 1 report v4 FINAL — 250 trajectories, Cys allowed (≤2 per design), all inputs two-database verified"
+              "text": "R2 Stage 1 report v4 FINAL \u2014 250 trajectories, Cys allowed (\u22642 per design), all inputs two-database verified"
             }
           ],
           "documents": [
@@ -2099,14 +2099,14 @@
         {
           "id": "401",
           "title": "Molluscum Contagiosum Treatment",
-          "status": "🟢 Maintenance",
+          "status": "\ud83d\udfe2 Maintenance",
           "statusClean": "Maintenance",
-          "phase": "🔧 Maintenance — Treatment in progress",
+          "phase": "\ud83d\udd27 Maintenance \u2014 Treatment in progress",
           "phaseIndex": 5,
           "liveUrl": null,
           "dateInitiated": "2026-03-19",
           "targetDate": "2026-05-19",
-          "dateCompleted": "—",
+          "dateCompleted": "\u2014",
           "daysActive": 0,
           "overdue": false,
           "owner": "David Kingsley",
@@ -2181,6 +2181,106 @@
             }
           ],
           "milestones": []
+        },
+        {
+          "id": "402",
+          "title": "Neuropathy Investigation & Recovery",
+          "status": "\ud83d\udfe1 In Progress",
+          "statusClean": "In Progress",
+          "phase": "\ud83d\udd2c Phase 1 \u2014 Diagnostic Workup",
+          "phaseIndex": 1,
+          "liveUrl": null,
+          "dateInitiated": "2026-04-04",
+          "targetDate": "2026-07-04",
+          "dateCompleted": "\u2014",
+          "daysActive": 0,
+          "overdue": false,
+          "owner": "Arete",
+          "assignee": "Arete (CHO)",
+          "priority": "High",
+          "program": "Physical Health",
+          "budget": "TBD (insurance-dependent)",
+          "actualSpend": "TBD",
+          "dependencies": [
+            "PCP blood panel",
+            "UTSW neuromuscular referral"
+          ],
+          "enables": [
+            "Targeted treatment protocol",
+            "Disability documentation if needed"
+          ],
+          "progress": 15,
+          "objective": "Diagnose root cause of recurring small fiber neuropathy (since July 2025) and establish evidence-based treatment protocol. Suspected autoimmune SFN with fluoroquinolone acceleration. Leading differential: autoimmune SFN (55-65%), Sj\u00f6gren/MCTD subset (20-30%).",
+          "successCriteria": "- [ ] Root cause identified\n- [ ] Autoimmune panel complete\n- [ ] UTSW neuromuscular evaluation\n- [ ] Treatment protocol initiated\n- [ ] Symptom reduction documented",
+          "blockers": [],
+          "outstanding": [
+            {
+              "done": false,
+              "text": "Monday PCP blood draw (25+ marker panel inc. ANA, SSA/SSB, dsDNA, complement)"
+            },
+            {
+              "done": false,
+              "text": "UTSW neuromuscular clinic referral & scheduling"
+            },
+            {
+              "done": false,
+              "text": "Aug 2025 hospitalization records retrieval (LP results)"
+            },
+            {
+              "done": true,
+              "text": "Neuroprotective supplement stack initiated"
+            },
+            {
+              "done": true,
+              "text": "Investigation plan v5 completed"
+            },
+            {
+              "done": true,
+              "text": "Longitudinal bloodwork compiled (6 panels, Dec 2023\u2013Mar 2026)"
+            }
+          ],
+          "decisions": [
+            {
+              "date": "2026-04-04",
+              "decision": "Pursue comprehensive autoimmune workup \u2014 zero autoimmune markers ever tested despite strong risk factors (maternal SLE, personal vitiligo, probable EBV)",
+              "by": "David + Arete"
+            },
+            {
+              "date": "2026-04-04",
+              "decision": "UTSW neuromuscular over Texas Neurology \u2014 academic center with SFN expertise",
+              "by": "David + Arete"
+            }
+          ],
+          "risks": [
+            {
+              "risk": "Autoimmune panel comes back negative (idiopathic SFN \u2014 30-50% of cases)",
+              "likelihood": "35%",
+              "impact": "Medium",
+              "mitigation": "Skin punch biopsy + IVIG trial if clinical suspicion high"
+            },
+            {
+              "risk": "Insurance denies IVIG ($60-180K/year)",
+              "likelihood": "50%",
+              "impact": "High",
+              "mitigation": "Document medical necessity chain, appeal process, FMLA paper trail"
+            },
+            {
+              "risk": "UTSW scheduling delays (2-3 month wait)",
+              "likelihood": "60%",
+              "impact": "Medium",
+              "mitigation": "Request urgent referral, pursue PCP workup in parallel"
+            }
+          ],
+          "documents": [
+            {
+              "label": "Investigation Plan v5",
+              "url": "https://docs.google.com/document/d/1pVuCn53UGwQzzLxxM8_kQVGhjZhNhfYHqN9tnQEyhhQ/edit"
+            },
+            {
+              "label": "Neuroprotective Supplement Stack",
+              "url": "https://docs.google.com/spreadsheets/d/1oTCsXRLmXxgp6jOc94CjIkuxSlGqM9xep6ls0yw9doE/edit"
+            }
+          ]
         }
       ]
     },
@@ -2191,9 +2291,9 @@
         {
           "id": "701",
           "title": "Project Management System",
-          "status": "🟢 Live",
+          "status": "\ud83d\udfe2 Live",
           "statusClean": "Live",
-          "phase": "✅ Deployed — Live at neuralnexus.press/dashboard",
+          "phase": "\u2705 Deployed \u2014 Live at neuralnexus.press/dashboard",
           "phaseIndex": 5,
           "liveUrl": "https://www.neuralnexus.press/dashboard",
           "dateInitiated": "2026-03-15",
@@ -2212,7 +2312,7 @@
             "702"
           ],
           "progress": 100,
-          "objective": "Build a full-featured, browser-based project management dashboard that reads/writes charter files, tracks status, monitors deployed projects, and surfaces blockers — all from a single UI.",
+          "objective": "Build a full-featured, browser-based project management dashboard that reads/writes charter files, tracks status, monitors deployed projects, and surfaces blockers \u2014 all from a single UI.",
           "successCriteria": "Replaces the static charter index with a dynamic system that can filter, edit, search, and monitor all projects without touching markdown files manually.",
           "blockers": [],
           "outstanding": [],
@@ -2272,41 +2372,41 @@
             {
               "name": "Backend API",
               "tasks": "Charter parser, REST endpoints",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Dashboard UI",
               "tasks": "Summary cards, filter/sort, search",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Detail View",
               "tasks": "Expandable cards, phase drill-down",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Edit Mode",
               "tasks": "In-browser status editing",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Monitoring",
               "tasks": "URL health checks, activity feed",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Timeline",
               "tasks": "Gantt view of project phases",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             }
           ]
         },
         {
           "id": "702",
           "title": "Charter Dashboard",
-          "status": "🟢 Live",
+          "status": "\ud83d\udfe2 Live",
           "statusClean": "Live",
-          "phase": "✅ Deployed — Live at neuralnexus.press/dashboard",
+          "phase": "\u2705 Deployed \u2014 Live at neuralnexus.press/dashboard",
           "phaseIndex": 5,
           "liveUrl": "https://www.neuralnexus.press/dashboard",
           "dateInitiated": "2026-03-15",
@@ -2352,31 +2452,31 @@
             {
               "name": "Charter index page",
               "tasks": "Lists all projects",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Charter detail pages",
               "tasks": "Individual charter HTML pages",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Program grouping",
               "tasks": "Neural NeXus, Cognitive, Treat, etc.",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             },
             {
               "name": "Navigation",
               "tasks": "Cross-section links",
-              "status": "✅ Complete"
+              "status": "\u2705 Complete"
             }
           ]
         },
         {
           "id": "703",
           "title": "Scientific Panel Architecture",
-          "status": "🟡 In Progress",
+          "status": "\ud83d\udfe1 In Progress",
           "statusClean": "In Progress",
-          "phase": "⚙️ Implementation",
+          "phase": "\u2699\ufe0f Implementation",
           "phaseIndex": 2,
           "liveUrl": null,
           "dateInitiated": "2026-03-23",
@@ -2407,11 +2507,11 @@
             },
             {
               "done": true,
-              "text": "Track 1 (follistatin) review complete — GO WITH CONDITIONS, all met"
+              "text": "Track 1 (follistatin) review complete \u2014 GO WITH CONDITIONS, all met"
             },
             {
               "done": true,
-              "text": "Track 2 (dual ActRII blocker) review complete — 3 rounds, conditional GO"
+              "text": "Track 2 (dual ActRII blocker) review complete \u2014 3 rounds, conditional GO"
             },
             {
               "done": false,
@@ -2425,7 +2525,7 @@
             },
             {
               "date": "2026-03-28",
-              "text": "Track 2 review completed (3 rounds) — both reviewers satisfied"
+              "text": "Track 2 review completed (3 rounds) \u2014 both reviewers satisfied"
             }
           ],
           "risks": [],
@@ -2434,9 +2534,9 @@
         {
           "id": "704",
           "title": "Work Process Framework",
-          "status": "🟢 Active",
+          "status": "\ud83d\udfe2 Active",
           "statusClean": "Active",
-          "phase": "✅ Approved — In effect",
+          "phase": "\u2705 Approved \u2014 In effect",
           "phaseIndex": 5,
           "liveUrl": null,
           "dateInitiated": "2026-03-23",
@@ -2453,7 +2553,7 @@
           "dependencies": [],
           "enables": [],
           "progress": 100,
-          "objective": "Define end-to-end work process: task intake → planning → execution → verification → testing → shipping.",
+          "objective": "Define end-to-end work process: task intake \u2192 planning \u2192 execution \u2192 verification \u2192 testing \u2192 shipping.",
           "successCriteria": "",
           "blockers": [],
           "outstanding": [
@@ -2525,9 +2625,9 @@
         {
           "id": "705",
           "title": "Multi-Agent Architecture",
-          "status": "🟢 Deployed",
+          "status": "\ud83d\udfe2 Deployed",
           "statusClean": "Deployed",
-          "phase": "✅ Deployed — 4-agent C-suite live on Telegram",
+          "phase": "\u2705 Deployed \u2014 4-agent C-suite live on Telegram",
           "phaseIndex": 5,
           "dateInitiated": "2026-03-27",
           "targetDate": "2026-03-27",
@@ -2575,7 +2675,7 @@
             },
             {
               "done": true,
-              "text": "First file drop pipeline test (Archimedes → Morpheus)"
+              "text": "First file drop pipeline test (Archimedes \u2192 Morpheus)"
             }
           ],
           "decisions": [
@@ -2609,10 +2709,10 @@
         {
           "id": "706",
           "title": "Infrastructure Scale-Out (Mac Mini + KVM)",
-          "status": "🟡 Awaiting Purchase",
+          "status": "\ud83d\udfe1 Awaiting Purchase",
           "statusClean": "Awaiting Purchase",
           "assignee": "Morpheus",
-          "phase": "Hardware acquisition — M4 Mac mini + 4-port dual-monitor KVM switch",
+          "phase": "Hardware acquisition \u2014 M4 Mac mini + 4-port dual-monitor KVM switch",
           "objective": "Resolve agent browser contention by splitting agents across two Mac minis with shared peripherals via KVM switch. Current: 4 agents competing for one cursor/screen. Target: Archimedes + sub-agents on dedicated mini, Morpheus/Aristotle/Arete on existing mini.",
           "progress": 10,
           "documents": [
@@ -2635,11 +2735,11 @@
           "decisions": [
             {
               "date": "2026-03-29",
-              "text": "Second Mac mini approved — M4 16GB/256GB ($499)"
+              "text": "Second Mac mini approved \u2014 M4 16GB/256GB ($499)"
             },
             {
               "date": "2026-03-29",
-              "text": "Physical KVM preferred over headless/software — David still needs manual intervention access"
+              "text": "Physical KVM preferred over headless/software \u2014 David still needs manual intervention access"
             },
             {
               "date": "2026-03-29",
@@ -2647,7 +2747,7 @@
             },
             {
               "date": "2026-03-29",
-              "text": "Opus across all agents — Sonnet default rejected"
+              "text": "Opus across all agents \u2014 Sonnet default rejected"
             }
           ],
           "outstanding": [
@@ -2661,7 +2761,7 @@
             },
             {
               "done": false,
-              "text": "Set up M4 mini — OpenClaw install, Archimedes config, SSH access"
+              "text": "Set up M4 mini \u2014 OpenClaw install, Archimedes config, SSH access"
             },
             {
               "done": false,
@@ -2669,7 +2769,7 @@
             },
             {
               "done": false,
-              "text": "Configure KVM — 3 machines, 2 monitors, shared keyboard/mouse"
+              "text": "Configure KVM \u2014 3 machines, 2 monitors, shared keyboard/mouse"
             },
             {
               "done": false,
@@ -2684,9 +2784,9 @@
         {
           "id": "707",
           "title": "API Billing Migration",
-          "status": "🔴 Critical",
+          "status": "\ud83d\udd34 Critical",
           "statusClean": "Critical",
-          "phase": "Phase 0 executing — cost controls & baseline. Deadline: Apr 4 2pm CT",
+          "phase": "Phase 0 executing \u2014 cost controls & baseline. Deadline: Apr 4 2pm CT",
           "phaseIndex": 1,
           "dateInitiated": "2026-04-03",
           "targetDate": "2026-04-04",
@@ -2752,7 +2852,7 @@
             },
             {
               "done": false,
-              "text": "Reduce heartbeat frequency (2h → 4h or on-demand)"
+              "text": "Reduce heartbeat frequency (2h \u2192 4h or on-demand)"
             },
             {
               "done": false,
@@ -2774,11 +2874,11 @@
           "decisions": [
             {
               "date": "2026-04-03",
-              "text": "Charter created — Anthropic notified Account 1 that Max subscription no longer covers third-party API access effective April 4"
+              "text": "Charter created \u2014 Anthropic notified Account 1 that Max subscription no longer covers third-party API access effective April 4"
             },
             {
               "date": "2026-04-03",
-              "text": "Targeted enforcement — only high-usage accounts flagged, not global policy"
+              "text": "Targeted enforcement \u2014 only high-usage accounts flagged, not global policy"
             },
             {
               "date": "2026-04-03",
@@ -2790,7 +2890,7 @@
             },
             {
               "date": "2026-04-03",
-              "text": "Cost driver insight: every API call sends full context window as input tokens — spiraling agents at deep context burn money fast"
+              "text": "Cost driver insight: every API call sends full context window as input tokens \u2014 spiraling agents at deep context burn money fast"
             }
           ],
           "risks": [
@@ -2829,32 +2929,32 @@
             {
               "name": "Emergency prep",
               "tasks": "Redeem credits, set up API billing, configure spend cap",
-              "status": "⬜ Not started"
+              "status": "\u2b1c Not started"
             },
             {
               "name": "Fleet restructure",
               "tasks": "Reassign models, update config, verify all agents responsive",
-              "status": "⬜ Not started"
+              "status": "\u2b1c Not started"
             },
             {
               "name": "Cost controls",
               "tasks": "Compaction tuning, cron reduction, heartbeat throttle",
-              "status": "⬜ Not started"
+              "status": "\u2b1c Not started"
             },
             {
               "name": "Monitoring",
               "tasks": "Daily spend dashboard, alert thresholds, weekly review",
-              "status": "⬜ Not started"
+              "status": "\u2b1c Not started"
             },
             {
               "name": "Subscription cleanup",
               "tasks": "Cancel ChatGPT Pro, cancel Claude Max #2",
-              "status": "⬜ Not started"
+              "status": "\u2b1c Not started"
             },
             {
               "name": "Local model for heartbeats/crons",
               "tasks": "Test Ollama qwen3:8b/gemma3:4b for heartbeat tool calls, validate email/calendar/file scan works, configure heartbeat.model globally, migrate all cron jobs to local or Haiku, verify zero API cost on idle operations",
-              "status": "🟡 In Progress — models registered, first test spawned"
+              "status": "\ud83d\udfe1 In Progress \u2014 models registered, first test spawned"
             }
           ],
           "lastUpdated": "2026-04-03"
@@ -2868,7 +2968,7 @@
         {
           "id": "301",
           "title": "ExoDev Protocol Optimization (Apollo 3-5)",
-          "status": "🟡 In Progress",
+          "status": "\ud83d\udfe1 In Progress",
           "statusClean": "In Progress",
           "phase": "Protocol review and hypothesis generation",
           "phaseIndex": 2,
@@ -2889,7 +2989,7 @@
           "successCriteria": "Successful VYS vascular remodeling and cardiovascular development through gastrulation window.",
           "blockers": [
             {
-              "text": "Okolab H4 humidifier heater failure (H4.a + H4.d errors) — support email being drafted for Monday. Currently using water bottle bypass."
+              "text": "Okolab H4 humidifier heater failure (H4.a + H4.d errors) \u2014 support email being drafted for Monday. Currently using water bottle bypass."
             }
           ],
           "outstanding": [
@@ -2899,7 +2999,7 @@
             },
             {
               "done": true,
-              "text": "Key insight: NAC likely harming VYS vascular development (ROS required for HIF-1α/VEGF signaling)"
+              "text": "Key insight: NAC likely harming VYS vascular development (ROS required for HIF-1\u03b1/VEGF signaling)"
             },
             {
               "done": true,
@@ -2923,7 +3023,7 @@
             },
             {
               "done": false,
-              "text": "E8.5 roller culture run in progress (2026-03-28) — Okolab H4 heater failed, bypass deployed"
+              "text": "E8.5 roller culture run in progress (2026-03-28) \u2014 Okolab H4 heater failed, bypass deployed"
             }
           ],
           "decisions": [
@@ -2933,15 +3033,15 @@
             },
             {
               "date": "2026-03-25",
-              "text": "NAC paradox: antioxidant suppresses ROS-dependent vascular signaling (HIF-1α, VEGF)"
+              "text": "NAC paradox: antioxidant suppresses ROS-dependent vascular signaling (HIF-1\u03b1, VEGF)"
             },
             {
               "date": "2026-03-25",
-              "text": "Drop NAC, keep ITS-X — metabolic support without vascular harm"
+              "text": "Drop NAC, keep ITS-X \u2014 metabolic support without vascular harm"
             },
             {
               "date": "2026-03-28",
-              "text": "Okolab H4 humidifier heater failure — water bottle bypass + enclosure setpoint adjustment"
+              "text": "Okolab H4 humidifier heater failure \u2014 water bottle bypass + enclosure setpoint adjustment"
             }
           ]
         }
@@ -2954,7 +3054,7 @@
         {
           "id": "601",
           "title": "Morpheus Digital Embodiment V1",
-          "status": "🟡 Active",
+          "status": "\ud83d\udfe1 Active",
           "statusClean": "Active",
           "phase": "V1 deployed to neuralnexus.press/morpheus. Static scaffold with glassmorphism neural visualization, fleet status, morning briefing, action items. Next: live data integration (V2).",
           "phaseIndex": 2,
@@ -2967,7 +3067,7 @@
           "priority": "Low",
           "program": "Miscellaneous",
           "progress": 35,
-          "objective": "Persistent digital embodiment of Morpheus — visual identity, state system, interactive morning briefing. Utility first, not theater.",
+          "objective": "Persistent digital embodiment of Morpheus \u2014 visual identity, state system, interactive morning briefing. Utility first, not theater.",
           "successCriteria": "David can glance at Morpheus and understand state, priorities, blockers, and pending decisions without opening a chat.",
           "blockers": [],
           "outstanding": [
@@ -2981,11 +3081,11 @@
             },
             {
               "done": true,
-              "text": "Define visual identity — abstract neural presence with orbiting rings, pulsing core, floating nodes"
+              "text": "Define visual identity \u2014 abstract neural presence with orbiting rings, pulsing core, floating nodes"
             },
             {
               "done": true,
-              "text": "Choose primary surface — neuralnexus.press/morpheus (password protected)"
+              "text": "Choose primary surface \u2014 neuralnexus.press/morpheus (password protected)"
             },
             {
               "done": true,
@@ -2993,11 +3093,11 @@
             },
             {
               "done": true,
-              "text": "V1 build + deploy — static scaffold with placeholder data (Daedalus built, Morpheus reviewed)"
+              "text": "V1 build + deploy \u2014 static scaffold with placeholder data (Daedalus built, Morpheus reviewed)"
             },
             {
               "done": false,
-              "text": "V2: Live data integration — pull from charters.json, session APIs, heartbeat state"
+              "text": "V2: Live data integration \u2014 pull from charters.json, session APIs, heartbeat state"
             },
             {
               "done": false,
@@ -3020,9 +3120,9 @@
         {
           "id": "901",
           "title": "Market Research & Pricing Strategy",
-          "status": "🟡 Active",
+          "status": "\ud83d\udfe1 Active",
           "statusClean": "Active",
-          "phase": "Market analysis complete — pricing recs documented, awaiting David property photos",
+          "phase": "Market analysis complete \u2014 pricing recs documented, awaiting David property photos",
           "phaseIndex": 2,
           "dateInitiated": "2026-03-31",
           "targetDate": "2026-04-03",
@@ -3033,7 +3133,7 @@
           "priority": "High",
           "program": "Durham Property Management",
           "progress": 70,
-          "objective": "Determine optimal rental strategy and pricing for 601 Eastway Ave, Durham NC — furnished 3bed/2bath, 1,300 sqft. Evaluate whole-house, furnished mid-term, rent-by-room, and Airbnb models.",
+          "objective": "Determine optimal rental strategy and pricing for 601 Eastway Ave, Durham NC \u2014 furnished 3bed/2bath, 1,300 sqft. Evaluate whole-house, furnished mid-term, rent-by-room, and Airbnb models.",
           "successCriteria": "Pricing recommendation with comps data covering all viable rental models, with clear recommendation on model that maximizes monthly cash flow.",
           "blockers": [
             {
@@ -3090,7 +3190,7 @@
             },
             {
               "date": "2026-03-31",
-              "text": "Zillow anchor ($1,760) too low — minimum viable ask ~$2,100 given carrying costs"
+              "text": "Zillow anchor ($1,760) too low \u2014 minimum viable ask ~$2,100 given carrying costs"
             }
           ],
           "documents": [
@@ -3105,7 +3205,7 @@
         {
           "id": "902",
           "title": "Property Preparation",
-          "status": "🔴 Not Started",
+          "status": "\ud83d\udd34 Not Started",
           "statusClean": "Not Started",
           "phase": "Awaiting photos from David",
           "phaseIndex": 1,
@@ -3118,7 +3218,7 @@
           "priority": "High",
           "program": "Durham Property Management",
           "progress": 0,
-          "objective": "Prepare 601 Eastway Ave for rental — cleaning, listing photos, self-showing lockbox, furniture inventory.",
+          "objective": "Prepare 601 Eastway Ave for rental \u2014 cleaning, listing photos, self-showing lockbox, furniture inventory.",
           "successCriteria": "Property is move-in ready with professional-quality listing photos and self-showing capability.",
           "blockers": [
             "Waiting for David to provide property photos"
@@ -3156,7 +3256,7 @@
         {
           "id": "903",
           "title": "Listing & Tenant Acquisition",
-          "status": "🔴 Not Started",
+          "status": "\ud83d\udd34 Not Started",
           "statusClean": "Not Started",
           "phase": "Blocked on 901 + 902",
           "phaseIndex": 0,
@@ -3212,7 +3312,7 @@
         {
           "id": "904",
           "title": "Operations & Management System",
-          "status": "🔴 Not Started",
+          "status": "\ud83d\udd34 Not Started",
           "statusClean": "Not Started",
           "phase": "Blocked on 903",
           "phaseIndex": 0,
@@ -3225,7 +3325,7 @@
           "priority": "Medium",
           "program": "Durham Property Management",
           "progress": 0,
-          "objective": "Build a fully automated rental management system — rent collection, maintenance dispatch, expense tracking — that an AI agent can operate with minimal David involvement.",
+          "objective": "Build a fully automated rental management system \u2014 rent collection, maintenance dispatch, expense tracking \u2014 that an AI agent can operate with minimal David involvement.",
           "successCriteria": "Rent collected automatically, maintenance handled within 24h, expenses tracked for Schedule E, David touches nothing unless major decision needed.",
           "blockers": [
             "Depends on Charter 903 (tenant placed)"
@@ -3267,7 +3367,7 @@
         {
           "id": "905",
           "title": "Financial & Tax Optimization",
-          "status": "🔴 Not Started",
+          "status": "\ud83d\udd34 Not Started",
           "statusClean": "Not Started",
           "phase": "Pending",
           "phaseIndex": 0,
@@ -3280,7 +3380,7 @@
           "priority": "Medium",
           "program": "Durham Property Management",
           "progress": 0,
-          "objective": "Optimize rental property financial structure — tax deductions, depreciation, insurance, LLC consideration — for maximum after-tax cash flow.",
+          "objective": "Optimize rental property financial structure \u2014 tax deductions, depreciation, insurance, LLC consideration \u2014 for maximum after-tax cash flow.",
           "successCriteria": "Tax-optimized structure in place before first filing; all deductions captured; appropriate insurance; LLC decision made.",
           "blockers": [],
           "outstanding": [
