@@ -1610,6 +1610,30 @@ app.get('/api/cognitive/sfn/siq', dashboardAuth, (req, res) => {
   }
 });
 
+app.get('/api/cognitive/sfn/daily/export', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const data = cogDB.getSfnDaily(365);
+    const headers = 'date,time,fingertip_numbness,shin_numbness,tongue_sensation,cold_extremities,cognitive_fog,ear_symptoms,overall_severity,notes,new_symptoms,new_symptoms_text';
+    const rows = data.map(r => [r.date,r.time,r.fingertip_numbness,r.shin_numbness,r.tongue_sensation,r.cold_extremities,r.cognitive_fog,r.ear_symptoms,r.overall_severity,'"'+(r.notes||'').replace(/"/g,'""')+'"',r.new_symptoms,'"'+(r.new_symptoms_text||'').replace(/"/g,'""')+'"'].join(','));
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=sfn-daily.csv');
+    res.send(headers + '\n' + rows.join('\n'));
+  } catch (err) { res.status(500).json({ error: 'Export failed' }); }
+});
+
+app.get('/api/cognitive/sfn/siq/export', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const data = cogDB.getSfnSiq(365);
+    const headers = 'date,burning_hands,burning_feet,sheet_intolerance,flushing,dry_eyes,dry_mouth,orthostatic_dizziness,bowel,urinary,sweating,palpitations,hot_flashes,hypersensitivity_legs,composite_score,notes';
+    const rows = data.map(r => [r.date,r.q1_burning_hands,r.q2_burning_feet,r.q3_sheet_intolerance,r.q4_flushing,r.q5_dry_eyes,r.q6_dry_mouth,r.q7_orthostatic_dizziness,r.q8_bowel,r.q9_urinary,r.q10_sweating,r.q11_palpitations,r.q12_hot_flashes,r.q13_hypersensitivity_legs,r.composite_score,'"'+(r.notes||'').replace(/"/g,'""')+'"'].join(','));
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename=sfn-siq.csv');
+    res.send(headers + '\n' + rows.join('\n'));
+  } catch (err) { res.status(500).json({ error: 'Export failed' }); }
+});
+
 // Weekly cognitive report
 app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
   if (!cogDBReady) return res.json({ error: 'db_unavailable' });
