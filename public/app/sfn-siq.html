@@ -21,6 +21,15 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
 .header{padding:20px 0 8px}.header p{color:rgba(255,255,255,0.4);font-size:14px;margin-top:4px}
 .back-link{display:inline-block;color:var(--gold);text-decoration:none;font-size:14px;font-weight:600;margin-bottom:18px}
 .score-pill{display:inline-flex;align-items:center;gap:8px;background:rgba(212,168,83,0.15);color:var(--gold);font-size:14px;font-weight:700;padding:8px 14px;border-radius:999px}
+.history-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.history-row:last-child{border-bottom:none}
+.history-date{font-size:13px;color:rgba(255,255,255,0.5)}
+.history-score{font-size:15px;font-weight:700;color:var(--gold)}
+.trend-arrow{font-size:12px;margin-left:6px}
+.trend-up{color:var(--red)}
+.trend-down{color:var(--green)}
+.trend-flat{color:rgba(255,255,255,0.3)}
+.empty-state{font-size:14px;color:rgba(255,255,255,0.45)}
 .question{padding:18px 0;border-bottom:1px solid var(--border)}
 .question:last-child{border-bottom:none;padding-bottom:0}
 .question:first-child{padding-top:0}
@@ -54,6 +63,11 @@ textarea{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--bor
     <textarea id="notes" maxlength="250" placeholder="Optional notes"></textarea>
     <button class="btn-gold" type="button" onclick="saveSiq()">Save Weekly SFN-SIQ</button>
     <div class="save-msg" id="saveMsg">Saved ✓</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Recent Scores</div>
+    <div id="recentScoresList" class="empty-state">Loading recent scores…</div>
   </div>
 </div>
 <script>
@@ -89,6 +103,42 @@ function updateScore() {
   const total = Object.values(gatherAnswers()).reduce((a, b) => a + b, 0);
   document.getElementById('compositeScore').textContent = total;
 }
+function formatDisplayDate(dateStr) {
+  const d = new Date(`${dateStr}T12:00:00`);
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function trendMarkup(current, previous) {
+  if (previous == null) return '';
+  const diff = current - previous;
+  if (diff > 0) return '<span class="trend-arrow trend-up">▲</span>';
+  if (diff < 0) return '<span class="trend-arrow trend-down">▼</span>';
+  return '<span class="trend-arrow trend-flat">=</span>';
+}
+
+async function loadRecentScores() {
+  const list = document.getElementById('recentScoresList');
+  if (!list) return;
+  try {
+    const res = await fetch(apiUrl('/api/cognitive/sfn/siq?limit=10'));
+    if (!res.ok) throw new Error('Load failed');
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) {
+      list.className = 'empty-state';
+      list.textContent = 'No SFN-SIQ scores recorded yet.';
+      return;
+    }
+    list.className = '';
+    list.innerHTML = data.map((row, index, arr) => {
+      const previous = index < arr.length - 1 ? arr[index + 1].composite_score : null;
+      return `<div class="history-row"><span class="history-date">${formatDisplayDate(row.date)}</span><span class="history-score">${row.composite_score} / 39${trendMarkup(row.composite_score, previous)}</span></div>`;
+    }).join('');
+  } catch (err) {
+    list.className = 'empty-state';
+    list.textContent = 'Unable to load recent scores.';
+  }
+}
+
 async function saveSiq() {
   try {
     const res = await fetch(apiUrl('/api/cognitive/sfn/siq'), {
@@ -100,12 +150,14 @@ async function saveSiq() {
     const msg = document.getElementById('saveMsg');
     msg.style.display = 'block';
     setTimeout(() => msg.style.display = 'none', 2500);
+    loadRecentScores();
   } catch (err) {
     alert('Save failed');
   }
 }
 renderQuestions();
 updateScore();
+loadRecentScores();
 </script>
 </body>
 </html>
