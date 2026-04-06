@@ -715,6 +715,10 @@ body {
       <a href="/app/sfn-daily.html" id="symptomsDailyLink" class="btn-gold" style="font-size:0.82rem;padding:8px 18px;">Daily Check</a>
       <a href="/app/sfn-siq.html" id="symptomsSiqLink" class="btn-gold" style="font-size:0.82rem;padding:8px 18px;">Weekly SFN-SIQ</a>
     </div>
+    <div style="margin-top:12px;display:flex;gap:12px;">
+      <a id="exportDailyLink" href="/api/cognitive/sfn/daily/export" style="font-size:12px;color:var(--gold);text-decoration:none;">📥 Export Daily CSV</a>
+      <a id="exportSiqLink" href="/api/cognitive/sfn/siq/export" style="font-size:12px;color:var(--gold);text-decoration:none;">📥 Export SIQ CSV</a>
+    </div>
     <div class="charts-grid">
       <div class="card chart-card">
         <h3>Daily Symptom Severity (7-Day Average)</h3>
@@ -1371,9 +1375,13 @@ async function init() {
 
   const symptomsDailyLink = document.getElementById('symptomsDailyLink');
   const symptomsSiqLink = document.getElementById('symptomsSiqLink');
+  const exportDailyLink = document.getElementById('exportDailyLink');
+  const exportSiqLink = document.getElementById('exportSiqLink');
   if (queryKey) {
     symptomsDailyLink.href += '?key=' + encodeURIComponent(queryKey);
     symptomsSiqLink.href += '?key=' + encodeURIComponent(queryKey);
+    exportDailyLink.href += '?key=' + encodeURIComponent(queryKey);
+    exportSiqLink.href += '?key=' + encodeURIComponent(queryKey);
   }
 
   // ── WHOOP status ──
