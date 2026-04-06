@@ -356,6 +356,7 @@ main {
 
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
 const ROWS = 6, COLS = 5;
 let currentRow = 0, currentCol = 0;
 let gameOver = false, revealing = false;
@@ -593,6 +594,7 @@ async function init() {
   } catch (e) { showToast('Failed to load puzzle'); }
 }
 init();
+});
 </script>
 
 <div class="bg-layer"></div>

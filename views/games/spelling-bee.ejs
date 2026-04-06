@@ -816,7 +816,7 @@
 
 
 <script>
-(function() {
+document.addEventListener('DOMContentLoaded', function() {
   let puzzle = null;
   let currentWord = '';
   let foundWords = [];
@@ -1113,7 +1113,7 @@
   $('btn-play-again').addEventListener('click', () => $gameOver.classList.remove('active'));
 
   init();
-})();
+});
 </script>
 
 <nav class="game-nav">
