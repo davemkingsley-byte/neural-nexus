@@ -590,6 +590,8 @@ body {
     <span class="cog-nav-sep">|</span>
     <a href="/cognitive/analytics.html">Analytics</a>
     <span class="cog-nav-sep">|</span>
+    <a href="#symptoms" onclick="document.getElementById('symptomsSection').scrollIntoView({behavior:'smooth'});return false;">Symptoms</a>
+    <span class="cog-nav-sep">|</span>
     <span class="cog-nav-label">Tests:</span>
     <a href="/cognitive/dual-n-back.html">N-Back</a>
     <span class="cog-nav-sep">&middot;</span>
@@ -703,6 +705,24 @@ body {
           <div class="value" id="whoopRHR">--</div>
           <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;">bpm</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="symptomsSection" style="margin-bottom:32px;">
+    <h2 class="section-title">SFN Symptom Tracking</h2>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
+      <a href="/app/sfn-daily.html" id="symptomsDailyLink" class="btn-gold" style="font-size:0.82rem;padding:8px 18px;">Daily Check</a>
+      <a href="/app/sfn-siq.html" id="symptomsSiqLink" class="btn-gold" style="font-size:0.82rem;padding:8px 18px;">Weekly SFN-SIQ</a>
+    </div>
+    <div class="charts-grid">
+      <div class="card chart-card">
+        <h3>Daily Symptom Severity (7-Day Average)</h3>
+        <div class="chart-wrap"><canvas id="chartSfnDaily"></canvas></div>
+      </div>
+      <div class="card chart-card">
+        <h3>SFN-SIQ Composite Score</h3>
+        <div class="chart-wrap"><canvas id="chartSfnSiq"></canvas></div>
       </div>
     </div>
   </div>
@@ -889,6 +909,7 @@ body {
 const $ = s => document.querySelector(s);
 const today = new Date();
 const todayStr = today.toISOString().slice(0, 10);
+const queryKey = new URLSearchParams(window.location.search).get('key') || '';
 const API = {
   results: '/api/cognitive/results?days=30',
   supplements: '/api/cognitive/supplements',
@@ -896,6 +917,11 @@ const API = {
   dailyRange: '/api/cognitive/daily?days=30',
   chess: '/api/cognitive/chess',
 };
+
+function withKey(url) {
+  if (!queryKey) return url;
+  return url + (url.includes('?') ? '&' : '?') + 'key=' + encodeURIComponent(queryKey);
+}
 
 function formatDate(d) {
   return d.toLocaleDateString('en-US', {
@@ -910,7 +936,7 @@ function shortDate(iso) {
 
 async function apiFetch(url) {
   try {
-    const r = await fetch(url, { credentials: 'same-origin' });
+    const r = await fetch(withKey(url), { credentials: 'same-origin' });
     if (r.status === 401) {
       window.location.href = '/cognitive/?key=';
       return null;
@@ -1065,6 +1091,18 @@ function createChart(id, label, data, supplements, lowerBetter = false) {
   });
 }
 
+function createSfnChart(id, label, data, color = '#d4a853') {
+  const ctx = document.getElementById(id).getContext('2d');
+  const labels = data.map(d => shortDate(d.date));
+  const values = data.map(d => d.value);
+  const opts = chartOpts(label);
+  charts[id] = new Chart(ctx, {
+    type: 'line',
+    data: { labels, datasets: [{ label, data: values, ...lineStyle(color) }] },
+    options: opts
+  });
+}
+
 function createChessChart(data, supplements) {
   const ctx = document.getElementById('chartChess').getContext('2d');
   const labels = data.map(d => shortDate(d.date));
@@ -1092,11 +1130,13 @@ function createChessChart(data, supplements) {
 
 // ── Load data and render ──
 async function init() {
-  const [results, supplements, dailyData, chessData] = await Promise.all([
+  const [results, supplements, dailyData, chessData, sfnDailyData, sfnSiqData] = await Promise.all([
     apiFetch(API.results),
     apiFetch(API.supplements),
     apiFetch(API.dailyRange),
     apiFetch(API.chess),
+    apiFetch('/api/cognitive/sfn/daily?limit=180'),
+    apiFetch('/api/cognitive/sfn/siq?limit=104'),
   ]);
 
   supplementsData = (supplements && supplements.supplements) ? supplements.supplements : (supplements || []);
@@ -1304,6 +1344,36 @@ async function init() {
     createChessChart(chartData, supplementsData);
   } else {
     $('#chartChess').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:40px 0">No Chess data yet</p>';
+  }
+
+  const sfnDaily = Array.isArray(sfnDailyData) ? [...sfnDailyData].sort((a, b) => (a.date || '').localeCompare(b.date || '')) : [];
+  const sfnDailyChart = sfnDaily.map((row, idx, arr) => {
+    const start = Math.max(0, idx - 6);
+    const window = arr.slice(start, idx + 1).map(item => item.overall_severity || 0);
+    const avg = window.reduce((a, b) => a + b, 0) / window.length;
+    return { date: row.date, value: Math.round(avg * 100) / 100 };
+  });
+
+  if (sfnDailyChart.length > 0) {
+    createSfnChart('chartSfnDaily', 'Overall Severity (7d avg)', sfnDailyChart);
+  } else {
+    $('#chartSfnDaily').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:40px 0">No SFN daily data yet</p>';
+  }
+
+  const sfnSiq = Array.isArray(sfnSiqData) ? [...sfnSiqData].sort((a, b) => (a.date || '').localeCompare(b.date || '')) : [];
+  const sfnSiqChart = sfnSiq.map(row => ({ date: row.date, value: row.composite_score || 0 }));
+
+  if (sfnSiqChart.length > 0) {
+    createSfnChart('chartSfnSiq', 'Composite Score', sfnSiqChart, '#34d399');
+  } else {
+    $('#chartSfnSiq').parentElement.innerHTML = '<p style="color:var(--text-dim);text-align:center;padding:40px 0">No SFN-SIQ data yet</p>';
+  }
+
+  const symptomsDailyLink = document.getElementById('symptomsDailyLink');
+  const symptomsSiqLink = document.getElementById('symptomsSiqLink');
+  if (queryKey) {
+    symptomsDailyLink.href += '?key=' + encodeURIComponent(queryKey);
+    symptomsSiqLink.href += '?key=' + encodeURIComponent(queryKey);
   }
 
   // ── WHOOP status ──

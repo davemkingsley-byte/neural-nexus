@@ -119,6 +119,14 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
     <div id="insightsList"></div>
   </div>
 
+  <!-- SFN Symptom Check -->
+  <div class="card">
+    <div class="card-title">SFN Symptom Check</div>
+    <div id="sfnStatus" style="font-size:13px;color:var(--text);margin-bottom:12px;">Not completed today</div>
+    <a href="/app/sfn-daily.html" id="sfnDailyBtn" class="btn-gold" style="margin-top:0">Daily Quick Check</a>
+    <a href="/app/sfn-siq.html" id="sfnSiqBtn" style="display:block;text-align:center;margin-top:12px;color:var(--gold);font-size:13px;font-weight:600;text-decoration:none">📋 Weekly SFN-SIQ →</a>
+  </div>
+
   <!-- Tests Card -->
   <div class="card">
     <div class="card-title">Today's Tests</div>
@@ -213,8 +221,6 @@ function checkAuth() {
   const key = params.get('key');
   if (key) {
     if(key==='nexus2026'){document.cookie='dash_auth=authenticated;max-age=2592000;path=/';}
-    // Clean URL
-    window.history.replaceState({}, '', window.location.pathname);
   }
   if (!document.cookie.includes('dash_auth=authenticated')) {
     document.getElementById('authOverlay').style.display = 'flex';
@@ -232,6 +238,13 @@ function doAuth() {
 document.getElementById('authPass').addEventListener('keydown', e => { if (e.key === 'Enter') doAuth(); });
 
 // Helpers
+const pageKey = new URLSearchParams(window.location.search).get('key') || '';
+
+function withKey(url) {
+  if (!pageKey) return url;
+  return url + (url.includes('?') ? '&' : '?') + 'key=' + encodeURIComponent(pageKey);
+}
+
 function todayStr() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 }
@@ -240,7 +253,7 @@ function currentSession() {
   return parseInt(h) < 14 ? 'morning' : 'evening';
 }
 async function api(url, opts) {
-  const res = await fetch(url, opts);
+  const res = await fetch(withKey(url), opts);
   if (!res.ok) throw new Error(res.statusText);
   return res.json();
 }
@@ -292,6 +305,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   loadStreak();
   loadDaily();
   loadInsights();
+  loadSfnStatus();
+
+  const sfnDailyBtn = document.getElementById('sfnDailyBtn');
+  const sfnSiqBtn = document.getElementById('sfnSiqBtn');
+  if (pageKey) {
+    sfnDailyBtn.href += '?key=' + encodeURIComponent(pageKey);
+    sfnSiqBtn.href += '?key=' + encodeURIComponent(pageKey);
+  }
 });
 
 async function loadInsights() {
@@ -402,6 +423,19 @@ async function loadStreak() {
     if (data.streak && data.streak.current > 0) {
       document.getElementById('streakCount').textContent = data.streak.current;
       document.getElementById('streakBadge').style.display = 'inline-flex';
+    }
+  } catch {}
+}
+
+
+async function loadSfnStatus() {
+  try {
+    const data = await api('/api/cognitive/sfn/daily?limit=1');
+    const latest = Array.isArray(data) ? data[0] : null;
+    if (latest && latest.date === todayStr()) {
+      const status = document.getElementById('sfnStatus');
+      status.textContent = 'Completed ✓';
+      status.style.color = 'var(--green)';
     }
   } catch {}
 }

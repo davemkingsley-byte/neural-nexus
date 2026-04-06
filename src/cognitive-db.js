@@ -126,11 +126,51 @@ function initDB() {
         UNIQUE(email)
       );
 
+      CREATE TABLE IF NOT EXISTS sfn_daily (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL,
+        time TEXT NOT NULL,
+        fingertip_numbness INTEGER CHECK(fingertip_numbness BETWEEN 0 AND 10),
+        shin_numbness INTEGER CHECK(shin_numbness BETWEEN 0 AND 10),
+        tongue_sensation INTEGER CHECK(tongue_sensation BETWEEN 0 AND 10),
+        cold_extremities INTEGER CHECK(cold_extremities BETWEEN 0 AND 10),
+        cognitive_fog INTEGER CHECK(cognitive_fog BETWEEN 0 AND 10),
+        ear_symptoms INTEGER CHECK(ear_symptoms BETWEEN 0 AND 10),
+        overall_severity INTEGER CHECK(overall_severity BETWEEN 0 AND 10),
+        notes TEXT,
+        new_symptoms INTEGER DEFAULT 0,
+        new_symptoms_text TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS sfn_siq (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        date TEXT NOT NULL,
+        q1_burning_hands INTEGER CHECK(q1_burning_hands BETWEEN 0 AND 3),
+        q2_burning_feet INTEGER CHECK(q2_burning_feet BETWEEN 0 AND 3),
+        q3_sheet_intolerance INTEGER CHECK(q3_sheet_intolerance BETWEEN 0 AND 3),
+        q4_flushing INTEGER CHECK(q4_flushing BETWEEN 0 AND 3),
+        q5_dry_eyes INTEGER CHECK(q5_dry_eyes BETWEEN 0 AND 3),
+        q6_dry_mouth INTEGER CHECK(q6_dry_mouth BETWEEN 0 AND 3),
+        q7_orthostatic_dizziness INTEGER CHECK(q7_orthostatic_dizziness BETWEEN 0 AND 3),
+        q8_bowel INTEGER CHECK(q8_bowel BETWEEN 0 AND 3),
+        q9_urinary INTEGER CHECK(q9_urinary BETWEEN 0 AND 3),
+        q10_sweating INTEGER CHECK(q10_sweating BETWEEN 0 AND 3),
+        q11_palpitations INTEGER CHECK(q11_palpitations BETWEEN 0 AND 3),
+        q12_hot_flashes INTEGER CHECK(q12_hot_flashes BETWEEN 0 AND 3),
+        q13_hypersensitivity_legs INTEGER CHECK(q13_hypersensitivity_legs BETWEEN 0 AND 3),
+        composite_score INTEGER,
+        notes TEXT,
+        created_at TEXT DEFAULT (datetime('now'))
+      );
+
       CREATE INDEX IF NOT EXISTS idx_test_results_date ON test_results(date);
       CREATE INDEX IF NOT EXISTS idx_test_results_type ON test_results(test_type);
       CREATE INDEX IF NOT EXISTS idx_chess_elo_date ON chess_elo(date);
       CREATE INDEX IF NOT EXISTS idx_daily_notes_date ON daily_notes(date);
       CREATE INDEX IF NOT EXISTS idx_whoop_data_date ON whoop_data(date);
+      CREATE INDEX IF NOT EXISTS idx_sfn_daily_date ON sfn_daily(date);
+      CREATE INDEX IF NOT EXISTS idx_sfn_siq_date ON sfn_siq(date);
     `);
 
     // Add session column to existing test_results if missing
@@ -315,6 +355,15 @@ function prepareStatements() {
     `INSERT OR IGNORE INTO brain_check_emails (email, score, source) VALUES (?, ?, 'brain-check')`
   );
   stmts.getBrainCheckEmailCount = db.prepare('SELECT COUNT(*) as total FROM brain_check_emails');
+
+  stmts.insertSfnDaily = db.prepare(
+    `INSERT INTO sfn_daily (date, time, fingertip_numbness, shin_numbness, tongue_sensation, cold_extremities, cognitive_fog, ear_symptoms, overall_severity, notes, new_symptoms, new_symptoms_text) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  );
+  stmts.insertSfnSiq = db.prepare(
+    `INSERT INTO sfn_siq (date, q1_burning_hands, q2_burning_feet, q3_sheet_intolerance, q4_flushing, q5_dry_eyes, q6_dry_mouth, q7_orthostatic_dizziness, q8_bowel, q9_urinary, q10_sweating, q11_palpitations, q12_hot_flashes, q13_hypersensitivity_legs, composite_score, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+  );
+  stmts.getSfnDaily = db.prepare('SELECT * FROM sfn_daily ORDER BY date DESC, time DESC LIMIT ?');
+  stmts.getSfnSiq = db.prepare('SELECT * FROM sfn_siq ORDER BY date DESC LIMIT ?');
 }
 
 // chess_elo needs a unique constraint on date for upsert to work
@@ -566,6 +615,23 @@ module.exports = {
       pvt: cohensD(a.stats.pvt, b.stats.pvt, true),
       dsst: cohensD(a.stats.dsst, b.stats.dsst),
     };
+  },
+
+  saveSfnDaily(date, time, scores, notes, newSymptoms, newSymptomsText) {
+    return stmts.insertSfnDaily.run(date, time, scores.fingertip_numbness, scores.shin_numbness, scores.tongue_sensation, scores.cold_extremities, scores.cognitive_fog, scores.ear_symptoms, scores.overall_severity, notes || null, newSymptoms ? 1 : 0, newSymptomsText || null);
+  },
+
+  saveSfnSiq(date, answers, notes) {
+    const composite = Object.values(answers).reduce((a, b) => a + b, 0);
+    return stmts.insertSfnSiq.run(date, answers.q1, answers.q2, answers.q3, answers.q4, answers.q5, answers.q6, answers.q7, answers.q8, answers.q9, answers.q10, answers.q11, answers.q12, answers.q13, composite, notes || null);
+  },
+
+  getSfnDaily(limit = 90) {
+    return stmts.getSfnDaily.all(limit);
+  },
+
+  getSfnSiq(limit = 52) {
+    return stmts.getSfnSiq.all(limit);
   },
 
   submitBrainCheck(score, pvt_ms, dsst_score) {

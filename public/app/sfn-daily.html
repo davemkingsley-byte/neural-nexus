@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/x-icon" href="/favicon.ico">
+<meta name="msapplication-config" content="/browserconfig.xml">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0a1a">
+<link rel="manifest" href="/app/manifest.json">
+<link rel="apple-touch-icon" href="/app/icons/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>SFN Daily Check | Neural NeXus</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--bg:#06060b;--card:rgba(255,255,255,0.04);--border:rgba(255,255,255,0.06);--text:#e0e0e0;--heading:#ffffff;--gold:#d4a853;--green:#4ade80;--red:#ef4444;--radius:16px}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',system-ui,sans-serif;font-size:16px;line-height:1.5;min-height:100vh;padding:0 16px 24px}
+.container{max-width:480px;margin:0 auto;padding-top:calc(16px + env(safe-area-inset-top))}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.card-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.4);margin-bottom:12px}
+h1{color:var(--heading);font-size:24px;font-weight:700}
+.header{padding:20px 0 8px}
+.header p{color:rgba(255,255,255,0.4);font-size:14px;margin-top:4px}
+.log-field{margin-bottom:18px}
+.log-field label{display:block;font-size:14px;font-weight:500;margin-bottom:8px}
+.slider-wrap{position:relative}
+.slider-wrap input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:rgba(255,255,255,0.1);outline:none}
+.slider-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--gold);cursor:pointer}
+.slider-val{position:absolute;right:0;top:-2px;font-size:14px;font-weight:600;color:var(--gold)}
+textarea,input[type=text]{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--heading);font-size:15px;font-family:inherit;resize:vertical}
+textarea{min-height:110px}
+.meta-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:rgba(255,255,255,0.4);margin-top:8px}
+.supp-toggle{display:flex;gap:8px}
+.supp-btn{flex:1;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--card);color:var(--text);font-size:14px;font-family:inherit;cursor:pointer;transition:all .2s;text-align:center}
+.supp-btn.active-yes{background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.3);color:var(--green)}
+.supp-btn.active-no{background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.3);color:var(--red)}
+.btn-gold{display:block;width:100%;padding:16px;background:linear-gradient(135deg,#d4a853,#c49a48);color:#06060b;font-size:16px;font-weight:700;border:none;border-radius:12px;cursor:pointer;text-align:center;text-decoration:none;transition:transform .2s,box-shadow .2s;margin-top:16px}
+.btn-gold:active{transform:scale(0.97)}
+.save-msg{text-align:center;font-size:13px;color:var(--green);margin-top:12px;display:none}
+.back-link{display:inline-block;color:var(--gold);text-decoration:none;font-size:14px;font-weight:600;margin-bottom:18px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <a href="/app/" class="back-link">&larr; Back to app</a>
+    <h1>SFN Daily Check</h1>
+    <p>Quick daily symptom tracking for small fiber neuropathy patterns.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Symptoms</div>
+    <div id="sliders"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Notes</div>
+    <div class="log-field" style="margin-bottom:0">
+      <label for="notes">Optional notes</label>
+      <textarea id="notes" maxlength="250" placeholder="Anything notable today?"></textarea>
+      <div class="meta-row"><span>Optional</span><span id="notesCount">0/250</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">New Symptoms</div>
+    <div class="log-field" style="margin-bottom:0">
+      <label>Any new symptoms?</label>
+      <div class="supp-toggle">
+        <button class="supp-btn" id="newYes" type="button" onclick="setNewSymptoms(true)">Yes</button>
+        <button class="supp-btn active-no" id="newNo" type="button" onclick="setNewSymptoms(false)">No</button>
+      </div>
+    </div>
+    <div id="newSymptomsWrap" class="hidden" style="margin-top:16px;">
+      <input type="text" id="newSymptomsText" maxlength="250" placeholder="Describe the new symptoms">
+    </div>
+    <button class="btn-gold" type="button" onclick="saveDaily()">Save</button>
+    <div class="save-msg" id="saveMsg">Saved ✓</div>
+  </div>
+</div>
+<script>
+const key = new URLSearchParams(window.location.search).get('key') || '';
+const sliderFields = [
+  ['fingertip_numbness', 'Fingertip numbness/tingling'],
+  ['shin_numbness', 'Shin/leg numbness'],
+  ['tongue_sensation', 'Tongue/oral sensation'],
+  ['cold_extremities', 'Cold extremities'],
+  ['cognitive_fog', 'Cognitive fog'],
+  ['ear_symptoms', 'Ear symptoms'],
+  ['overall_severity', 'Overall severity']
+];
+let hasNewSymptoms = false;
+
+function todayStr() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+}
+
+function apiUrl(path) {
+  return key ? `${path}?key=${encodeURIComponent(key)}` : path;
+}
+
+function renderSliders() {
+  const el = document.getElementById('sliders');
+  el.innerHTML = sliderFields.map(([id, label]) => `
+    <div class="log-field">
+      <label for="${id}">${label} <span class="slider-val" id="${id}Val">0</span></label>
+      <div class="slider-wrap">
+        <input type="range" min="0" max="10" value="0" id="${id}" oninput="document.getElementById('${id}Val').textContent=this.value">
+      </div>
+    </div>`).join('');
+}
+
+function setNewSymptoms(value) {
+  hasNewSymptoms = value;
+  document.getElementById('newYes').className = 'supp-btn' + (value ? ' active-yes' : '');
+  document.getElementById('newNo').className = 'supp-btn' + (!value ? ' active-no' : '');
+  document.getElementById('newSymptomsWrap').classList.toggle('hidden', !value);
+}
+
+async function saveDaily() {
+  const scores = {};
+  sliderFields.forEach(([id]) => scores[id] = parseInt(document.getElementById(id).value));
+  const payload = {
+    date: todayStr(),
+    scores,
+    notes: document.getElementById('notes').value.trim(),
+    new_symptoms: hasNewSymptoms,
+    new_symptoms_text: hasNewSymptoms ? document.getElementById('newSymptomsText').value.trim() : ''
+  };
+  try {
+    const res = await fetch(apiUrl('/api/cognitive/sfn/daily'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) throw new Error('Save failed');
+    const msg = document.getElementById('saveMsg');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 2500);
+  } catch (err) {
+    alert('Save failed');
+  }
+}
+
+document.getElementById('notes').addEventListener('input', e => {
+  document.getElementById('notesCount').textContent = `${e.target.value.length}/250`;
+});
+
+renderSliders();
+setNewSymptoms(false);
+</script>
+</body>
+</html>

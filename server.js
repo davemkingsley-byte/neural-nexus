@@ -1557,6 +1557,59 @@ app.get('/api/brain-check/leaderboard', (req, res) => {
   }
 });
 
+// SFN Symptom Tracking
+app.post('/api/cognitive/sfn/daily', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const { scores, notes, new_symptoms, new_symptoms_text, date, time } = req.body;
+    if (!scores) return res.status(400).json({ error: 'Missing scores' });
+    const now = new Date();
+    const saveDate = date || now.toISOString().split('T')[0];
+    const saveTime = time || now.toTimeString().split(' ')[0];
+    cogDB.saveSfnDaily(saveDate, saveTime, scores, notes, new_symptoms, new_symptoms_text);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Error saving SFN daily:', err);
+    res.status(500).json({ error: 'Failed to save' });
+  }
+});
+
+app.get('/api/cognitive/sfn/daily', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const limit = parseInt(req.query.limit) || 90;
+    res.json(cogDB.getSfnDaily(limit));
+  } catch (err) {
+    console.error('Error getting SFN daily:', err);
+    res.status(500).json({ error: 'Failed to get data' });
+  }
+});
+
+app.post('/api/cognitive/sfn/siq', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const { answers, notes, date } = req.body;
+    if (!answers) return res.status(400).json({ error: 'Missing answers' });
+    const saveDate = date || new Date().toISOString().split('T')[0];
+    cogDB.saveSfnSiq(saveDate, answers, notes);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Error saving SFN SIQ:', err);
+    res.status(500).json({ error: 'Failed to save' });
+  }
+});
+
+app.get('/api/cognitive/sfn/siq', dashboardAuth, (req, res) => {
+  if (!checkCogDB(res)) return;
+  try {
+    const limit = parseInt(req.query.limit) || 52;
+    res.json(cogDB.getSfnSiq(limit));
+  } catch (err) {
+    console.error('Error getting SFN SIQ:', err);
+    res.status(500).json({ error: 'Failed to get data' });
+  }
+});
+
 // Weekly cognitive report
 app.get('/api/cognitive/weekly-report', dashboardAuth, (req, res) => {
   if (!cogDBReady) return res.json({ error: 'db_unavailable' });
