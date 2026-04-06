@@ -27,9 +27,22 @@ h1{color:var(--heading);font-size:24px;font-weight:700}
 .log-field{margin-bottom:18px}
 .log-field label{display:block;font-size:14px;font-weight:500;margin-bottom:8px}
 .slider-wrap{position:relative}
-.slider-wrap input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:rgba(255,255,255,0.1);outline:none}
+.slider-wrap{display:flex;align-items:center;gap:10px}
+.slider-wrap input[type=range]{-webkit-appearance:none;flex:1;height:6px;border-radius:3px;background:rgba(255,255,255,0.1);outline:none}
 .slider-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:24px;border-radius:50%;background:var(--gold);cursor:pointer}
-.slider-val{position:absolute;right:0;top:-2px;font-size:14px;font-weight:600;color:var(--gold)}
+.slider-val{min-width:28px;text-align:right;font-size:16px;font-weight:700;color:var(--gold)}
+.slider-labels{display:flex;justify-content:space-between;font-size:10px;color:rgba(255,255,255,0.25);margin-top:4px;padding:0 2px}
+.avg-card{text-align:center;padding:24px 20px}
+.avg-score{font-size:48px;font-weight:700;color:var(--gold)}
+.avg-label{font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px}
+.history-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)}
+.history-row:last-child{border-bottom:none}
+.history-date{font-size:13px;color:rgba(255,255,255,0.5)}
+.history-avg{font-size:15px;font-weight:600;color:var(--gold)}
+.trend-arrow{font-size:12px;margin-left:6px}
+.trend-up{color:var(--red)}
+.trend-down{color:var(--green)}
+.trend-flat{color:rgba(255,255,255,0.3)}
 textarea,input[type=text]{width:100%;background:rgba(255,255,255,0.06);border:1px solid var(--border);border-radius:12px;padding:14px;color:var(--heading);font-size:15px;font-family:inherit;resize:vertical}
 textarea{min-height:110px}
 .meta-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;color:rgba(255,255,255,0.4);margin-top:8px}
@@ -81,6 +94,18 @@ textarea{min-height:110px}
     <button class="btn-gold" type="button" onclick="saveDaily()">Save</button>
     <div class="save-msg" id="saveMsg">Saved ✓</div>
   </div>
+
+  <!-- Longitudinal Tracker -->
+  <div class="card avg-card" id="avgCard" style="display:none">
+    <div class="card-title">Today's Average</div>
+    <div class="avg-score" id="todayAvg">--</div>
+    <div class="avg-label">out of 10 &middot; <span id="avgTrend"></span></div>
+  </div>
+
+  <div class="card" id="historyCard" style="display:none">
+    <div class="card-title">Recent History (7-Day Avg)</div>
+    <div id="historyList"></div>
+  </div>
 </div>
 <script>
 const key = new URLSearchParams(window.location.search).get('key') || '';
@@ -107,10 +132,12 @@ function renderSliders() {
   const el = document.getElementById('sliders');
   el.innerHTML = sliderFields.map(([id, label]) => `
     <div class="log-field">
-      <label for="${id}">${label} <span class="slider-val" id="${id}Val">0</span></label>
+      <label for="${id}">${label}</label>
       <div class="slider-wrap">
         <input type="range" min="0" max="10" value="0" id="${id}" oninput="document.getElementById('${id}Val').textContent=this.value">
+        <span class="slider-val" id="${id}Val">0</span>
       </div>
+      <div class="slider-labels"><span>0</span><span>2</span><span>4</span><span>6</span><span>8</span><span>10</span></div>
     </div>`).join('');
 }
 
@@ -141,6 +168,7 @@ async function saveDaily() {
     const msg = document.getElementById('saveMsg');
     msg.style.display = 'block';
     setTimeout(() => msg.style.display = 'none', 2500);
+    loadHistory();
   } catch (err) {
     alert('Save failed');
   }
@@ -150,8 +178,76 @@ document.getElementById('notes').addEventListener('input', e => {
   document.getElementById('notesCount').textContent = `${e.target.value.length}/250`;
 });
 
+async function loadHistory() {
+  try {
+    const res = await fetch(apiUrl('/api/cognitive/sfn/daily?limit=30'));
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data || !data.length) return;
+
+    // Show today's average if today has an entry
+    const today = todayStr();
+    const todayEntries = data.filter(d => d.date === today);
+    if (todayEntries.length > 0) {
+      const latest = todayEntries[0];
+      const fields = ['fingertip_numbness','shin_numbness','tongue_sensation','cold_extremities','cognitive_fog','ear_symptoms','overall_severity'];
+      const avg = fields.reduce((s, f) => s + (latest[f] || 0), 0) / fields.length;
+      document.getElementById('todayAvg').textContent = avg.toFixed(1);
+      document.getElementById('avgCard').style.display = '';
+
+      // Pre-fill sliders with today's values
+      fields.forEach(f => {
+        const el = document.getElementById(f);
+        if (el) { el.value = latest[f] || 0; document.getElementById(f + 'Val').textContent = latest[f] || 0; }
+      });
+      if (latest.notes) document.getElementById('notes').value = latest.notes;
+    }
+
+    // Build daily averages grouped by date
+    const byDate = {};
+    data.forEach(row => {
+      if (!byDate[row.date]) byDate[row.date] = [];
+      byDate[row.date].push(row);
+    });
+    const dailyAvgs = Object.entries(byDate).map(([date, rows]) => {
+      const last = rows[0];
+      const fields = ['fingertip_numbness','shin_numbness','tongue_sensation','cold_extremities','cognitive_fog','ear_symptoms','overall_severity'];
+      const avg = fields.reduce((s, f) => s + (last[f] || 0), 0) / fields.length;
+      return { date, avg };
+    }).sort((a, b) => b.date.localeCompare(a.date));
+
+    // Trend for today
+    if (dailyAvgs.length >= 2 && dailyAvgs[0].date === today) {
+      const diff = dailyAvgs[0].avg - dailyAvgs[1].avg;
+      const trendEl = document.getElementById('avgTrend');
+      if (diff > 0.3) trendEl.innerHTML = '<span class="trend-arrow trend-up">&#9650;</span> worse than yesterday';
+      else if (diff < -0.3) trendEl.innerHTML = '<span class="trend-arrow trend-down">&#9660;</span> better than yesterday';
+      else trendEl.innerHTML = '<span class="trend-arrow trend-flat">&#9654;</span> same as yesterday';
+    }
+
+    // History list (last 14 days)
+    if (dailyAvgs.length > 0) {
+      const list = document.getElementById('historyList');
+      list.innerHTML = dailyAvgs.slice(0, 14).map((d, i, arr) => {
+        const dateObj = new Date(d.date + 'T12:00:00');
+        const label = dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+        let trend = '';
+        if (i < arr.length - 1) {
+          const diff = d.avg - arr[i + 1].avg;
+          if (diff > 0.3) trend = '<span class="trend-arrow trend-up">&#9650;</span>';
+          else if (diff < -0.3) trend = '<span class="trend-arrow trend-down">&#9660;</span>';
+          else trend = '<span class="trend-arrow trend-flat">=</span>';
+        }
+        return `<div class="history-row"><span class="history-date">${label}</span><span class="history-avg">${d.avg.toFixed(1)}${trend}</span></div>`;
+      }).join('');
+      document.getElementById('historyCard').style.display = '';
+    }
+  } catch (e) { console.error('Failed to load history:', e); }
+}
+
 renderSliders();
 setNewSymptoms(false);
+loadHistory();
 </script>
 </body>
 </html>
