@@ -49,6 +49,15 @@ try {
   console.error('Failed to load crossword puzzles module:', err.message);
 }
 
+// Connections puzzles module
+let connectionsPuzzles;
+try {
+  connectionsPuzzles = require('./src/connections-puzzles');
+  console.log('Connections puzzles module loaded successfully');
+} catch (err) {
+  console.error('Failed to load connections puzzles module:', err.message);
+}
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 
@@ -729,6 +738,24 @@ app.get('/crossword', (req, res) => {
     hideSiteChrome: true
   });
 });
+app.get('/connections', (req, res) => {
+  renderPage(res, 'games/connections', {
+    title: 'Connections',
+    description: 'Play the daily Neural NeXus Connections puzzle',
+    canonical: 'https://www.neuralnexus.press/connections',
+    activePage: 'games',
+    pageType: 'game',
+    structuredData: [
+      buildBreadcrumbJsonLd([
+        { label: 'Home', href: '/' },
+        { label: 'Games', href: '/connections' },
+        { label: 'Connections', href: '/connections' }
+      ]),
+      buildGameJsonLd({ name: 'Connections — Neural NeXus', description: 'Free daily word grouping puzzle. Find 4 groups of 4 words. New puzzle every day.', url: 'https://www.neuralnexus.press/connections' })
+    ],
+    hideSiteChrome: true
+  });
+});
 
 // Dashboard (password-protected)
 function dashboardLoginPage(req, res, next) {
@@ -891,6 +918,16 @@ app.get('/crossword/archive', (req, res) => {
     title: 'Mini Crossword Archive',
     description: 'Browse previous Neural NeXus Mini Crossword puzzles and revisit the daily 5x5 archive anytime.',
     canonical: 'https://www.neuralnexus.press/crossword/archive',
+    activePage: 'games',
+    pageType: 'game',
+    hideSiteChrome: true
+  });
+});
+app.get('/connections/archive', (req, res) => {
+  renderPage(res, 'games/connections-archive', {
+    title: 'Connections Archive',
+    description: 'Browse previous Neural NeXus Connections puzzles and revisit past daily word grouping challenges.',
+    canonical: 'https://www.neuralnexus.press/connections/archive',
     activePage: 'games',
     pageType: 'game',
     hideSiteChrome: true
@@ -1201,6 +1238,122 @@ app.get('/api/crossword/archive/:date', (req, res) => {
     res.json({ date, puzzle, entries });
   } catch (err) {
     console.error('Error getting crossword archive date:', err);
+    res.status(500).json({ error: 'Failed to get data' });
+  }
+});
+
+// --- Connections API ---
+app.get('/api/connections/today', (req, res) => {
+  try {
+    const dateStr = req.query.date || getTodayStr();
+    if (!connectionsPuzzles) return res.status(503).json({ error: 'Connections module not loaded' });
+    const puzzle = connectionsPuzzles.getPuzzleForDate(dateStr);
+    // Send groups (with names for validation) and shuffled words
+    res.json({
+      date: dateStr,
+      shuffledWords: puzzle.shuffledWords,
+      groups: puzzle.groups.map(g => ({ name: g.name, words: g.words, difficulty: g.difficulty }))
+    });
+  } catch (err) {
+    console.error('Error getting connections puzzle:', err);
+    res.status(500).json({ error: 'Failed to get puzzle' });
+  }
+});
+
+app.post('/api/connections/guess', (req, res) => {
+  try {
+    const { date, words } = req.body;
+    if (!date || !words || words.length !== 4) return res.status(400).json({ error: 'Must guess exactly 4 words' });
+    if (!connectionsPuzzles) return res.status(503).json({ error: 'Connections module not loaded' });
+    const puzzle = connectionsPuzzles.getPuzzleForDate(date);
+    const guessSet = new Set(words.map(w => w.toUpperCase()));
+
+    // Check if guess matches any group
+    for (const group of puzzle.groups) {
+      const groupSet = new Set(group.words.map(w => w.toUpperCase()));
+      if (guessSet.size === groupSet.size && [...guessSet].every(w => groupSet.has(w))) {
+        return res.json({ correct: true, group });
+      }
+    }
+
+    // Check "one away" — if 3 of 4 words belong to a single group
+    let oneAway = false;
+    for (const group of puzzle.groups) {
+      const groupSet = new Set(group.words.map(w => w.toUpperCase()));
+      const overlap = [...guessSet].filter(w => groupSet.has(w)).length;
+      if (overlap === 3) { oneAway = true; break; }
+    }
+
+    res.json({ correct: false, oneAway });
+  } catch (err) {
+    console.error('Error validating connections guess:', err);
+    res.status(500).json({ error: 'Failed to validate guess' });
+  }
+});
+
+app.post('/api/connections/score', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const { date, nickname, mistakes, completed, solvedOrder } = req.body;
+    if (!date || !nickname || mistakes === undefined || completed === undefined) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    spellDB.submitConnectionsScore(date, nickname.trim().slice(0, 20), mistakes, completed, solvedOrder || []);
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error saving connections score:', err);
+    res.status(500).json({ error: 'Failed to save score' });
+  }
+});
+
+app.get('/api/connections/leaderboard', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const date = req.query.date || getTodayStr();
+    const entries = spellDB.getConnectionsLeaderboard(date);
+    res.json({ entries });
+  } catch (err) {
+    console.error('Error getting connections leaderboard:', err);
+    res.status(500).json({ error: 'Failed to get leaderboard' });
+  }
+});
+
+app.get('/api/connections/archive', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const datesWithScores = new Set(spellDB.getPastConnectionsDates());
+    const today = getTodayStr();
+    const dates = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().slice(0, 10);
+      const puzzle = connectionsPuzzles ? connectionsPuzzles.getPuzzleForDate(dateStr) : null;
+      const groupNames = puzzle ? puzzle.groups.map(g => g.name) : [];
+      dates.push({
+        date: dateStr,
+        groupNames,
+        hasScores: datesWithScores.has(dateStr),
+        isToday: i === 0
+      });
+    }
+    res.json({ dates });
+  } catch (err) {
+    console.error('Error getting connections archive:', err);
+    res.status(500).json({ error: 'Failed to get archive' });
+  }
+});
+
+app.get('/api/connections/archive/:date', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const { date } = req.params;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date format' });
+    const puzzle = connectionsPuzzles ? connectionsPuzzles.getPuzzleForDate(date) : null;
+    const entries = spellDB.getConnectionsLeaderboard(date);
+    res.json({ date, puzzle: puzzle ? { groups: puzzle.groups } : null, entries });
+  } catch (err) {
+    console.error('Error getting connections archive date:', err);
     res.status(500).json({ error: 'Failed to get data' });
   }
 });
