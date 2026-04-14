@@ -168,6 +168,10 @@ h2 {
   margin-bottom: 18px;
 }
 
+.team-heading {
+  max-width: 20ch;
+}
+
 h3 {
   font-size: 1.22rem;
   line-height: 1.2;
@@ -240,6 +244,10 @@ main p {
   overflow: hidden;
 }
 
+.science-callout {
+  border-left: 3px solid var(--accent);
+}
+
 .callout::before {
   content: "";
   position: absolute;
@@ -284,6 +292,18 @@ main p {
   min-height: 100%;
 }
 
+.stat-card.tint-green {
+  border-top: 3px solid #16a34a;
+}
+
+.stat-card.tint-blue {
+  border-top: 3px solid var(--accent-blue);
+}
+
+.stat-card.tint-gold {
+  border-top: 3px solid var(--accent-gold);
+}
+
 .tint-green {
   background: var(--green-tint), var(--surface-strong);
 }
@@ -294,6 +314,16 @@ main p {
 
 .tint-gold {
   background: var(--gold-tint), var(--surface-strong);
+}
+
+.card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover,
+.card:focus-within {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
 }
 
 .pipeline-table {
@@ -325,6 +355,14 @@ main p {
 
 .pipeline-row + .pipeline-row {
   border-top: 1px solid var(--line);
+}
+
+.pipeline-row {
+  transition: background-color 0.2s ease;
+}
+
+.pipeline-row:hover {
+  background: rgba(16, 32, 42, 0.02);
 }
 
 .pipeline-program strong {
@@ -419,7 +457,9 @@ main p {
 }
 
 .footer {
-  padding: 44px 0 0;
+  padding: 32px 0 0;
+  margin-top: 40px;
+  border-top: 1px solid var(--line);
   display: flex;
   justify-content: space-between;
   gap: 24px;
