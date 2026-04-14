@@ -287,6 +287,20 @@ function dashboardAuth(req, res, next) {
   if (hasDashboardAuth(req)) return next();
   res.status(401).json({ error: 'unauthorized' });
 }
+
+function extensionlessHtmlFallback(dir) {
+  return (req, res, next) => {
+    if (path.extname(req.path) || req.path.endsWith('/')) return next();
+
+    const relativePath = req.path.replace(/^\/+/, '');
+    const htmlPath = path.join(dir, `${relativePath}.html`);
+    if (fs.existsSync(htmlPath)) {
+      req.url = `${req.url}.html`;
+    }
+
+    next();
+  };
+}
 app.get('/', (req, res) => {
   renderPage(res, 'pages/home', {
     title: 'Neural NeXus',
@@ -376,20 +390,28 @@ app.use('/pm', (req, res, next) => {
   res.redirect('/dashboard');
 }, express.static(path.join(__dirname, 'public', 'pm')));
 
+const pmChartersDir = path.join(__dirname, 'public', 'pm-charters');
 app.use('/pm-charters', (req, res, next) => {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === 'authenticated') return next();
   res.redirect('/dashboard');
-}, express.static(path.join(__dirname, 'public', 'pm-charters')));
+}, extensionlessHtmlFallback(pmChartersDir), express.static(pmChartersDir));
 
 // Treat Biosciences research documents (password-protected)
+const treatDocsDir = path.join(__dirname, 'public', 'treat-docs');
 app.use('/treat-docs', (req, res, next) => {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === 'authenticated') return next();
   res.redirect('/dashboard');
-}, express.static(path.join(__dirname, 'public', 'treat-docs')));
+}, extensionlessHtmlFallback(treatDocsDir), express.static(treatDocsDir));
+
+// Treat Biosciences preview (public, no auth)
+app.use('/treat-preview', express.static(path.join(__dirname, 'public', 'treat-preview')));
+app.get('/treat-preview/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'treat-preview', 'index.html'));
+});
 
 // Unified health hub entry point
 app.get(['/cognitive', '/cognitive/', '/cognitive/index.html'], (req, res) => {
