@@ -414,10 +414,10 @@ app.use('/treat-docs', (req, res, next) => {
 }, extensionlessHtmlFallback(treatDocsDir), express.static(treatDocsDir));
 
 // Treat Biosciences preview (public, no auth)
-app.use('/treat-preview', express.static(path.join(__dirname, 'public', 'treat-preview')));
-app.get('/treat-preview/', (req, res) => {
+app.get(['/treat-preview', '/treat-preview/'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'treat-preview', 'index.html'));
 });
+app.use('/treat-preview', express.static(path.join(__dirname, 'public', 'treat-preview'), { redirect: false }));
 
 // Unified health hub entry point
 app.get(['/cognitive', '/cognitive/', '/cognitive/index.html'], (req, res) => {
