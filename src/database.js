@@ -57,6 +57,17 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now'))
   );
   CREATE INDEX IF NOT EXISTS idx_crossword_scores_date ON crossword_scores(date);
+
+  CREATE TABLE IF NOT EXISTS connections_scores (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,
+    nickname TEXT NOT NULL,
+    mistakes INTEGER NOT NULL,
+    completed INTEGER NOT NULL,
+    solved_order TEXT NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_connections_scores_date ON connections_scores(date);
 `);
 
 const stmts = {
@@ -77,6 +88,11 @@ const stmts = {
   getCrosswordLeaderboard: db.prepare('SELECT nickname, time_seconds, completed FROM crossword_scores WHERE date = ? AND completed = 1 ORDER BY time_seconds ASC, created_at ASC LIMIT 50'),
   getCrosswordAllByDate: db.prepare('SELECT nickname, time_seconds, completed FROM crossword_scores WHERE date = ? ORDER BY time_seconds ASC, created_at ASC LIMIT 50'),
   getPastCrosswordDates: db.prepare('SELECT DISTINCT date FROM crossword_scores ORDER BY date DESC LIMIT 60'),
+
+  insertConnectionsScore: db.prepare('INSERT INTO connections_scores (date, nickname, mistakes, completed, solved_order) VALUES (?, ?, ?, ?, ?)'),
+  getConnectionsLeaderboard: db.prepare('SELECT nickname, mistakes, completed, solved_order FROM connections_scores WHERE date = ? AND completed = 1 ORDER BY mistakes ASC, created_at ASC LIMIT 50'),
+  getConnectionsAllByDate: db.prepare('SELECT nickname, mistakes, completed, solved_order FROM connections_scores WHERE date = ? ORDER BY mistakes ASC, created_at ASC LIMIT 50'),
+  getPastConnectionsDates: db.prepare('SELECT DISTINCT date FROM connections_scores ORDER BY date DESC LIMIT 60'),
 };
 
 module.exports = {
@@ -156,6 +172,29 @@ module.exports = {
 
   getPastCrosswordDates() {
     return stmts.getPastCrosswordDates.all().map(r => r.date);
+  },
+
+  // Connections
+  submitConnectionsScore(date, nickname, mistakes, completed, solvedOrder) {
+    stmts.insertConnectionsScore.run(date, nickname, mistakes, completed ? 1 : 0, JSON.stringify(solvedOrder));
+  },
+
+  getConnectionsLeaderboard(date) {
+    return stmts.getConnectionsLeaderboard.all(date).map(row => ({
+      ...row,
+      solved_order: JSON.parse(row.solved_order),
+    }));
+  },
+
+  getConnectionsAllByDate(date) {
+    return stmts.getConnectionsAllByDate.all(date).map(row => ({
+      ...row,
+      solved_order: JSON.parse(row.solved_order),
+    }));
+  },
+
+  getPastConnectionsDates() {
+    return stmts.getPastConnectionsDates.all().map(r => r.date);
   },
 
   close() {

@@ -1,0 +1,648 @@
+<style>
+:root {
+  --bg: #0b0b12;
+  --yellow: #eab308;
+  --green: #22c55e;
+  --blue: #60a5fa;
+  --purple: #a855f7;
+  --yellow-bg: rgba(234,179,8,0.18);
+  --green-bg: rgba(34,213,126,0.18);
+  --blue-bg: rgba(96,165,250,0.18);
+  --purple-bg: rgba(168,85,247,0.18);
+  --tile-bg: rgba(255,255,255,0.06);
+  --tile-selected: rgba(255,255,255,0.18);
+  --tile-border: rgba(255,255,255,0.1);
+  --text: #f0f0f5;
+  --text-dim: rgba(255,255,255,0.4);
+  --accent: #60a5fa;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: flex; flex-direction: column;
+  overflow-x: hidden; min-height: 100vh; width: 100%;
+}
+
+.bg-layer {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 20% 20%, rgba(168,85,247,0.06), transparent),
+    radial-gradient(ellipse 50% 40% at 80% 70%, rgba(96,165,250,0.05), transparent);
+}
+
+nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; gap: 12px;
+  background: rgba(10,10,26,0.85); backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.nav-left { display: flex; align-items: center; gap: 10px; }
+.nav-brand img { width: 32px; height: 32px; border-radius: 8px; }
+.nav-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.12); }
+.nav-title { font-family: 'Instrument Serif', serif; font-size: 1.15rem; color: var(--text); }
+.nav-links { display: flex; gap: 8px; align-items: center; }
+.nav-links a { color: var(--text-dim); text-decoration: none; font-size: 0.82rem; padding: 5px 10px; border-radius: 6px; transition: all 0.2s; }
+.nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.06); }
+.nav-pill { background: rgba(255,255,255,0.06) !important; }
+
+main {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 24px 16px 40px; position: relative; z-index: 1;
+  max-width: 520px; margin: 0 auto; width: 100%;
+}
+.game-header { text-align: center; margin-bottom: 20px; }
+.game-header h1 { font-family: 'Instrument Serif', serif; font-size: 1.6rem; font-weight: 400; }
+.game-subtitle { color: var(--text-dim); font-size: 0.82rem; margin-top: 4px; }
+
+/* Solved groups stack at top */
+.solved-groups { width: 100%; margin-bottom: 8px; }
+.solved-group {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 14px 12px; border-radius: 10px; margin-bottom: 6px;
+  animation: groupReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  min-height: 60px;
+}
+.solved-group-name { font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.04em; }
+.solved-group-words { font-size: 0.82rem; margin-top: 3px; opacity: 0.85; }
+.solved-group[data-diff="0"] { background: var(--yellow-bg); border: 1px solid rgba(234,179,8,0.3); color: var(--yellow); }
+.solved-group[data-diff="1"] { background: var(--green-bg); border: 1px solid rgba(34,213,126,0.3); color: var(--green); }
+.solved-group[data-diff="2"] { background: var(--blue-bg); border: 1px solid rgba(96,165,250,0.3); color: var(--blue); }
+.solved-group[data-diff="3"] { background: var(--purple-bg); border: 1px solid rgba(168,85,247,0.3); color: var(--purple); }
+
+/* Word grid */
+#grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
+  width: 100%; margin-bottom: 16px;
+}
+.word-tile {
+  display: flex; align-items: center; justify-content: center;
+  padding: 14px 6px; border-radius: 8px; cursor: pointer;
+  background: var(--tile-bg); border: 1.5px solid var(--tile-border);
+  font-size: 0.82rem; font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.03em; text-align: center;
+  transition: all 0.15s ease; user-select: none;
+  min-height: 56px; word-break: break-word; line-height: 1.15;
+}
+.word-tile:hover { background: rgba(255,255,255,0.1); }
+.word-tile.selected {
+  background: var(--tile-selected); border-color: var(--accent);
+  color: var(--accent); transform: scale(0.96);
+}
+.word-tile.shake {
+  animation: shake 0.45s ease;
+}
+.word-tile.pop-out {
+  animation: popOut 0.3s ease forwards;
+}
+
+/* Mistake dots */
+.mistakes-row { display: flex; gap: 8px; align-items: center; margin-bottom: 16px; }
+.mistakes-label { font-size: 0.78rem; color: var(--text-dim); }
+.mistake-dots { display: flex; gap: 5px; }
+.mistake-dot {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(255,255,255,0.12); transition: background 0.3s;
+}
+.mistake-dot.used { background: #ef4444; }
+
+/* Action buttons */
+.actions { display: flex; gap: 8px; margin-bottom: 12px; }
+.btn {
+  padding: 10px 22px; border-radius: 24px; border: 1.5px solid rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.06); color: var(--text); cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 600;
+  transition: all 0.2s;
+}
+.btn:hover { background: rgba(255,255,255,0.12); }
+.btn:disabled { opacity: 0.3; cursor: default; }
+.btn-submit {
+  background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.3);
+  color: var(--accent);
+}
+.btn-submit:hover:not(:disabled) { background: rgba(96,165,250,0.25); }
+
+/* Toast */
+#toast {
+  position: fixed; top: 72px; left: 50%; transform: translateX(-50%);
+  background: var(--text); color: var(--bg); padding: 10px 20px;
+  border-radius: 8px; font-weight: 600; font-size: 0.85rem;
+  opacity: 0; pointer-events: none; transition: opacity 0.25s; z-index: 200;
+}
+#toast.show { opacity: 1; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal {
+  background: #141420; border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px; padding: 28px 24px; width: min(400px, 92vw);
+  text-align: center; max-height: 90vh; overflow-y: auto;
+}
+.modal h2 { font-family: 'Instrument Serif', serif; font-size: 1.5rem; font-weight: 400; margin-bottom: 6px; }
+.result-msg { color: var(--text-dim); font-size: 0.88rem; margin-bottom: 16px; }
+.result-groups { margin-bottom: 16px; }
+.result-group-row { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; justify-content: center; }
+.result-dot { width: 22px; height: 22px; border-radius: 5px; }
+
+.nickname-section { display: flex; gap: 8px; margin-bottom: 16px; }
+.nickname-input {
+  flex: 1; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.04);
+  color: var(--text); font-size: 0.88rem; font-family: 'DM Sans', sans-serif;
+  outline: none;
+}
+.nickname-input:focus { border-color: var(--accent); }
+.btn-submit-lb {
+  padding: 10px 16px; border-radius: 10px; border: none;
+  background: var(--accent); color: #000; font-weight: 700;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 0.85rem;
+  white-space: nowrap;
+}
+.btn-submit-lb:disabled { opacity: 0.4; cursor: default; }
+
+.lb-section { margin-bottom: 16px; text-align: left; }
+.lb-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 8px; text-align: center; }
+.lb-list { max-height: 200px; overflow-y: auto; }
+.lb-row {
+  display: flex; justify-content: space-between; padding: 6px 10px;
+  border-radius: 6px; font-size: 0.82rem; align-items: center;
+}
+.lb-row:nth-child(odd) { background: rgba(255,255,255,0.03); }
+.lb-row-name { font-weight: 600; }
+.lb-row-score { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
+
+.modal-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.btn-modal {
+  padding: 10px 18px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.06); color: var(--text);
+  text-decoration: none; font-size: 0.82rem; font-weight: 600; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+}
+.btn-modal:hover { background: rgba(255,255,255,0.12); }
+.btn-share { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.3); color: var(--accent); }
+
+.game-subscribe-cta {
+  text-align: center; padding: 24px 16px; position: relative; z-index: 1;
+}
+.game-subscribe-copy { color: var(--text-dim); font-size: 0.82rem; }
+.game-subscribe-button {
+  display: inline-block; margin-left: 8px; padding: 6px 16px;
+  border-radius: 20px; background: rgba(96,165,250,0.15);
+  border: 1px solid rgba(96,165,250,0.3); color: var(--accent);
+  text-decoration: none; font-weight: 600; font-size: 0.82rem;
+  transition: all 0.2s;
+}
+.game-subscribe-button:hover { background: rgba(96,165,250,0.25); }
+
+/* Animations */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+@keyframes groupReveal {
+  0% { opacity: 0; transform: scale(0.9) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+@keyframes popOut {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0.8); opacity: 0; }
+}
+
+@media (max-width: 480px) {
+  main { padding: 16px 10px 32px; }
+  .word-tile { padding: 12px 4px; font-size: 0.72rem; min-height: 50px; }
+  #grid { gap: 5px; }
+  .modal { padding: 22px 16px; }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+const MAX_MISTAKES = 4;
+const DIFF_COLORS = ['#eab308', '#22c55e', '#60a5fa', '#a855f7'];
+const DIFF_LABELS = ['yellow', 'green', 'blue', 'purple'];
+
+let puzzleData = null;
+let words = [];
+let selected = new Set();
+let mistakes = 0;
+let solvedGroups = [];
+let solvedOrder = [];
+let gameOver = false;
+let todayDate = '';
+
+const grid = document.getElementById('grid');
+const solvedContainer = document.getElementById('solved-groups');
+const mistakeDots = document.querySelectorAll('.mistake-dot');
+const btnSubmit = document.getElementById('btn-submit');
+const btnDeselect = document.getElementById('btn-deselect');
+const btnShuffle = document.getElementById('btn-shuffle');
+
+function showToast(msg, duration = 1800) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), duration);
+}
+
+function renderGrid() {
+  grid.innerHTML = '';
+  words.forEach(w => {
+    const tile = document.createElement('div');
+    tile.className = 'word-tile' + (selected.has(w) ? ' selected' : '');
+    tile.textContent = w;
+    tile.addEventListener('click', () => toggleWord(w));
+    grid.appendChild(tile);
+  });
+  updateButtons();
+}
+
+function toggleWord(w) {
+  if (gameOver) return;
+  if (selected.has(w)) {
+    selected.delete(w);
+  } else {
+    if (selected.size >= 4) return;
+    selected.add(w);
+  }
+  renderGrid();
+}
+
+function updateButtons() {
+  btnSubmit.disabled = selected.size !== 4;
+  btnDeselect.disabled = selected.size === 0;
+}
+
+function shuffleWords() {
+  for (let i = words.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [words[i], words[j]] = [words[j], words[i]];
+  }
+  selected.clear();
+  renderGrid();
+}
+
+function deselectAll() {
+  selected.clear();
+  renderGrid();
+}
+
+async function submitGuess() {
+  if (selected.size !== 4 || gameOver) return;
+  const guess = Array.from(selected);
+
+  try {
+    const res = await fetch('/api/connections/guess', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: todayDate, words: guess })
+    });
+    const data = await res.json();
+
+    if (data.correct) {
+      // Correct guess — reveal group
+      const group = data.group;
+      solvedGroups.push(group);
+      solvedOrder.push(group.difficulty);
+
+      // Animate tiles out
+      const tiles = grid.querySelectorAll('.word-tile');
+      tiles.forEach(t => {
+        if (guess.includes(t.textContent)) {
+          t.classList.add('pop-out');
+        }
+      });
+
+      setTimeout(() => {
+        // Remove solved words from grid
+        words = words.filter(w => !guess.includes(w));
+        selected.clear();
+
+        // Add solved group display
+        const groupEl = document.createElement('div');
+        groupEl.className = 'solved-group';
+        groupEl.dataset.diff = group.difficulty;
+        groupEl.innerHTML = `
+          <div class="solved-group-name">${group.name}</div>
+          <div class="solved-group-words">${group.words.join(', ')}</div>
+        `;
+        solvedContainer.appendChild(groupEl);
+
+        renderGrid();
+        saveState();
+
+        if (solvedGroups.length === 4) {
+          gameOver = true;
+          setTimeout(() => showModal(true), 600);
+        }
+      }, 350);
+
+    } else {
+      // Wrong guess
+      mistakes++;
+      mistakeDots[mistakes - 1].classList.add('used');
+
+      // Check "one away"
+      if (data.oneAway) {
+        showToast('One away!');
+      }
+
+      // Shake selected tiles
+      const tiles = grid.querySelectorAll('.word-tile.selected');
+      tiles.forEach(t => {
+        t.classList.add('shake');
+        setTimeout(() => t.classList.remove('shake'), 500);
+      });
+
+      selected.clear();
+      setTimeout(() => renderGrid(), 500);
+      saveState();
+
+      if (mistakes >= MAX_MISTAKES) {
+        gameOver = true;
+        setTimeout(() => revealRemaining(), 800);
+      }
+    }
+  } catch (e) {
+    showToast('Connection error');
+  }
+}
+
+function revealRemaining() {
+  // Reveal all unsolved groups
+  const remaining = puzzleData.groups.filter(g => !solvedGroups.find(s => s.name === g.name));
+  remaining.sort((a, b) => a.difficulty - b.difficulty);
+
+  let delay = 0;
+  remaining.forEach(group => {
+    setTimeout(() => {
+      solvedGroups.push(group);
+      words = words.filter(w => !group.words.includes(w));
+
+      const groupEl = document.createElement('div');
+      groupEl.className = 'solved-group';
+      groupEl.dataset.diff = group.difficulty;
+      groupEl.innerHTML = `
+        <div class="solved-group-name">${group.name}</div>
+        <div class="solved-group-words">${group.words.join(', ')}</div>
+      `;
+      solvedContainer.appendChild(groupEl);
+      renderGrid();
+    }, delay);
+    delay += 400;
+  });
+
+  setTimeout(() => {
+    showModal(false);
+    saveState();
+  }, delay + 400);
+}
+
+function showModal(won) {
+  const modal = document.getElementById('modal');
+  document.getElementById('modal-title').textContent = won ? 'Brilliant!' : 'Better luck next time';
+  document.getElementById('modal-msg').textContent = won
+    ? (mistakes === 0 ? 'Perfect game! No mistakes.' : `Solved with ${mistakes} mistake${mistakes > 1 ? 's' : ''}.`)
+    : `You used all ${MAX_MISTAKES} mistakes.`;
+
+  // Build result grid
+  const resultGrid = document.getElementById('result-grid');
+  const allGroups = puzzleData.groups.slice().sort((a, b) => a.difficulty - b.difficulty);
+  resultGrid.innerHTML = allGroups.map(g => `
+    <div class="result-group-row">
+      ${g.words.map(() => `<div class="result-dot" style="background:${DIFF_COLORS[g.difficulty]}"></div>`).join('')}
+    </div>
+  `).join('');
+
+  // Nickname section
+  const nickSection = document.getElementById('nickname-section');
+  const btnSubmitLb = document.getElementById('btn-submit-lb');
+  const nickInput = document.getElementById('nickname-input');
+  const savedNick = localStorage.getItem('nn-nickname') || '';
+  nickInput.value = savedNick;
+
+  btnSubmitLb.onclick = async () => {
+    const nick = nickInput.value.trim();
+    if (!nick) return;
+    localStorage.setItem('nn-nickname', nick);
+    btnSubmitLb.disabled = true;
+    try {
+      await fetch('/api/connections/score', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: todayDate,
+          nickname: nick,
+          mistakes,
+          completed: won,
+          solvedOrder
+        })
+      });
+      nickSection.style.display = 'none';
+      loadLeaderboard();
+    } catch (e) {
+      showToast('Failed to submit');
+      btnSubmitLb.disabled = false;
+    }
+  };
+
+  nickInput.addEventListener('keydown', e => { if (e.key === 'Enter') btnSubmitLb.click(); });
+
+  loadLeaderboard();
+  modal.classList.add('show');
+  modal.addEventListener('click', e => {
+    if (e.target === modal) modal.classList.remove('show');
+  });
+}
+
+async function loadLeaderboard() {
+  try {
+    const res = await fetch(`/api/connections/leaderboard?date=${todayDate}`);
+    const data = await res.json();
+    const entries = data.entries || [];
+    const medals = ['\u{1F947}', '\u{1F948}', '\u{1F949}'];
+    const lbSection = document.getElementById('lb-section');
+    const lbList = document.getElementById('lb-list');
+    if (entries.length) {
+      lbList.innerHTML = entries.map((e, i) => `
+        <div class="lb-row">
+          <span>${i < 3 ? medals[i] : i + 1} <span class="lb-row-name">${e.nickname.replace(/</g, '&lt;')}</span></span>
+          <span class="lb-row-score">${e.mistakes} mistake${e.mistakes !== 1 ? 's' : ''}</span>
+        </div>
+      `).join('');
+      lbSection.style.display = 'block';
+    }
+  } catch (e) {}
+}
+
+function buildShareText() {
+  const allGroups = puzzleData.groups.slice().sort((a, b) => a.difficulty - b.difficulty);
+  const colorEmojis = ['\u{1F7E8}', '\u{1F7E9}', '\u{1F7E6}', '\u{1F7EA}'];
+  let text = `Connections - Neural NeXus\n${todayDate}\n\n`;
+  allGroups.forEach(g => {
+    text += g.words.map(() => colorEmojis[g.difficulty]).join('') + '\n';
+  });
+  text += `\nMistakes: ${mistakes}/4`;
+  text += '\nhttps://www.neuralnexus.press/connections';
+  return text;
+}
+
+function saveState() {
+  const state = {
+    words, mistakes, solvedGroups, solvedOrder, gameOver,
+    selected: Array.from(selected)
+  };
+  localStorage.setItem('nn-connections-' + todayDate, JSON.stringify(state));
+}
+
+function restoreState(saved) {
+  words = saved.words;
+  mistakes = saved.mistakes;
+  solvedGroups = saved.solvedGroups || [];
+  solvedOrder = saved.solvedOrder || [];
+  gameOver = saved.gameOver;
+
+  // Restore mistake dots
+  for (let i = 0; i < mistakes; i++) {
+    mistakeDots[i].classList.add('used');
+  }
+
+  // Restore solved groups
+  solvedGroups.forEach(group => {
+    const groupEl = document.createElement('div');
+    groupEl.className = 'solved-group';
+    groupEl.dataset.diff = group.difficulty;
+    groupEl.innerHTML = `
+      <div class="solved-group-name">${group.name}</div>
+      <div class="solved-group-words">${group.words.join(', ')}</div>
+    `;
+    solvedContainer.appendChild(groupEl);
+  });
+
+  renderGrid();
+  if (gameOver) {
+    setTimeout(() => showModal(mistakes < MAX_MISTAKES), 500);
+  }
+}
+
+async function init() {
+  try {
+    const res = await fetch('/api/connections/today');
+    const data = await res.json();
+    todayDate = data.date;
+    puzzleData = data;
+
+    const saved = localStorage.getItem('nn-connections-' + todayDate);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      puzzleData.groups = data.groups;
+      restoreState(parsed);
+    } else {
+      words = data.shuffledWords.slice();
+      renderGrid();
+    }
+  } catch (e) {
+    showToast('Failed to load puzzle');
+  }
+}
+
+btnSubmit.addEventListener('click', submitGuess);
+btnDeselect.addEventListener('click', deselectAll);
+btnShuffle.addEventListener('click', shuffleWords);
+
+// Share button in modal
+document.getElementById('btn-share').addEventListener('click', () => {
+  const text = buildShareText();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
+  }
+});
+
+init();
+});
+</script>
+
+<div class="bg-layer"></div>
+
+<nav>
+  <div class="nav-left">
+    <a href="/" class="nav-brand"><img src="/img/neuron-logo.jpg" alt="Neural NeXus" width="1024" height="1024" decoding="async"></a>
+    <div class="nav-divider"></div>
+    <span class="nav-title">Connections</span>
+  </div>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/connections/archive">Archive</a>
+    <a href="/play" class="nav-pill">&#x1F41D; Bee</a>
+    <a href="/wordle" class="nav-pill">&#x1F7E9; Wordie</a>
+  </div>
+</nav>
+
+<main>
+  <div class="game-header">
+    <h1>Find the groups</h1>
+    <p class="game-subtitle">4 groups &middot; 4 words each &middot; new puzzle daily</p>
+  </div>
+
+  <div id="solved-groups" class="solved-groups"></div>
+  <div id="grid"></div>
+
+  <div class="mistakes-row">
+    <span class="mistakes-label">Mistakes remaining:</span>
+    <div class="mistake-dots">
+      <div class="mistake-dot"></div>
+      <div class="mistake-dot"></div>
+      <div class="mistake-dot"></div>
+      <div class="mistake-dot"></div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn" id="btn-shuffle">Shuffle</button>
+    <button class="btn" id="btn-deselect" disabled>Deselect All</button>
+    <button class="btn btn-submit" id="btn-submit" disabled>Submit</button>
+  </div>
+</main>
+
+<div class="game-subscribe-cta">
+  <p class="game-subscribe-copy">
+    Enjoyed the puzzle? Get weekly deep dives on AI and biotech &rarr;
+    <a class="game-subscribe-button" href="https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=game-connections" onclick="gtag('event', 'subscribe_click', {page_type: 'game', campaign: 'game-connections'})">Subscribe</a>
+  </p>
+</div>
+
+<div id="toast"></div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">Brilliant!</h2>
+    <p class="result-msg" id="modal-msg">You solved it</p>
+    <div class="result-groups" id="result-grid"></div>
+    <div class="nickname-section" id="nickname-section">
+      <input class="nickname-input" id="nickname-input" placeholder="Your nickname" maxlength="20" autocomplete="off">
+      <button class="btn-submit-lb" id="btn-submit-lb">Submit &rarr;</button>
+    </div>
+    <div class="lb-section" id="lb-section" style="display:none">
+      <div class="lb-title">&#x1F3C6; Today's Leaderboard</div>
+      <div class="lb-list" id="lb-list"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-modal btn-share" id="btn-share">Share &#x1F4CB;</button>
+      <a href="/connections/archive" class="btn-modal btn-alt">Archive &#x1F4C5;</a>
+      <a href="/play" class="btn-modal btn-alt">Bee &#x1F41D;</a>
+    </div>
+  </div>
+</div>

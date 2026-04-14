@@ -1,0 +1,225 @@
+<style>
+  :root {
+    --bg: #0b0b12;
+    --surface: rgba(255,255,255,0.03);
+    --surface-2: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.06);
+    --border-2: rgba(255,255,255,0.1);
+    --text: #f0f0f5;
+    --text-dim: rgba(255,255,255,0.4);
+    --text-mid: rgba(255,255,255,0.6);
+    --accent: #a855f7;
+    --accent-dim: rgba(168,85,247,0.15);
+    --yellow: #eab308;
+    --green: #22c55e;
+    --blue: #60a5fa;
+    --purple: #a855f7;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased; min-height: 100vh;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(168,85,247,0.07) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(96,165,250,0.04) 0%, transparent 50%),
+      var(--bg);
+  }
+  nav {
+    position: sticky; top: 0; z-index: 50;
+    padding: 10px 20px;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(14,14,22,0.95);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+  .nav-left { display: flex; align-items: center; gap: 10px; }
+  .nav-brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
+  .nav-brand img { height: 26px; border-radius: 5px; }
+  .nav-divider { width: 1px; height: 16px; background: rgba(255,255,255,0.15); }
+  .nav-title { font-family: 'Instrument Serif', serif; font-size: 1rem; color: #fff; }
+  .nav-links { display: flex; gap: 12px; align-items: center; }
+  .nav-links a { color: rgba(255,255,255,0.6); text-decoration: none; font-size: 0.7rem; font-weight: 600; transition: color 0.2s; }
+  .nav-links a:hover { color: #fff; }
+  .nav-pill { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; }
+
+  main {
+    max-width: 940px; margin: 0 auto; padding: 48px 24px 100px;
+    display: grid; grid-template-columns: 260px 1fr; gap: 24px; align-items: start;
+  }
+  .sidebar { position: sticky; top: 68px; }
+  .sidebar-title {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 12px;
+  }
+  .date-list { display: flex; flex-direction: column; gap: 4px; max-height: 70vh; overflow-y: auto; }
+  .date-item {
+    padding: 10px 14px; border-radius: 10px; cursor: pointer;
+    border: 1px solid transparent; transition: all 0.2s;
+    background: var(--surface);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .date-item:hover { background: var(--surface-2); border-color: var(--border); }
+  .date-item.active { background: var(--accent-dim); border-color: rgba(168,85,247,0.25); }
+  .date-label { font-size: 0.82rem; font-weight: 600; }
+  .score-badge { font-size: 0.62rem; font-weight: 700; color: var(--accent); background: var(--accent-dim); padding: 2px 7px; border-radius: 4px; }
+
+  .detail-panel { min-height: 400px; }
+  .empty-state { text-align: center; padding: 80px 20px; color: var(--text-dim); font-size: 0.9rem; }
+  .empty-icon { font-size: 3rem; display: block; margin-bottom: 14px; }
+
+  .puzzle-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 28px; margin-bottom: 16px;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  }
+  .puzzle-date-label {
+    font-size: 0.6rem; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 18px;
+  }
+
+  .group-row {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 14px 12px; border-radius: 10px; margin-bottom: 6px; min-height: 56px;
+  }
+  .group-row[data-diff="0"] { background: rgba(234,179,8,0.18); border: 1px solid rgba(234,179,8,0.3); color: var(--yellow); }
+  .group-row[data-diff="1"] { background: rgba(34,213,126,0.18); border: 1px solid rgba(34,213,126,0.3); color: var(--green); }
+  .group-row[data-diff="2"] { background: rgba(96,165,250,0.18); border: 1px solid rgba(96,165,250,0.3); color: var(--blue); }
+  .group-row[data-diff="3"] { background: rgba(168,85,247,0.18); border: 1px solid rgba(168,85,247,0.3); color: var(--purple); }
+  .group-name { font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  .group-words { font-size: 0.78rem; margin-top: 3px; opacity: 0.85; }
+
+  .lb-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 18px; padding: 28px;
+  }
+  .lb-title { font-size: 0.85rem; font-weight: 700; margin-bottom: 14px; }
+  .lb-row {
+    display: flex; justify-content: space-between; padding: 8px 12px;
+    border-radius: 8px; font-size: 0.82rem; align-items: center;
+  }
+  .lb-row:nth-child(odd) { background: rgba(255,255,255,0.02); }
+  .lb-name { font-weight: 600; }
+  .lb-score { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
+  .lb-empty { color: var(--text-dim); font-size: 0.82rem; text-align: center; padding: 20px 0; }
+
+  @media (max-width: 700px) {
+    main { grid-template-columns: 1fr; padding: 24px 12px 80px; }
+    .sidebar { position: static; }
+    .date-list { max-height: 200px; flex-direction: row; flex-wrap: wrap; gap: 6px; }
+    .date-item { padding: 8px 12px; }
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const sidebar = document.getElementById('date-list');
+  const detail = document.getElementById('detail-panel');
+  let dates = [];
+
+  async function loadArchive() {
+    try {
+      const res = await fetch('/api/connections/archive');
+      const data = await res.json();
+      dates = data.dates || [];
+      renderSidebar();
+      if (dates.length) selectDate(dates[0].date);
+    } catch (e) {
+      detail.innerHTML = '<div class="empty-state"><span class="empty-icon">&#x26A0;</span>Failed to load archive</div>';
+    }
+  }
+
+  function renderSidebar() {
+    sidebar.innerHTML = dates.map(d => {
+      const dt = new Date(d.date + 'T12:00:00');
+      const label = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return `<div class="date-item" data-date="${d.date}">
+        <span class="date-label">${d.isToday ? 'Today' : label}</span>
+        ${d.hasScores ? '<span class="score-badge">Played</span>' : ''}
+      </div>`;
+    }).join('');
+
+    sidebar.querySelectorAll('.date-item').forEach(el => {
+      el.addEventListener('click', () => selectDate(el.dataset.date));
+    });
+  }
+
+  async function selectDate(date) {
+    sidebar.querySelectorAll('.date-item').forEach(el => el.classList.toggle('active', el.dataset.date === date));
+    detail.innerHTML = '<div class="empty-state">Loading...</div>';
+
+    try {
+      const res = await fetch(`/api/connections/archive/${date}`);
+      const data = await res.json();
+      renderDetail(data);
+    } catch (e) {
+      detail.innerHTML = '<div class="empty-state"><span class="empty-icon">&#x26A0;</span>Failed to load</div>';
+    }
+  }
+
+  function renderDetail(data) {
+    const dt = new Date(data.date + 'T12:00:00');
+    const dateLabel = dt.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    const medals = ['\u{1F947}', '\u{1F948}', '\u{1F949}'];
+
+    let puzzleHtml = '';
+    if (data.puzzle && data.puzzle.groups) {
+      const groups = data.puzzle.groups.slice().sort((a, b) => a.difficulty - b.difficulty);
+      puzzleHtml = groups.map(g => `
+        <div class="group-row" data-diff="${g.difficulty}">
+          <div class="group-name">${g.name}</div>
+          <div class="group-words">${g.words.join(', ')}</div>
+        </div>
+      `).join('');
+    }
+
+    const entries = data.entries || [];
+    const lbHtml = entries.length
+      ? entries.map((e, i) => `
+        <div class="lb-row">
+          <span>${i < 3 ? medals[i] : i + 1} <span class="lb-name">${e.nickname.replace(/</g, '&lt;')}</span></span>
+          <span class="lb-score">${e.mistakes} mistake${e.mistakes !== 1 ? 's' : ''}</span>
+        </div>
+      `).join('')
+      : '<div class="lb-empty">No scores yet</div>';
+
+    detail.innerHTML = `
+      <div class="puzzle-card">
+        <div class="puzzle-date-label">${dateLabel}</div>
+        ${puzzleHtml}
+      </div>
+      <div class="lb-card">
+        <div class="lb-title">&#x1F3C6; Leaderboard</div>
+        ${lbHtml}
+      </div>
+    `;
+  }
+
+  loadArchive();
+});
+</script>
+
+<nav>
+  <div class="nav-left">
+    <a href="/" class="nav-brand"><img src="/img/neuron-logo.jpg" alt="Neural NeXus"></a>
+    <div class="nav-divider"></div>
+    <span class="nav-title">Connections Archive</span>
+  </div>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/connections" class="nav-pill">&#x1F7EA; Play Today</a>
+  </div>
+</nav>
+
+<main>
+  <div class="sidebar">
+    <div class="sidebar-title">Past Puzzles</div>
+    <div class="date-list" id="date-list"></div>
+  </div>
+  <div class="detail-panel" id="detail-panel">
+    <div class="empty-state">
+      <span class="empty-icon">&#x1F4C5;</span>
+      Select a date to view the puzzle
+    </div>
+  </div>
+</main>
