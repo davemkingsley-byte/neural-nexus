@@ -1,12 +1,14 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #0b0b12;
+  --bg: #08080f;
   --text: #f0f0f5;
   --accent: #7c6aff;
   --accent-dim: rgba(124,106,255,0.15);
+  --accent-glow: rgba(124,106,255,0.4);
   --gold: #f0c040;
   --gold-dim: rgba(240,192,64,0.25);
+  --gold-glow: rgba(240,192,64,0.4);
   --blue-highlight: rgba(96,165,250,0.18);
   --blue-border: rgba(96,165,250,0.35);
   --green: #22c55e;
@@ -23,10 +25,27 @@ body {
   background: var(--bg); color: var(--text);
   font-family: 'DM Sans', -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased; overflow-x: hidden;
+}
+/* Animated ambient background */
+body::before {
+  content: '';
+  position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
   background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(124,106,255,0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(34,197,94,0.05) 0%, transparent 50%),
-    var(--bg);
+    radial-gradient(ellipse at 30% 20%, rgba(124,106,255,0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(34,197,94,0.04) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(96,165,250,0.03) 0%, transparent 60%);
+  animation: ambientShift 20s ease-in-out infinite alternate;
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+@keyframes ambientShift {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  100% { transform: translate(-2%, -1%) rotate(3deg); }
 }
 
 /* Nav */
@@ -58,8 +77,14 @@ main {
 .game-header { text-align: center; margin-bottom: 12px; }
 .game-header h1 {
   font-family: 'Instrument Serif', serif; font-size: 1.8rem;
-  background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.7) 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, #c4b5fd 50%, var(--accent) 100%);
   -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; background-size: 200% auto;
+  animation: shimmer 4s linear infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
 }
 .game-subtitle { color: rgba(255,255,255,0.5); font-size: 0.85rem; margin-top: 4px; }
 
@@ -101,6 +126,9 @@ main {
   padding: 10px 14px; border-radius: 10px;
   background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
   min-height: 42px; cursor: pointer;
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 0 20px rgba(124,106,255,0.05);
 }
 .clue-bar-badge {
   font-size: 0.6rem; font-weight: 800; letter-spacing: 1.5px;
@@ -143,11 +171,13 @@ main {
 .cell.word-highlight {
   background: var(--blue-highlight);
   border-color: var(--blue-border);
+  box-shadow: 0 0 8px rgba(96,165,250,0.1);
 }
 .cell.selected {
   background: var(--gold-dim) !important;
   border-color: var(--gold) !important;
-  box-shadow: inset 0 0 12px rgba(240,192,64,0.2);
+  box-shadow: 0 0 16px var(--gold-glow), inset 0 0 12px rgba(240,192,64,0.15);
+  filter: drop-shadow(0 0 6px rgba(240,192,64,0.25));
 }
 .cell.checked-wrong {
   border-bottom: 3px solid var(--red) !important;
@@ -155,7 +185,8 @@ main {
 .cell.solved-reveal {
   background: var(--green-dim) !important;
   border-color: rgba(34,197,94,0.4) !important;
-  transition: background 0.4s ease, border-color 0.4s ease;
+  box-shadow: 0 0 12px rgba(34,197,94,0.2);
+  transition: background 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
 }
 .cell.revealed-cell {
   color: rgba(255,255,255,0.5);
@@ -211,10 +242,17 @@ main {
 }
 .overlay.show { display: flex; }
 .overlay-card {
-  background: rgba(20,20,32,0.98); border: 1px solid var(--card-border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid var(--card-border);
   border-radius: 18px; padding: 28px 24px; text-align: center;
   max-width: 380px; width: 92%; max-height: 90vh; overflow-y: auto;
-  box-shadow: 0 0 60px rgba(124,106,255,0.12);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+  animation: overlayReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+}
+@keyframes overlayReveal {
+  0% { opacity: 0; transform: scale(0.85) translateY(30px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
 }
 .overlay-card h2 {
   font-family: 'Instrument Serif', serif; font-size: 1.6rem; margin-bottom: 6px;
@@ -307,6 +345,23 @@ main {
   .cell { width: clamp(44px, 17vw, 50px); height: clamp(44px, 17vw, 50px); font-size: 1rem; }
   .cell-number { font-size: 0.55rem; }
 }
+
+/* Premium polish */
+.share-btn:hover { box-shadow: 0 6px 24px rgba(124,106,255,0.35); transform: translateY(-1px); }
+.submit-lb-btn:hover { box-shadow: 0 4px 20px rgba(124,106,255,0.3); transform: translateY(-1px); }
+.clue.active { box-shadow: 0 0 8px rgba(96,165,250,0.1); }
+.confetti-piece {
+  position: fixed; top: -10px; z-index: 300; pointer-events: none; border-radius: 2px;
+  animation: confettiFall var(--fall-duration, 3s) cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+@keyframes confettiFall {
+  0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(100vh) rotate(var(--rotate, 720deg)) scale(0.5); }
+}
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 
 /* Hidden input for mobile keyboard */
 #hiddenInput {
@@ -883,7 +938,26 @@ function checkCompletion() {
   setTimeout(() => showCompletionOverlay(), delay + 400);
 }
 
+function launchConfetti() {
+  const colors = ['#7c6aff', '#22c55e', '#eab308', '#60a5fa', '#f472b6', '#ef4444'];
+  for (let i = 0; i < 50; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.left = Math.random() * 100 + 'vw';
+    piece.style.background = colors[Math.floor(Math.random() * colors.length)];
+    piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    piece.style.width = (Math.random() * 8 + 5) + 'px';
+    piece.style.height = (Math.random() * 8 + 5) + 'px';
+    piece.style.setProperty('--fall-duration', (Math.random() * 2 + 2) + 's');
+    piece.style.setProperty('--rotate', (Math.random() * 720) + 'deg');
+    piece.style.animationDelay = (Math.random() * 1.5) + 's';
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 5000);
+  }
+}
+
 function showCompletionOverlay() {
+  if (!usedReveal) launchConfetti();
   // Update stats
   const stats = loadStats();
   stats.played++;
