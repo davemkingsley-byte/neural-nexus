@@ -355,7 +355,8 @@ main p {
   line-height: 1.2;
 }
 
-.stage-badge.active {
+.stage-badge.active,
+.pipeline-row .stage-badge.active {
   background: var(--accent);
   color: #ffffff;
   border-color: var(--accent);
@@ -490,15 +491,6 @@ main p {
 
   .section {
     padding: 80px 0;
-  }
-
-  .hero {
-    padding-top: 88px;
-  }
-
-  h1 {
-    font-size: clamp(2.7rem, 11vw, 4rem);
-    max-width: 9.5ch;
   }
 
   h2 {
