@@ -2089,6 +2089,143 @@
             }
           ],
           "lastUpdated": "2026-04-02"
+        },
+        {
+          "id": "507",
+          "title": "Company Website Rebuild",
+          "status": "\ud83d\udfe1 In Progress",
+          "statusClean": "In Progress",
+          "phase": "Design & Development \u2014 local draft reviewed at 9/10, executing final changes",
+          "phaseIndex": 3,
+          "liveUrl": "https://www.treatbiosciences.com",
+          "dateInitiated": "2026-04-14",
+          "targetDate": "2026-04-21",
+          "dateCompleted": null,
+          "daysActive": 0,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Daedalus",
+          "priority": "High",
+          "program": "Treat Biosciences",
+          "budget": "$0 (Square rebuild)",
+          "actualSpend": "$0",
+          "dependencies": [
+            "501",
+            "505"
+          ],
+          "enables": [
+            "Fundraising",
+            "BD outreach"
+          ],
+          "progress": 60,
+          "objective": "Rebuild treatbiosciences.com as a credible, investor-facing one-page biotech site. Correct positioning (peptide therapeutics for canine obesity/body recomposition, not oncology). Premium biotech aesthetic, not pet-brand cute.",
+          "successCriteria": "- [x] Science positioning corrected (peptides, metabolic, not oncology)\n- [x] Site structure approved (Opportunity \u2192 Science \u2192 Pipeline \u2192 Team \u2192 Contact)\n- [x] Plan scored 9/10 by Morpheus review\n- [ ] All 14 marketing improvements implemented\n- [ ] Team bios finalized (Frank/Niki bios needed)\n- [ ] Pipeline stage labels approved by David\n- [ ] TAM figure added\n- [ ] Contact form functional\n- [ ] David final approval\n- [ ] Live deployment",
+          "blockers": [
+            {
+              "text": "Frank and Niki bios not yet provided",
+              "severity": "medium"
+            },
+            {
+              "text": "David needs to approve exact pipeline stage labels",
+              "severity": "low"
+            }
+          ],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "Audit current site \u2014 identified major issues"
+            },
+            {
+              "done": true,
+              "text": "V1 plan drafted and reviewed"
+            },
+            {
+              "done": true,
+              "text": "Science positioning corrected (metabolic, not oncology)"
+            },
+            {
+              "done": true,
+              "text": "V2 plan with regulatory/pipeline/team additions"
+            },
+            {
+              "done": true,
+              "text": "V3 plan scored 9/10"
+            },
+            {
+              "done": true,
+              "text": "Local draft built with correct content"
+            },
+            {
+              "done": true,
+              "text": "Palette shifted to white/gray biotech"
+            },
+            {
+              "done": false,
+              "text": "14 marketing improvements from Morpheus review"
+            },
+            {
+              "done": false,
+              "text": "Hero image added"
+            },
+            {
+              "done": false,
+              "text": "Contact form built"
+            },
+            {
+              "done": false,
+              "text": "Team bios finalized"
+            },
+            {
+              "done": false,
+              "text": "David final review and approval"
+            },
+            {
+              "done": false,
+              "text": "Deploy to production"
+            }
+          ],
+          "decisions": [
+            {
+              "date": "2026-04-14",
+              "decision": "Corrected positioning from oncology to metabolic/obesity \u2014 original site had wrong science",
+              "by": "Morpheus + Archimedes"
+            },
+            {
+              "date": "2026-04-14",
+              "decision": "One-page site on Square, anchor nav only",
+              "by": "Daedalus (approved by David)"
+            },
+            {
+              "date": "2026-04-14",
+              "decision": "Pipeline labels: 'Active program' with visual differentiation via bar length",
+              "by": "Daedalus + Morpheus"
+            }
+          ],
+          "risks": [
+            {
+              "risk": "Incomplete team bios at launch",
+              "likelihood": "40%",
+              "impact": "Medium",
+              "mitigation": "Launch with David only + 'expanding team' line"
+            },
+            {
+              "risk": "TAM figure inaccurate",
+              "likelihood": "20%",
+              "impact": "Low",
+              "mitigation": "Use APPA source with qualification language"
+            }
+          ],
+          "milestones": [
+            {
+              "date": "2026-04-14",
+              "text": "Plan approved at 9/10"
+            },
+            {
+              "date": "2026-04-14",
+              "text": "Local draft built and under iteration"
+            }
+          ],
+          "documents": []
         }
       ]
     },

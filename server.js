@@ -103,6 +103,8 @@ const NOINDEX_PATHS = [
   '/dashboard',
   '/morpheus',
   '/seo-report',
+  '/app/health',
+  '/app/health/',
 ];
 const NOINDEX_PREFIXES = [
   '/pm-charters/',
@@ -166,6 +168,14 @@ function getArticleLastmodByTopic(slug) {
     .sort()
     .reverse();
   return dates[0] || null;
+}
+
+function getTopicOgImage(slug) {
+  const relativePath = path.join('img', 'topics', `${slug}.jpg`);
+  const absolutePath = path.join(__dirname, 'public', relativePath);
+  return fs.existsSync(absolutePath)
+    ? `${SITE_URL}/${relativePath}`
+    : `${SITE_URL}/img/neuron-logo.jpg`;
 }
 
 function buildSitemapEntries() {
@@ -261,10 +271,20 @@ app.use((req, res, next) => {
 
 // Protect dashboard data from public access
 const DASHBOARD_PASS = process.env.DASHBOARD_PASS || 'nexus2026';
-function dashboardAuth(req, res, next) {
+function hasDashboardAuth(req) {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
-  if (match && match[1] === 'authenticated') return next();
+  return Boolean(match && match[1] === 'authenticated');
+}
+
+function sanitizeDashboardReturnPath(returnTo = '/dashboard') {
+  if (typeof returnTo !== 'string') return '/dashboard';
+  if (!returnTo.startsWith('/') || returnTo.startsWith('//')) return '/dashboard';
+  return returnTo;
+}
+
+function dashboardAuth(req, res, next) {
+  if (hasDashboardAuth(req)) return next();
   res.status(401).json({ error: 'unauthorized' });
 }
 app.get('/', (req, res) => {
@@ -371,13 +391,22 @@ app.use('/treat-docs', (req, res, next) => {
   res.redirect('/dashboard');
 }, express.static(path.join(__dirname, 'public', 'treat-docs')));
 
+// Unified health hub entry point
+app.get(['/cognitive', '/cognitive/', '/cognitive/index.html'], (req, res) => {
+  const suffix = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  res.redirect(301, `/app/health${suffix}`);
+});
+
 // Cognitive performance dashboard (password-protected)
 app.use('/cognitive', (req, res, next) => {
-  const cookies = req.headers.cookie || '';
-  const match = cookies.match(/dash_auth=([^;]+)/);
-  if (match && match[1] === 'authenticated') return next();
+  if (hasDashboardAuth(req)) return next();
   res.redirect('/dashboard');
 }, express.static(path.join(__dirname, 'public', 'cognitive')));
+
+// Unified health hub entry point
+app.get(['/app/health', '/app/health/'], dashboardLoginPage, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'cognitive', 'index.html'));
+});
 
 app.get('/app/sw.js', (req, res) => {
   res.setHeader('Service-Worker-Allowed', '/app/');
@@ -763,9 +792,26 @@ function dashboardLoginPage(req, res, next) {
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === 'authenticated') return next();
   const failed = req.query.failed === '1';
-  const returnTo = req.path || '/dashboard';
-  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="robots" content="noindex, nofollow">
-<title>Dashboard Login</title>
+  const returnTo = sanitizeDashboardReturnPath(req.query.return || req.path || '/dashboard');
+  const pageTitle = returnTo === '/morpheus' ? 'Morpheus Login' : 'Dashboard Login';
+  const pageDescription = returnTo === '/morpheus'
+    ? 'Secure login for the Neural NeXus Morpheus workspace.'
+    : 'Secure login for the Neural NeXus dashboard.';
+  const canonicalUrl = `${SITE_URL}${returnTo}`;
+  const ogTitle = `${pageTitle} — Neural NeXus`;
+  res.send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="robots" content="noindex, nofollow">
+<title>${ogTitle}</title>
+<meta name="description" content="${pageDescription}">
+<link rel="canonical" href="${canonicalUrl}">
+<meta property="og:title" content="${ogTitle}">
+<meta property="og:description" content="${pageDescription}">
+<meta property="og:url" content="${canonicalUrl}">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${ogTitle}">
+<meta name="twitter:description" content="${pageDescription}">
+<meta name="twitter:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
 <style>body{background:#06060b;color:#f0f0f5;font-family:system-ui;display:flex;justify-content:center;align-items:center;min-height:100vh}
 .login{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:2.5rem;max-width:360px;width:90%}
 h2{font-size:1.4rem;margin-bottom:1rem}
@@ -784,7 +830,7 @@ app.get('/morpheus', dashboardLoginPage, (req, res) => {
 });
 app.post('/dashboard', loginLimiter, (req, res) => {
   const key = req.body.key;
-  const returnTo = req.query.return || '/dashboard';
+  const returnTo = sanitizeDashboardReturnPath(req.query.return || '/dashboard');
   if (key === DASHBOARD_PASS) {
     res.cookie('dash_auth', 'authenticated', { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
     return res.redirect(returnTo);
@@ -866,7 +912,7 @@ app.get('/topics/:slug', (req, res) => {
     topicArticles,
     relatedArticles,
     relatedTopics,
-    ogImage: `https://www.neuralnexus.press/img/topics/${topic.slug}.jpg`,
+    ogImage: getTopicOgImage(topic.slug),
     ogType: 'article',
     breadcrumbItems: [
       { label: 'Home', href: '/' },
@@ -2589,7 +2635,7 @@ app.get('/api/whoop/callback', async (req, res) => {
     if (!tokenRes.ok) {
       const err = await tokenRes.text();
       console.error('WHOOP token exchange failed:', err);
-      return res.redirect('/cognitive/index.html?whoop=error');
+      return res.redirect('/app/health?whoop=error');
     }
 
     const tokens = await tokenRes.json();
@@ -2611,10 +2657,10 @@ app.get('/api/whoop/callback', async (req, res) => {
       console.log('WHOOP OAuth: refresh_token received and stored. Auto-refresh enabled.');
     }
 
-    res.redirect('/cognitive/index.html?whoop=connected');
+    res.redirect('/app/health?whoop=connected');
   } catch (err) {
     console.error('WHOOP callback error:', err);
-    res.redirect('/cognitive/index.html?whoop=error');
+    res.redirect('/app/health?whoop=error');
   }
 });
 

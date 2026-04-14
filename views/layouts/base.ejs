@@ -11,13 +11,13 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <meta name="msapplication-config" content="/browserconfig.xml">
   <meta name="theme-color" content="#0a0a1a">
-  <meta property="og:title" content="<%= title %> — Neural NeXus">
+  <meta property="og:title" content="<%= title === 'Neural NeXus' ? title : `${title} — Neural NeXus` %>">
   <meta property="og:description" content="<%= description %>">
   <meta property="og:image" content="<%= locals.ogImage || 'https://www.neuralnexus.press/img/neuron-logo.jpg' %>">
   <meta property="og:url" content="<%= canonical %>">
   <meta property="og:type" content="<%= locals.ogType || 'website' %>">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="<%= title %> — Neural NeXus">
+  <meta name="twitter:title" content="<%= title === 'Neural NeXus' ? title : `${title} — Neural NeXus` %>">
   <meta name="twitter:description" content="<%= description %>">
   <meta name="twitter:image" content="<%= locals.ogImage || 'https://www.neuralnexus.press/img/neuron-logo.jpg' %>">
   <meta name="google-site-verification" content="kW4a01m15KuJy1nc9RStj2h4bXvGCTIBrMhCHTxUiSs">
