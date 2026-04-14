@@ -295,7 +295,8 @@ function extensionlessHtmlFallback(dir) {
     const relativePath = req.path.replace(/^\/+/, '');
     const htmlPath = path.join(dir, `${relativePath}.html`);
     if (fs.existsSync(htmlPath)) {
-      req.url = `${req.url}.html`;
+      const search = req.url.slice(req.path.length);
+      req.url = `${req.path}.html${search}`;
     }
 
     next();
@@ -397,6 +398,11 @@ app.use('/pm-charters', (req, res, next) => {
   if (match && match[1] === 'authenticated') return next();
   res.redirect('/dashboard');
 }, extensionlessHtmlFallback(pmChartersDir), express.static(pmChartersDir));
+
+app.get(['/treat-docs/development-cost-analysis-v3', '/treat-docs/development-cost-analysis-v3.html'], (req, res) => {
+  const suffix = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  res.redirect(301, `/treat-docs/cost-analysis-v3${suffix}`);
+});
 
 // Treat Biosciences research documents (password-protected)
 const treatDocsDir = path.join(__dirname, 'public', 'treat-docs');
