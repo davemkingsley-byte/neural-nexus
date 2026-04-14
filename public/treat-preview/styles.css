@@ -416,6 +416,33 @@ main p {
   color: #8a651c;
 }
 
+.discovery-features {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  margin-top: 36px;
+}
+
+.feature-item {
+  padding: 28px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-soft);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.feature-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.feature-icon {
+  font-size: 2rem;
+  margin-bottom: 14px;
+  line-height: 1;
+}
+
 .team-card {
   display: flex;
   flex-direction: column;
@@ -494,7 +521,8 @@ main p {
   }
 
   .split,
-  .three-up {
+  .three-up,
+  .discovery-features {
     grid-template-columns: 1fr;
   }
 
