@@ -2226,6 +2226,22 @@
             }
           ],
           "documents": []
+        },
+        {
+          "id": "508",
+          "title": "Pet Health Wearable",
+          "status": "\ud83d\udfe1 Planning",
+          "statusClean": "Planning",
+          "phase": "Concept \u2014 pet health wearable for continuous biometric monitoring in dogs",
+          "phaseIndex": 1,
+          "liveUrl": null,
+          "dateInitiated": "2026-04-14",
+          "dateUpdated": "2026-04-14",
+          "progress": 5,
+          "owner": "David Kingsley",
+          "agent": "Archimedes",
+          "summary": "Pet health wearable for continuous biometric monitoring in dogs. Complements therapeutic pipeline with real-time metabolic health tracking, treatment response measurement, and owner-facing health dashboard.",
+          "googleDocUrl": null
         }
       ]
     },
