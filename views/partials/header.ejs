@@ -1,20 +1,22 @@
 <nav aria-label="Main navigation" role="navigation">
-  <a href="/" class="nav-brand">
-    <img src="/img/neuron-logo.jpg" alt="Neural NeXus" width="30" height="30" decoding="async">
-    <span class="nav-brand-text">Neural<span>NeXus</span></span>
-  </a>
+  <div class="nav-inner">
+    <a href="/" class="nav-brand">
+      <img src="/img/neuron-logo.jpg" alt="Neural NeXus" width="30" height="30" decoding="async">
+      <span class="nav-brand-text">Neural<span>NeXus</span></span>
+    </a>
 
-  <ul class="nav-links">
-    <li><a href="/" class="nav-link <% if (locals.activePage === 'home') { %>active<% } %>">Home</a></li>
-    <li><a href="/topics" class="nav-link <% if (locals.activePage === 'topics') { %>active<% } %>">Topics</a></li>
-    <li><a href="/archive" class="nav-link <% if (locals.activePage === 'archive') { %>active<% } %>">Archive</a></li>
-    <li><a href="/#games" class="nav-link <% if (locals.activePage === 'games') { %>active<% } %>">Games</a></li>
-    <li><a href="https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=nav&utm_campaign=site-nav" class="nav-cta <% if (locals.activePage === 'subscribe') { %>active<% } %>" target="_blank" rel="noopener noreferrer">Subscribe</a></li>
-  </ul>
+    <ul class="nav-links">
+      <li><a href="/" class="nav-link <% if (locals.activePage === 'home') { %>active<% } %>">Home</a></li>
+      <li><a href="/topics" class="nav-link <% if (locals.activePage === 'topics') { %>active<% } %>">Topics</a></li>
+      <li><a href="/archive" class="nav-link <% if (locals.activePage === 'archive') { %>active<% } %>">Archive</a></li>
+      <li><a href="/#games" class="nav-link <% if (locals.activePage === 'games') { %>active<% } %>">Games</a></li>
+      <li><a href="https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=nav&utm_campaign=site-nav" class="nav-cta <% if (locals.activePage === 'subscribe') { %>active<% } %>" target="_blank" rel="noopener noreferrer">Subscribe</a></li>
+    </ul>
 
-  <button class="nav-toggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-drawer">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
-  </button>
+    <button class="nav-toggle" type="button" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="mobile-drawer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+    </button>
+  </div>
 </nav>
 
 <div class="mobile-backdrop" hidden></div>
