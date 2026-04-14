@@ -1175,6 +1175,18 @@ app.get('/api/spelling-bee/archive/:date', (req, res) => {
 });
 
 // --- Crossword API ---
+app.get('/api/crossword/today', (req, res) => {
+  try {
+    const dateStr = req.query.date || getTodayStr();
+    if (!crosswordPuzzles) return res.status(503).json({ error: 'Crossword module not loaded' });
+    const puzzle = crosswordPuzzles.getPuzzleForDate(dateStr);
+    res.json({ date: dateStr, puzzle: { grid: puzzle.grid, clues: puzzle.clues } });
+  } catch (err) {
+    console.error('Error getting crossword puzzle:', err);
+    res.status(500).json({ error: 'Failed to get puzzle' });
+  }
+});
+
 app.post('/api/crossword/score', (req, res) => {
   if (!checkDB(res)) return;
   try {
