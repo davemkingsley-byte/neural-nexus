@@ -123,7 +123,7 @@ a { color: inherit; text-decoration: none; }
 }
 
 .section {
-  padding: 112px 0;
+  padding: 80px 0;
 }
 
 .section + .section {
@@ -155,9 +155,9 @@ h1, h2, h3 {
 }
 
 h1 {
-  font-size: clamp(3.7rem, 8vw, 6.4rem);
-  line-height: 0.92;
-  max-width: 11ch;
+  font-size: clamp(3.2rem, 7vw, 5.4rem);
+  line-height: 0.95;
+  max-width: 18ch;
   margin-bottom: 22px;
 }
 
@@ -197,10 +197,11 @@ main p {
 }
 
 .hero {
-  padding-top: 128px;
-  min-height: calc(100vh - 140px);
+  padding-top: 100px;
+  padding-bottom: 40px;
+  min-height: auto;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
 .hero-copy {
@@ -303,10 +304,10 @@ main p {
 .pipeline-head,
 .pipeline-row {
   display: grid;
-  grid-template-columns: minmax(110px, 0.82fr) minmax(0, 1.45fr) minmax(0, 1.15fr) minmax(130px, 0.72fr);
-  gap: 20px;
-  padding: 22px 24px;
-  align-items: start;
+  grid-template-columns: minmax(100px, 0.7fr) minmax(0, 1.5fr) minmax(0, 1.1fr) minmax(140px, 0.7fr);
+  gap: 24px;
+  padding: 22px 28px;
+  align-items: center;
 }
 
 .pipeline-head {
@@ -348,10 +349,17 @@ main p {
   border-radius: 999px;
   border: 1px solid rgba(16, 32, 42, 0.08);
   background: rgba(16, 32, 42, 0.05);
-  color: var(--text);
+  color: var(--muted);
   font-size: 0.9rem;
   font-weight: 600;
   line-height: 1.2;
+}
+
+.stage-badge.active {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+  font-weight: 700;
 }
 
 .pipeline-row.tint-green .stage-badge {
@@ -398,8 +406,15 @@ main p {
 .contact-email {
   color: var(--text);
   font-weight: 700;
-  font-size: clamp(1.2rem, 3vw, 1.75rem);
+  font-size: clamp(1.4rem, 3.5vw, 2rem);
   letter-spacing: -0.03em;
+  border-bottom: 2px solid var(--accent);
+  padding-bottom: 4px;
+  transition: color 0.2s ease;
+}
+
+.contact-email:hover {
+  color: var(--accent);
 }
 
 .footer {
