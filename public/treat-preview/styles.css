@@ -105,7 +105,7 @@ img { display: block; max-width: 100%; }
 
 .section {
   position: relative;
-  padding: 76px 0;
+  padding: 68px 0;
 }
 
 .section + .section {
@@ -117,9 +117,9 @@ img { display: block; max-width: 100%; }
   position: absolute;
   inset: 22px -20px;
   z-index: -1;
-  border: 1px solid rgba(163, 179, 190, 0.08);
+  border: 1px solid rgba(163, 179, 190, 0.06);
   border-radius: 34px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  background: linear-gradient(180deg, rgba(255,255,255,0.015), rgba(255,255,255,0.008));
 }
 
 .eyebrow {
@@ -224,11 +224,12 @@ main p { max-width: 64ch; }
   border-radius: 30px;
   border: 1px solid var(--line);
   background: var(--surface-2);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-soft);
 }
 
 .hero-visual {
   min-height: 500px;
+  box-shadow: var(--shadow), 0 0 60px rgba(73, 215, 173, 0.08);
 }
 
 .hero-image,
@@ -245,14 +246,13 @@ main p { max-width: 64ch; }
 
 .discovery-visual {
   min-height: 360px;
-  background: var(--bg);
+  background: var(--bg-soft);
 }
 
 .discovery-image,
 .pipeline-spotlight-media img {
   min-height: 360px;
-  filter: brightness(0.85) contrast(1.1);
-  mix-blend-mode: luminosity;
+  filter: brightness(0.92) contrast(1.05) saturate(1.1);
 }
 
 .hero-image-sheen,
@@ -283,7 +283,7 @@ main p { max-width: 64ch; }
 .hero-node,
 .hero-link,
 .hero-glow {
-  opacity: 0.55;
+  opacity: 0.34;
 }
 
 .hero-orbit {
@@ -386,7 +386,7 @@ main p { max-width: 64ch; }
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  box-shadow: var(--shadow-soft);
+  box-shadow: none;
 }
 
 .card,
@@ -394,7 +394,7 @@ main p { max-width: 64ch; }
 .contact-card,
 .pipeline-spotlight,
 .feature-item {
-  padding: 24px;
+  padding: 22px;
 }
 
 .tint-green {
@@ -418,13 +418,13 @@ main p { max-width: 64ch; }
 
 .discovery-features {
   display: grid;
-  gap: 16px;
-  margin-top: 26px;
+  gap: 14px;
+  margin-top: 22px;
 }
 
 .feature-item {
   position: relative;
-  padding-left: 72px;
+  padding-left: 68px;
 }
 
 .feature-icon {
@@ -511,9 +511,9 @@ main p { max-width: 64ch; }
 .pipeline-head,
 .pipeline-row {
   display: grid;
-  grid-template-columns: 0.88fr 1.55fr 1.15fr 0.82fr;
-  gap: 16px;
-  padding: 18px 22px;
+  grid-template-columns: 0.82fr 1.48fr 1.08fr 0.78fr;
+  gap: 14px;
+  padding: 16px 20px;
   align-items: center;
 }
 
@@ -577,7 +577,8 @@ main p { max-width: 64ch; }
 
 .pipeline-spotlight {
   display: grid;
-  gap: 16px;
+  gap: 14px;
+  align-content: start;
 }
 
 .pipeline-spotlight-media {
@@ -680,7 +681,7 @@ main p { max-width: 64ch; }
 
 @media (max-width: 640px) {
   .site-shell { padding: 16px 16px 64px; }
-  .section { padding: 64px 0; }
+  .section { padding: 56px 0; }
   .section-band::before { inset: 16px -8px; }
 
   h1 {
