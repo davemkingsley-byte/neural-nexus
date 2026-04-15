@@ -8,7 +8,9 @@
   <meta property="og:title" content="Treat Biosciences | Canine Metabolic Therapeutics">
   <meta property="og:description" content="Canine-specific peptide programs for obesity, lean-mass preservation, and body recomposition.">
   <meta property="og:type" content="website">
+  <meta property="og:image" content="https://www.treatbiosciences.com/images/hero_molecular_dramatic.png">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="https://www.treatbiosciences.com/images/hero_molecular_dramatic.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
@@ -31,7 +33,6 @@
         <a href="#science">Discovery</a>
         <a href="#pipeline">Pipeline</a>
         <a href="#team">Leadership</a>
-        <a href="#contact">Contact</a>
       </nav>
       <a class="button button-sm" href="#contact">Partner With Us</a>
     </header>
@@ -49,7 +50,7 @@
             </div>
           </div>
           <div class="hero-visual">
-            <img class="hero-image" src="./images/hero_molecular_dramatic.png" alt="Abstract molecular visualization of a canine therapeutic design candidate.">
+            <img class="hero-image" src="./images/hero_molecular_dramatic.png" alt="Abstract molecular visualization of a canine therapeutic design candidate." loading="eager" fetchpriority="high">
             <div class="hero-image-sheen" aria-hidden="true"></div>
             <div class="hero-orbit hero-orbit-one" aria-hidden="true"></div>
             <div class="hero-orbit hero-orbit-two" aria-hidden="true"></div>
@@ -139,17 +140,12 @@
       </section>
 
       <!-- THESIS -->
-      <section class="section split">
-        <div>
+      <section class="section">
+        <div class="narrow">
           <p class="eyebrow">Thesis</p>
           <h2>Human GLP-1 drugs proved the category. Treat builds the canine version.</h2>
           <p>Semaglutide and retatrutide created a $100B+ human obesity market. The same receptor biology exists in dogs. Treat is the first company building a canine-specific peptide platform to capture that opportunity.</p>
         </div>
-        <aside class="callout science-callout">
-          <p class="eyebrow">Defensibility</p>
-          <h3>The moat is the platform.</h3>
-          <p>One species. One regulatory strategy. A repeatable computational engine that generates multiple drug candidates across obesity, lean-mass preservation, and combination therapy.</p>
-        </aside>
       </section>
 
       <!-- PIPELINE -->
@@ -233,7 +229,24 @@
           <p>For investor conversations, veterinary pharma partnerships, or scientific collaboration.</p>
         </div>
         <div class="contact-card">
-          <a class="contact-email" href="mailto:David.Kingsley@TreatBioSciences.com">David.Kingsley@TreatBioSciences.com</a>
+          <form class="contact-form" id="contactForm" onsubmit="handleContactSubmit(event)">
+            <div class="form-row two-col">
+              <div class="form-group">
+                <label for="contactName">Name</label>
+                <input type="text" id="contactName" name="name" placeholder="Your name" required>
+              </div>
+              <div class="form-group">
+                <label for="contactOrg">Organization</label>
+                <input type="text" id="contactOrg" name="org" placeholder="Company / Fund (optional)">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="contactMessage">Message</label>
+              <textarea id="contactMessage" name="message" rows="4" placeholder="Investor inquiry, partnership, scientific collaboration..." required></textarea>
+            </div>
+            <button type="submit" class="button form-submit">Send Message</button>
+          </form>
+          <p class="contact-direct">Or reach directly: <a class="contact-email" href="mailto:David.Kingsley@TreatBioSciences.com">David.Kingsley@TreatBioSciences.com</a></p>
         </div>
       </section>
 
@@ -250,5 +263,16 @@
       </div>
     </footer>
   </div>
+  <script>
+  function handleContactSubmit(e) {
+    e.preventDefault();
+    var name = document.getElementById('contactName').value;
+    var org  = document.getElementById('contactOrg').value;
+    var msg  = document.getElementById('contactMessage').value;
+    var subject = encodeURIComponent('Treat Biosciences Inquiry' + (org ? ' \u2014 ' + org : ''));
+    var body    = encodeURIComponent('From: ' + name + (org ? ' (' + org + ')' : '') + '\n\n' + msg);
+    window.location.href = 'mailto:David.Kingsley@TreatBioSciences.com?subject=' + subject + '&body=' + body;
+  }
+  </script>
 </body>
 </html>
