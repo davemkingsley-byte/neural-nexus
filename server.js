@@ -258,14 +258,14 @@ app.post('/api/treat/contact', (req, res) => {
   if (!isLocal && host !== 'treat.neuralnexus.press') {
     return res.status(403).json({ error: 'Forbidden' });
   }
-  const { name, organization, message } = req.body;
+  const { name, organization, inquiry, message } = req.body;
   if (!name || !organization || !message) {
     return res.status(400).json({ error: 'All fields are required.' });
   }
   if (name.length > 200 || organization.length > 200 || message.length > 5000) {
     return res.status(400).json({ error: 'Field too long.' });
   }
-  const entry = { name, organization, message, timestamp: new Date().toISOString() };
+  const entry = { name, organization, inquiry: inquiry || 'general', message, timestamp: new Date().toISOString() };
   try {
     let contacts = [];
     if (fs.existsSync(treatContactFile)) {

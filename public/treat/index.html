@@ -3,1396 +3,760 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Treat Biosciences: AI-designed peptide medicines for the canine obesity epidemic. Computational protein design meets veterinary therapeutics." />
+  <meta name="description" content="Treat Biosciences: AI-designed peptide medicines for canine obesity. The first canine-optimized triple incretin agonist — computational protein design meets veterinary therapeutics." />
   <meta name="theme-color" content="#1a9a8a" />
 
-  <!-- Open Graph / Social -->
+  <!-- Open Graph -->
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="Treat Biosciences | Canine Metabolic Therapeutics" />
-  <meta property="og:description" content="AI-designed peptide medicines for the canine obesity epidemic." />
-  <meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630'%3E%3Crect fill='%231a9a8a' width='1200' height='630'/%3E%3C/svg%3E" />
+  <meta property="og:title" content="Treat Biosciences | AI-Designed Canine Therapeutics" />
+  <meta property="og:description" content="54 million dogs. Zero approved treatments. We're building the first canine-optimized weight loss drug using AI-powered protein design." />
+  <meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630'%3E%3Crect fill='%231a9a8a' width='1200' height='630'/%3E%3Ctext x='600' y='280' text-anchor='middle' font-family='system-ui' font-weight='800' font-size='64' fill='white'%3ETreat Biosciences%3C/text%3E%3Ctext x='600' y='360' text-anchor='middle' font-family='system-ui' font-weight='400' font-size='28' fill='rgba(255,255,255,0.85)'%3EAI-designed canine therapeutics%3C/text%3E%3C/svg%3E" />
 
   <title>Treat Biosciences | AI-Designed Canine Therapeutics</title>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
 
-  <!-- Favicon (Data URI - Teal bone shape) -->
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231a9a8a' width='100' height='100'/%3E%3Ccircle cx='25' cy='50' r='15' fill='%23ffffff'/%3E%3Crect x='35' y='40' width='30' height='20' fill='%23ffffff'/%3E%3Ccircle cx='75' cy='50' r='15' fill='%23ffffff'/%3E%3C/svg%3E" type="image/svg+xml" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231a9a8a' rx='16' width='100' height='100'/%3E%3Ccircle cx='28' cy='50' r='14' fill='white'/%3E%3Crect x='38' y='40' width='24' height='20' rx='4' fill='white'/%3E%3Ccircle cx='72' cy='50' r='14' fill='white'/%3E%3C/svg%3E" type="image/svg+xml" />
+
+  <noscript><style>
+    .stat-card,.feature-card,.pipeline-program-row,.team-card,.gen-card,.receptor-bar-wrap{opacity:1!important;transform:none!important}
+  </style></noscript>
 
   <style>
-    /* ============================================
-       GLOBAL STYLES
-       ============================================ */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    :root {
-      --color-primary: #1a9a8a;
-      --color-dark: #0d5c52;
-      --color-accent: #c0392b;
-      --color-bg-warm: #f5f4f0;
-      --color-bg-white: #ffffff;
-      --color-text-dark: #1a1a2e;
-      --color-text-light: #4a4a4a;
-      --color-border: #e8e8e8;
-
-      --font-heading: "Plus Jakarta Sans", sans-serif;
-      --font-body: "Inter", sans-serif;
-
-      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
-      --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.15);
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
-    body {
-      font-family: var(--font-body);
-      background-color: var(--color-bg-white);
-      color: var(--color-text-dark);
-      line-height: 1.6;
-      letter-spacing: -0.3px;
-    }
-
-    /* ============================================
-       TYPOGRAPHY
-       ============================================ */
-    h1, h2, h3, h4, h5, h6 {
-      font-family: var(--font-heading);
-      font-weight: 700;
-      color: var(--color-text-dark);
-      line-height: 1.3;
-      margin-bottom: 1rem;
-    }
-
-    h1 {
-      font-size: clamp(2.5rem, 8vw, 4rem);
-      font-weight: 800;
-    }
-
-    h2 {
-      font-size: clamp(1.75rem, 5vw, 2.75rem);
-      font-weight: 700;
-    }
-
-    h3 {
-      font-size: 1.5rem;
-      font-weight: 600;
-    }
-
-    p {
-      color: var(--color-text-light);
-      margin-bottom: 1.5rem;
-    }
-
-    a {
-      color: var(--color-primary);
-      text-decoration: none;
-      transition: var(--transition-smooth);
-    }
-
-    a:hover {
-      color: var(--color-dark);
-    }
-
-    /* ============================================
-       LAYOUT
-       ============================================ */
-    .container {
-      width: 100%;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 0 1.5rem;
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        padding: 0 1rem;
-      }
-    }
-
-    section {
-      padding: 5rem 0;
-    }
-
-    @media (max-width: 768px) {
-      section {
-        padding: 3rem 0;
-      }
-    }
-
-    /* ============================================
-       NAVIGATION
-       ============================================ */
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      background-color: var(--color-bg-white);
-      border-bottom: 1px solid var(--color-border);
-      backdrop-filter: blur(10px);
-      background-color: rgba(255, 255, 255, 0.95);
-    }
-
-    .nav-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 0;
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1rem 1.5rem;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--color-text-dark);
-      font-family: var(--font-heading);
-      transition: var(--transition-smooth);
-    }
-
-    .logo:hover {
-      color: var(--color-primary);
-    }
-
-    .logo svg {
-      width: 28px;
-      height: 28px;
-    }
-
-    .nav-links {
-      display: flex;
-      gap: 2.5rem;
-      list-style: none;
-      align-items: center;
-    }
-
-    .nav-links a {
-      font-size: 0.95rem;
-      font-weight: 500;
-      color: var(--color-text-dark);
-      position: relative;
-      transition: var(--transition-smooth);
-    }
-
-    .nav-links a::after {
-      content: "";
-      position: absolute;
-      bottom: -4px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background-color: var(--color-primary);
-      transition: width 0.3s ease;
-    }
-
-    .nav-links a:hover::after,
-    .nav-links a.active::after {
-      width: 100%;
-    }
-
-    .nav-links a:hover {
-      color: var(--color-primary);
-    }
-
-    .btn-nav {
-      background-color: var(--color-primary);
-      color: white;
-      padding: 0.65rem 1.5rem;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      transition: var(--transition-smooth);
-      border: none;
-      cursor: pointer;
-      white-space: nowrap;
-    }
-
-    .btn-nav:hover {
-      background-color: var(--color-dark);
-      box-shadow: var(--shadow-md);
-    }
-
-    .hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      background: none;
-      border: none;
-    }
-
-    .hamburger span {
-      width: 24px;
-      height: 2px;
-      background-color: var(--color-text-dark);
-      border-radius: 2px;
-      transition: var(--transition-smooth);
-    }
-
-    @media (max-width: 768px) {
-      .hamburger {
-        display: flex;
-      }
-
-      .nav-links {
-        position: absolute;
-        top: 100%;
-        left: 0;
-        right: 0;
-        background-color: var(--color-bg-white);
-        flex-direction: column;
-        gap: 0;
-        border-bottom: 1px solid var(--color-border);
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease;
-      }
-
-      .nav-links.active {
-        max-height: 500px;
-      }
-
-      .nav-links li {
-        padding: 1rem 1.5rem;
-        border-bottom: 1px solid var(--color-border);
-      }
-
-      .nav-links a::after {
-        display: none;
-      }
-
-      .btn-nav {
-        margin: 1rem 1.5rem;
-        width: calc(100% - 3rem);
-      }
-    }
-
-    /* ============================================
-       HERO SECTION
-       ============================================ */
-    .hero {
-      background-color: var(--color-bg-white);
-      padding: 6rem 0 8rem;
-      min-height: 90vh;
-      display: flex;
-      align-items: center;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 500px;
-      height: 500px;
-      background: linear-gradient(135deg, rgba(26, 154, 138, 0.1), rgba(26, 154, 138, 0.05));
-      border-radius: 50%;
-      filter: blur(80px);
-      z-index: 0;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 1;
-      max-width: 700px;
-    }
-
-    .hero h1 {
-      margin-bottom: 1.5rem;
-      line-height: 1.25;
-    }
-
-    .hero h1 .highlight {
-      color: var(--color-primary);
-    }
-
-    .hero-subtitle {
-      font-size: 1.1rem;
-      color: var(--color-text-light);
-      margin-bottom: 2.5rem;
-      line-height: 1.7;
-      max-width: 600px;
-    }
-
-    .hero-visual {
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 45%;
-      height: 400px;
-      background: linear-gradient(135deg, var(--color-primary), var(--color-dark));
-      border-radius: 12px;
-      opacity: 0.15;
-      z-index: 0;
-    }
-
-    @media (max-width: 1024px) {
-      .hero-visual {
-        display: none;
-      }
-
-      .hero-content {
-        max-width: 100%;
-      }
-    }
-
-    /* ============================================
-       BUTTONS
-       ============================================ */
-    .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 0.95rem 2rem;
-      border-radius: 6px;
-      font-weight: 600;
-      font-size: 1rem;
-      border: 2px solid transparent;
-      transition: var(--transition-smooth);
-      cursor: pointer;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .btn-primary {
-      background-color: var(--color-primary);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background-color: var(--color-dark);
-      box-shadow: var(--shadow-md);
-      transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-      background-color: transparent;
-      color: var(--color-primary);
-      border-color: var(--color-primary);
-    }
-
-    .btn-secondary:hover {
-      background-color: var(--color-primary);
-      color: white;
-    }
-
-    @media (max-width: 768px) {
-      .btn {
-        padding: 0.85rem 1.5rem;
-        font-size: 0.95rem;
-      }
-    }
-
-    /* ============================================
-       SECTION LABELS
-       ============================================ */
-    .section-label {
-      display: inline-block;
-      font-family: var(--font-heading);
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: var(--color-primary);
-      margin-bottom: 1.5rem;
-    }
-
-    /* ============================================
-       OPPORTUNITY SECTION
-       ============================================ */
-    .opportunity {
-      background-color: var(--color-bg-warm);
-    }
-
-    .stat-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .stat-card {
-      background-color: var(--color-bg-white);
-      padding: 2.5rem;
-      border-radius: 8px;
-      box-shadow: var(--shadow-sm);
-      transition: var(--transition-smooth);
-      border-top: 4px solid var(--color-primary);
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    .stat-card.animate {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .stat-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-4px);
-    }
-
-    .stat-number {
-      font-family: var(--font-heading);
-      font-size: clamp(2.5rem, 6vw, 3.5rem);
-      font-weight: 800;
-      color: var(--color-primary);
-      line-height: 1;
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-      font-family: var(--font-heading);
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: var(--color-text-dark);
-      margin-bottom: 1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .stat-description {
-      font-size: 0.95rem;
-      color: var(--color-text-light);
-      line-height: 1.6;
-    }
-
-    /* ============================================
-       FEATURE CARDS
-       ============================================ */
-    .feature-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .feature-card {
-      background-color: var(--color-bg-white);
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: var(--shadow-sm);
-      transition: var(--transition-smooth);
-      opacity: 0;
-      transform: translateY(20px);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .feature-card.animate {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .feature-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-4px);
-    }
-
-    .feature-icon {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      display: block;
-    }
-
-    .feature-card h3 {
-      margin-bottom: 0.75rem;
-      font-size: 1.3rem;
-    }
-
-    .feature-card p {
-      margin-bottom: 0;
-    }
-
-    /* ============================================
-       SCIENCE SECTION
-       ============================================ */
-    .science {
-      background-color: var(--color-bg-white);
-    }
-
-    .science-content {
-      max-width: 700px;
-      margin-bottom: 3rem;
-    }
-
-    /* ============================================
-       THESIS SECTION
-       ============================================ */
-    .thesis {
-      background-color: var(--color-bg-warm);
-    }
-
-    .thesis-content {
-      max-width: 800px;
-    }
-
-    .generation-timeline {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1rem;
-      margin-top: 3rem;
-      flex-wrap: wrap;
-    }
-
-    .gen-card {
-      background: var(--color-bg-white);
-      border-radius: 8px;
-      padding: 1.5rem 2rem;
-      text-align: center;
-      box-shadow: var(--shadow-sm);
-      flex: 1;
-      min-width: 200px;
-      max-width: 280px;
-      transition: var(--transition-smooth);
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    .gen-card.animate {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .gen-card-highlight {
-      border: 2px solid var(--color-primary);
-      box-shadow: var(--shadow-md);
-      position: relative;
-    }
-
-    .gen-card-highlight::after {
-      content: "Treat's approach";
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--color-primary);
-      color: white;
-      font-size: 0.7rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      padding: 0.2rem 0.8rem;
-      border-radius: 20px;
-      white-space: nowrap;
-    }
-
-    .gen-label {
-      font-size: 0.75rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--color-text-light);
-      margin-bottom: 0.5rem;
-    }
-
-    .gen-target {
-      font-family: var(--font-heading);
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--color-primary);
-      margin-bottom: 0.25rem;
-    }
-
-    .gen-drug {
-      font-size: 0.85rem;
-      color: var(--color-text-light);
-      margin-bottom: 0.75rem;
-    }
-
-    .gen-stat {
-      font-family: var(--font-heading);
-      font-size: 2rem;
-      font-weight: 800;
-      color: var(--color-text-dark);
-      line-height: 1;
-    }
-
-    .gen-desc {
-      font-size: 0.8rem;
-      color: var(--color-text-light);
-      margin-top: 0.25rem;
-    }
-
-    .gen-arrow {
-      font-size: 1.5rem;
-      color: var(--color-primary);
-      font-weight: 700;
-    }
-
-    @media (max-width: 768px) {
-      .gen-arrow { display: none; }
-      .generation-timeline { flex-direction: column; align-items: stretch; }
-      .gen-card { max-width: 100%; }
-    }
-
-    /* ============================================
-       PIPELINE SECTION
-       ============================================ */
-    .pipeline {
-      background-color: var(--color-bg-white);
-    }
-
-    .pipeline-cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 2rem;
-      margin-top: 3rem;
-    }
-
-    .pipeline-card {
-      background-color: var(--color-bg-warm);
-      padding: 2rem;
-      border-radius: 8px;
-      border-left: 4px solid var(--color-primary);
-      transition: var(--transition-smooth);
-      opacity: 0;
-      transform: translateY(20px);
-    }
-
-    .pipeline-card.animate {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .pipeline-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-4px);
-    }
-
-    .pipeline-name {
-      font-family: var(--font-heading);
-      font-size: 1.3rem;
-      font-weight: 700;
-      color: var(--color-primary);
-      margin-bottom: 1rem;
-    }
-
-    .pipeline-status {
-      display: inline-block;
-      font-size: 0.8rem;
-      font-weight: 600;
-      padding: 0.4rem 0.8rem;
-      border-radius: 4px;
-      background-color: rgba(26, 154, 138, 0.15);
-      color: var(--color-primary);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 1rem;
-    }
-
-    /* ============================================
-       TEAM SECTION
-       ============================================ */
-    .team {
-      background-color: var(--color-bg-warm);
-    }
-
-    .team-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-      gap: 2.5rem;
-      margin-top: 3rem;
-    }
-
-    .team-card {
-      background-color: var(--color-bg-white);
-      padding: 2.5rem;
-      border-radius: 8px;
-      box-shadow: var(--shadow-sm);
-      transition: var(--transition-smooth);
-      opacity: 0;
-      transform: translateY(20px);
-      text-align: center;
-    }
-
-    .team-card.animate {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .team-card:hover {
-      box-shadow: var(--shadow-md);
-      transform: translateY(-4px);
-    }
-
-    .team-avatar {
-      width: 120px;
-      height: 120px;
-      border-radius: 50%;
-      margin: 0 auto 1.5rem;
-      background: linear-gradient(135deg, var(--color-primary), var(--color-dark));
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-family: var(--font-heading);
-      font-size: 2rem;
-      font-weight: 700;
-    }
-
-    .team-name {
-      font-family: var(--font-heading);
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 0.3rem;
-      color: var(--color-text-dark);
-    }
-
-    .team-title {
-      color: var(--color-primary);
-      font-weight: 600;
-      font-size: 0.95rem;
-      margin-bottom: 1rem;
-    }
-
-    .team-bio {
-      font-size: 0.95rem;
-      color: var(--color-text-light);
-      line-height: 1.6;
-    }
-
-    /* ============================================
-       CONTACT SECTION
-       ============================================ */
-    .contact {
-      background-color: var(--color-bg-white);
-    }
-
-    .contact-container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    .contact-text {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
-    .contact-form {
-      background-color: var(--color-bg-warm);
-      padding: 2.5rem;
-      border-radius: 8px;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
-
-    .form-group:last-child {
-      margin-bottom: 0;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      color: var(--color-text-dark);
-      font-size: 0.95rem;
-    }
-
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 0.85rem;
-      border: 1px solid var(--color-border);
-      border-radius: 6px;
-      font-family: var(--font-body);
-      font-size: 1rem;
-      transition: var(--transition-smooth);
-      background-color: var(--color-bg-white);
-      color: var(--color-text-dark);
-    }
-
-    .form-group input::placeholder,
-    .form-group textarea::placeholder {
-      color: #999;
-    }
-
-    .form-group input:focus,
-    .form-group textarea:focus {
-      outline: none;
-      border-color: var(--color-primary);
-      box-shadow: 0 0 0 3px rgba(26, 154, 138, 0.1);
-    }
-
-    .form-group textarea {
-      resize: vertical;
-      min-height: 120px;
-    }
-
-    .form-submit {
-      width: 100%;
-      margin-top: 1.5rem;
-    }
-
-    .contact-email {
-      text-align: center;
-      margin-top: 2rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--color-border);
-      font-size: 0.95rem;
-      color: var(--color-text-light);
-    }
-
-    .contact-email a {
-      color: var(--color-primary);
-      font-weight: 600;
-    }
-
-    /* ============================================
-       FOOTER
-       ============================================ */
-    footer {
-      background-color: var(--color-text-dark);
-      color: white;
-      padding: 3rem 0 1.5rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .footer-content {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 3rem;
-      margin-bottom: 2rem;
-    }
-
-    .footer-brand {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .footer-logo {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 1.3rem;
-      font-weight: 700;
-      margin-bottom: 0.5rem;
-    }
-
-    .footer-logo svg {
-      width: 24px;
-      height: 24px;
-    }
-
-    .footer-tagline {
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    .footer-links {
-      display: flex;
-      flex-direction: column;
-      gap: 0.75rem;
-    }
-
-    .footer-links a {
-      color: rgba(255, 255, 255, 0.7);
-      transition: var(--transition-smooth);
-      font-size: 0.95rem;
-    }
-
-    .footer-links a:hover {
-      color: white;
-      color: var(--color-primary);
-    }
-
-    .footer-bottom {
-      text-align: center;
-      padding-top: 2rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-      font-size: 0.9rem;
-      color: rgba(255, 255, 255, 0.6);
-    }
-
-    /* ============================================
-       ANIMATIONS
-       ============================================ */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .fade-in {
-      animation: fadeInUp 0.6s ease-out forwards;
-    }
-
-    /* ============================================
-       RESPONSIVE
-       ============================================ */
-    @media (max-width: 768px) {
-      .hero {
-        padding: 4rem 0 5rem;
-        min-height: auto;
-      }
-
-      .hero h1 {
-        font-size: 2rem;
-      }
-
-      .hero-subtitle {
-        font-size: 1rem;
-      }
-
-      .stat-cards,
-      .feature-cards,
-      .pipeline-cards,
-      .team-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .footer-content {
-        grid-template-columns: 1fr;
-      }
+    /* ── RESET & VARIABLES ──────────────────────── */
+    *{margin:0;padding:0;box-sizing:border-box}
+    :root{
+      --primary:#1a9a8a;
+      --primary-dark:#0d5c52;
+      --primary-light:rgba(26,154,138,0.1);
+      --primary-lighter:rgba(26,154,138,0.06);
+      --bg-warm:#f2f9f8;
+      --bg-white:#ffffff;
+      --text:#1a1a2e;
+      --text-light:#4a4a4a;
+      --border:#e0e7e6;
+      --heading:'Plus Jakarta Sans',sans-serif;
+      --body:'Inter',sans-serif;
+      --ease:cubic-bezier(0.4,0,0.2,1);
+      --shadow-sm:0 2px 8px rgba(0,0,0,0.06);
+      --shadow-md:0 8px 24px rgba(0,0,0,0.10);
+      --shadow-lg:0 16px 48px rgba(0,0,0,0.12);
+    }
+    html{scroll-behavior:smooth}
+    body{font-family:var(--body);background:var(--bg-white);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+    h1,h2,h3,h4{font-family:var(--heading);font-weight:700;color:var(--text);line-height:1.25;margin-bottom:1rem}
+    h1{font-size:clamp(2.25rem,6vw,3.5rem);font-weight:800}
+    h2{font-size:clamp(1.6rem,4vw,2.5rem)}
+    h3{font-size:1.25rem;font-weight:600}
+    p{color:var(--text-light);margin-bottom:1.25rem}
+    a{color:var(--primary);text-decoration:none;transition:color .2s var(--ease)}
+    a:hover{color:var(--primary-dark)}
+    img{display:block;max-width:100%}
+
+    /* ── SKIP LINK ──────────────────────────────── */
+    .skip-link{position:absolute;top:-100%;left:1rem;background:var(--primary);color:#fff;padding:.5rem 1rem;border-radius:4px;z-index:9999;font-weight:600;font-size:.9rem}
+    .skip-link:focus{top:1rem}
+
+    /* ── LAYOUT ─────────────────────────────────── */
+    .container{width:100%;max-width:1200px;margin:0 auto;padding:0 1.5rem}
+    section{padding:5rem 0}
+    .eyebrow{display:inline-block;font-family:var(--heading);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--primary);margin-bottom:1.25rem}
+
+    /* ── BUTTONS ─────────────────────────────────── */
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.75rem;border-radius:6px;font-weight:600;font-size:.95rem;border:2px solid transparent;cursor:pointer;transition:all .25s var(--ease);text-decoration:none;white-space:nowrap}
+    .btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+    .btn-primary:hover{background:var(--primary-dark);border-color:var(--primary-dark);box-shadow:var(--shadow-md);transform:translateY(-2px)}
+    .btn-outline{background:transparent;color:var(--primary);border-color:var(--primary)}
+    .btn-outline:hover{background:var(--primary);color:#fff}
+
+    /* ── NAV ─────────────────────────────────────── */
+    nav{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,0.96);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+    .nav-inner{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;padding:.85rem 1.5rem}
+    .logo{display:flex;align-items:center;gap:.6rem;font-size:1.35rem;font-weight:700;color:var(--text);font-family:var(--heading);transition:color .2s}
+    .logo:hover{color:var(--primary)}
+    .logo svg{width:26px;height:26px}
+    .nav-links{display:flex;gap:2rem;list-style:none;align-items:center}
+    .nav-links a{font-size:.9rem;font-weight:500;color:var(--text);position:relative}
+    .nav-links a::after{content:"";position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--primary);transition:width .25s ease}
+    .nav-links a:hover::after,.nav-links a.active::after{width:100%}
+    .nav-links a:hover{color:var(--primary)}
+    .btn-nav{background:var(--primary);color:#fff;padding:.55rem 1.25rem;border-radius:6px;font-weight:600;font-size:.85rem;border:none;cursor:pointer;transition:all .2s var(--ease)}
+    .btn-nav:hover{background:var(--primary-dark);box-shadow:var(--shadow-md)}
+    .hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;background:none;border:none}
+    .hamburger span{width:22px;height:2px;background:var(--text);border-radius:2px;transition:all .3s var(--ease)}
+
+    @media(max-width:768px){
+      .hamburger{display:flex}
+      .nav-links{position:absolute;top:100%;left:0;right:0;background:var(--bg-white);flex-direction:column;gap:0;border-bottom:1px solid var(--border);max-height:0;overflow:hidden;transition:max-height .3s ease}
+      .nav-links.active{max-height:500px}
+      .nav-links li{padding:.85rem 1.5rem;border-bottom:1px solid var(--border)}
+      .nav-links a::after{display:none}
+      .btn-nav{margin:.85rem 1.5rem;width:calc(100% - 3rem)}
+      section{padding:3rem 0}
+      .container{padding:0 1rem}
+    }
+
+    /* ── HERO ────────────────────────────────────── */
+    .hero{padding:4.5rem 0 5rem;position:relative;overflow:hidden}
+    .hero::before{content:"";position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,var(--primary-lighter),transparent 70%);z-index:0}
+    .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;position:relative;z-index:1}
+    .hero-content{max-width:560px}
+    .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary-light);color:var(--primary);font-size:.78rem;font-weight:600;padding:.35rem .85rem;border-radius:20px;margin-bottom:1.5rem;letter-spacing:.5px;text-transform:uppercase}
+    .hero-badge::before{content:"";width:6px;height:6px;background:var(--primary);border-radius:50%}
+    .hero h1{margin-bottom:1.25rem}
+    .hero h1 .accent{color:var(--primary)}
+    .hero-sub{font-size:1.05rem;color:var(--text-light);margin-bottom:2rem;line-height:1.7;max-width:480px}
+    .hero-ctas{display:flex;gap:1rem;flex-wrap:wrap}
+    .hero-visual{position:relative;display:flex;justify-content:center}
+    .hero-img-wrap{position:relative;width:100%;max-width:440px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg)}
+    .hero-img-wrap img{width:100%;height:420px;object-fit:cover;object-position:center top}
+    .hero-mol-badge{position:absolute;bottom:12px;right:12px;width:80px;height:80px;background:rgba(10,20,30,0.85);border-radius:12px;padding:8px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.1)}
+    .hero-mol-badge img{width:100%;height:100%;object-fit:contain;opacity:.9}
+
+    @media(max-width:900px){
+      .hero-grid{grid-template-columns:1fr;text-align:center}
+      .hero-content{max-width:100%;margin:0 auto}
+      .hero-sub{margin-left:auto;margin-right:auto}
+      .hero-ctas{justify-content:center}
+      .hero-visual{margin-top:2rem}
+      .hero-img-wrap{max-width:360px;margin:0 auto}
+      .hero-img-wrap img{height:320px}
+    }
+
+    /* ── OPPORTUNITY ─────────────────────────────── */
+    .opportunity{background:var(--bg-warm)}
+    .opp-header{max-width:700px;margin-bottom:2.5rem}
+    .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+    .stat-card{background:var(--bg-white);padding:2rem;border-radius:10px;box-shadow:var(--shadow-sm);border-top:4px solid var(--primary);opacity:0;transform:translateY(20px);transition:all .5s var(--ease)}
+    .stat-card.animate{opacity:1;transform:translateY(0)}
+    .stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
+    .stat-big{font-family:var(--heading);font-size:clamp(2.2rem,5vw,3rem);font-weight:800;color:var(--primary);line-height:1;margin-bottom:.4rem}
+    .stat-label{font-family:var(--heading);font-size:.85rem;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem}
+    .stat-card p{font-size:.9rem;margin-bottom:0;line-height:1.5}
+
+    @media(max-width:768px){.stat-grid{grid-template-columns:1fr}}
+
+    /* ── SCIENCE ─────────────────────────────────── */
+    .science{background:var(--bg-white)}
+    .science-layout{display:grid;grid-template-columns:1fr 380px;gap:3rem;align-items:start}
+    .science-text{max-width:640px}
+    .science-text>p{font-size:1rem;line-height:1.7}
+    .feature-list{display:flex;flex-direction:column;gap:1.5rem;margin-top:2rem}
+    .feature-item{display:flex;gap:1rem;align-items:flex-start}
+    .feature-icon-wrap{flex-shrink:0;width:48px;height:48px;background:var(--primary-light);border-radius:10px;display:flex;align-items:center;justify-content:center}
+    .feature-icon-wrap svg{width:24px;height:24px;color:var(--primary)}
+    .feature-item h3{margin-bottom:.35rem;font-size:1.05rem}
+    .feature-item p{font-size:.9rem;margin-bottom:0;line-height:1.5}
+    .science-visual{position:relative;border-radius:12px;overflow:hidden;background:#0a1420;box-shadow:var(--shadow-lg)}
+    .science-visual img{width:100%;height:auto;opacity:.9}
+    .science-visual-label{position:absolute;bottom:0;left:0;right:0;padding:.75rem 1rem;background:linear-gradient(transparent,rgba(10,20,30,.9));color:rgba(255,255,255,.7);font-size:.75rem;font-weight:500}
+    .tool-strip{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--border)}
+    .tool-strip-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);width:100%;margin-bottom:.25rem}
+    .tool-tag{font-size:.8rem;font-weight:500;color:var(--text-light);background:var(--bg-warm);padding:.3rem .7rem;border-radius:4px;border:1px solid var(--border)}
+
+    @media(max-width:900px){
+      .science-layout{grid-template-columns:1fr}
+      .science-visual{max-width:400px}
+    }
+
+    /* ── RECEPTOR CONSERVATION ───────────────────── */
+    .receptors{background:var(--bg-warm)}
+    .receptors-header{max-width:700px;margin-bottom:2.5rem}
+    .receptor-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
+    .receptor-card{background:var(--bg-white);padding:1.5rem;border-radius:10px;box-shadow:var(--shadow-sm);opacity:0;transform:translateY(20px);transition:all .5s var(--ease)}
+    .receptor-card.animate{opacity:1;transform:translateY(0)}
+    .receptor-name{font-family:var(--heading);font-weight:700;font-size:1rem;margin-bottom:.75rem;color:var(--text)}
+    .receptor-bar-bg{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:.5rem}
+    .receptor-bar-fill{height:100%;border-radius:4px;transition:width 1s var(--ease)}
+    .receptor-bar-fill.high{background:var(--primary)}
+    .receptor-bar-fill.medium{background:#d4a017}
+    .receptor-pct{font-family:var(--heading);font-size:1.75rem;font-weight:800;line-height:1;margin-bottom:.25rem}
+    .receptor-pct.high{color:var(--primary)}
+    .receptor-pct.medium{color:#d4a017}
+    .receptor-badge{display:inline-block;font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:3px;text-transform:uppercase;letter-spacing:.5px}
+    .receptor-badge.low-risk{background:rgba(26,154,138,.12);color:var(--primary)}
+    .receptor-badge.opt-target{background:rgba(212,160,23,.12);color:#b8860b}
+    .receptor-note{font-size:.85rem;margin-top:.5rem;line-height:1.5}
+    .receptor-explainer{max-width:700px;margin-top:2rem;font-size:.95rem;color:var(--text-light);line-height:1.7}
+
+    @media(max-width:768px){.receptor-grid{grid-template-columns:1fr}}
+
+    /* ── THESIS ──────────────────────────────────── */
+    .thesis{background:var(--bg-white)}
+    .thesis-header{max-width:780px;margin-bottom:1rem}
+    .thesis-header p{font-size:1rem;line-height:1.7}
+    .gen-timeline{display:flex;align-items:stretch;justify-content:center;gap:.75rem;margin-top:2.5rem}
+    .gen-card{background:var(--bg-warm);border-radius:10px;padding:1.5rem;text-align:center;flex:1;min-width:180px;max-width:280px;opacity:0;transform:translateY(20px);transition:all .5s var(--ease)}
+    .gen-card.animate{opacity:1;transform:translateY(0)}
+    .gen-card-highlight{border:2px solid var(--primary);background:var(--bg-white);box-shadow:var(--shadow-md);position:relative}
+    .gen-card-highlight::before{content:"Treat's approach";position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:.15rem .65rem;border-radius:10px;white-space:nowrap}
+    .gen-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);margin-bottom:.4rem}
+    .gen-target{font-family:var(--heading);font-size:.95rem;font-weight:700;color:var(--primary);margin-bottom:.15rem}
+    .gen-drug{font-size:.8rem;color:var(--text-light);margin-bottom:.5rem}
+    .gen-stat{font-family:var(--heading);font-weight:800;color:var(--text);line-height:1}
+    .gen-1 .gen-stat{font-size:1.5rem}
+    .gen-2 .gen-stat{font-size:1.75rem}
+    .gen-3 .gen-stat{font-size:2.25rem;color:var(--primary)}
+    .gen-desc{font-size:.75rem;color:var(--text-light);margin-top:.15rem}
+    .gen-arrow{display:flex;align-items:center;color:var(--primary)}
+    .gen-arrow svg{width:24px;height:24px}
+    .zero-banner{margin-top:3rem;padding:2rem;background:var(--primary-light);border-radius:10px;border-left:4px solid var(--primary);max-width:700px}
+    .zero-banner h3{font-size:1.1rem;color:var(--text);margin-bottom:.5rem}
+    .zero-banner p{font-size:.9rem;margin-bottom:0}
+
+    @media(max-width:768px){
+      .gen-timeline{flex-direction:column;align-items:stretch}
+      .gen-card{max-width:100%}
+      .gen-arrow{justify-content:center;transform:rotate(90deg);padding:.25rem 0}
+    }
+
+    /* ── PIPELINE ────────────────────────────────── */
+    .pipeline{background:var(--bg-warm)}
+    .pipeline-header{max-width:700px;margin-bottom:2.5rem}
+
+    /* Stage-gate track */
+    .stage-gate{margin-bottom:2.5rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .stage-track{display:grid;grid-template-columns:repeat(5,1fr);gap:0;min-width:600px}
+    .stage-label{text-align:center;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);padding-bottom:.75rem}
+    .stage-bar{height:6px;background:var(--border)}
+    .stage-bar.filled{background:var(--primary)}
+    .stage-bar:first-of-type{border-radius:3px 0 0 3px}
+    .stage-bar:last-of-type{border-radius:0 3px 3px 0}
+    .stage-programs{display:grid;grid-template-columns:repeat(5,1fr);gap:0;min-width:600px;margin-top:.5rem}
+    .stage-marker{text-align:center;font-size:.75rem;font-weight:600;padding:.25rem 0}
+    .stage-marker.active{color:var(--primary)}
+    .stage-marker .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--primary);margin-right:.25rem;vertical-align:middle}
+
+    /* Program cards */
+    .program-cards{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+    .program-card{background:var(--bg-white);padding:1.75rem;border-radius:10px;border-left:4px solid var(--primary);box-shadow:var(--shadow-sm);opacity:0;transform:translateY(20px);transition:all .5s var(--ease)}
+    .program-card.animate{opacity:1;transform:translateY(0)}
+    .program-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
+    .program-card.featured{grid-column:1/-1;display:grid;grid-template-columns:1fr 240px;gap:2rem;align-items:center}
+    .program-name{font-family:var(--heading);font-size:1.2rem;font-weight:700;color:var(--primary);margin-bottom:.5rem}
+    .program-mech{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.75rem}
+    .program-desc{font-size:.9rem;margin-bottom:.75rem;line-height:1.5}
+    .program-indication{font-size:.85rem;color:var(--text-light);margin-bottom:.75rem}
+    .program-indication strong{color:var(--text)}
+    .program-status{display:inline-block;font-size:.72rem;font-weight:600;padding:.3rem .65rem;border-radius:4px;background:rgba(26,154,138,.12);color:var(--primary);text-transform:uppercase;letter-spacing:.5px}
+    .program-img{border-radius:8px;overflow:hidden;background:#f0f4f8}
+    .program-img img{width:100%;height:auto}
+
+    /* CNADA callout */
+    .cnada-box{margin-top:2rem;padding:1.75rem;background:var(--bg-white);border-radius:10px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
+    .cnada-box h3{font-size:1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
+    .cnada-box h3 svg{width:20px;height:20px;color:var(--primary);flex-shrink:0}
+    .cnada-stats{display:flex;gap:2rem;margin-top:1rem;flex-wrap:wrap}
+    .cnada-stat{text-align:center}
+    .cnada-stat-num{font-family:var(--heading);font-size:1.5rem;font-weight:800;color:var(--primary);line-height:1}
+    .cnada-stat-label{font-size:.75rem;color:var(--text-light);margin-top:.25rem}
+
+    @media(max-width:768px){
+      .program-cards{grid-template-columns:1fr}
+      .program-card.featured{grid-template-columns:1fr;grid-column:auto}
+      .cnada-stats{gap:1.5rem}
+    }
+
+    /* ── TEAM ────────────────────────────────────── */
+    .team{background:var(--bg-white)}
+    .team-header{max-width:700px;margin-bottom:2.5rem}
+    .team-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2rem;max-width:800px}
+    .team-card{background:var(--bg-warm);padding:2rem;border-radius:10px;box-shadow:var(--shadow-sm);text-align:center;opacity:0;transform:translateY(20px);transition:all .5s var(--ease)}
+    .team-card.animate{opacity:1;transform:translateY(0)}
+    .team-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
+    .team-photo{width:130px;height:130px;border-radius:50%;margin:0 auto 1.25rem;overflow:hidden;border:3px solid var(--bg-white);box-shadow:var(--shadow-sm)}
+    .team-photo img{width:100%;height:100%;object-fit:cover}
+    .team-name{font-family:var(--heading);font-size:1.15rem;font-weight:700;margin-bottom:.2rem;color:var(--text)}
+    .team-title{color:var(--primary);font-weight:600;font-size:.9rem;margin-bottom:.75rem}
+    .team-bio{font-size:.88rem;color:var(--text-light);line-height:1.6;margin-bottom:1rem}
+    .team-institutions{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center}
+    .inst-tag{font-size:.7rem;font-weight:500;color:var(--text-light);background:var(--bg-white);padding:.2rem .5rem;border-radius:3px;border:1px solid var(--border)}
+    .team-links{margin-top:.75rem}
+    .team-links a{color:var(--text-light);transition:color .2s}
+    .team-links a:hover{color:var(--primary)}
+    .team-links svg{width:18px;height:18px}
+
+    @media(max-width:600px){.team-grid{grid-template-columns:1fr;max-width:400px}}
+
+    /* ── CONTACT ─────────────────────────────────── */
+    .contact{background:var(--bg-warm)}
+    .contact-wrap{max-width:600px;margin:0 auto}
+    .contact-text{text-align:center;margin-bottom:2.5rem}
+    .contact-text p{font-size:1rem}
+    .contact-form-wrap{background:var(--bg-white);padding:2rem;border-radius:10px;box-shadow:var(--shadow-sm)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
+    .form-group{margin-bottom:1rem}
+    .form-group:last-child{margin-bottom:0}
+    .form-group label{display:block;margin-bottom:.35rem;font-weight:500;font-size:.9rem;color:var(--text)}
+    .form-group input,.form-group textarea,.form-group select{width:100%;padding:.75rem;border:1px solid var(--border);border-radius:6px;font-family:var(--body);font-size:.95rem;background:var(--bg-white);color:var(--text);transition:border-color .2s,box-shadow .2s}
+    .form-group input::placeholder,.form-group textarea::placeholder{color:#999}
+    .form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+    .form-group textarea{resize:vertical;min-height:100px}
+    .form-submit-wrap{margin-top:1.25rem}
+    .form-submit-wrap .btn{width:100%}
+    .contact-alt{text-align:center;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:.9rem;color:var(--text-light)}
+    .contact-alt a{font-weight:600}
+
+    @media(max-width:600px){.form-row{grid-template-columns:1fr}}
+
+    /* ── FOOTER ──────────────────────────────────── */
+    footer{background:var(--text);color:#fff;padding:2.5rem 0 1.25rem}
+    .footer-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap}
+    .footer-brand{font-family:var(--heading);font-size:1.15rem;font-weight:700;margin-bottom:.25rem}
+    .footer-tag{font-size:.85rem;color:rgba(255,255,255,.6)}
+    .footer-links{display:flex;gap:1.5rem}
+    .footer-links a{color:rgba(255,255,255,.6);font-size:.9rem;transition:color .2s}
+    .footer-links a:hover{color:var(--primary)}
+    .footer-bottom{text-align:center;padding-top:1.25rem;border-top:1px solid rgba(255,255,255,.1);font-size:.8rem;color:rgba(255,255,255,.4)}
+
+    /* ── ANIMATIONS ──────────────────────────────── */
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
+      .stat-card,.feature-item,.program-card,.team-card,.gen-card,.receptor-card{opacity:1!important;transform:none!important}
     }
   </style>
 </head>
 <body>
-  <!-- Navigation -->
+  <a href="#main" class="skip-link">Skip to content</a>
+
+  <!-- NAV -->
   <nav>
-    <div class="nav-container">
+    <div class="nav-inner">
       <a href="#" class="logo">
-        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="25" cy="50" r="12" />
-          <rect x="33" y="42" width="34" height="16" rx="2" />
-          <circle cx="75" cy="50" r="12" />
-        </svg>
+        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="25" cy="50" r="12"/><rect x="33" y="42" width="34" height="16" rx="3"/><circle cx="75" cy="50" r="12"/></svg>
         Treat
       </a>
-
-      <button class="hamburger" id="hamburger">
-        <span></span>
-        <span></span>
-        <span></span>
+      <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
+        <span></span><span></span><span></span>
       </button>
-
       <ul class="nav-links" id="nav-links">
         <li><a href="#opportunity">Opportunity</a></li>
         <li><a href="#science">Science</a></li>
         <li><a href="#pipeline">Pipeline</a></li>
         <li><a href="#team">Team</a></li>
-        <li><button class="btn-nav" onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})">Partner With Us</button></li>
+        <li><button class="btn-nav" onclick="document.getElementById('contact').scrollIntoView({behavior:'smooth'})">Partner With Us</button></li>
       </ul>
     </div>
   </nav>
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="container">
-      <div class="hero-content">
-        <h1>
-          <span class="highlight">AI-designed</span> peptide medicines for the canine obesity epidemic.
-        </h1>
-        <p class="hero-subtitle">
-          60% of U.S. dogs are overweight. The last approved drug left the market in 2010. Treat Biosciences uses computational protein design to build canine-specific therapeutics from scratch — not repurposed human drugs.
-        </p>
-        <a href="#contact" class="btn btn-primary">Partner With Us</a>
-      </div>
-      <div class="hero-visual"></div>
-    </div>
-  </section>
+  <main id="main">
 
-  <!-- Opportunity Section -->
-  <section class="opportunity" id="opportunity">
-    <div class="container">
-      <div class="section-label">Opportunity</div>
-      <h2>An open therapeutic category worth building a company around.</h2>
-
-      <div class="stat-cards">
-        <div class="stat-card">
-          <div class="stat-number">50–60%</div>
-          <div class="stat-label">of U.S. dogs</div>
-          <p class="stat-description">are overweight or obese. Excess weight reduces mobility, compresses lifespan, and drives chronic metabolic disease.</p>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-number">16-year</div>
-          <div class="stat-label">gap in the market</div>
-          <p class="stat-description">Dirlotapide (Slentrol) was voluntarily withdrawn in 2010. No new pharmacologic entrant has defined canine obesity care since.</p>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-number">$42.4B</div>
-          <div class="stat-label">in U.S. pet spending</div>
-          <p class="stat-description">APPA projects $42.4 billion in veterinary care and product sales for 2026. The canine obesity slice is large and entirely unserved.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Science Section -->
-  <section class="science" id="science">
-    <div class="container">
-      <div class="section-label">Discovery engine</div>
-      <h2>AI-powered drug design. Hundreds of candidates before a single molecule is synthesized.</h2>
-
-      <div class="science-content">
-        <p>Treat uses frontier computational biology to design peptide candidates in silico, predict binding affinity, and optimize for canine-specific targets. This compresses timelines, reduces capital requirements, and generates a defensible pipeline of purpose-built molecules.</p>
-      </div>
-
-      <div class="feature-cards">
-        <div class="feature-card">
-          <span class="feature-icon">🧬</span>
-          <h3>Structure-first design</h3>
-          <p>Every candidate is modeled against canine receptor biology before synthesis. No trial-and-error screening.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="feature-icon">⚡</span>
-          <h3>Speed and capital efficiency</h3>
-          <p>Computational design compresses years of bench work into weeks of simulation. More candidates, less burn.</p>
-        </div>
-
-        <div class="feature-card">
-          <span class="feature-icon">🧪</span>
-          <h3>Purpose-built, not repurposed</h3>
-          <p>These are not human drugs repackaged for dogs. Canine pharmacokinetics and dosing are in the design loop from day one.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Thesis Section -->
-  <section class="thesis">
-    <div class="container">
-      <div class="section-label">Thesis</div>
-      <h2>Human GLP-1 drugs proved the category. Treat builds the canine version.</h2>
-
-      <div class="thesis-content">
-        <p>
-          Semaglutide and retatrutide created a $100B+ human obesity market. The same receptor biology exists in dogs. Treat is the first company building a canine-specific peptide platform to capture that opportunity.
-        </p>
-      </div>
-
-      <div class="generation-timeline">
-        <div class="gen-card">
-          <div class="gen-label">Generation 1</div>
-          <div class="gen-target">GLP-1</div>
-          <div class="gen-drug">Semaglutide (Wegovy)</div>
-          <div class="gen-stat">15–17%</div>
-          <div class="gen-desc">body weight loss</div>
-        </div>
-        <div class="gen-arrow">→</div>
-        <div class="gen-card">
-          <div class="gen-label">Generation 2</div>
-          <div class="gen-target">GLP-1 + GIP</div>
-          <div class="gen-drug">Tirzepatide (Zepbound)</div>
-          <div class="gen-stat">20–25%</div>
-          <div class="gen-desc">body weight loss</div>
-        </div>
-        <div class="gen-arrow">→</div>
-        <div class="gen-card gen-card-highlight">
-          <div class="gen-label">Generation 3</div>
-          <div class="gen-target">GLP-1 + GIP + GCGR</div>
-          <div class="gen-drug">Retatrutide → <strong>TRT-001</strong></div>
-          <div class="gen-stat">24–28%</div>
-          <div class="gen-desc">body weight loss</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Pipeline Section -->
-  <section class="pipeline" id="pipeline">
-    <div class="container">
-      <div class="section-label">Pipeline</div>
-      <h2>Three programs spanning fat loss, lean-mass preservation, and body recomposition.</h2>
-
-      <div class="pipeline-cards">
-        <div class="pipeline-card">
-          <div class="pipeline-name">TRT-001</div>
-          <h3 style="font-size: 1.05rem; margin: 0.5rem 0 1rem; color: var(--color-text-dark);">Triple incretin agonist</h3>
-          <p style="font-size: 0.95rem; margin-bottom: 0.75rem;">GLP-1R/GIPR/GCGR. Canine-optimized from a retatrutide-class scaffold.</p>
-          <p style="font-size: 0.9rem; color: var(--color-text-light); margin-bottom: 1rem;">
-            <strong>Indication:</strong> Canine obesity and metabolic health
-          </p>
-          <span class="pipeline-status">Lead optimization</span>
-        </div>
-
-        <div class="pipeline-card">
-          <div class="pipeline-name">TRT-002</div>
-          <h3 style="font-size: 1.05rem; margin: 0.5rem 0 1rem; color: var(--color-text-dark);">Engineered follistatin-derived peptide</h3>
-          <p style="font-size: 0.95rem; margin-bottom: 0.75rem;">Dual myostatin and activin antagonism for lean-mass support.</p>
-          <p style="font-size: 0.9rem; color: var(--color-text-light); margin-bottom: 1rem;">
-            <strong>Indication:</strong> Lean-mass preservation during weight loss
-          </p>
-          <span class="pipeline-status">Discovery</span>
-        </div>
-
-        <div class="pipeline-card">
-          <div class="pipeline-name">TRT-003</div>
-          <h3 style="font-size: 1.05rem; margin: 0.5rem 0 1rem; color: var(--color-text-dark);">Combination program</h3>
-          <p style="font-size: 0.95rem; margin-bottom: 0.75rem;">Pairs TRT-001 metabolic fat loss with TRT-002 muscle-support biology.</p>
-          <p style="font-size: 0.9rem; color: var(--color-text-light); margin-bottom: 1rem;">
-            <strong>Indication:</strong> Body recomposition
-          </p>
-          <span class="pipeline-status">Discovery</span>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Team Section -->
-  <section class="team" id="team">
-    <div class="container">
-      <div class="section-label">Leadership</div>
-      <h2>Built by scientists with translational and therapeutic development experience.</h2>
-
-      <div class="team-grid">
-        <div class="team-card">
-          <div class="team-avatar">DK</div>
-          <div class="team-name">David Kingsley, PhD</div>
-          <div class="team-title">Founder & Chief Scientific Officer</div>
-          <p class="team-bio">Computational biologist with experience in translational biology and therapeutic design at Colossal Biosciences. Designed Treat's peptide platform and computational discovery workflow.</p>
-        </div>
-
-        <div class="team-card">
-          <div class="team-avatar">FG</div>
-          <div class="team-name">Frank Gillam, PhD, MBA</div>
-          <div class="team-title">Chief Executive Officer</div>
-          <p class="team-bio">Biomanufacturing and commercial leader with experience at Locus Biosciences, Grifols, and Exela Pharma Sciences. NC State, Duke Fuqua, Virginia Tech.</p>
-        </div>
-
-        <div class="team-card">
-          <div class="team-avatar">NC</div>
-          <div class="team-name">Niki Cyrus</div>
-          <div class="team-title">Chief Financial Officer</div>
-          <p class="team-bio">Financial operations leader managing Treat's capital strategy, fundraising execution, and financial planning through early-stage development.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Contact Section -->
-  <section class="contact" id="contact">
-    <div class="container">
-      <div class="contact-container">
-        <div class="contact-text">
-          <h2>Partner with Treat Biosciences.</h2>
-          <p style="color: var(--color-text-light); font-size: 1.05rem;">For investor conversations, veterinary pharma partnerships, or scientific collaboration.</p>
-        </div>
-
-        <div class="contact-form">
-          <form id="contact-form" onsubmit="handleContactSubmit(event)">
-            <div class="form-group">
-              <label for="name">Name</label>
-              <input type="text" id="name" name="name" placeholder="Your name" required />
+    <!-- HERO -->
+    <section class="hero">
+      <div class="container">
+        <div class="hero-grid">
+          <div class="hero-content">
+            <div class="hero-badge">Pre-seed &middot; Computational Discovery</div>
+            <h1><span class="accent">AI-designed</span> peptide medicines for canine obesity.</h1>
+            <p class="hero-sub">54 million dogs are overweight. Zero approved treatments exist. Treat builds canine-specific therapeutics using computational protein design &mdash; not repurposed human drugs.</p>
+            <div class="hero-ctas">
+              <a href="#contact" class="btn btn-primary">Partner With Us</a>
+              <a href="#pipeline" class="btn btn-outline">View Pipeline</a>
             </div>
-
-            <div class="form-group">
-              <label for="organization">Organization</label>
-              <input type="text" id="organization" name="organization" placeholder="Your company or organization" required />
+          </div>
+          <div class="hero-visual">
+            <div class="hero-img-wrap">
+              <img src="./images/dog-hero.jpg" alt="Happy Golden Retriever — the kind of dog Treat Biosciences is designed to help" width="440" height="420" />
+              <div class="hero-mol-badge">
+                <img src="./images/trt001_glp1r_complex.png" alt="" />
+              </div>
             </div>
-
-            <div class="form-group">
-              <label for="message">Message</label>
-              <textarea id="message" name="message" placeholder="Tell us about your interest in partnering with Treat..." required></textarea>
-            </div>
-
-            <button type="submit" class="btn btn-primary form-submit">Send Message</button>
-          </form>
-
-          <div class="contact-email">
-            Or email directly: <a href="mailto:David.Kingsley@TreatBioSciences.com">David.Kingsley@TreatBioSciences.com</a>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Footer -->
+    <!-- OPPORTUNITY -->
+    <section class="opportunity" id="opportunity">
+      <div class="container">
+        <div class="opp-header">
+          <p class="eyebrow">The Problem</p>
+          <h2>The biggest unmet need in veterinary medicine.</h2>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-big">60%</div>
+            <div class="stat-label">of U.S. dogs</div>
+            <p>are overweight or obese &mdash; 54 million animals. Excess weight shortens lifespan by 2.5 years and drives chronic disease.</p>
+          </div>
+          <div class="stat-card">
+            <div class="stat-big">Zero</div>
+            <div class="stat-label">approved drugs</div>
+            <p>No FDA-approved canine weight loss drug exists. The last one, Slentrol, was pulled from the market in 2010.</p>
+          </div>
+          <div class="stat-card">
+            <div class="stat-big">$63.6B</div>
+            <div class="stat-label">addressable market</div>
+            <p>54 million overweight dogs at $1,200/year in treatment value. No commercial entrant has captured any of it.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCIENCE -->
+    <section class="science" id="science">
+      <div class="container">
+        <p class="eyebrow">Discovery Engine</p>
+        <h2>Computational biology. Hundreds of candidates before a single molecule is synthesized.</h2>
+        <div class="science-layout">
+          <div class="science-text">
+            <p>Treat uses frontier AI and structural biology to design peptide candidates in silico, predict binding affinity at canine receptors, and optimize for species-specific pharmacology. This compresses timelines, reduces capital requirements, and generates a defensible pipeline of purpose-built molecules.</p>
+            <div class="feature-list">
+              <div class="feature-item">
+                <div class="feature-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>
+                </div>
+                <div>
+                  <h3>Structure-first design</h3>
+                  <p>Every candidate is modeled against canine receptor biology before synthesis. No trial-and-error screening.</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                </div>
+                <div>
+                  <h3>Speed and capital efficiency</h3>
+                  <p>Computational design compresses years of bench work into weeks of simulation. More candidates, less burn.</p>
+                </div>
+              </div>
+              <div class="feature-item">
+                <div class="feature-icon-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3h6v4H9zM12 7v5M7 12h10l2 9H5z"/></svg>
+                </div>
+                <div>
+                  <h3>Purpose-built, not repurposed</h3>
+                  <p>Not human drugs repackaged for dogs. Canine pharmacokinetics and dosing are in the design loop from day one.</p>
+                </div>
+              </div>
+            </div>
+            <div class="tool-strip">
+              <span class="tool-strip-label">Computational stack</span>
+              <span class="tool-tag">AlphaFold3</span>
+              <span class="tool-tag">RFdiffusion</span>
+              <span class="tool-tag">Rosetta</span>
+              <span class="tool-tag">ProteinMPNN</span>
+              <span class="tool-tag">OpenMM</span>
+            </div>
+          </div>
+          <div class="science-visual">
+            <img src="./images/trt002_follistatin_myostatin.png" alt="Computational model of TRT-002 follistatin-derived peptide interacting with target proteins" />
+            <div class="science-visual-label">TRT-002 follistatin-myostatin interaction model</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RECEPTOR CONSERVATION -->
+    <section class="receptors">
+      <div class="container">
+        <div class="receptors-header">
+          <p class="eyebrow">Why Canine-Specific</p>
+          <h2>The same receptors. Different enough to matter.</h2>
+        </div>
+        <div class="receptor-grid">
+          <div class="receptor-card">
+            <div class="receptor-name">GLP-1R &mdash; Appetite Control</div>
+            <div class="receptor-bar-bg"><div class="receptor-bar-fill high" style="width:100%"></div></div>
+            <div class="receptor-pct high">100%</div>
+            <div><span class="receptor-badge low-risk">Low Risk</span></div>
+            <p class="receptor-note">All 13 validated binding contacts are identical between human and canine GLP-1R.</p>
+          </div>
+          <div class="receptor-card">
+            <div class="receptor-name">GIPR &mdash; Metabolic Signaling</div>
+            <div class="receptor-bar-bg"><div class="receptor-bar-fill medium" style="width:63.6%"></div></div>
+            <div class="receptor-pct medium">63.6%</div>
+            <div><span class="receptor-badge opt-target">Optimization Target</span></div>
+            <p class="receptor-note">ECL1 loop diverges at 4 of 11 positions. This is the primary design challenge &mdash; and our core inventive step.</p>
+          </div>
+          <div class="receptor-card">
+            <div class="receptor-name">GCGR &mdash; Fat Oxidation</div>
+            <div class="receptor-bar-bg"><div class="receptor-bar-fill high" style="width:95.7%"></div></div>
+            <div class="receptor-pct high">95.7%</div>
+            <div><span class="receptor-badge low-risk">Low Risk</span></div>
+            <p class="receptor-note">22 of 23 contact residues conserved. Canine glucagon is 100% identical to human.</p>
+          </div>
+        </div>
+        <p class="receptor-explainer">Human GLP-1 drugs already cause weight loss in dogs (Dik et al. 2025). But GIPR diverges enough at the binding interface to require species-specific engineering. This is why Treat doesn't repurpose human drugs &mdash; and why our canine-optimized peptides represent a genuine invention with strong patent position.</p>
+      </div>
+    </section>
+
+    <!-- THESIS -->
+    <section class="thesis">
+      <div class="container">
+        <div class="thesis-header">
+          <p class="eyebrow">Thesis</p>
+          <h2>Human GLP-1 drugs proved the category. Treat builds the canine version.</h2>
+          <p>Semaglutide and retatrutide created a $100B+ human obesity market. The same receptor biology exists in dogs. Treat is the first company building a canine-specific peptide platform to capture that opportunity.</p>
+        </div>
+
+        <div class="gen-timeline">
+          <div class="gen-card gen-1">
+            <div class="gen-label">Generation 1</div>
+            <div class="gen-target">GLP-1</div>
+            <div class="gen-drug">Semaglutide (Wegovy)</div>
+            <div class="gen-stat">15&ndash;17%</div>
+            <div class="gen-desc">body weight loss</div>
+          </div>
+          <div class="gen-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+          <div class="gen-card gen-2">
+            <div class="gen-label">Generation 2</div>
+            <div class="gen-target">GLP-1 + GIP</div>
+            <div class="gen-drug">Tirzepatide (Zepbound)</div>
+            <div class="gen-stat">20&ndash;25%</div>
+            <div class="gen-desc">body weight loss</div>
+          </div>
+          <div class="gen-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+          <div class="gen-card gen-3 gen-card-highlight">
+            <div class="gen-label">Generation 3</div>
+            <div class="gen-target">GLP-1 + GIP + GCGR</div>
+            <div class="gen-drug">Retatrutide &rarr; <strong>TRT-001</strong></div>
+            <div class="gen-stat">24&ndash;28%</div>
+            <div class="gen-desc">body weight loss</div>
+          </div>
+        </div>
+
+        <div class="zero-banner">
+          <h3>Zero direct competitors in canine incretin agonists.</h3>
+          <p>No pharma or biotech company has a commercial canine GLP-1, dual, or triple incretin program. Treat is first to market.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- PIPELINE -->
+    <section class="pipeline" id="pipeline">
+      <div class="container">
+        <div class="pipeline-header">
+          <p class="eyebrow">Pipeline</p>
+          <h2>Three programs. Fat loss, muscle preservation, body recomposition.</h2>
+        </div>
+
+        <!-- Stage-gate visualization -->
+        <div class="stage-gate">
+          <div class="stage-track">
+            <div><div class="stage-label">Discovery</div><div class="stage-bar filled"></div></div>
+            <div><div class="stage-label">Lead Optimization</div><div class="stage-bar filled"></div></div>
+            <div><div class="stage-label">Preclinical</div><div class="stage-bar"></div></div>
+            <div><div class="stage-label">Clinical</div><div class="stage-bar"></div></div>
+            <div><div class="stage-label">Cond. Approval</div><div class="stage-bar"></div></div>
+          </div>
+          <div class="stage-programs">
+            <div class="stage-marker"><span class="dot"></span>TRT-002, 003</div>
+            <div class="stage-marker active"><span class="dot"></span>TRT-001</div>
+            <div class="stage-marker"></div>
+            <div class="stage-marker"></div>
+            <div class="stage-marker"></div>
+          </div>
+        </div>
+
+        <!-- Program cards -->
+        <div class="program-cards">
+          <div class="program-card featured">
+            <div>
+              <div class="program-name">TRT-001</div>
+              <div class="program-mech">Triple incretin agonist (GLP-1R / GIPR / GCGR)</div>
+              <p class="program-desc">Canine-optimized from a retatrutide-class scaffold. AI-designed for species-specific receptor engagement at all three targets.</p>
+              <p class="program-indication"><strong>Indication:</strong> Canine obesity and metabolic health</p>
+              <span class="program-status">Lead Optimization</span>
+            </div>
+            <div class="program-img">
+              <img src="./images/hero_molecular_dramatic.png" alt="Molecular model of TRT-001 triple incretin peptide" />
+            </div>
+          </div>
+          <div class="program-card">
+            <div class="program-name">TRT-002</div>
+            <div class="program-mech">Engineered follistatin-derived peptide</div>
+            <p class="program-desc">Dual myostatin and activin antagonism for lean-mass support during weight loss.</p>
+            <p class="program-indication"><strong>Indication:</strong> Lean-mass preservation</p>
+            <span class="program-status">Discovery</span>
+          </div>
+          <div class="program-card">
+            <div class="program-name">TRT-003</div>
+            <div class="program-mech">Combination program</div>
+            <p class="program-desc">Pairs TRT-001 metabolic fat loss with TRT-002 muscle-support biology for full body recomposition.</p>
+            <p class="program-indication"><strong>Indication:</strong> Body recomposition</p>
+            <span class="program-status">Discovery</span>
+          </div>
+        </div>
+
+        <!-- CNADA callout -->
+        <div class="cnada-box">
+          <h3>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            Conditional Approval Pathway (FDA CVM / CNADA)
+          </h3>
+          <p>Treat can begin selling while completing full efficacy studies &mdash; dramatically faster and cheaper than the traditional FDA path for human drugs.</p>
+          <div class="cnada-stats">
+            <div class="cnada-stat">
+              <div class="cnada-stat-num">~21 mo</div>
+              <div class="cnada-stat-label">to first revenue</div>
+            </div>
+            <div class="cnada-stat">
+              <div class="cnada-stat-num">$2&ndash;5M</div>
+              <div class="cnada-stat-label">total to market</div>
+            </div>
+            <div class="cnada-stat">
+              <div class="cnada-stat-num">70&times;</div>
+              <div class="cnada-stat-label">more capital efficient</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TEAM -->
+    <section class="team" id="team">
+      <div class="container">
+        <div class="team-header">
+          <p class="eyebrow">Leadership</p>
+          <h2>Built by scientists with translational and therapeutic development experience.</h2>
+        </div>
+        <div class="team-grid">
+          <div class="team-card">
+            <div class="team-photo">
+              <img src="./images/david-kingsley.png" alt="David Kingsley, PhD" />
+            </div>
+            <div class="team-name">David Kingsley, PhD</div>
+            <div class="team-title">Founder & Chief Scientific Officer</div>
+            <p class="team-bio">Computational biologist with experience in translational biology and therapeutic design at Colossal Biosciences. Designed Treat's peptide platform and discovery workflow.</p>
+            <div class="team-institutions">
+              <span class="inst-tag">Colossal Biosciences</span>
+              <span class="inst-tag">Duke Health</span>
+              <span class="inst-tag">Rensselaer</span>
+              <span class="inst-tag">Locus Biosciences</span>
+            </div>
+            <div class="team-links">
+              <a href="https://www.linkedin.com/in/davemkingsley/" target="_blank" rel="noopener" aria-label="David Kingsley on LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              </a>
+            </div>
+          </div>
+          <div class="team-card">
+            <div class="team-photo">
+              <img src="./images/frank-gillam.png" alt="Frank Gillam, PhD, MBA" />
+            </div>
+            <div class="team-name">Frank Gillam, PhD, MBA</div>
+            <div class="team-title">Chief Executive Officer</div>
+            <p class="team-bio">Biomanufacturing and commercial leader with experience at Locus Biosciences, Grifols, and Exela Pharma Sciences. Brings deep expertise in GMP operations and go-to-market strategy.</p>
+            <div class="team-institutions">
+              <span class="inst-tag">NC State</span>
+              <span class="inst-tag">Duke Fuqua</span>
+              <span class="inst-tag">Virginia Tech</span>
+              <span class="inst-tag">Locus Biosciences</span>
+              <span class="inst-tag">Grifols</span>
+            </div>
+            <div class="team-links">
+              <a href="https://www.linkedin.com/in/frankgillam/" target="_blank" rel="noopener" aria-label="Frank Gillam on LinkedIn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="contact" id="contact">
+      <div class="container">
+        <div class="contact-wrap">
+          <div class="contact-text">
+            <p class="eyebrow">Contact</p>
+            <h2>Partner with Treat Biosciences.</h2>
+            <p>For investor conversations, veterinary pharma partnerships, or scientific collaboration.</p>
+          </div>
+          <div class="contact-form-wrap">
+            <form id="contact-form" onsubmit="handleContactSubmit(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="name">Name</label>
+                  <input type="text" id="name" name="name" placeholder="Your name" required />
+                </div>
+                <div class="form-group">
+                  <label for="organization">Organization</label>
+                  <input type="text" id="organization" name="organization" placeholder="Company or fund" required />
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="inquiry">Inquiry type</label>
+                <select id="inquiry" name="inquiry">
+                  <option value="investor">Investor inquiry</option>
+                  <option value="partnership">Veterinary pharma partnership</option>
+                  <option value="scientific">Scientific collaboration</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" name="message" placeholder="Tell us about your interest..." required></textarea>
+              </div>
+              <div class="form-submit-wrap">
+                <button type="submit" class="btn btn-primary form-submit">Send Message</button>
+              </div>
+            </form>
+            <div class="contact-alt">
+              Or email directly: <a href="mailto:David.Kingsley@TreatBioSciences.com">David.Kingsley@TreatBioSciences.com</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER -->
   <footer>
     <div class="container">
-      <div class="footer-content">
-        <div class="footer-brand">
-          <div class="footer-logo">
-            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="25" cy="50" r="12" />
-              <rect x="33" y="42" width="34" height="16" rx="2" />
-              <circle cx="75" cy="50" r="12" />
-            </svg>
-            Treat Biosciences
-          </div>
-          <p class="footer-tagline">Canine metabolic therapeutics.</p>
-        </div>
-
+      <div class="footer-inner">
         <div>
-          <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;">Quick Links</h4>
-          <div class="footer-links">
-            <a href="#opportunity">Opportunity</a>
-            <a href="#science">Science</a>
-            <a href="#pipeline">Pipeline</a>
-            <a href="#team">Team</a>
-            <a href="#contact">Contact</a>
-          </div>
+          <div class="footer-brand">Treat Biosciences</div>
+          <div class="footer-tag">Canine metabolic therapeutics.</div>
+        </div>
+        <div class="footer-links">
+          <a href="#opportunity">Opportunity</a>
+          <a href="#science">Science</a>
+          <a href="#pipeline">Pipeline</a>
+          <a href="#team">Team</a>
+          <a href="#contact">Contact</a>
         </div>
       </div>
-
-      <div class="footer-bottom">
-        <p>&copy; 2026 Treat Biosciences. All rights reserved. | Confidential.</p>
-      </div>
+      <div class="footer-bottom">&copy; 2026 Treat Biosciences. All rights reserved.</div>
     </div>
   </footer>
 
   <script>
-    /* ============================================
-       NAVIGATION
-       ============================================ */
-    const hamburger = document.getElementById("hamburger");
-    const navLinks = document.getElementById("nav-links");
+    /* Nav toggle */
+    const hamburger=document.getElementById("hamburger"),navLinks=document.getElementById("nav-links");
+    hamburger.addEventListener("click",()=>{const open=navLinks.classList.toggle("active");hamburger.setAttribute("aria-expanded",open)});
+    navLinks.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{navLinks.classList.remove("active");hamburger.setAttribute("aria-expanded","false")}));
 
-    hamburger.addEventListener("click", () => {
-      navLinks.classList.toggle("active");
-    });
+    /* Active nav on scroll */
+    const sections=document.querySelectorAll("section[id]"),navItems=document.querySelectorAll(".nav-links a");
+    function updateNav(){let cur="";sections.forEach(s=>{if(scrollY>=s.offsetTop-200)cur=s.id});navItems.forEach(a=>{a.classList.toggle("active",a.getAttribute("href").slice(1)===cur)})}
+    window.addEventListener("scroll",updateNav,{passive:true});
 
-    // Close menu when a link is clicked
-    navLinks.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => {
-        navLinks.classList.remove("active");
-      });
-    });
+    /* Intersection Observer for animations */
+    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add("animate");obs.unobserve(e.target)}})},{threshold:.1,rootMargin:"0px 0px -40px 0px"});
+    document.querySelectorAll(".stat-card,.feature-item,.program-card,.team-card,.gen-card,.receptor-card").forEach(el=>obs.observe(el));
 
-    // Update active nav link on scroll
-    const sections = document.querySelectorAll("section[id]");
-    const navItems = document.querySelectorAll(".nav-links a");
+    /* Smooth scroll */
+    document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener("click",function(e){const h=this.getAttribute("href");if(h!=="#"){e.preventDefault();const t=document.querySelector(h);if(t)t.scrollIntoView({behavior:"smooth",block:"start"})}})});
 
-    function updateActiveNav() {
-      let current = "";
-      sections.forEach((section) => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        if (scrollY >= sectionTop - 200) {
-          current = section.getAttribute("id");
-        }
-      });
-
-      navItems.forEach((item) => {
-        item.classList.remove("active");
-        if (item.getAttribute("href").slice(1) === current) {
-          item.classList.add("active");
-        }
-      });
-    }
-
-    window.addEventListener("scroll", updateActiveNav);
-
-    /* ============================================
-       INTERSECTION OBSERVER FOR ANIMATIONS
-       ============================================ */
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: "0px 0px -50px 0px",
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add("animate");
-          observer.unobserve(entry.target);
-        }
-      });
-    }, observerOptions);
-
-    // Observe all cards and elements that need animation
-    document
-      .querySelectorAll(
-        ".stat-card, .feature-card, .pipeline-card, .team-card, .gen-card"
-      )
-      .forEach((el) => {
-        observer.observe(el);
-      });
-
-    /* ============================================
-       FORM HANDLING
-       ============================================ */
-    function handleContactSubmit(event) {
+    /* Contact form */
+    function handleContactSubmit(event){
       event.preventDefault();
-
-      const form = event.target;
-      const submitBtn = form.querySelector(".form-submit");
-      const name = document.getElementById("name").value.trim();
-      const organization = document.getElementById("organization").value.trim();
-      const message = document.getElementById("message").value.trim();
-
-      if (!name || !organization || !message) {
-        alert("Please fill in all fields.");
-        return;
-      }
-
-      const originalText = submitBtn.textContent;
-      submitBtn.textContent = "Sending...";
-      submitBtn.disabled = true;
-
-      fetch("/api/treat/contact", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, organization, message }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            submitBtn.textContent = "Message sent!";
-            setTimeout(() => {
-              form.reset();
-              submitBtn.textContent = originalText;
-              submitBtn.disabled = false;
-            }, 2500);
-          } else {
-            submitBtn.textContent = "Error — try again";
-            submitBtn.disabled = false;
-          }
-        })
-        .catch(() => {
-          submitBtn.textContent = "Error — try again";
-          submitBtn.disabled = false;
-        });
+      const form=event.target,btn=form.querySelector(".form-submit");
+      const name=document.getElementById("name").value.trim();
+      const organization=document.getElementById("organization").value.trim();
+      const inquiry=document.getElementById("inquiry").value;
+      const message=document.getElementById("message").value.trim();
+      if(!name||!organization||!message){alert("Please fill in all required fields.");return}
+      const orig=btn.textContent;btn.textContent="Sending...";btn.disabled=true;
+      fetch("/api/treat/contact",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({name,organization,inquiry,message})})
+        .then(r=>r.json()).then(d=>{if(d.success){btn.textContent="Message sent!";setTimeout(()=>{form.reset();btn.textContent=orig;btn.disabled=false},2500)}else{btn.textContent="Error — try again";btn.disabled=false}})
+        .catch(()=>{btn.textContent="Error — try again";btn.disabled=false});
     }
-
-    /* ============================================
-       SMOOTH SCROLL ENHANCEMENT
-       ============================================ */
-    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-      anchor.addEventListener("click", function (e) {
-        const href = this.getAttribute("href");
-        if (href !== "#") {
-          e.preventDefault();
-          const target = document.querySelector(href);
-          if (target) {
-            target.scrollIntoView({
-              behavior: "smooth",
-              block: "start",
-            });
-          }
-        }
-      });
-    });
   </script>
 </body>
 </html>
