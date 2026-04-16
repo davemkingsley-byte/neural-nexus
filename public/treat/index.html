@@ -1,0 +1,1398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Treat Biosciences: AI-designed peptide medicines for the canine obesity epidemic. Computational protein design meets veterinary therapeutics." />
+  <meta name="theme-color" content="#1a9a8a" />
+
+  <!-- Open Graph / Social -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Treat Biosciences | Canine Metabolic Therapeutics" />
+  <meta property="og:description" content="AI-designed peptide medicines for the canine obesity epidemic." />
+  <meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630'%3E%3Crect fill='%231a9a8a' width='1200' height='630'/%3E%3C/svg%3E" />
+
+  <title>Treat Biosciences | AI-Designed Canine Therapeutics</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Favicon (Data URI - Teal bone shape) -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231a9a8a' width='100' height='100'/%3E%3Ccircle cx='25' cy='50' r='15' fill='%23ffffff'/%3E%3Crect x='35' y='40' width='30' height='20' fill='%23ffffff'/%3E%3Ccircle cx='75' cy='50' r='15' fill='%23ffffff'/%3E%3C/svg%3E" type="image/svg+xml" />
+
+  <style>
+    /* ============================================
+       GLOBAL STYLES
+       ============================================ */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --color-primary: #1a9a8a;
+      --color-dark: #0d5c52;
+      --color-accent: #c0392b;
+      --color-bg-warm: #f5f4f0;
+      --color-bg-white: #ffffff;
+      --color-text-dark: #1a1a2e;
+      --color-text-light: #4a4a4a;
+      --color-border: #e8e8e8;
+
+      --font-heading: "Plus Jakarta Sans", sans-serif;
+      --font-body: "Inter", sans-serif;
+
+      --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
+      --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background-color: var(--color-bg-white);
+      color: var(--color-text-dark);
+      line-height: 1.6;
+      letter-spacing: -0.3px;
+    }
+
+    /* ============================================
+       TYPOGRAPHY
+       ============================================ */
+    h1, h2, h3, h4, h5, h6 {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      color: var(--color-text-dark);
+      line-height: 1.3;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: clamp(2.5rem, 8vw, 4rem);
+      font-weight: 800;
+    }
+
+    h2 {
+      font-size: clamp(1.75rem, 5vw, 2.75rem);
+      font-weight: 700;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    p {
+      color: var(--color-text-light);
+      margin-bottom: 1.5rem;
+    }
+
+    a {
+      color: var(--color-primary);
+      text-decoration: none;
+      transition: var(--transition-smooth);
+    }
+
+    a:hover {
+      color: var(--color-dark);
+    }
+
+    /* ============================================
+       LAYOUT
+       ============================================ */
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 1rem;
+      }
+    }
+
+    section {
+      padding: 5rem 0;
+    }
+
+    @media (max-width: 768px) {
+      section {
+        padding: 3rem 0;
+      }
+    }
+
+    /* ============================================
+       NAVIGATION
+       ============================================ */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background-color: var(--color-bg-white);
+      border-bottom: 1px solid var(--color-border);
+      backdrop-filter: blur(10px);
+      background-color: rgba(255, 255, 255, 0.95);
+    }
+
+    .nav-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1rem 1.5rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-text-dark);
+      font-family: var(--font-heading);
+      transition: var(--transition-smooth);
+    }
+
+    .logo:hover {
+      color: var(--color-primary);
+    }
+
+    .logo svg {
+      width: 28px;
+      height: 28px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+      align-items: center;
+    }
+
+    .nav-links a {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--color-text-dark);
+      position: relative;
+      transition: var(--transition-smooth);
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background-color: var(--color-primary);
+      transition: width 0.3s ease;
+    }
+
+    .nav-links a:hover::after,
+    .nav-links a.active::after {
+      width: 100%;
+    }
+
+    .nav-links a:hover {
+      color: var(--color-primary);
+    }
+
+    .btn-nav {
+      background-color: var(--color-primary);
+      color: white;
+      padding: 0.65rem 1.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: var(--transition-smooth);
+      border: none;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-nav:hover {
+      background-color: var(--color-dark);
+      box-shadow: var(--shadow-md);
+    }
+
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+    }
+
+    .hamburger span {
+      width: 24px;
+      height: 2px;
+      background-color: var(--color-text-dark);
+      border-radius: 2px;
+      transition: var(--transition-smooth);
+    }
+
+    @media (max-width: 768px) {
+      .hamburger {
+        display: flex;
+      }
+
+      .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--color-bg-white);
+        flex-direction: column;
+        gap: 0;
+        border-bottom: 1px solid var(--color-border);
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+
+      .nav-links.active {
+        max-height: 500px;
+      }
+
+      .nav-links li {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--color-border);
+      }
+
+      .nav-links a::after {
+        display: none;
+      }
+
+      .btn-nav {
+        margin: 1rem 1.5rem;
+        width: calc(100% - 3rem);
+      }
+    }
+
+    /* ============================================
+       HERO SECTION
+       ============================================ */
+    .hero {
+      background-color: var(--color-bg-white);
+      padding: 6rem 0 8rem;
+      min-height: 90vh;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 500px;
+      height: 500px;
+      background: linear-gradient(135deg, rgba(26, 154, 138, 0.1), rgba(26, 154, 138, 0.05));
+      border-radius: 50%;
+      filter: blur(80px);
+      z-index: 0;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 700px;
+    }
+
+    .hero h1 {
+      margin-bottom: 1.5rem;
+      line-height: 1.25;
+    }
+
+    .hero h1 .highlight {
+      color: var(--color-primary);
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+      color: var(--color-text-light);
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+      max-width: 600px;
+    }
+
+    .hero-visual {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 45%;
+      height: 400px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-dark));
+      border-radius: 12px;
+      opacity: 0.15;
+      z-index: 0;
+    }
+
+    @media (max-width: 1024px) {
+      .hero-visual {
+        display: none;
+      }
+
+      .hero-content {
+        max-width: 100%;
+      }
+    }
+
+    /* ============================================
+       BUTTONS
+       ============================================ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 0.95rem 2rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 1rem;
+      border: 2px solid transparent;
+      transition: var(--transition-smooth);
+      cursor: pointer;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--color-dark);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      color: var(--color-primary);
+      border-color: var(--color-primary);
+    }
+
+    .btn-secondary:hover {
+      background-color: var(--color-primary);
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .btn {
+        padding: 0.85rem 1.5rem;
+        font-size: 0.95rem;
+      }
+    }
+
+    /* ============================================
+       SECTION LABELS
+       ============================================ */
+    .section-label {
+      display: inline-block;
+      font-family: var(--font-heading);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--color-primary);
+      margin-bottom: 1.5rem;
+    }
+
+    /* ============================================
+       OPPORTUNITY SECTION
+       ============================================ */
+    .opportunity {
+      background-color: var(--color-bg-warm);
+    }
+
+    .stat-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .stat-card {
+      background-color: var(--color-bg-white);
+      padding: 2.5rem;
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition-smooth);
+      border-top: 4px solid var(--color-primary);
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .stat-card.animate {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .stat-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .stat-number {
+      font-family: var(--font-heading);
+      font-size: clamp(2.5rem, 6vw, 3.5rem);
+      font-weight: 800;
+      color: var(--color-primary);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--color-text-dark);
+      margin-bottom: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-description {
+      font-size: 0.95rem;
+      color: var(--color-text-light);
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       FEATURE CARDS
+       ============================================ */
+    .feature-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .feature-card {
+      background-color: var(--color-bg-white);
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition-smooth);
+      opacity: 0;
+      transform: translateY(20px);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .feature-card.animate {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .feature-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .feature-icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      display: block;
+    }
+
+    .feature-card h3 {
+      margin-bottom: 0.75rem;
+      font-size: 1.3rem;
+    }
+
+    .feature-card p {
+      margin-bottom: 0;
+    }
+
+    /* ============================================
+       SCIENCE SECTION
+       ============================================ */
+    .science {
+      background-color: var(--color-bg-white);
+    }
+
+    .science-content {
+      max-width: 700px;
+      margin-bottom: 3rem;
+    }
+
+    /* ============================================
+       THESIS SECTION
+       ============================================ */
+    .thesis {
+      background-color: var(--color-bg-warm);
+    }
+
+    .thesis-content {
+      max-width: 800px;
+    }
+
+    .generation-timeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 3rem;
+      flex-wrap: wrap;
+    }
+
+    .gen-card {
+      background: var(--color-bg-white);
+      border-radius: 8px;
+      padding: 1.5rem 2rem;
+      text-align: center;
+      box-shadow: var(--shadow-sm);
+      flex: 1;
+      min-width: 200px;
+      max-width: 280px;
+      transition: var(--transition-smooth);
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .gen-card.animate {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .gen-card-highlight {
+      border: 2px solid var(--color-primary);
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .gen-card-highlight::after {
+      content: "Treat's approach";
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--color-primary);
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 0.2rem 0.8rem;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+
+    .gen-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--color-text-light);
+      margin-bottom: 0.5rem;
+    }
+
+    .gen-target {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 0.25rem;
+    }
+
+    .gen-drug {
+      font-size: 0.85rem;
+      color: var(--color-text-light);
+      margin-bottom: 0.75rem;
+    }
+
+    .gen-stat {
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-text-dark);
+      line-height: 1;
+    }
+
+    .gen-desc {
+      font-size: 0.8rem;
+      color: var(--color-text-light);
+      margin-top: 0.25rem;
+    }
+
+    .gen-arrow {
+      font-size: 1.5rem;
+      color: var(--color-primary);
+      font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+      .gen-arrow { display: none; }
+      .generation-timeline { flex-direction: column; align-items: stretch; }
+      .gen-card { max-width: 100%; }
+    }
+
+    /* ============================================
+       PIPELINE SECTION
+       ============================================ */
+    .pipeline {
+      background-color: var(--color-bg-white);
+    }
+
+    .pipeline-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2rem;
+      margin-top: 3rem;
+    }
+
+    .pipeline-card {
+      background-color: var(--color-bg-warm);
+      padding: 2rem;
+      border-radius: 8px;
+      border-left: 4px solid var(--color-primary);
+      transition: var(--transition-smooth);
+      opacity: 0;
+      transform: translateY(20px);
+    }
+
+    .pipeline-card.animate {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .pipeline-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .pipeline-name {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 1rem;
+    }
+
+    .pipeline-status {
+      display: inline-block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.4rem 0.8rem;
+      border-radius: 4px;
+      background-color: rgba(26, 154, 138, 0.15);
+      color: var(--color-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 1rem;
+    }
+
+    /* ============================================
+       TEAM SECTION
+       ============================================ */
+    .team {
+      background-color: var(--color-bg-warm);
+    }
+
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 2.5rem;
+      margin-top: 3rem;
+    }
+
+    .team-card {
+      background-color: var(--color-bg-white);
+      padding: 2.5rem;
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition-smooth);
+      opacity: 0;
+      transform: translateY(20px);
+      text-align: center;
+    }
+
+    .team-card.animate {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .team-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateY(-4px);
+    }
+
+    .team-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      margin: 0 auto 1.5rem;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-dark));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: var(--font-heading);
+      font-size: 2rem;
+      font-weight: 700;
+    }
+
+    .team-name {
+      font-family: var(--font-heading);
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+      color: var(--color-text-dark);
+    }
+
+    .team-title {
+      color: var(--color-primary);
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 1rem;
+    }
+
+    .team-bio {
+      font-size: 0.95rem;
+      color: var(--color-text-light);
+      line-height: 1.6;
+    }
+
+    /* ============================================
+       CONTACT SECTION
+       ============================================ */
+    .contact {
+      background-color: var(--color-bg-white);
+    }
+
+    .contact-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .contact-text {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .contact-form {
+      background-color: var(--color-bg-warm);
+      padding: 2.5rem;
+      border-radius: 8px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--color-text-dark);
+      font-size: 0.95rem;
+    }
+
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.85rem;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      font-family: var(--font-body);
+      font-size: 1rem;
+      transition: var(--transition-smooth);
+      background-color: var(--color-bg-white);
+      color: var(--color-text-dark);
+    }
+
+    .form-group input::placeholder,
+    .form-group textarea::placeholder {
+      color: #999;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: var(--color-primary);
+      box-shadow: 0 0 0 3px rgba(26, 154, 138, 0.1);
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+
+    .form-submit {
+      width: 100%;
+      margin-top: 1.5rem;
+    }
+
+    .contact-email {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--color-border);
+      font-size: 0.95rem;
+      color: var(--color-text-light);
+    }
+
+    .contact-email a {
+      color: var(--color-primary);
+      font-weight: 600;
+    }
+
+    /* ============================================
+       FOOTER
+       ============================================ */
+    footer {
+      background-color: var(--color-text-dark);
+      color: white;
+      padding: 3rem 0 1.5rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .footer-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 3rem;
+      margin-bottom: 2rem;
+    }
+
+    .footer-brand {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .footer-logo svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .footer-tagline {
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .footer-links a {
+      color: rgba(255, 255, 255, 0.7);
+      transition: var(--transition-smooth);
+      font-size: 0.95rem;
+    }
+
+    .footer-links a:hover {
+      color: white;
+      color: var(--color-primary);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 0.9rem;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    /* ============================================
+       ANIMATIONS
+       ============================================ */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeInUp 0.6s ease-out forwards;
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 4rem 0 5rem;
+        min-height: auto;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1rem;
+      }
+
+      .stat-cards,
+      .feature-cards,
+      .pipeline-cards,
+      .team-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-content {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="nav-container">
+      <a href="#" class="logo">
+        <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="25" cy="50" r="12" />
+          <rect x="33" y="42" width="34" height="16" rx="2" />
+          <circle cx="75" cy="50" r="12" />
+        </svg>
+        Treat
+      </a>
+
+      <button class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#opportunity">Opportunity</a></li>
+        <li><a href="#science">Science</a></li>
+        <li><a href="#pipeline">Pipeline</a></li>
+        <li><a href="#team">Team</a></li>
+        <li><button class="btn-nav" onclick="document.getElementById('contact').scrollIntoView({behavior: 'smooth'})">Partner With Us</button></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="container">
+      <div class="hero-content">
+        <h1>
+          <span class="highlight">AI-designed</span> peptide medicines for the canine obesity epidemic.
+        </h1>
+        <p class="hero-subtitle">
+          60% of U.S. dogs are overweight. The last approved drug left the market in 2010. Treat Biosciences uses computational protein design to build canine-specific therapeutics from scratch — not repurposed human drugs.
+        </p>
+        <a href="#contact" class="btn btn-primary">Partner With Us</a>
+      </div>
+      <div class="hero-visual"></div>
+    </div>
+  </section>
+
+  <!-- Opportunity Section -->
+  <section class="opportunity" id="opportunity">
+    <div class="container">
+      <div class="section-label">Opportunity</div>
+      <h2>An open therapeutic category worth building a company around.</h2>
+
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="stat-number">50–60%</div>
+          <div class="stat-label">of U.S. dogs</div>
+          <p class="stat-description">are overweight or obese. Excess weight reduces mobility, compresses lifespan, and drives chronic metabolic disease.</p>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-number">16-year</div>
+          <div class="stat-label">gap in the market</div>
+          <p class="stat-description">Dirlotapide (Slentrol) was voluntarily withdrawn in 2010. No new pharmacologic entrant has defined canine obesity care since.</p>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-number">$42.4B</div>
+          <div class="stat-label">in U.S. pet spending</div>
+          <p class="stat-description">APPA projects $42.4 billion in veterinary care and product sales for 2026. The canine obesity slice is large and entirely unserved.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Science Section -->
+  <section class="science" id="science">
+    <div class="container">
+      <div class="section-label">Discovery engine</div>
+      <h2>AI-powered drug design. Hundreds of candidates before a single molecule is synthesized.</h2>
+
+      <div class="science-content">
+        <p>Treat uses frontier computational biology to design peptide candidates in silico, predict binding affinity, and optimize for canine-specific targets. This compresses timelines, reduces capital requirements, and generates a defensible pipeline of purpose-built molecules.</p>
+      </div>
+
+      <div class="feature-cards">
+        <div class="feature-card">
+          <span class="feature-icon">🧬</span>
+          <h3>Structure-first design</h3>
+          <p>Every candidate is modeled against canine receptor biology before synthesis. No trial-and-error screening.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="feature-icon">⚡</span>
+          <h3>Speed and capital efficiency</h3>
+          <p>Computational design compresses years of bench work into weeks of simulation. More candidates, less burn.</p>
+        </div>
+
+        <div class="feature-card">
+          <span class="feature-icon">🧪</span>
+          <h3>Purpose-built, not repurposed</h3>
+          <p>These are not human drugs repackaged for dogs. Canine pharmacokinetics and dosing are in the design loop from day one.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Thesis Section -->
+  <section class="thesis">
+    <div class="container">
+      <div class="section-label">Thesis</div>
+      <h2>Human GLP-1 drugs proved the category. Treat builds the canine version.</h2>
+
+      <div class="thesis-content">
+        <p>
+          Semaglutide and retatrutide created a $100B+ human obesity market. The same receptor biology exists in dogs. Treat is the first company building a canine-specific peptide platform to capture that opportunity.
+        </p>
+      </div>
+
+      <div class="generation-timeline">
+        <div class="gen-card">
+          <div class="gen-label">Generation 1</div>
+          <div class="gen-target">GLP-1</div>
+          <div class="gen-drug">Semaglutide (Wegovy)</div>
+          <div class="gen-stat">15–17%</div>
+          <div class="gen-desc">body weight loss</div>
+        </div>
+        <div class="gen-arrow">→</div>
+        <div class="gen-card">
+          <div class="gen-label">Generation 2</div>
+          <div class="gen-target">GLP-1 + GIP</div>
+          <div class="gen-drug">Tirzepatide (Zepbound)</div>
+          <div class="gen-stat">20–25%</div>
+          <div class="gen-desc">body weight loss</div>
+        </div>
+        <div class="gen-arrow">→</div>
+        <div class="gen-card gen-card-highlight">
+          <div class="gen-label">Generation 3</div>
+          <div class="gen-target">GLP-1 + GIP + GCGR</div>
+          <div class="gen-drug">Retatrutide → <strong>TRT-001</strong></div>
+          <div class="gen-stat">24–28%</div>
+          <div class="gen-desc">body weight loss</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pipeline Section -->
+  <section class="pipeline" id="pipeline">
+    <div class="container">
+      <div class="section-label">Pipeline</div>
+      <h2>Three programs spanning fat loss, lean-mass preservation, and body recomposition.</h2>
+
+      <div class="pipeline-cards">
+        <div class="pipeline-card">
+          <div class="pipeline-name">TRT-001</div>
+          <h3 style="font-size: 1.05rem; margin: 0.5rem 0 1rem; color: var(--color-text-dark);">Triple incretin agonist</h3>
+          <p style="font-size: 0.95rem; margin-bottom: 0.75rem;">GLP-1R/GIPR/GCGR. Canine-optimized from a retatrutide-class scaffold.</p>
+          <p style="font-size: 0.9rem; color: var(--color-text-light); margin-bottom: 1rem;">
+            <strong>Indication:</strong> Canine obesity and metabolic health
+          </p>
+          <span class="pipeline-status">Lead optimization</span>
+        </div>
+
+        <div class="pipeline-card">
+          <div class="pipeline-name">TRT-002</div>
+          <h3 style="font-size: 1.05rem; margin: 0.5rem 0 1rem; color: var(--color-text-dark);">Engineered follistatin-derived peptide</h3>
+          <p style="font-size: 0.95rem; margin-bottom: 0.75rem;">Dual myostatin and activin antagonism for lean-mass support.</p>
+          <p style="font-size: 0.9rem; color: var(--color-text-light); margin-bottom: 1rem;">
+            <strong>Indication:</strong> Lean-mass preservation during weight loss
+          </p>
+          <span class="pipeline-status">Discovery</span>
+        </div>
+
+        <div class="pipeline-card">
+          <div class="pipeline-name">TRT-003</div>
+          <h3 style="font-size: 1.05rem; margin: 0.5rem 0 1rem; color: var(--color-text-dark);">Combination program</h3>
+          <p style="font-size: 0.95rem; margin-bottom: 0.75rem;">Pairs TRT-001 metabolic fat loss with TRT-002 muscle-support biology.</p>
+          <p style="font-size: 0.9rem; color: var(--color-text-light); margin-bottom: 1rem;">
+            <strong>Indication:</strong> Body recomposition
+          </p>
+          <span class="pipeline-status">Discovery</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Team Section -->
+  <section class="team" id="team">
+    <div class="container">
+      <div class="section-label">Leadership</div>
+      <h2>Built by scientists with translational and therapeutic development experience.</h2>
+
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-avatar">DK</div>
+          <div class="team-name">David Kingsley, PhD</div>
+          <div class="team-title">Founder & Chief Scientific Officer</div>
+          <p class="team-bio">Computational biologist with experience in translational biology and therapeutic design at Colossal Biosciences. Designed Treat's peptide platform and computational discovery workflow.</p>
+        </div>
+
+        <div class="team-card">
+          <div class="team-avatar">FG</div>
+          <div class="team-name">Frank Gillam, PhD, MBA</div>
+          <div class="team-title">Chief Executive Officer</div>
+          <p class="team-bio">Biomanufacturing and commercial leader with experience at Locus Biosciences, Grifols, and Exela Pharma Sciences. NC State, Duke Fuqua, Virginia Tech.</p>
+        </div>
+
+        <div class="team-card">
+          <div class="team-avatar">NC</div>
+          <div class="team-name">Niki Cyrus</div>
+          <div class="team-title">Chief Financial Officer</div>
+          <p class="team-bio">Financial operations leader managing Treat's capital strategy, fundraising execution, and financial planning through early-stage development.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact" id="contact">
+    <div class="container">
+      <div class="contact-container">
+        <div class="contact-text">
+          <h2>Partner with Treat Biosciences.</h2>
+          <p style="color: var(--color-text-light); font-size: 1.05rem;">For investor conversations, veterinary pharma partnerships, or scientific collaboration.</p>
+        </div>
+
+        <div class="contact-form">
+          <form id="contact-form" onsubmit="handleContactSubmit(event)">
+            <div class="form-group">
+              <label for="name">Name</label>
+              <input type="text" id="name" name="name" placeholder="Your name" required />
+            </div>
+
+            <div class="form-group">
+              <label for="organization">Organization</label>
+              <input type="text" id="organization" name="organization" placeholder="Your company or organization" required />
+            </div>
+
+            <div class="form-group">
+              <label for="message">Message</label>
+              <textarea id="message" name="message" placeholder="Tell us about your interest in partnering with Treat..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary form-submit">Send Message</button>
+          </form>
+
+          <div class="contact-email">
+            Or email directly: <a href="mailto:David.Kingsley@TreatBioSciences.com">David.Kingsley@TreatBioSciences.com</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="25" cy="50" r="12" />
+              <rect x="33" y="42" width="34" height="16" rx="2" />
+              <circle cx="75" cy="50" r="12" />
+            </svg>
+            Treat Biosciences
+          </div>
+          <p class="footer-tagline">Canine metabolic therapeutics.</p>
+        </div>
+
+        <div>
+          <h4 style="font-size: 0.95rem; font-weight: 600; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 0.5px;">Quick Links</h4>
+          <div class="footer-links">
+            <a href="#opportunity">Opportunity</a>
+            <a href="#science">Science</a>
+            <a href="#pipeline">Pipeline</a>
+            <a href="#team">Team</a>
+            <a href="#contact">Contact</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 Treat Biosciences. All rights reserved. | Confidential.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    /* ============================================
+       NAVIGATION
+       ============================================ */
+    const hamburger = document.getElementById("hamburger");
+    const navLinks = document.getElementById("nav-links");
+
+    hamburger.addEventListener("click", () => {
+      navLinks.classList.toggle("active");
+    });
+
+    // Close menu when a link is clicked
+    navLinks.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        navLinks.classList.remove("active");
+      });
+    });
+
+    // Update active nav link on scroll
+    const sections = document.querySelectorAll("section[id]");
+    const navItems = document.querySelectorAll(".nav-links a");
+
+    function updateActiveNav() {
+      let current = "";
+      sections.forEach((section) => {
+        const sectionTop = section.offsetTop;
+        const sectionHeight = section.clientHeight;
+        if (scrollY >= sectionTop - 200) {
+          current = section.getAttribute("id");
+        }
+      });
+
+      navItems.forEach((item) => {
+        item.classList.remove("active");
+        if (item.getAttribute("href").slice(1) === current) {
+          item.classList.add("active");
+        }
+      });
+    }
+
+    window.addEventListener("scroll", updateActiveNav);
+
+    /* ============================================
+       INTERSECTION OBSERVER FOR ANIMATIONS
+       ============================================ */
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px",
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("animate");
+          observer.unobserve(entry.target);
+        }
+      });
+    }, observerOptions);
+
+    // Observe all cards and elements that need animation
+    document
+      .querySelectorAll(
+        ".stat-card, .feature-card, .pipeline-card, .team-card, .gen-card"
+      )
+      .forEach((el) => {
+        observer.observe(el);
+      });
+
+    /* ============================================
+       FORM HANDLING
+       ============================================ */
+    function handleContactSubmit(event) {
+      event.preventDefault();
+
+      const form = event.target;
+      const submitBtn = form.querySelector(".form-submit");
+      const name = document.getElementById("name").value.trim();
+      const organization = document.getElementById("organization").value.trim();
+      const message = document.getElementById("message").value.trim();
+
+      if (!name || !organization || !message) {
+        alert("Please fill in all fields.");
+        return;
+      }
+
+      const originalText = submitBtn.textContent;
+      submitBtn.textContent = "Sending...";
+      submitBtn.disabled = true;
+
+      fetch("/api/treat/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, organization, message }),
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            submitBtn.textContent = "Message sent!";
+            setTimeout(() => {
+              form.reset();
+              submitBtn.textContent = originalText;
+              submitBtn.disabled = false;
+            }, 2500);
+          } else {
+            submitBtn.textContent = "Error — try again";
+            submitBtn.disabled = false;
+          }
+        })
+        .catch(() => {
+          submitBtn.textContent = "Error — try again";
+          submitBtn.disabled = false;
+        });
+    }
+
+    /* ============================================
+       SMOOTH SCROLL ENHANCEMENT
+       ============================================ */
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener("click", function (e) {
+        const href = this.getAttribute("href");
+        if (href !== "#") {
+          e.preventDefault();
+          const target = document.querySelector(href);
+          if (target) {
+            target.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

@@ -248,10 +248,57 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
-  const host = (req.headers.host || '').toLowerCase();
+// ── Treat Biosciences subdomain (treat.neuralnexus.press) ──────────
+const treatDir = path.join(__dirname, 'public', 'treat');
+const treatContactFile = path.join(__dirname, 'data', 'treat-contacts.json');
+
+app.post('/api/treat/contact', (req, res) => {
+  const host = (req.headers.host || '').toLowerCase().replace(/:\d+$/, '');
   const isLocal = host.startsWith('localhost') || host.startsWith('127.0.0.1');
-  if (host && !isLocal && host !== CANONICAL_HOST) {
+  if (!isLocal && host !== 'treat.neuralnexus.press') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  const { name, organization, message } = req.body;
+  if (!name || !organization || !message) {
+    return res.status(400).json({ error: 'All fields are required.' });
+  }
+  if (name.length > 200 || organization.length > 200 || message.length > 5000) {
+    return res.status(400).json({ error: 'Field too long.' });
+  }
+  const entry = { name, organization, message, timestamp: new Date().toISOString() };
+  try {
+    let contacts = [];
+    if (fs.existsSync(treatContactFile)) {
+      contacts = JSON.parse(fs.readFileSync(treatContactFile, 'utf8'));
+    }
+    contacts.push(entry);
+    fs.writeFileSync(treatContactFile, JSON.stringify(contacts, null, 2));
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Treat contact save error:', err.message);
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+app.use((req, res, next) => {
+  const host = (req.headers.host || '').toLowerCase().replace(/:\d+$/, '');
+  if (host === 'treat.neuralnexus.press') {
+    if (req.path === '/' || req.path === '/index.html') {
+      return res.sendFile(path.join(treatDir, 'index.html'));
+    }
+    return express.static(treatDir)(req, res, () => {
+      // SPA fallback — serve index.html for unmatched paths
+      res.sendFile(path.join(treatDir, 'index.html'));
+    });
+  }
+  next();
+});
+// ── End Treat subdomain ────────────────────────────────────────────
+
+app.use((req, res, next) => {
+  const host = (req.headers.host || '').toLowerCase().replace(/:\d+$/, '');
+  const isLocal = host.startsWith('localhost') || host.startsWith('127.0.0.1');
+  if (host && !isLocal && host !== CANONICAL_HOST && host !== 'treat.neuralnexus.press') {
     return res.redirect(301, `${SITE_URL}${req.originalUrl}`);
   }
 
