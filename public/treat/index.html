@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Treat Biosciences: AI-designed peptide medicines for canine obesity. The first canine-optimized triple incretin agonist — computational protein design meets veterinary therapeutics." />
+  <meta name="description" content="Treat Biosciences: AI-designed peptide drugs for canine obesity. The first canine-optimized triple incretin agonist — computational protein design meets veterinary therapeutics." />
   <meta name="theme-color" content="#1a9a8a" />
 
   <!-- Open Graph -->
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Treat Biosciences | AI-Designed Canine Therapeutics" />
-  <meta property="og:description" content="54 million dogs. Zero approved treatments. We're building the first canine-optimized weight loss drug using AI-powered protein design." />
+  <meta property="og:description" content="54 million dogs. Zero approved treatments. Building the first canine-optimized weight loss drug using AI-powered protein design." />
   <meta property="og:image" content="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 630'%3E%3Crect fill='%231a9a8a' width='1200' height='630'/%3E%3Ctext x='600' y='280' text-anchor='middle' font-family='system-ui' font-weight='800' font-size='64' fill='white'%3ETreat Biosciences%3C/text%3E%3Ctext x='600' y='360' text-anchor='middle' font-family='system-ui' font-weight='400' font-size='28' fill='rgba(255,255,255,0.85)'%3EAI-designed canine therapeutics%3C/text%3E%3C/svg%3E" />
 
   <title>Treat Biosciences | AI-Designed Canine Therapeutics</title>
@@ -18,10 +18,14 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
 
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%231a9a8a' rx='16' width='100' height='100'/%3E%3Ccircle cx='28' cy='50' r='14' fill='white'/%3E%3Crect x='38' y='40' width='24' height='20' rx='4' fill='white'/%3E%3Ccircle cx='72' cy='50' r='14' fill='white'/%3E%3C/svg%3E" type="image/svg+xml" />
+  <link rel="icon" href="./images/treat-logo.png" type="image/png" />
+
+  <!-- 3Dmol.js for rotatable protein viewer -->
+  <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
 
   <noscript><style>
     .stat-card,.feature-card,.pipeline-program-row,.team-card,.gen-card,.receptor-bar-wrap{opacity:1!important;transform:none!important}
+    .hero-content,.hero-visual{opacity:1!important;transform:none!important}
   </style></noscript>
 
   <style>
@@ -32,6 +36,8 @@
       --primary-dark:#0d5c52;
       --primary-light:rgba(26,154,138,0.1);
       --primary-lighter:rgba(26,154,138,0.06);
+      --warn:#e8951c;
+      --warn-light:rgba(232,149,28,0.12);
       --bg-warm:#f2f9f8;
       --bg-white:#ffffff;
       --text:#1a1a2e;
@@ -43,6 +49,7 @@
       --shadow-sm:0 2px 8px rgba(0,0,0,0.06);
       --shadow-md:0 8px 24px rgba(0,0,0,0.10);
       --shadow-lg:0 16px 48px rgba(0,0,0,0.12);
+      --shadow-xl:0 20px 60px rgba(0,0,0,0.18);
     }
     html{scroll-behavior:smooth}
     body{font-family:var(--body);background:var(--bg-white);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
@@ -62,7 +69,8 @@
     /* ── LAYOUT ─────────────────────────────────── */
     .container{width:100%;max-width:1200px;margin:0 auto;padding:0 1.5rem}
     section{padding:5rem 0}
-    .eyebrow{display:inline-block;font-family:var(--heading);font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--primary);margin-bottom:1.25rem}
+    .eyebrow{display:inline-block;font-family:var(--heading);font-size:.85rem;font-weight:800;text-transform:uppercase;letter-spacing:2.5px;color:var(--primary);margin-bottom:1.25rem;position:relative;padding-left:2.25rem}
+    .eyebrow::before{content:"";position:absolute;left:0;top:50%;transform:translateY(-50%);width:1.75rem;height:2px;background:var(--primary)}
 
     /* ── BUTTONS ─────────────────────────────────── */
     .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.85rem 1.75rem;border-radius:6px;font-weight:600;font-size:.95rem;border:2px solid transparent;cursor:pointer;transition:all .25s var(--ease);text-decoration:none;white-space:nowrap}
@@ -72,11 +80,12 @@
     .btn-outline:hover{background:var(--primary);color:#fff}
 
     /* ── NAV ─────────────────────────────────────── */
-    nav{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,0.96);border-bottom:1px solid var(--border);backdrop-filter:blur(12px)}
+    nav{position:sticky;top:0;z-index:1000;background:rgba(255,255,255,0.96);border-bottom:1px solid var(--border);backdrop-filter:blur(12px);transition:box-shadow .25s var(--ease),border-color .25s var(--ease)}
+    nav.scrolled{box-shadow:0 4px 20px rgba(0,0,0,0.08);border-bottom-color:transparent}
     .nav-inner{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;padding:.85rem 1.5rem}
-    .logo{display:flex;align-items:center;gap:.6rem;font-size:1.35rem;font-weight:700;color:var(--text);font-family:var(--heading);transition:color .2s}
+    .logo{display:flex;align-items:center;gap:.6rem;font-size:1.1rem;font-weight:700;color:var(--text);font-family:var(--heading);transition:color .2s}
     .logo:hover{color:var(--primary)}
-    .logo svg{width:26px;height:26px}
+    .logo img{width:44px;height:auto;display:block}
     .nav-links{display:flex;gap:2rem;list-style:none;align-items:center}
     .nav-links a{font-size:.9rem;font-weight:500;color:var(--text);position:relative}
     .nav-links a::after{content:"";position:absolute;bottom:-4px;left:0;width:0;height:2px;background:var(--primary);transition:width .25s ease}
@@ -96,24 +105,30 @@
       .btn-nav{margin:.85rem 1.5rem;width:calc(100% - 3rem)}
       section{padding:3rem 0}
       .container{padding:0 1rem}
+      .logo{font-size:1rem}
+      .logo img{width:36px}
     }
 
     /* ── HERO ────────────────────────────────────── */
     .hero{padding:4.5rem 0 5rem;position:relative;overflow:hidden}
     .hero::before{content:"";position:absolute;top:-100px;right:-100px;width:500px;height:500px;background:radial-gradient(circle,var(--primary-lighter),transparent 70%);z-index:0}
     .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:center;position:relative;z-index:1}
-    .hero-content{max-width:560px}
+    .hero-content{max-width:560px;opacity:0;transform:translateY(24px);animation:fadeUp .8s var(--ease) .1s forwards}
     .hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--primary-light);color:var(--primary);font-size:.78rem;font-weight:600;padding:.35rem .85rem;border-radius:20px;margin-bottom:1.5rem;letter-spacing:.5px;text-transform:uppercase}
-    .hero-badge::before{content:"";width:6px;height:6px;background:var(--primary);border-radius:50%}
+    .hero-badge::before{content:"";width:6px;height:6px;background:var(--primary);border-radius:50%;animation:pulse 2.4s ease-in-out infinite}
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.55;transform:scale(.85)}}
+    @keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
     .hero h1{margin-bottom:1.25rem}
     .hero h1 .accent{color:var(--primary)}
     .hero-sub{font-size:1.05rem;color:var(--text-light);margin-bottom:2rem;line-height:1.7;max-width:480px}
     .hero-ctas{display:flex;gap:1rem;flex-wrap:wrap}
-    .hero-visual{position:relative;display:flex;justify-content:center}
+    .hero-visual{position:relative;display:flex;justify-content:center;opacity:0;transform:translateY(24px);animation:fadeUp .8s var(--ease) .25s forwards}
     .hero-img-wrap{position:relative;width:100%;max-width:440px;border-radius:16px;overflow:hidden;box-shadow:var(--shadow-lg)}
     .hero-img-wrap img{width:100%;height:420px;object-fit:cover;object-position:center top}
-    .hero-mol-badge{position:absolute;bottom:12px;right:12px;width:80px;height:80px;background:rgba(10,20,30,0.85);border-radius:12px;padding:8px;backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,0.1)}
-    .hero-mol-badge img{width:100%;height:100%;object-fit:contain;opacity:.9}
+    .hero-mol-badge{position:absolute;bottom:16px;right:16px;width:140px;height:140px;background:rgba(8,14,22,0.88);border-radius:14px;padding:6px;backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.14);box-shadow:0 8px 24px rgba(0,0,0,0.3);animation:molFloat 7s ease-in-out infinite}
+    @keyframes molFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+    .hero-mol-badge img{width:100%;height:100%;object-fit:contain;transition:transform 12s linear;animation:rotateSlow 24s linear infinite}
+    @keyframes rotateSlow{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
     @media(max-width:900px){
       .hero-grid{grid-template-columns:1fr;text-align:center}
@@ -123,15 +138,16 @@
       .hero-visual{margin-top:2rem}
       .hero-img-wrap{max-width:360px;margin:0 auto}
       .hero-img-wrap img{height:320px}
+      .hero-mol-badge{width:110px;height:110px}
     }
 
     /* ── OPPORTUNITY ─────────────────────────────── */
     .opportunity{background:var(--bg-warm)}
     .opp-header{max-width:700px;margin-bottom:2.5rem}
     .stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem}
-    .stat-card{background:var(--bg-white);padding:2rem;border-radius:10px;box-shadow:var(--shadow-sm);border-top:4px solid var(--primary);opacity:0;transform:translateY(20px);transition:all .5s var(--ease)}
+    .stat-card{background:var(--bg-white);padding:2rem;border-radius:10px;box-shadow:var(--shadow-sm);border-top:4px solid var(--primary);opacity:0;transform:translateY(20px);transition:opacity .5s var(--ease),transform .35s var(--ease),box-shadow .35s var(--ease)}
     .stat-card.animate{opacity:1;transform:translateY(0)}
-    .stat-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
+    .stat-card:hover{box-shadow:var(--shadow-lg);transform:translateY(-8px)}
     .stat-big{font-family:var(--heading);font-size:clamp(2.2rem,5vw,3rem);font-weight:800;color:var(--primary);line-height:1;margin-bottom:.4rem}
     .stat-label{font-family:var(--heading);font-size:.85rem;font-weight:700;color:var(--text);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.75rem}
     .stat-card p{font-size:.9rem;margin-bottom:0;line-height:1.5}
@@ -140,25 +156,28 @@
 
     /* ── SCIENCE ─────────────────────────────────── */
     .science{background:var(--bg-white)}
-    .science-layout{display:grid;grid-template-columns:1fr 380px;gap:3rem;align-items:start}
+    .science-layout{display:grid;grid-template-columns:1fr 420px;gap:3rem;align-items:start;margin-top:2rem}
     .science-text{max-width:640px}
     .science-text>p{font-size:1rem;line-height:1.7}
     .feature-list{display:flex;flex-direction:column;gap:1.5rem;margin-top:2rem}
     .feature-item{display:flex;gap:1rem;align-items:flex-start}
     .feature-icon-wrap{flex-shrink:0;width:48px;height:48px;background:var(--primary-light);border-radius:10px;display:flex;align-items:center;justify-content:center}
-    .feature-icon-wrap svg{width:24px;height:24px;color:var(--primary)}
+    .feature-icon-wrap svg{width:26px;height:26px;color:var(--primary);stroke-width:1.8}
     .feature-item h3{margin-bottom:.35rem;font-size:1.05rem}
     .feature-item p{font-size:.9rem;margin-bottom:0;line-height:1.5}
-    .science-visual{position:relative;border-radius:12px;overflow:hidden;background:#0a1420;box-shadow:var(--shadow-lg)}
-    .science-visual img{width:100%;height:auto;opacity:.9}
-    .science-visual-label{position:absolute;bottom:0;left:0;right:0;padding:.75rem 1rem;background:linear-gradient(transparent,rgba(10,20,30,.9));color:rgba(255,255,255,.7);font-size:.75rem;font-weight:500}
-    .tool-strip{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:2.5rem;padding-top:2rem;border-top:1px solid var(--border)}
-    .tool-strip-label{font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);width:100%;margin-bottom:.25rem}
-    .tool-tag{font-size:.8rem;font-weight:500;color:var(--text-light);background:var(--bg-warm);padding:.3rem .7rem;border-radius:4px;border:1px solid var(--border)}
 
-    @media(max-width:900px){
+    /* 3Dmol viewer */
+    .mol-viewer-card{position:relative;background:var(--bg-white);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:var(--shadow-md)}
+    .mol-viewer{position:relative;width:100%;height:380px;background:radial-gradient(ellipse at center,#ffffff 0%,#e8f4f2 100%)}
+    .mol-viewer canvas{background:transparent!important}
+    .mol-viewer-label{padding:.75rem 1rem;background:var(--bg-white);border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:1rem;font-size:.78rem;color:var(--text-light)}
+    .mol-viewer-label strong{color:var(--text);font-weight:600;font-size:.82rem}
+    .mol-viewer-label .hint{display:inline-flex;align-items:center;gap:.3rem;color:var(--primary);font-weight:500}
+    .mol-viewer-label .hint svg{width:14px;height:14px}
+
+    @media(max-width:1000px){
       .science-layout{grid-template-columns:1fr}
-      .science-visual{max-width:400px}
+      .mol-viewer-card{max-width:500px}
     }
 
     /* ── RECEPTOR CONSERVATION ───────────────────── */
@@ -171,13 +190,13 @@
     .receptor-bar-bg{height:8px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:.5rem}
     .receptor-bar-fill{height:100%;border-radius:4px;transition:width 1s var(--ease)}
     .receptor-bar-fill.high{background:var(--primary)}
-    .receptor-bar-fill.medium{background:#d4a017}
+    .receptor-bar-fill.medium{background:var(--warn)}
     .receptor-pct{font-family:var(--heading);font-size:1.75rem;font-weight:800;line-height:1;margin-bottom:.25rem}
     .receptor-pct.high{color:var(--primary)}
-    .receptor-pct.medium{color:#d4a017}
+    .receptor-pct.medium{color:var(--warn)}
     .receptor-badge{display:inline-block;font-size:.7rem;font-weight:600;padding:.2rem .5rem;border-radius:3px;text-transform:uppercase;letter-spacing:.5px}
     .receptor-badge.low-risk{background:rgba(26,154,138,.12);color:var(--primary)}
-    .receptor-badge.opt-target{background:rgba(212,160,23,.12);color:#b8860b}
+    .receptor-badge.opt-target{background:var(--warn-light);color:#a66e0f}
     .receptor-note{font-size:.85rem;margin-top:.5rem;line-height:1.5}
     .receptor-explainer{max-width:700px;margin-top:2rem;font-size:.95rem;color:var(--text-light);line-height:1.7}
 
@@ -187,18 +206,19 @@
     .thesis{background:var(--bg-white)}
     .thesis-header{max-width:780px;margin-bottom:1rem}
     .thesis-header p{font-size:1rem;line-height:1.7}
-    .gen-timeline{display:flex;align-items:stretch;justify-content:center;gap:.75rem;margin-top:2.5rem}
+    .gen-timeline{display:flex;align-items:stretch;justify-content:center;gap:.75rem;margin-top:3.5rem}
     .gen-card{background:var(--bg-warm);border-radius:10px;padding:1.5rem;text-align:center;flex:1;min-width:180px;max-width:280px;opacity:0;transform:translateY(20px);transition:all .5s var(--ease)}
     .gen-card.animate{opacity:1;transform:translateY(0)}
     .gen-card-highlight{border:2px solid var(--primary);background:var(--bg-white);box-shadow:var(--shadow-md);position:relative}
-    .gen-card-highlight::before{content:"Treat's approach";position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:.15rem .65rem;border-radius:10px;white-space:nowrap}
+    .gen-card-highlight::before{content:"Treat's approach";position:absolute;top:-15px;left:50%;transform:translateX(-50%);background:var(--primary);color:#fff;font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;padding:.3rem 1rem;border-radius:20px;white-space:nowrap;box-shadow:0 4px 12px rgba(26,154,138,0.35)}
     .gen-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--text-light);margin-bottom:.4rem}
     .gen-target{font-family:var(--heading);font-size:.95rem;font-weight:700;color:var(--primary);margin-bottom:.15rem}
-    .gen-drug{font-size:.8rem;color:var(--text-light);margin-bottom:.5rem}
+    .gen-drug{font-size:.82rem;color:var(--text-light);margin-bottom:.6rem}
+    .gen-drug strong{color:var(--text);font-weight:700}
     .gen-stat{font-family:var(--heading);font-weight:800;color:var(--text);line-height:1}
-    .gen-1 .gen-stat{font-size:1.5rem}
-    .gen-2 .gen-stat{font-size:1.75rem}
-    .gen-3 .gen-stat{font-size:2.25rem;color:var(--primary)}
+    .gen-1 .gen-stat{font-size:1.6rem}
+    .gen-2 .gen-stat{font-size:2rem}
+    .gen-3 .gen-stat{font-size:3rem;color:var(--primary)}
     .gen-desc{font-size:.75rem;color:var(--text-light);margin-top:.15rem}
     .gen-arrow{display:flex;align-items:center;color:var(--primary)}
     .gen-arrow svg{width:24px;height:24px}
@@ -207,19 +227,19 @@
     .zero-banner p{font-size:.9rem;margin-bottom:0}
 
     @media(max-width:768px){
-      .gen-timeline{flex-direction:column;align-items:stretch}
+      .gen-timeline{flex-direction:column;align-items:stretch;margin-top:3rem}
       .gen-card{max-width:100%}
       .gen-arrow{justify-content:center;transform:rotate(90deg);padding:.25rem 0}
+      .gen-3 .gen-stat{font-size:2.4rem}
     }
 
     /* ── PIPELINE ────────────────────────────────── */
     .pipeline{background:var(--bg-warm)}
     .pipeline-header{max-width:700px;margin-bottom:2.5rem}
-
-    /* Stage-gate track */
     .stage-gate{margin-bottom:2.5rem;overflow-x:auto;-webkit-overflow-scrolling:touch}
     .stage-track{display:grid;grid-template-columns:repeat(5,1fr);gap:0;min-width:600px}
     .stage-label{text-align:center;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-light);padding-bottom:.75rem}
+    .stage-label.active{color:var(--primary)}
     .stage-bar{height:6px;background:var(--border)}
     .stage-bar.filled{background:var(--primary)}
     .stage-bar:first-of-type{border-radius:3px 0 0 3px}
@@ -228,23 +248,19 @@
     .stage-marker{text-align:center;font-size:.75rem;font-weight:600;padding:.25rem 0}
     .stage-marker.active{color:var(--primary)}
     .stage-marker .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--primary);margin-right:.25rem;vertical-align:middle}
-
-    /* Program cards */
     .program-cards{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
-    .program-card{background:var(--bg-white);padding:1.75rem;border-radius:10px;border-left:4px solid var(--primary);box-shadow:var(--shadow-sm);opacity:0;transform:translateY(20px);transition:all .5s var(--ease)}
+    .program-card{background:var(--bg-white);padding:1.75rem;border-radius:10px;border-left:4px solid var(--primary);box-shadow:var(--shadow-sm);opacity:0;transform:translateY(20px);transition:opacity .5s var(--ease),transform .35s var(--ease),box-shadow .35s var(--ease)}
     .program-card.animate{opacity:1;transform:translateY(0)}
-    .program-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
-    .program-card.featured{grid-column:1/-1;display:grid;grid-template-columns:1fr 240px;gap:2rem;align-items:center}
+    .program-card:hover{box-shadow:var(--shadow-md);transform:translateY(-5px)}
+    .program-card.featured{grid-column:1/-1;display:grid;grid-template-columns:1fr 280px;gap:2rem;align-items:center}
     .program-name{font-family:var(--heading);font-size:1.2rem;font-weight:700;color:var(--primary);margin-bottom:.5rem}
     .program-mech{font-size:.9rem;font-weight:600;color:var(--text);margin-bottom:.75rem}
     .program-desc{font-size:.9rem;margin-bottom:.75rem;line-height:1.5}
     .program-indication{font-size:.85rem;color:var(--text-light);margin-bottom:.75rem}
     .program-indication strong{color:var(--text)}
     .program-status{display:inline-block;font-size:.72rem;font-weight:600;padding:.3rem .65rem;border-radius:4px;background:rgba(26,154,138,.12);color:var(--primary);text-transform:uppercase;letter-spacing:.5px}
-    .program-img{border-radius:8px;overflow:hidden;background:#f0f4f8}
-    .program-img img{width:100%;height:auto}
-
-    /* CNADA callout */
+    .program-img{border-radius:8px;overflow:hidden;background:radial-gradient(ellipse at center,#f8fbfa 0%,#edf5f3 100%);padding:1rem;display:flex;align-items:center;justify-content:center}
+    .program-img img{width:100%;height:auto;max-height:220px;object-fit:contain}
     .cnada-box{margin-top:2rem;padding:1.75rem;background:var(--bg-white);border-radius:10px;border:1px solid var(--border);box-shadow:var(--shadow-sm)}
     .cnada-box h3{font-size:1rem;margin-bottom:.5rem;display:flex;align-items:center;gap:.5rem}
     .cnada-box h3 svg{width:20px;height:20px;color:var(--primary);flex-shrink:0}
@@ -262,19 +278,20 @@
     /* ── TEAM ────────────────────────────────────── */
     .team{background:var(--bg-white)}
     .team-header{max-width:700px;margin-bottom:2.5rem}
-    .team-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2rem;max-width:800px}
+    .team-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2rem;max-width:860px}
     .team-card{background:var(--bg-warm);padding:2rem;border-radius:10px;box-shadow:var(--shadow-sm);text-align:center;opacity:0;transform:translateY(20px);transition:all .5s var(--ease)}
     .team-card.animate{opacity:1;transform:translateY(0)}
-    .team-card:hover{box-shadow:var(--shadow-md);transform:translateY(-3px)}
-    .team-photo{width:130px;height:130px;border-radius:50%;margin:0 auto 1.25rem;overflow:hidden;border:3px solid var(--bg-white);box-shadow:var(--shadow-sm)}
-    .team-photo img{width:100%;height:100%;object-fit:cover}
+    .team-card:hover{box-shadow:var(--shadow-md);transform:translateY(-5px)}
+    .team-photo{width:140px;height:140px;border-radius:50%;margin:0 auto 1.25rem;overflow:hidden;background:var(--bg-white);box-shadow:var(--shadow-sm);border:3px solid var(--bg-white);position:relative}
+    .team-photo::after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(26,154,138,0.15)}
+    .team-photo img{width:100%;height:100%;object-fit:cover;object-position:center top}
     .team-name{font-family:var(--heading);font-size:1.15rem;font-weight:700;margin-bottom:.2rem;color:var(--text)}
     .team-title{color:var(--primary);font-weight:600;font-size:.9rem;margin-bottom:.75rem}
     .team-bio{font-size:.88rem;color:var(--text-light);line-height:1.6;margin-bottom:1rem}
     .team-institutions{display:flex;flex-wrap:wrap;gap:.4rem;justify-content:center}
     .inst-tag{font-size:.7rem;font-weight:500;color:var(--text-light);background:var(--bg-white);padding:.2rem .5rem;border-radius:3px;border:1px solid var(--border)}
     .team-links{margin-top:.75rem}
-    .team-links a{color:var(--text-light);transition:color .2s}
+    .team-links a{color:var(--text-light);transition:color .2s;display:inline-flex}
     .team-links a:hover{color:var(--primary)}
     .team-links svg{width:18px;height:18px}
 
@@ -284,6 +301,8 @@
     .contact{background:var(--bg-warm)}
     .contact-wrap{max-width:600px;margin:0 auto}
     .contact-text{text-align:center;margin-bottom:2.5rem}
+    .contact-text .eyebrow{padding-left:0}
+    .contact-text .eyebrow::before{display:none}
     .contact-text p{font-size:1rem}
     .contact-form-wrap{background:var(--bg-white);padding:2rem;border-radius:10px;box-shadow:var(--shadow-sm)}
     .form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1rem}
@@ -296,25 +315,34 @@
     .form-group textarea{resize:vertical;min-height:100px}
     .form-submit-wrap{margin-top:1.25rem}
     .form-submit-wrap .btn{width:100%}
-    .contact-alt{text-align:center;margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid var(--border);font-size:.9rem;color:var(--text-light)}
-    .contact-alt a{font-weight:600}
 
     @media(max-width:600px){.form-row{grid-template-columns:1fr}}
 
     /* ── FOOTER ──────────────────────────────────── */
-    footer{background:var(--text);color:#fff;padding:2.5rem 0 1.25rem}
-    .footer-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:2rem;margin-bottom:1.5rem;flex-wrap:wrap}
-    .footer-brand{font-family:var(--heading);font-size:1.15rem;font-weight:700;margin-bottom:.25rem}
-    .footer-tag{font-size:.85rem;color:rgba(255,255,255,.6)}
-    .footer-links{display:flex;gap:1.5rem}
-    .footer-links a{color:rgba(255,255,255,.6);font-size:.9rem;transition:color .2s}
-    .footer-links a:hover{color:var(--primary)}
-    .footer-bottom{text-align:center;padding-top:1.25rem;border-top:1px solid rgba(255,255,255,.1);font-size:.8rem;color:rgba(255,255,255,.4)}
+    footer{background:var(--text);color:#fff;padding:3.5rem 0 1.5rem}
+    .footer-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:3rem;margin-bottom:2.5rem}
+    .footer-brand-block{display:flex;flex-direction:column;gap:.75rem;max-width:340px}
+    .footer-logo-row{display:flex;align-items:center;gap:.6rem}
+    .footer-logo-row img{width:40px;height:auto;filter:brightness(0) invert(1) opacity(.9)}
+    .footer-brand-text{font-family:var(--heading);font-size:1.1rem;font-weight:700;color:#fff}
+    .footer-tag{font-size:.9rem;color:rgba(255,255,255,.6);line-height:1.6}
+    .footer-col h4{font-family:var(--heading);font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:rgba(255,255,255,.5);margin-bottom:1rem}
+    .footer-col ul{list-style:none;display:flex;flex-direction:column;gap:.6rem}
+    .footer-col a{color:rgba(255,255,255,.75);font-size:.9rem;transition:color .2s}
+    .footer-col a:hover{color:var(--primary)}
+    .footer-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:1.5rem;border-top:1px solid rgba(255,255,255,.1);font-size:.82rem;color:rgba(255,255,255,.45);flex-wrap:wrap;gap:1rem}
+    .footer-bottom .meta{display:flex;gap:1.5rem;flex-wrap:wrap}
 
-    /* ── ANIMATIONS ──────────────────────────────── */
+    @media(max-width:768px){
+      .footer-grid{grid-template-columns:1fr;gap:2rem}
+      .footer-bottom{flex-direction:column;align-items:flex-start;gap:.75rem}
+    }
+
+    /* ── REDUCED MOTION ──────────────────────────── */
     @media(prefers-reduced-motion:reduce){
       *,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important}
-      .stat-card,.feature-item,.program-card,.team-card,.gen-card,.receptor-card{opacity:1!important;transform:none!important}
+      .stat-card,.feature-item,.program-card,.team-card,.gen-card,.receptor-card,.hero-content,.hero-visual{opacity:1!important;transform:none!important}
+      .hero-mol-badge img,.hero-mol-badge{animation:none!important}
     }
   </style>
 </head>
@@ -322,11 +350,11 @@
   <a href="#main" class="skip-link">Skip to content</a>
 
   <!-- NAV -->
-  <nav>
+  <nav id="nav">
     <div class="nav-inner">
       <a href="#" class="logo">
-        <svg viewBox="0 0 100 100" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="25" cy="50" r="12"/><rect x="33" y="42" width="34" height="16" rx="3"/><circle cx="75" cy="50" r="12"/></svg>
-        Treat
+        <img src="./images/treat-logo.png" srcset="./images/treat-logo.png 1x, ./images/treat-logo@2x.png 2x" alt="Treat Biosciences logo" />
+        Treat Biosciences
       </a>
       <button class="hamburger" id="hamburger" aria-label="Toggle navigation menu" aria-expanded="false">
         <span></span><span></span><span></span>
@@ -349,7 +377,7 @@
         <div class="hero-grid">
           <div class="hero-content">
             <div class="hero-badge">Pre-seed &middot; Computational Discovery</div>
-            <h1><span class="accent">AI-designed</span> peptide medicines for canine obesity.</h1>
+            <h1><span class="accent">AI-designed</span> peptide drugs for canine obesity.</h1>
             <p class="hero-sub">54 million dogs are overweight. Zero approved treatments exist. Treat builds canine-specific therapeutics using computational protein design &mdash; not repurposed human drugs.</p>
             <div class="hero-ctas">
               <a href="#contact" class="btn btn-primary">Partner With Us</a>
@@ -358,8 +386,8 @@
           </div>
           <div class="hero-visual">
             <div class="hero-img-wrap">
-              <img src="./images/dog-hero.jpg" alt="Happy Golden Retriever — the kind of dog Treat Biosciences is designed to help" width="440" height="420" />
-              <div class="hero-mol-badge">
+              <img src="./images/dog-hero.jpg" alt="Happy Golden Retriever \u2014 the kind of dog Treat Biosciences is designed to help" width="440" height="420" />
+              <div class="hero-mol-badge" aria-hidden="true">
                 <img src="./images/trt001_glp1r_complex.png" alt="" />
               </div>
             </div>
@@ -406,7 +434,8 @@
             <div class="feature-list">
               <div class="feature-item">
                 <div class="feature-icon-wrap">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v6M12 16v6M4.93 4.93l4.24 4.24M14.83 14.83l4.24 4.24M2 12h6M16 12h6M4.93 19.07l4.24-4.24M14.83 9.17l4.24-4.24"/></svg>
+                  <!-- Molecular structure / atom-bond diagram -->
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="6" x2="12" y2="12"/><line x1="18" y1="6" x2="12" y2="12"/><line x1="12" y1="12" x2="6" y2="19"/><line x1="12" y1="12" x2="18" y2="19"/><circle cx="6" cy="6" r="2.2" fill="currentColor" fill-opacity=".25"/><circle cx="18" cy="6" r="2.2" fill="currentColor" fill-opacity=".25"/><circle cx="12" cy="12" r="2.6" fill="currentColor" fill-opacity=".4"/><circle cx="6" cy="19" r="1.8" fill="currentColor" fill-opacity=".25"/><circle cx="18" cy="19" r="1.8" fill="currentColor" fill-opacity=".25"/></svg>
                 </div>
                 <div>
                   <h3>Structure-first design</h3>
@@ -415,35 +444,35 @@
               </div>
               <div class="feature-item">
                 <div class="feature-icon-wrap">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                  <!-- CPU / compute icon -->
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="5" width="14" height="14" rx="1.5"/><rect x="9" y="9" width="6" height="6" rx="1"/><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"/></svg>
                 </div>
                 <div>
-                  <h3>Speed and capital efficiency</h3>
-                  <p>Computational design compresses years of bench work into weeks of simulation. More candidates, less burn.</p>
+                  <h3>AI compute, not bench iteration</h3>
+                  <p>Thousands of design cycles in parallel on GPU clusters. Months of wet-lab work compressed into days of simulation.</p>
                 </div>
               </div>
               <div class="feature-item">
                 <div class="feature-icon-wrap">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 3h6v4H9zM12 7v5M7 12h10l2 9H5z"/></svg>
+                  <!-- Paw / canine icon -->
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="5.5" cy="10" r="1.8"/><circle cx="9.5" cy="5.5" r="1.8"/><circle cx="14.5" cy="5.5" r="1.8"/><circle cx="18.5" cy="10" r="1.8"/><path d="M7 16.5c0-3.5 2.5-5 5-5s5 1.5 5 5-2 3.5-5 3.5-5 0-5-3.5z"/></svg>
                 </div>
                 <div>
                   <h3>Purpose-built, not repurposed</h3>
-                  <p>Not human drugs repackaged for dogs. Canine pharmacokinetics and dosing are in the design loop from day one.</p>
+                  <p>Not human drugs repackaged for dogs. Canine pharmacokinetics and receptor divergence inform every design decision.</p>
                 </div>
               </div>
             </div>
-            <div class="tool-strip">
-              <span class="tool-strip-label">Computational stack</span>
-              <span class="tool-tag">AlphaFold3</span>
-              <span class="tool-tag">RFdiffusion</span>
-              <span class="tool-tag">Rosetta</span>
-              <span class="tool-tag">ProteinMPNN</span>
-              <span class="tool-tag">OpenMM</span>
-            </div>
           </div>
-          <div class="science-visual">
-            <img src="./images/trt002_follistatin_myostatin.png" alt="Computational model of TRT-002 follistatin-derived peptide interacting with target proteins" />
-            <div class="science-visual-label">TRT-002 follistatin-myostatin interaction model</div>
+          <div class="mol-viewer-card">
+            <div class="mol-viewer" id="mol-viewer" role="img" aria-label="Interactive 3D model of the GLP-1 receptor bound to an incretin agonist"></div>
+            <div class="mol-viewer-label">
+              <strong>GLP-1R + incretin agonist</strong>
+              <span class="hint">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 4v5h-5"/></svg>
+                Click + drag
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -496,7 +525,7 @@
           <div class="gen-card gen-1">
             <div class="gen-label">Generation 1</div>
             <div class="gen-target">GLP-1</div>
-            <div class="gen-drug">Semaglutide (Wegovy)</div>
+            <div class="gen-drug"><strong>Semaglutide</strong> (Wegovy)</div>
             <div class="gen-stat">15&ndash;17%</div>
             <div class="gen-desc">body weight loss</div>
           </div>
@@ -504,7 +533,7 @@
           <div class="gen-card gen-2">
             <div class="gen-label">Generation 2</div>
             <div class="gen-target">GLP-1 + GIP</div>
-            <div class="gen-drug">Tirzepatide (Zepbound)</div>
+            <div class="gen-drug"><strong>Tirzepatide</strong> (Zepbound)</div>
             <div class="gen-stat">20&ndash;25%</div>
             <div class="gen-desc">body weight loss</div>
           </div>
@@ -512,7 +541,7 @@
           <div class="gen-card gen-3 gen-card-highlight">
             <div class="gen-label">Generation 3</div>
             <div class="gen-target">GLP-1 + GIP + GCGR</div>
-            <div class="gen-drug">Retatrutide &rarr; <strong>TRT-001</strong></div>
+            <div class="gen-drug"><strong>Retatrutide</strong> &rarr; <strong>TRT-001</strong></div>
             <div class="gen-stat">24&ndash;28%</div>
             <div class="gen-desc">body weight loss</div>
           </div>
@@ -533,11 +562,10 @@
           <h2>Three programs. Fat loss, muscle preservation, body recomposition.</h2>
         </div>
 
-        <!-- Stage-gate visualization -->
         <div class="stage-gate">
           <div class="stage-track">
             <div><div class="stage-label">Discovery</div><div class="stage-bar filled"></div></div>
-            <div><div class="stage-label">Lead Optimization</div><div class="stage-bar filled"></div></div>
+            <div><div class="stage-label active">Lead Optimization</div><div class="stage-bar filled"></div></div>
             <div><div class="stage-label">Preclinical</div><div class="stage-bar"></div></div>
             <div><div class="stage-label">Clinical</div><div class="stage-bar"></div></div>
             <div><div class="stage-label">Cond. Approval</div><div class="stage-bar"></div></div>
@@ -551,7 +579,6 @@
           </div>
         </div>
 
-        <!-- Program cards -->
         <div class="program-cards">
           <div class="program-card featured">
             <div>
@@ -562,13 +589,13 @@
               <span class="program-status">Lead Optimization</span>
             </div>
             <div class="program-img">
-              <img src="./images/hero_molecular_dramatic.png" alt="Molecular model of TRT-001 triple incretin peptide" />
+              <img src="./images/trt001_glp1r_complex.png" alt="Molecular model of TRT-001 bound to the GLP-1 receptor complex" />
             </div>
           </div>
           <div class="program-card">
             <div class="program-name">TRT-002</div>
-            <div class="program-mech">Engineered follistatin-derived peptide</div>
-            <p class="program-desc">Dual myostatin and activin antagonism for lean-mass support during weight loss.</p>
+            <div class="program-mech">Mini-protein antagonist of Activin Receptor IIA/B</div>
+            <p class="program-desc">AI-designed mini-protein blocking ActRIIA/B signaling to preserve lean muscle mass during incretin-driven weight loss.</p>
             <p class="program-indication"><strong>Indication:</strong> Lean-mass preservation</p>
             <span class="program-status">Discovery</span>
           </div>
@@ -581,10 +608,9 @@
           </div>
         </div>
 
-        <!-- CNADA callout -->
         <div class="cnada-box">
           <h3>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>
             Conditional Approval Pathway (FDA CVM / CNADA)
           </h3>
           <p>Treat can begin selling while completing full efficacy studies &mdash; dramatically faster and cheaper than the traditional FDA path for human drugs.</p>
@@ -628,7 +654,7 @@
               <span class="inst-tag">Locus Biosciences</span>
             </div>
             <div class="team-links">
-              <a href="https://www.linkedin.com/in/davemkingsley/" target="_blank" rel="noopener" aria-label="David Kingsley on LinkedIn">
+              <a href="#" target="_blank" rel="noopener" aria-label="David Kingsley on LinkedIn" data-linkedin="david">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
               </a>
             </div>
@@ -639,7 +665,7 @@
             </div>
             <div class="team-name">Frank Gillam, PhD, MBA</div>
             <div class="team-title">Chief Executive Officer</div>
-            <p class="team-bio">Biomanufacturing and commercial leader with experience at Locus Biosciences, Grifols, and Exela Pharma Sciences. Brings deep expertise in GMP operations and go-to-market strategy.</p>
+            <p class="team-bio">Biomanufacturing and commercial leader. Built and scaled GMP peptide manufacturing at Locus Biosciences; prior roles at Grifols and Exela Pharma Sciences.</p>
             <div class="team-institutions">
               <span class="inst-tag">NC State</span>
               <span class="inst-tag">Duke Fuqua</span>
@@ -648,7 +674,7 @@
               <span class="inst-tag">Grifols</span>
             </div>
             <div class="team-links">
-              <a href="https://www.linkedin.com/in/frankgillam/" target="_blank" rel="noopener" aria-label="Frank Gillam on LinkedIn">
+              <a href="#" target="_blank" rel="noopener" aria-label="Frank Gillam on LinkedIn" data-linkedin="frank">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
               </a>
             </div>
@@ -695,9 +721,6 @@
                 <button type="submit" class="btn btn-primary form-submit">Send Message</button>
               </div>
             </form>
-            <div class="contact-alt">
-              Or email directly: <a href="mailto:David.Kingsley@TreatBioSciences.com">David.Kingsley@TreatBioSciences.com</a>
-            </div>
           </div>
         </div>
       </div>
@@ -708,33 +731,57 @@
   <!-- FOOTER -->
   <footer>
     <div class="container">
-      <div class="footer-inner">
-        <div>
-          <div class="footer-brand">Treat Biosciences</div>
-          <div class="footer-tag">Canine metabolic therapeutics.</div>
+      <div class="footer-grid">
+        <div class="footer-brand-block">
+          <div class="footer-logo-row">
+            <img src="./images/treat-logo.png" alt="" aria-hidden="true" />
+            <span class="footer-brand-text">Treat Biosciences</span>
+          </div>
+          <p class="footer-tag">Building the first AI-designed, canine-optimized incretin drug for the obesity epidemic affecting 54 million U.S. dogs.</p>
         </div>
-        <div class="footer-links">
-          <a href="#opportunity">Opportunity</a>
-          <a href="#science">Science</a>
-          <a href="#pipeline">Pipeline</a>
-          <a href="#team">Team</a>
-          <a href="#contact">Contact</a>
+        <div class="footer-col">
+          <h4>Explore</h4>
+          <ul>
+            <li><a href="#opportunity">Opportunity</a></li>
+            <li><a href="#science">Science</a></li>
+            <li><a href="#pipeline">Pipeline</a></li>
+            <li><a href="#team">Team</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <ul>
+            <li><a href="#contact">Partner With Us</a></li>
+            <li><a href="#contact">Investor Inquiries</a></li>
+            <li><a href="#contact">Scientific Collaboration</a></li>
+          </ul>
         </div>
       </div>
-      <div class="footer-bottom">&copy; 2026 Treat Biosciences. All rights reserved.</div>
+      <div class="footer-bottom">
+        <div>&copy; 2026 Treat Biosciences, Inc.</div>
+        <div class="meta">
+          <span>Confidential &middot; Pre-seed</span>
+          <span>Raleigh-Durham, NC</span>
+        </div>
+      </div>
     </div>
   </footer>
 
   <script>
     /* Nav toggle */
-    const hamburger=document.getElementById("hamburger"),navLinks=document.getElementById("nav-links");
+    const hamburger=document.getElementById("hamburger"),navLinks=document.getElementById("nav-links"),nav=document.getElementById("nav");
     hamburger.addEventListener("click",()=>{const open=navLinks.classList.toggle("active");hamburger.setAttribute("aria-expanded",open)});
     navLinks.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{navLinks.classList.remove("active");hamburger.setAttribute("aria-expanded","false")}));
 
-    /* Active nav on scroll */
+    /* Nav scroll shadow + active link */
     const sections=document.querySelectorAll("section[id]"),navItems=document.querySelectorAll(".nav-links a");
-    function updateNav(){let cur="";sections.forEach(s=>{if(scrollY>=s.offsetTop-200)cur=s.id});navItems.forEach(a=>{a.classList.toggle("active",a.getAttribute("href").slice(1)===cur)})}
-    window.addEventListener("scroll",updateNav,{passive:true});
+    function onScroll(){
+      nav.classList.toggle("scrolled",scrollY>8);
+      let cur="";
+      sections.forEach(s=>{if(scrollY>=s.offsetTop-200)cur=s.id});
+      navItems.forEach(a=>{a.classList.toggle("active",a.getAttribute("href").slice(1)===cur)});
+    }
+    window.addEventListener("scroll",onScroll,{passive:true});onScroll();
 
     /* Intersection Observer for animations */
     const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add("animate");obs.unobserve(e.target)}})},{threshold:.1,rootMargin:"0px 0px -40px 0px"});
@@ -742,6 +789,30 @@
 
     /* Smooth scroll */
     document.querySelectorAll('a[href^="#"]').forEach(a=>{a.addEventListener("click",function(e){const h=this.getAttribute("href");if(h!=="#"){e.preventDefault();const t=document.querySelector(h);if(t)t.scrollIntoView({behavior:"smooth",block:"start"})}})});
+
+    /* 3Dmol rotatable protein viewer */
+    window.addEventListener("load",()=>{
+      if(typeof $3Dmol==="undefined"){return}
+      const el=document.getElementById("mol-viewer");
+      if(!el)return;
+      try{
+        const viewer=$3Dmol.createViewer(el,{backgroundColor:0xffffff,backgroundAlpha:0});
+        $3Dmol.download("pdb:6X18",viewer,{},()=>{
+          // Receptor: teal cartoon; peptide ligand: warm orange
+          viewer.setStyle({},{cartoon:{color:"#1a9a8a",opacity:.92}});
+          viewer.setStyle({chain:"P"},{cartoon:{color:"#e8951c"},stick:{colorscheme:"orangeCarbon",radius:.22}});
+          viewer.setStyle({chain:"L"},{cartoon:{color:"#e8951c"},stick:{colorscheme:"orangeCarbon",radius:.22}});
+          viewer.setBackgroundColor(0xffffff,0);
+          viewer.zoomTo();
+          viewer.zoom(.9);
+          viewer.render();
+          viewer.spin("y",.6);
+        });
+      }catch(err){
+        console.warn("3Dmol viewer init failed:",err);
+        el.style.background="radial-gradient(ellipse at center,#f8fbfa 0%,#edf5f3 100%)";
+      }
+    });
 
     /* Contact form */
     function handleContactSubmit(event){
