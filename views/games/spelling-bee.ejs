@@ -1046,6 +1046,7 @@ document.addEventListener('DOMContentLoaded', function() {
     $gameOver.classList.add('active');
     $nicknameInput.focus();
     if (rank === 'Genius') spawnConfetti();
+    loadLeaderboard();
   }
 
   async function submitScore() {
@@ -1061,19 +1062,35 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   async function loadLeaderboard() {
+    const modalLbSection = document.getElementById('modal-lb-section');
+    const modalLbList = document.getElementById('modal-lb-list');
     try {
       const resp = await fetch('/api/leaderboard');
       const data = await resp.json();
-      if (!data.entries || !data.entries.length) {
-        $lbBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.15)">No scores yet</td></tr>';
-        return;
-      }
+      const entries = (data && data.entries) || [];
       const medals = ['🥇','🥈','🥉'];
-      $lbBody.innerHTML = data.entries.map((e, i) => {
-        const wf = Array.isArray(e.words_found) ? e.words_found.length : 0;
-        return '<tr><td>' + (i < 3 ? medals[i] : i+1) + '</td><td>' + e.nickname.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</td><td>' + e.score + '</td><td>' + wf + '</td></tr>';
-      }).join('');
-    } catch (e) { $lbBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.15)">Could not load</td></tr>'; }
+      if (!entries.length) {
+        $lbBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.15)">No scores yet</td></tr>';
+        if (modalLbList) modalLbList.innerHTML = '<div style="padding:12px;text-align:center;color:rgba(255,255,255,0.3);font-size:0.82rem;">No scores yet today</div>';
+      } else {
+        $lbBody.innerHTML = entries.map((e, i) => {
+          const wf = Array.isArray(e.words_found) ? e.words_found.length : 0;
+          return '<tr><td>' + (i < 3 ? medals[i] : i+1) + '</td><td>' + e.nickname.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</td><td>' + e.score + '</td><td>' + wf + '</td></tr>';
+        }).join('');
+        if (modalLbList) {
+          modalLbList.innerHTML = entries.map((e, i) => {
+            const name = e.nickname.replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const left = (i < 3 ? medals[i] : (i+1)) + ' <span style="font-weight:600;">' + name + '</span>';
+            return '<div style="display:flex;justify-content:space-between;padding:6px 10px;border-radius:8px;background:rgba(255,255,255,0.03);font-size:0.8rem;"><span>' + left + '</span><span style="font-family:\'JetBrains Mono\', monospace;color:rgba(255,255,255,0.5);font-size:0.75rem;">' + e.score + '</span></div>';
+          }).join('');
+        }
+      }
+      if (modalLbSection) modalLbSection.style.display = 'block';
+    } catch (e) {
+      $lbBody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.15)">Could not load</td></tr>';
+      if (modalLbList) modalLbList.innerHTML = '<div style="padding:12px;text-align:center;color:rgba(255,255,255,0.3);font-size:0.82rem;">Failed to load</div>';
+      if (modalLbSection) modalLbSection.style.display = 'block';
+    }
   }
 
   async function init() {
@@ -1210,6 +1227,10 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="overlay-stats" id="final-stats"></div>
     <input class="overlay-input" id="nickname-input" placeholder="Your nickname" maxlength="20" autocomplete="off">
     <button class="overlay-submit" id="btn-submit-score">Submit Score</button>
+    <div class="modal-lb" id="modal-lb-section" style="display:none;margin-top:18px;text-align:left;">
+      <div style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;text-align:center;">&#x1F3C6; Today's Leaderboard</div>
+      <div id="modal-lb-list" style="display:flex;flex-direction:column;gap:4px;max-height:220px;overflow-y:auto;"></div>
+    </div>
     <button class="overlay-restart" id="btn-play-again">View Leaderboard</button>
   </div>
 </div>

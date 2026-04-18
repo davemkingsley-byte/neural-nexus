@@ -26,10 +26,12 @@ const VOCAB_FILE = path.join(DATA_DIR, '_vocab.json');
 const EMBEDDINGS_FILE = path.join(DATA_DIR, '_vocab-embeddings.bin');
 const WORDLIST_CACHE = path.join(__dirname, '.cache-google-20k.txt');
 
-// Sourced from first20hours/google-10000-english; medium variant excludes very short and very rare.
-const WORDLIST_URL = 'https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-usa-no-swears-medium.txt';
+// Sourced from first20hours/google-10000-english; full 10k variant for better coverage.
+// Plus dolph/dictionary 20k for supplementary common words (mud, dirt, bush, etc.).
+const WORDLIST_URL = 'https://raw.githubusercontent.com/first20hours/google-10000-english/master/google-10000-english-usa-no-swears.txt';
+const EXTRA_WORDLIST_URL = 'https://raw.githubusercontent.com/dolph/dictionary/master/popular.txt';
 
-const TARGET_VOCAB_SIZE = 10000;
+const TARGET_VOCAB_SIZE = 20000;
 const EMBED_BATCH = 32;
 const EMBED_MODEL = 'Xenova/all-MiniLM-L6-v2';
 
@@ -122,10 +124,19 @@ async function embedAll(words) {
 async function main() {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 
-  // 1. Load/download word list
+  // 1. Load/download word lists
   const rawText = await download(WORDLIST_URL, WORDLIST_CACHE);
-  const rawWords = rawText.split('\n').filter(Boolean);
-  console.log(`[source] ${rawWords.length} words from google-10000-english`);
+  const extraText = await download(EXTRA_WORDLIST_URL, path.join(__dirname, '.cache-popular-20k.txt'));
+  const googleWords = rawText.split('\n').filter(Boolean);
+  const extraWords = extraText.split('\n').filter(Boolean);
+  // Merge, keeping Google words first (for frequency ordering) then extras
+  const seen = new Set();
+  const rawWords = [];
+  for (const w of [...googleWords, ...extraWords]) {
+    const lw = w.trim().toLowerCase();
+    if (lw && !seen.has(lw)) { seen.add(lw); rawWords.push(lw); }
+  }
+  console.log(`[source] ${googleWords.length} google + ${extraWords.length} popular = ${rawWords.length} deduped`);
 
   // 2. Load targets
   const targets = loadTargets();

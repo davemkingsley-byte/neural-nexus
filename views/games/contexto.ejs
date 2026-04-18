@@ -182,6 +182,22 @@ main {
   text-transform: uppercase; color: var(--text-dim); margin: 8px 0 6px;
 }
 
+/* Persistent leaderboard on page */
+.page-lb { width: 100%; margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--border); }
+.page-lb-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 8px; }
+.lb-tabs-inline { display: flex; gap: 4px; }
+.lb-tab-inline {
+  padding: 5px 12px; border-radius: 8px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text-dim); cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 0.7rem; font-weight: 700;
+  letter-spacing: 0.3px; transition: all 0.2s;
+}
+.lb-tab-inline:hover { background: var(--surface-2); color: var(--text); }
+.lb-tab-inline.active { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.35); color: var(--accent); }
+.page-lb-list { display: flex; flex-direction: column; gap: 3px; max-height: 260px; overflow-y: auto; }
+.page-lb-list .lb-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 12px; border-radius: 8px; font-size: 0.8rem; background: rgba(255,255,255,0.02); }
+.page-lb-list .lb-row:nth-child(odd) { background: rgba(255,255,255,0.04); }
+
 /* Empty state */
 .empty-state {
   text-align: center; padding: 20px; color: var(--text-dim);
@@ -584,28 +600,51 @@ async function showWinModal(target) {
   loadLeaderboard('guesses');
 }
 
+function renderLeaderboardInto(listEl, entries, tab) {
+  if (!entries.length) {
+    listEl.innerHTML = '<div class="lb-empty">No scores yet today</div>';
+    return;
+  }
+  const medals = ['\u{1F947}', '\u{1F948}', '\u{1F949}'];
+  listEl.innerHTML = entries.map((e, i) => {
+    const left = `${i < 3 ? medals[i] : i + 1} <span class="lb-name">${(e.nickname || '').replace(/</g, '&lt;')}</span>`;
+    const right = tab === 'speed'
+      ? `${formatTime(e.time_seconds)}`
+      : `${e.effective_guesses}${e.hints_used ? ` (${e.hints_used}h)` : ''}`;
+    return `<div class="lb-row"><span>${left}</span><span class="lb-score">${right}</span></div>`;
+  }).join('');
+}
+
 async function loadLeaderboard(tab) {
+  // Update modal tabs
   document.querySelectorAll('.lb-tab').forEach(el => {
     el.classList.toggle('active', el.dataset.tab === tab);
   });
   const list = document.getElementById('lb-list');
-  list.innerHTML = '<div class="lb-empty">Loading…</div>';
+  if (list) {
+    list.innerHTML = '<div class="lb-empty">Loading…</div>';
+  }
   try {
     const res = await fetch(`/api/contexto/leaderboard?date=${todayDate}&tab=${tab}`);
     const data = await res.json();
     const entries = data.entries || [];
-    if (!entries.length) {
-      list.innerHTML = '<div class="lb-empty">No scores yet today</div>';
-      return;
-    }
-    const medals = ['\u{1F947}', '\u{1F948}', '\u{1F949}'];
-    list.innerHTML = entries.map((e, i) => {
-      const left = `${i < 3 ? medals[i] : i + 1} <span class="lb-name">${(e.nickname || '').replace(/</g, '&lt;')}</span>`;
-      const right = tab === 'speed'
-        ? `${formatTime(e.time_seconds)}`
-        : `${e.effective_guesses}${e.hints_used ? ` (${e.hints_used}h)` : ''}`;
-      return `<div class="lb-row"><span>${left}</span><span class="lb-score">${right}</span></div>`;
-    }).join('');
+    if (list) renderLeaderboardInto(list, entries, tab);
+  } catch {
+    if (list) list.innerHTML = '<div class="lb-empty">Failed to load</div>';
+  }
+}
+
+async function loadPageLeaderboard(tab) {
+  document.querySelectorAll('.lb-tab-inline').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  const list = document.getElementById('page-lb-list');
+  if (!list) return;
+  list.innerHTML = '<div class="lb-empty">Loading…</div>';
+  try {
+    const res = await fetch(`/api/contexto/leaderboard?date=${todayDate}&tab=${tab}`);
+    const data = await res.json();
+    renderLeaderboardInto(list, data.entries || [], tab);
   } catch {
     list.innerHTML = '<div class="lb-empty">Failed to load</div>';
   }
@@ -632,7 +671,9 @@ async function submitScore() {
     });
     localStorage.setItem('nn-contexto-submitted-' + todayDate, '1');
     document.getElementById('nickname-section').style.display = 'none';
-    loadLeaderboard(document.querySelector('.lb-tab.active')?.dataset.tab || 'guesses');
+    const activeTab = document.querySelector('.lb-tab.active')?.dataset.tab || 'guesses';
+    loadLeaderboard(activeTab);
+    loadPageLeaderboard(document.querySelector('.lb-tab-inline.active')?.dataset?.tab || 'guesses');
   } catch {
     showToast('Failed to submit', true);
     btn.disabled = false;
@@ -703,9 +744,10 @@ async function init() {
     updateTimer();
     if (saved.startedAt && !solved) startTimer();
     if (solved) {
-      // Don't auto-open modal — user has already seen it. But allow showing when win again triggers.
+      // Don't auto-open modal — user has already seen it.
       updateCounters();
       renderAll();
+      loadPageLeaderboard('guesses');
       return;
     }
   }
@@ -713,6 +755,7 @@ async function init() {
   restoreStreakDisplay();
   renderAll();
   updateCounters();
+  loadPageLeaderboard('guesses');
   input.focus();
 }
 
@@ -721,6 +764,9 @@ form.addEventListener('submit', e => { e.preventDefault(); submitGuess(); });
 hintBtn.addEventListener('click', useHint);
 document.querySelectorAll('.lb-tab').forEach(tab => {
   tab.addEventListener('click', () => loadLeaderboard(tab.dataset.tab));
+});
+document.querySelectorAll('.lb-tab-inline').forEach(tab => {
+  tab.addEventListener('click', () => loadPageLeaderboard(tab.dataset.tab));
 });
 document.getElementById('submit-lb-btn').addEventListener('click', submitScore);
 document.getElementById('nickname-input').addEventListener('keydown', e => {
@@ -789,6 +835,17 @@ init();
   <div class="guess-history">
     <div class="history-header">Your guesses &middot; sorted by closeness</div>
     <div id="history"></div>
+  </div>
+
+  <div class="page-lb" id="page-lb">
+    <div class="page-lb-header">
+      <span class="history-header" style="margin:0">&#x1F3C6; Today's Leaderboard</span>
+      <div class="lb-tabs-inline">
+        <button class="lb-tab-inline active" data-tab="guesses" type="button">Fewest Guesses</button>
+        <button class="lb-tab-inline" data-tab="speed" type="button">Fastest</button>
+      </div>
+    </div>
+    <div id="page-lb-list" class="page-lb-list"></div>
   </div>
 </main>
 
