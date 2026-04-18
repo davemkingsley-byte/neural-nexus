@@ -291,7 +291,15 @@ app.post('/api/treat/contact', (req, res) => {
 
 app.use((req, res, next) => {
   const host = (req.headers.host || '').toLowerCase().replace(/:\d+$/, '');
-  if (host === 'treat.neuralnexus.press') {
+  const isLocal = host.startsWith('localhost') || host.startsWith('127.0.0.1');
+  const treatSubdomain = host === 'treat.neuralnexus.press';
+  // Allow /__treat/ prefix in local dev to preview the treat site without hosts file tweaks
+  const localPreviewPrefix = isLocal && req.path.startsWith('/__treat');
+  if (treatSubdomain || localPreviewPrefix) {
+    if (localPreviewPrefix) {
+      req.url = req.url.replace(/^\/__treat\/?/, '/');
+      if (req.url === '' || req.url === '/') req.url = '/index.html';
+    }
     if (req.path === '/' || req.path === '/index.html') {
       return res.sendFile(path.join(treatDir, 'index.html'));
     }
