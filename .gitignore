@@ -5,3 +5,7 @@ node_modules/
 .env
 .DS_Store
 npm-debug.log*
+
+# Contexto embeddings — regenerable via scripts/contexto-build-vocab.js
+data/contexto/_vocab-embeddings.bin
+scripts/.cache-*.txt

@@ -68,6 +68,21 @@ db.exec(`
     created_at TEXT DEFAULT (datetime('now'))
   );
   CREATE INDEX IF NOT EXISTS idx_connections_scores_date ON connections_scores(date);
+
+  CREATE TABLE IF NOT EXISTS contexto_scores (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,
+    nickname TEXT NOT NULL,
+    guesses INTEGER NOT NULL,
+    hints_used INTEGER NOT NULL,
+    effective_guesses INTEGER NOT NULL,
+    time_seconds INTEGER NOT NULL,
+    completed INTEGER NOT NULL,
+    created_at TEXT DEFAULT (datetime('now'))
+  );
+  CREATE INDEX IF NOT EXISTS idx_contexto_scores_date ON contexto_scores(date);
+  CREATE INDEX IF NOT EXISTS idx_contexto_date_eff ON contexto_scores(date, effective_guesses);
+  CREATE INDEX IF NOT EXISTS idx_contexto_date_time ON contexto_scores(date, time_seconds);
 `);
 
 const stmts = {
@@ -93,6 +108,11 @@ const stmts = {
   getConnectionsLeaderboard: db.prepare('SELECT nickname, mistakes, completed, solved_order FROM connections_scores WHERE date = ? AND completed = 1 ORDER BY mistakes ASC, created_at ASC LIMIT 50'),
   getConnectionsAllByDate: db.prepare('SELECT nickname, mistakes, completed, solved_order FROM connections_scores WHERE date = ? ORDER BY mistakes ASC, created_at ASC LIMIT 50'),
   getPastConnectionsDates: db.prepare('SELECT DISTINCT date FROM connections_scores ORDER BY date DESC LIMIT 60'),
+
+  insertContextoScore: db.prepare('INSERT INTO contexto_scores (date, nickname, guesses, hints_used, effective_guesses, time_seconds, completed) VALUES (?, ?, ?, ?, ?, ?, ?)'),
+  getContextoByGuesses: db.prepare('SELECT nickname, guesses, hints_used, effective_guesses, time_seconds, completed FROM contexto_scores WHERE date = ? AND completed = 1 ORDER BY effective_guesses ASC, time_seconds ASC LIMIT 50'),
+  getContextoByTime: db.prepare('SELECT nickname, guesses, hints_used, effective_guesses, time_seconds, completed FROM contexto_scores WHERE date = ? AND completed = 1 ORDER BY time_seconds ASC, effective_guesses ASC LIMIT 50'),
+  getPastContextoDates: db.prepare('SELECT DISTINCT date FROM contexto_scores ORDER BY date DESC LIMIT 60'),
 };
 
 module.exports = {
@@ -195,6 +215,20 @@ module.exports = {
 
   getPastConnectionsDates() {
     return stmts.getPastConnectionsDates.all().map(r => r.date);
+  },
+
+  // Contexto
+  submitContextoScore(date, nickname, guesses, hintsUsed, effectiveGuesses, timeSeconds, completed) {
+    stmts.insertContextoScore.run(date, nickname, guesses, hintsUsed, effectiveGuesses, timeSeconds, completed ? 1 : 0);
+  },
+
+  getContextoLeaderboard(date, tab) {
+    const stmt = tab === 'speed' ? stmts.getContextoByTime : stmts.getContextoByGuesses;
+    return stmt.all(date);
+  },
+
+  getPastContextoDates() {
+    return stmts.getPastContextoDates.all().map(r => r.date);
   },
 
   close() {
