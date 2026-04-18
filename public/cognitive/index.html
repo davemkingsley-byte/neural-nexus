@@ -7,26 +7,26 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <meta name="msapplication-config" content="/browserconfig.xml">
 <meta name="theme-color" content="#0a0a1a">
-<title>Cognitive Performance | Neural NeXus</title>
-<meta name="description" content="Track cognitive performance on Neural NeXus with reaction time, memory, attention, and daily brain-health measurements.">
-<link rel="canonical" href="https://www.neuralnexus.press/cognitive/">
+<title>Health Hub | Neural NeXus</title>
+<meta name="description" content="Unified Neural NeXus health hub for cognitive tests, WHOOP recovery data, SFN symptom tracking, supplement timelines, and longitudinal trends.">
+<link rel="canonical" href="https://www.neuralnexus.press/app/health">
 
-<meta name="twitter:description" content="Track cognitive performance on Neural NeXus with reaction time, memory, attention, and daily brain-health measurements.">
+<meta name="twitter:description" content="Unified Neural NeXus health hub for cognitive tests, WHOOP recovery data, SFN symptom tracking, supplement timelines, and longitudinal trends.">
 <meta name="twitter:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
-<meta name="twitter:title" content="Cognitive Performance | Neural NeXus">
+<meta name="twitter:title" content="Health Hub | Neural NeXus">
 <meta name="twitter:card" content="summary_large_image">
 <meta property="og:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
-<meta property="og:url" content="https://www.neuralnexus.press/cognitive/">
+<meta property="og:url" content="https://www.neuralnexus.press/app/health">
 <meta property="og:type" content="website">
-<meta property="og:description" content="Track cognitive performance on Neural NeXus with reaction time, memory, attention, and daily brain-health measurements.">
-<meta property="og:title" content="Cognitive Performance | Neural NeXus">
+<meta property="og:description" content="Unified Neural NeXus health hub for cognitive tests, WHOOP recovery data, SFN symptom tracking, supplement timelines, and longitudinal trends.">
+<meta property="og:title" content="Health Hub | Neural NeXus">
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "name": "Brain Check — Neural NeXus",
-  "url": "https://www.neuralnexus.press/cognitive",
-  "description": "Track your cognitive performance with daily brain tests measuring reaction time, memory, focus, and processing speed. Free on Neural NeXus.",
+  "name": "Health Hub — Neural NeXus",
+  "url": "https://www.neuralnexus.press/app/health",
+  "description": "Unified Neural NeXus health hub for cognitive tests, WHOOP recovery data, SFN symptom tracking, supplement timelines, and long-term trends.",
   "applicationCategory": "HealthApplication",
   "operatingSystem": "Web",
   "offers": {
@@ -55,8 +55,8 @@
     {
       "@type": "ListItem",
       "position": 2,
-      "name": "Brain Check",
-      "item": "https://www.neuralnexus.press/cognitive"
+      "name": "Health Hub",
+      "item": "https://www.neuralnexus.press/app/health"
     }
   ]
 }
@@ -190,6 +190,46 @@ body {
   font-weight: 600;
   color: var(--gold);
   margin-left: auto;
+}
+
+.health-tabs {
+  position: sticky;
+  top: 12px;
+  z-index: 5;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0 0 28px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: rgba(6, 6, 11, 0.82);
+  backdrop-filter: blur(20px);
+}
+.health-tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.02);
+  color: var(--text-mid);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.health-tab:hover,
+.health-tab.active {
+  border-color: rgba(212,168,83,0.35);
+  background: var(--gold-dim);
+  color: var(--gold);
+}
+
+.health-section {
+  scroll-margin-top: 96px;
 }
 
 /* Header */
@@ -586,11 +626,9 @@ body {
     <span class="cog-nav-sep">|</span>
     <a href="/app/">App</a>
     <span class="cog-nav-sep">|</span>
-    <a href="/cognitive/" class="cog-nav-active">Overview</a>
+    <a href="/app/health" class="cog-nav-active">Health Hub</a>
     <span class="cog-nav-sep">|</span>
     <a href="/cognitive/analytics.html">Analytics</a>
-    <span class="cog-nav-sep">|</span>
-    <a href="#symptoms" onclick="document.getElementById('symptomsSection').scrollIntoView({behavior:'smooth'});return false;">Symptoms</a>
     <span class="cog-nav-sep">|</span>
     <span class="cog-nav-label">Tests:</span>
     <a href="/cognitive/dual-n-back.html">N-Back</a>
@@ -607,10 +645,19 @@ body {
   </nav>
 
   <header class="page-header">
-    <h1>Cognitive Performance</h1>
-    <p class="subtitle">Track, test, and optimize your cognitive abilities</p>
+    <h1 id="cognitiveHeading">Health Hub</h1>
+    <p class="subtitle">One place for cognition, recovery, symptoms, supplements, and long-term trends</p>
   </header>
 
+  <nav class="health-tabs" id="healthTabs" aria-label="Health Hub sections">
+    <a class="health-tab active" href="#cognitiveSection" data-section="cognitiveSection">Cognitive</a>
+    <a class="health-tab" href="#whoopSection" data-section="whoopSection">WHOOP</a>
+    <a class="health-tab" href="#symptomsSection" data-section="symptomsSection">SFN</a>
+    <a class="health-tab" href="#supplementsSection" data-section="supplementsSection">Supplements</a>
+    <a class="health-tab" href="#trendsSection" data-section="trendsSection">Trends</a>
+  </nav>
+
+  <section class="health-section" id="cognitiveSection" aria-labelledby="cognitiveHeading">
   <!-- Status Banner -->
   <div class="card status-banner" id="statusBanner">
     <div class="status-info">
@@ -671,8 +718,10 @@ body {
     <div style="margin-bottom:28px;"><button class="btn-gold" id="btnSyncChess" onclick="syncChess()" style="font-size:0.82rem;padding:8px 18px;">Sync Chess.com</button> <span id="chessSyncStatus" style="font-size:0.82rem;color:var(--text-dim);margin-left:8px;"></span></div>
   </div>
 
+  </section>
+
   <!-- WHOOP Section -->
-  <div id="whoopSection">
+  <div id="whoopSection" class="health-section">
     <h2 class="section-title">WHOOP Biometrics</h2>
     <div id="whoopNotConnected" class="card" style="padding:20px;text-align:center;margin-bottom:28px;display:none;">
       <p style="color:var(--text-mid);margin-bottom:12px;">Connect your WHOOP to track sleep, recovery, and HRV</p>
@@ -709,7 +758,7 @@ body {
     </div>
   </div>
 
-  <div id="symptomsSection" style="margin-bottom:32px;">
+  <div id="symptomsSection" class="health-section" style="margin-bottom:32px;">
     <h2 class="section-title">SFN Symptom Tracking</h2>
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
       <a href="/app/sfn-daily.html" id="symptomsDailyLink" class="btn-gold" style="font-size:0.82rem;padding:8px 18px;">Daily Check</a>
@@ -741,40 +790,51 @@ body {
 
   <!-- Test Buttons -->
   <div class="tests-grid">
-    <a href="dual-n-back.html" class="card test-card">
+    <a href="/cognitive/dual-n-back.html" class="card test-card">
       <span class="icon">&#129504;</span>
       <div class="name">Dual N-Back</div>
       <div class="desc">Working memory &amp; attention</div>
     </a>
-    <a href="pvt.html" class="card test-card">
+    <a href="/cognitive/pvt.html" class="card test-card">
       <span class="icon">&#9889;</span>
       <div class="name">PVT</div>
       <div class="desc">Reaction time &amp; alertness</div>
     </a>
-    <a href="dsst.html" class="card test-card">
+    <a href="/cognitive/dsst.html" class="card test-card">
       <span class="icon">&#128290;</span>
       <div class="name">DSST</div>
       <div class="desc">Processing speed &amp; attention</div>
     </a>
-    <a href="stroop.html" class="card test-card">
+    <a href="/cognitive/stroop.html" class="card test-card">
       <span class="icon">&#127912;</span>
       <div class="name">Stroop</div>
       <div class="desc">Inhibitory control &amp; interference</div>
     </a>
-    <a href="avlt.html" class="card test-card">
+    <a href="/cognitive/avlt.html" class="card test-card">
       <span class="icon">&#128221;</span>
       <div class="name">AVLT</div>
       <div class="desc">Verbal memory &amp; word recall</div>
     </a>
-    <a href="tmtb.html" class="card test-card">
+    <a href="/cognitive/tmtb.html" class="card test-card">
       <span class="icon">&#128256;</span>
       <div class="name">TMT-B</div>
       <div class="desc">Cognitive flexibility &amp; set-shifting</div>
     </a>
   </div>
 
+  <!-- Supplement Timeline -->
+  <section id="supplementsSection" class="supplement-timeline health-section" aria-labelledby="supplementsHeading">
+    <h2 class="section-title" id="supplementsHeading">Supplement Timeline</h2>
+    <div class="card" style="padding:16px">
+      <div class="supp-list" id="suppList">
+        <div class="supp-empty">Loading supplements&hellip;</div>
+      </div>
+    </div>
+  </section>
+
   <!-- Charts -->
-  <h2 class="section-title">Trends</h2>
+  <section id="trendsSection" class="health-section" aria-labelledby="trendsHeading">
+  <h2 class="section-title" id="trendsHeading">Trends</h2>
   <div class="charts-grid">
     <div class="card chart-card">
       <h3>N-Back Level Over Time</h3>
@@ -862,15 +922,8 @@ body {
     </div>
   </div>
 
-  <!-- Supplement Timeline -->
-  <div class="supplement-timeline">
-    <h2 class="section-title">Supplement Timeline</h2>
-    <div class="card" style="padding:16px">
-      <div class="supp-list" id="suppList">
-        <div class="supp-empty">Loading supplements&hellip;</div>
-      </div>
-    </div>
-  </div>
+
+  </section>
 
   <!-- Daily Check-in -->
   <div class="checkin-section">
@@ -911,9 +964,52 @@ body {
 <script>
 // ── Helpers ──
 const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
 const today = new Date();
 const todayStr = today.toISOString().slice(0, 10);
 const queryKey = new URLSearchParams(window.location.search).get('key') || '';
+
+function initHealthTabs() {
+  const tabs = $$('.health-tab');
+  const sections = tabs
+    .map(tab => document.getElementById(tab.dataset.section))
+    .filter(Boolean);
+
+  const setActiveTab = (id) => {
+    tabs.forEach(tab => tab.classList.toggle('active', tab.dataset.section === id));
+  };
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', (event) => {
+      const section = document.getElementById(tab.dataset.section);
+      if (!section) return;
+      event.preventDefault();
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      history.replaceState(null, '', `#${tab.dataset.section}`);
+      setActiveTab(tab.dataset.section);
+    });
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    const visible = entries
+      .filter(entry => entry.isIntersecting)
+      .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+    if (visible?.target?.id) setActiveTab(visible.target.id);
+  }, {
+    rootMargin: '-30% 0px -55% 0px',
+    threshold: [0.15, 0.3, 0.6]
+  });
+
+  sections.forEach(section => observer.observe(section));
+
+  if (window.location.hash) {
+    const target = document.querySelector(window.location.hash);
+    if (target) {
+      requestAnimationFrame(() => target.scrollIntoView({ block: 'start' }));
+      setActiveTab(target.id);
+    }
+  }
+}
 const API = {
   results: '/api/cognitive/results?days=30',
   supplements: '/api/cognitive/supplements',
@@ -942,7 +1038,7 @@ async function apiFetch(url) {
   try {
     const r = await fetch(withKey(url), { credentials: 'same-origin' });
     if (r.status === 401) {
-      window.location.href = '/cognitive/?key=';
+      window.location.href = '/dashboard?return=' + encodeURIComponent('/app/health');
       return null;
     }
     if (!r.ok) return null;
@@ -1155,7 +1251,7 @@ async function init() {
       const dateStr = new Date(s.start_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
       return `<div class="supp-item">
         <span class="supp-dot" style="background:${c}"></span>
-        <span class="supp-name">${s.name}</span>
+        <span class="supp-name">${s.name || s.compound_name || 'Unnamed supplement'}</span>
         <span class="supp-date">Started ${dateStr}</span>
       </div>`;
     }).join('');
@@ -1309,9 +1405,9 @@ async function init() {
     statusEl.innerHTML = `${doneCount}/3 completed: ${parts.join(' &middot; ')}`;
 
     // Link to first uncompleted test
-    if (!todayTests.nback) batteryBtn.href = 'dual-n-back.html';
-    else if (!todayTests.pvt) batteryBtn.href = 'pvt.html';
-    else batteryBtn.href = 'dsst.html';
+    if (!todayTests.nback) batteryBtn.href = '/cognitive/dual-n-back.html';
+    else if (!todayTests.pvt) batteryBtn.href = '/cognitive/pvt.html';
+    else batteryBtn.href = '/cognitive/dsst.html';
   }
 
   // Fetch streak data
@@ -1481,7 +1577,7 @@ $('#checkinForm').addEventListener('submit', async (e) => {
       body: JSON.stringify(payload),
     });
     if (r.status === 401) {
-      window.location.href = '/cognitive/?key=';
+      window.location.href = '/dashboard?return=' + encodeURIComponent('/app/health');
       return;
     }
     if (r.ok) {
@@ -1779,6 +1875,7 @@ async function runComparison(idA, idB) {
 
 // ── Init ──
 async function initPhases() { await loadPhases(); }
+initHealthTabs();
 init();
 initPhases();
 </script>

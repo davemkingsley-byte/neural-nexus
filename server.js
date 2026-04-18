@@ -112,6 +112,8 @@ const NOINDEX_PATHS = [
   '/dashboard',
   '/morpheus',
   '/seo-report',
+  '/app/health',
+  '/app/health/',
 ];
 const NOINDEX_PREFIXES = [
   '/pm-charters/',
@@ -175,6 +177,14 @@ function getArticleLastmodByTopic(slug) {
     .sort()
     .reverse();
   return dates[0] || null;
+}
+
+function getTopicOgImage(slug) {
+  const relativePath = path.join('img', 'topics', `${slug}.jpg`);
+  const absolutePath = path.join(__dirname, 'public', relativePath);
+  return fs.existsSync(absolutePath)
+    ? `${SITE_URL}/${relativePath}`
+    : `${SITE_URL}/img/neuron-logo.jpg`;
 }
 
 function buildSitemapEntries() {
@@ -247,10 +257,57 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
-  const host = (req.headers.host || '').toLowerCase();
+// ── Treat Biosciences subdomain (treat.neuralnexus.press) ──────────
+const treatDir = path.join(__dirname, 'public', 'treat');
+const treatContactFile = path.join(__dirname, 'data', 'treat-contacts.json');
+
+app.post('/api/treat/contact', (req, res) => {
+  const host = (req.headers.host || '').toLowerCase().replace(/:\d+$/, '');
   const isLocal = host.startsWith('localhost') || host.startsWith('127.0.0.1');
-  if (host && !isLocal && host !== CANONICAL_HOST) {
+  if (!isLocal && host !== 'treat.neuralnexus.press') {
+    return res.status(403).json({ error: 'Forbidden' });
+  }
+  const { name, organization, inquiry, message } = req.body;
+  if (!name || !organization || !message) {
+    return res.status(400).json({ error: 'All fields are required.' });
+  }
+  if (name.length > 200 || organization.length > 200 || message.length > 5000) {
+    return res.status(400).json({ error: 'Field too long.' });
+  }
+  const entry = { name, organization, inquiry: inquiry || 'general', message, timestamp: new Date().toISOString() };
+  try {
+    let contacts = [];
+    if (fs.existsSync(treatContactFile)) {
+      contacts = JSON.parse(fs.readFileSync(treatContactFile, 'utf8'));
+    }
+    contacts.push(entry);
+    fs.writeFileSync(treatContactFile, JSON.stringify(contacts, null, 2));
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Treat contact save error:', err.message);
+    res.status(500).json({ error: 'Server error.' });
+  }
+});
+
+app.use((req, res, next) => {
+  const host = (req.headers.host || '').toLowerCase().replace(/:\d+$/, '');
+  if (host === 'treat.neuralnexus.press') {
+    if (req.path === '/' || req.path === '/index.html') {
+      return res.sendFile(path.join(treatDir, 'index.html'));
+    }
+    return express.static(treatDir)(req, res, () => {
+      // SPA fallback — serve index.html for unmatched paths
+      res.sendFile(path.join(treatDir, 'index.html'));
+    });
+  }
+  next();
+});
+// ── End Treat subdomain ────────────────────────────────────────────
+
+app.use((req, res, next) => {
+  const host = (req.headers.host || '').toLowerCase().replace(/:\d+$/, '');
+  const isLocal = host.startsWith('localhost') || host.startsWith('127.0.0.1');
+  if (host && !isLocal && host !== CANONICAL_HOST && host !== 'treat.neuralnexus.press') {
     return res.redirect(301, `${SITE_URL}${req.originalUrl}`);
   }
 
@@ -270,11 +327,36 @@ app.use((req, res, next) => {
 
 // Protect dashboard data from public access
 const DASHBOARD_PASS = process.env.DASHBOARD_PASS || 'nexus2026';
-function dashboardAuth(req, res, next) {
+function hasDashboardAuth(req) {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
-  if (match && match[1] === 'authenticated') return next();
+  return Boolean(match && match[1] === 'authenticated');
+}
+
+function sanitizeDashboardReturnPath(returnTo = '/dashboard') {
+  if (typeof returnTo !== 'string') return '/dashboard';
+  if (!returnTo.startsWith('/') || returnTo.startsWith('//')) return '/dashboard';
+  return returnTo;
+}
+
+function dashboardAuth(req, res, next) {
+  if (hasDashboardAuth(req)) return next();
   res.status(401).json({ error: 'unauthorized' });
+}
+
+function extensionlessHtmlFallback(dir) {
+  return (req, res, next) => {
+    if (path.extname(req.path) || req.path.endsWith('/')) return next();
+
+    const relativePath = req.path.replace(/^\/+/, '');
+    const htmlPath = path.join(dir, `${relativePath}.html`);
+    if (fs.existsSync(htmlPath)) {
+      const search = req.url.slice(req.path.length);
+      req.url = `${req.path}.html${search}`;
+    }
+
+    next();
+  };
 }
 app.get('/', (req, res) => {
   renderPage(res, 'pages/home', {
@@ -365,28 +447,50 @@ app.use('/pm', (req, res, next) => {
   res.redirect('/dashboard');
 }, express.static(path.join(__dirname, 'public', 'pm')));
 
+const pmChartersDir = path.join(__dirname, 'public', 'pm-charters');
 app.use('/pm-charters', (req, res, next) => {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === 'authenticated') return next();
   res.redirect('/dashboard');
-}, express.static(path.join(__dirname, 'public', 'pm-charters')));
+}, extensionlessHtmlFallback(pmChartersDir), express.static(pmChartersDir));
+
+app.get(['/treat-docs/development-cost-analysis-v3', '/treat-docs/development-cost-analysis-v3.html'], (req, res) => {
+  const suffix = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  res.redirect(301, `/treat-docs/cost-analysis-v3${suffix}`);
+});
 
 // Treat Biosciences research documents (password-protected)
+const treatDocsDir = path.join(__dirname, 'public', 'treat-docs');
 app.use('/treat-docs', (req, res, next) => {
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === 'authenticated') return next();
   res.redirect('/dashboard');
-}, express.static(path.join(__dirname, 'public', 'treat-docs')));
+}, extensionlessHtmlFallback(treatDocsDir), express.static(treatDocsDir));
+
+// Treat Biosciences preview (public, no auth)
+app.get(['/treat-preview', '/treat-preview/'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'treat-preview', 'index.html'));
+});
+app.use('/treat-preview', express.static(path.join(__dirname, 'public', 'treat-preview'), { redirect: false }));
+
+// Unified health hub entry point
+app.get(['/cognitive', '/cognitive/', '/cognitive/index.html'], (req, res) => {
+  const suffix = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
+  res.redirect(301, `/app/health${suffix}`);
+});
 
 // Cognitive performance dashboard (password-protected)
 app.use('/cognitive', (req, res, next) => {
-  const cookies = req.headers.cookie || '';
-  const match = cookies.match(/dash_auth=([^;]+)/);
-  if (match && match[1] === 'authenticated') return next();
+  if (hasDashboardAuth(req)) return next();
   res.redirect('/dashboard');
 }, express.static(path.join(__dirname, 'public', 'cognitive')));
+
+// Unified health hub entry point
+app.get(['/app/health', '/app/health/'], dashboardLoginPage, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'cognitive', 'index.html'));
+});
 
 app.get('/app/sw.js', (req, res) => {
   res.setHeader('Service-Worker-Allowed', '/app/');
@@ -790,9 +894,26 @@ function dashboardLoginPage(req, res, next) {
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === 'authenticated') return next();
   const failed = req.query.failed === '1';
-  const returnTo = req.path || '/dashboard';
-  res.send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="robots" content="noindex, nofollow">
-<title>Dashboard Login</title>
+  const returnTo = sanitizeDashboardReturnPath(req.query.return || req.path || '/dashboard');
+  const pageTitle = returnTo === '/morpheus' ? 'Morpheus Login' : 'Dashboard Login';
+  const pageDescription = returnTo === '/morpheus'
+    ? 'Secure login for the Neural NeXus Morpheus workspace.'
+    : 'Secure login for the Neural NeXus dashboard.';
+  const canonicalUrl = `${SITE_URL}${returnTo}`;
+  const ogTitle = `${pageTitle} — Neural NeXus`;
+  res.send(`<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><meta name="robots" content="noindex, nofollow">
+<title>${ogTitle}</title>
+<meta name="description" content="${pageDescription}">
+<link rel="canonical" href="${canonicalUrl}">
+<meta property="og:title" content="${ogTitle}">
+<meta property="og:description" content="${pageDescription}">
+<meta property="og:url" content="${canonicalUrl}">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${ogTitle}">
+<meta name="twitter:description" content="${pageDescription}">
+<meta name="twitter:image" content="https://www.neuralnexus.press/img/neuron-logo.jpg">
 <style>body{background:#06060b;color:#f0f0f5;font-family:system-ui;display:flex;justify-content:center;align-items:center;min-height:100vh}
 .login{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:2.5rem;max-width:360px;width:90%}
 h2{font-size:1.4rem;margin-bottom:1rem}
@@ -811,7 +932,7 @@ app.get('/morpheus', dashboardLoginPage, (req, res) => {
 });
 app.post('/dashboard', loginLimiter, (req, res) => {
   const key = req.body.key;
-  const returnTo = req.query.return || '/dashboard';
+  const returnTo = sanitizeDashboardReturnPath(req.query.return || '/dashboard');
   if (key === DASHBOARD_PASS) {
     res.cookie('dash_auth', 'authenticated', { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true, sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
     return res.redirect(returnTo);
@@ -893,7 +1014,7 @@ app.get('/topics/:slug', (req, res) => {
     topicArticles,
     relatedArticles,
     relatedTopics,
-    ogImage: `https://www.neuralnexus.press/img/topics/${topic.slug}.jpg`,
+    ogImage: getTopicOgImage(topic.slug),
     ogType: 'article',
     breadcrumbItems: [
       { label: 'Home', href: '/' },
@@ -2712,7 +2833,7 @@ app.get('/api/whoop/callback', async (req, res) => {
     if (!tokenRes.ok) {
       const err = await tokenRes.text();
       console.error('WHOOP token exchange failed:', err);
-      return res.redirect('/cognitive/index.html?whoop=error');
+      return res.redirect('/app/health?whoop=error');
     }
 
     const tokens = await tokenRes.json();
@@ -2734,10 +2855,10 @@ app.get('/api/whoop/callback', async (req, res) => {
       console.log('WHOOP OAuth: refresh_token received and stored. Auto-refresh enabled.');
     }
 
-    res.redirect('/cognitive/index.html?whoop=connected');
+    res.redirect('/app/health?whoop=connected');
   } catch (err) {
     console.error('WHOOP callback error:', err);
-    res.redirect('/cognitive/index.html?whoop=error');
+    res.redirect('/app/health?whoop=error');
   }
 });
 
