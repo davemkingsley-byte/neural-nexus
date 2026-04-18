@@ -16,10 +16,7 @@
   <meta property="og:image" content="<%= locals.ogImage || 'https://www.neuralnexus.press/img/neuron-logo.jpg' %>">
   <meta property="og:url" content="<%= canonical %>">
   <meta property="og:type" content="<%= locals.ogType || 'website' %>">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="<%= title === 'Neural NeXus' ? title : `${title} — Neural NeXus` %>">
-  <meta name="twitter:description" content="<%= description %>">
-  <meta name="twitter:image" content="<%= locals.ogImage || 'https://www.neuralnexus.press/img/neuron-logo.jpg' %>">
+  <link rel="alternate" type="application/rss+xml" title="Neural NeXus" href="/feed.xml">
   <meta name="google-site-verification" content="kW4a01m15KuJy1nc9RStj2h4bXvGCTIBrMhCHTxUiSs">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

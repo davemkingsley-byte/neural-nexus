@@ -5,7 +5,7 @@
   <p class="hero-sub">Weekly long-form analysis from <strong>a working scientist</strong> at the frontier of de-extinction and artificial biology. No hype. No fluff. Just the research that matters.</p>
   <div class="hero-actions">
     <a href="#subscribe" class="btn-primary">Subscribe free &rarr;</a>
-    <a href="#games" class="btn-games">&#x1F3AE; Play daily games</a>
+    <a href="https://blog.neuralnexus.press" target="_blank" rel="noopener noreferrer" class="btn-games">Read latest issue &rarr;</a>
   </div>
   <div class="topic-ticker">
     <span class="topic-pill tp-ai">Artificial Intelligence</span>
@@ -63,9 +63,7 @@
         <a href="https://instagram.com/Davidkingsley.phd" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;color:var(--text-mid);font-size:0.75rem;font-weight:600;text-decoration:none;transition:color 0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='var(--text-mid)'"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>Instagram</a>
       </div>
       <p class="about-bio">
-        PhD scientist working on de-extinction and artificial womb technology at Colossal Biosciences. 
-        Neural NeXus is where I write about the technologies shaping our future — biotech, AI, health, 
-        and the science at their intersection. Deep expertise, no fluff.
+        I'm a PhD scientist at Colossal Biosciences — the company bringing back the woolly mammoth and building artificial wombs. Neural NeXus is where I write about the science reshaping civilization: AI, biotech, longevity, and the technologies most people haven't heard of yet. Deep expertise, no fluff.
       </p>
     </div>
   </div>
@@ -107,6 +105,7 @@
       <p>Connecting dots between breakthroughs. The big picture of where this is all going.</p>
     </div>
   </div>
+  <div class="explore-topics"><a href="/topics" class="explore-topics-link">Explore all topics &rarr;</a></div>
 </section>
 
 <!-- Games -->
@@ -156,6 +155,7 @@
     <input type="email" class="subscribe-input" placeholder="you@email.com" id="email-input" autocomplete="email">
     <button class="subscribe-btn" id="subscribe-btn">Subscribe →</button>
   </div>
+  <div class="subscribe-status" id="subscribe-status" role="status" aria-live="polite"></div>
   <div class="sub-stats">
     <div class="sub-stat">
       <div class="sub-stat-num" style="color:var(--accent);">1,000+</div>
@@ -173,27 +173,41 @@
   <div class="sub-note">Delivered via Substack · Unsubscribe anytime</div>
 </section>
 <script>
-document.getElementById('subscribe-btn').addEventListener('click', () => {
-  const email = document.getElementById('email-input').value.trim();
-  window.open(email 
-    ? 'https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=home-subscribe&email=' + encodeURIComponent(email) 
-    : 'https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=home-subscribe', '_blank');
-});
-document.getElementById('email-input').addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('subscribe-btn').click();
-});
+(function() {
+  var btn = document.getElementById('subscribe-btn');
+  var input = document.getElementById('email-input');
+  var status = document.getElementById('subscribe-status');
+  function go() {
+    var email = input.value.trim();
+    var url = email
+      ? 'https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=home-subscribe&email=' + encodeURIComponent(email)
+      : 'https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=home-subscribe';
+    if (status) { status.textContent = 'Redirecting to Substack…'; status.classList.add('visible'); }
+    setTimeout(function() { window.open(url, '_blank', 'noopener'); }, 350);
+  }
+  btn.addEventListener('click', go);
+  input.addEventListener('keydown', function(e) { if (e.key === 'Enter') go(); });
+})();
 
-window.addEventListener('load', () => {
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) { e.target.style.opacity = '1'; e.target.style.transform = 'translateY(0)'; }
+// Scroll-reveal: only hide elements that are NOT already in the viewport on load,
+// so content above the fold appears instantly.
+window.addEventListener('load', function() {
+  var observer = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
+  var nodes = document.querySelectorAll('.card, .about-card, .game-card, .article-card');
+  nodes.forEach(function(el) {
+    var rect = el.getBoundingClientRect();
+    if (rect.top > window.innerHeight) {
+      el.classList.add('animate-on-scroll');
+      observer.observe(el);
+    }
   });
-}, { threshold: 0.1 });
-document.querySelectorAll('.card, .about-card, .game-card, .article-card').forEach(el => {
-  el.style.opacity = '0'; el.style.transform = 'translateY(16px)';
-  el.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-  observer.observe(el);
-});
 });
 </script>
 

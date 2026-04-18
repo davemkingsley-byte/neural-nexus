@@ -97,6 +97,94 @@ const charterDataPath = path.join(__dirname, 'public', 'data', 'charters.json');
 app.locals.articles = articles;
 app.locals.topics = topics;
 
+// --- Substack RSS fetch (cached, 1h TTL) ---
+// Feeds the homepage's featured articles. Falls back to static articles.json on any failure.
+const httpsModule = require('https');
+const SUBSTACK_FEED_URL = 'https://blog.neuralnexus.press/feed';
+const RSS_TTL_MS = 3600000; // 1 hour
+let rssCache = null;
+let rssCacheTime = 0;
+
+function fetchUrl(url, redirectsLeft = 3) {
+  return new Promise((resolve, reject) => {
+    const req = httpsModule.get(url, { timeout: 5000, headers: { 'User-Agent': 'NeuralNexus/1.0 (+https://www.neuralnexus.press)' } }, (res) => {
+      if ([301, 302, 307, 308].includes(res.statusCode) && res.headers.location && redirectsLeft > 0) {
+        res.resume();
+        return resolve(fetchUrl(new URL(res.headers.location, url).toString(), redirectsLeft - 1));
+      }
+      if (res.statusCode !== 200) {
+        res.resume();
+        return reject(new Error(`HTTP ${res.statusCode} from ${url}`));
+      }
+      let data = '';
+      res.setEncoding('utf8');
+      res.on('data', (chunk) => { data += chunk; });
+      res.on('end', () => resolve(data));
+    });
+    req.on('timeout', () => { req.destroy(new Error('Request timeout')); });
+    req.on('error', reject);
+  });
+}
+
+function parseRSSItems(xml, limit = 4) {
+  const items = [];
+  const itemRegex = /<item>([\s\S]*?)<\/item>/g;
+  let match;
+  while ((match = itemRegex.exec(xml)) !== null && items.length < limit) {
+    const item = match[1];
+    const grab = (re) => (item.match(re) || [])[1] || '';
+    const title = grab(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/) || grab(/<title>([\s\S]*?)<\/title>/);
+    const url = grab(/<link>([\s\S]*?)<\/link>/).trim();
+    const pubDate = grab(/<pubDate>([\s\S]*?)<\/pubDate>/);
+    const descriptionRaw = grab(/<description><!\[CDATA\[([\s\S]*?)\]\]><\/description>/) || grab(/<description>([\s\S]*?)<\/description>/);
+    const enclosure = grab(/<enclosure[^>]+url="([^"]+)"/);
+    const mediaThumb = grab(/<media:thumbnail[^>]+url="([^"]+)"/);
+    const mediaContent = grab(/<media:content[^>]+url="([^"]+)"/);
+    const thumbnail = enclosure || mediaThumb || mediaContent || '';
+    const description = descriptionRaw
+      .replace(/<[^>]+>/g, '')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/\s+/g, ' ')
+      .trim();
+    // Homepage template expects YYYY-MM-DD and prepends T12:00:00Z when parsing.
+    let dateIso = '';
+    if (pubDate) {
+      const d = new Date(pubDate);
+      if (!isNaN(d.getTime())) dateIso = d.toISOString().slice(0, 10);
+    }
+    items.push({
+      title: title.trim(),
+      url,
+      date: dateIso,
+      description: description.slice(0, 160),
+      thumbnail
+    });
+  }
+  return items;
+}
+
+async function getSubstackPosts(limit = 4) {
+  const now = Date.now();
+  if (rssCache && (now - rssCacheTime) < RSS_TTL_MS) return rssCache.slice(0, limit);
+  try {
+    const xml = await fetchUrl(SUBSTACK_FEED_URL);
+    const parsed = parseRSSItems(xml, 12);
+    if (parsed.length > 0) {
+      rssCache = parsed;
+      rssCacheTime = now;
+    }
+    return (rssCache || []).slice(0, limit);
+  } catch (e) {
+    console.error('Substack RSS fetch failed:', e.message);
+    return (rssCache || []).slice(0, limit); // serve stale cache if we have it
+  }
+}
+
 function xmlEscape(value = '') {
   return String(value)
     .replace(/&/g, '&amp;')
@@ -366,12 +454,19 @@ function extensionlessHtmlFallback(dir) {
     next();
   };
 }
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
+  // Prefer live Substack RSS; fall back to static articles.json if the feed is unavailable.
+  let featured = [];
+  try {
+    featured = await getSubstackPosts(4);
+  } catch (_) { featured = []; }
+  if (!featured || featured.length === 0) featured = articles.slice(0, 4);
+
   renderPage(res, 'pages/home', {
     title: 'Neural NeXus',
     description: 'Weekly deep dives on AI, biotech, robotics, semiconductors, health, and the future by David Kingsley, PhD. Read Neural NeXus.',
     canonical: 'https://www.neuralnexus.press/',
-    featuredArticles: articles.slice(0, 4),
+    featuredArticles: featured,
     structuredData: [{
       '@context': 'https://schema.org',
       '@type': 'WebSite',
@@ -662,10 +757,31 @@ app.get('/api/charters/:id', (req, res) => {
   res.json(sanitizeCharter(charter));
 });
 
+// JSON endpoint exposing the same Substack RSS the homepage uses.
+app.get('/api/posts', async (req, res) => {
+  try {
+    const limit = Math.min(parseInt(req.query.limit, 10) || 4, 12);
+    const posts = await getSubstackPosts(limit);
+    res.set('Cache-Control', 'public, max-age=600');
+    res.json({ posts });
+  } catch (e) {
+    res.status(500).json({ posts: [], error: 'rss_unavailable' });
+  }
+});
+
 // redirect: false prevents the trailing-slash 301 redirect for directory URLs,
 // which was causing a /topics <-> /topics/ loop (public/topics/ exists as a dir
 // with no index.html, and app.get('/topics') handles that URL itself).
-app.use(express.static(path.join(__dirname, 'public'), { redirect: false }));
+app.use(express.static(path.join(__dirname, 'public'), {
+  redirect: false,
+  setHeaders: (res, filePath) => {
+    if (/\.(jpg|jpeg|png|gif|webp|svg|ico)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 day
+    } else if (/\.(css|js)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour
+    }
+  }
+}));
 
 app.get('/test-ejs', (req, res) => {
   res.render('layouts/base', {

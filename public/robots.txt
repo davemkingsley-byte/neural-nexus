@@ -1,5 +1,14 @@
 User-agent: *
 Allow: /
 Disallow: /api/
+Disallow: /cognitive/
+Disallow: /dashboard
+Disallow: /morpheus
+Disallow: /rca
+Disallow: /treat-docs/
+Disallow: /treat-preview/
+Disallow: /app/
+Disallow: /pm
+Disallow: /pm-charters/
 
 Sitemap: https://www.neuralnexus.press/sitemap.xml

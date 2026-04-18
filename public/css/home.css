@@ -1,3 +1,47 @@
 body.home-page main {
   padding-top: 0;
 }
+
+/* Scroll-reveal — only applied to elements below the fold on initial load. */
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.animate-on-scroll.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Subscribe inline feedback. */
+.subscribe-status {
+  opacity: 0;
+  margin-top: 10px;
+  font-size: 0.8rem;
+  color: var(--accent, #60a5fa);
+  letter-spacing: 0.01em;
+  transition: opacity 0.2s ease;
+  min-height: 1.2em;
+}
+.subscribe-status.visible {
+  opacity: 1;
+}
+
+/* "Explore all topics" link under the coverage grid. */
+.explore-topics {
+  margin-top: 24px;
+  text-align: center;
+}
+.explore-topics-link {
+  color: var(--text-mid, #b0b0c0);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+.explore-topics-link:hover {
+  color: var(--accent, #60a5fa);
+  border-bottom-color: var(--accent, #60a5fa);
+}
