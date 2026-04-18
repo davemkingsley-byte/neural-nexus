@@ -46,7 +46,7 @@
     <div class="main-shell">
       <%- include('../partials/header') %>
       <main><%- body %></main>
-      <%- include('../partials/subscribe-cta') %>
+      <% if (!locals.hideSubscribeCta) { %><%- include('../partials/subscribe-cta') %><% } %>
       <%- include('../partials/footer') %>
     </div>
   <% } %>

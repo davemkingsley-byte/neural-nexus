@@ -1,8 +1,40 @@
 <!-- Hero -->
 <section class="hero">
-  <div class="hero-kicker">By a PhD scientist</div>
-  <h1>Deep dives on <span class="highlight">biotech</span>, <span class="highlight">AI</span>, and the <span class="highlight-alt">science of what comes next</span></h1>
-  <p class="hero-sub">Weekly long-form analysis from <strong>a working scientist</strong> at the frontier of de-extinction and artificial biology. No hype. No fluff. Just the research that matters.</p>
+  <div class="hero-visual" aria-hidden="true">
+    <svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="hg1" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stop-color="#6c8cff" stop-opacity="0.35"/>
+          <stop offset="55%" stop-color="#a78bfa" stop-opacity="0.08"/>
+          <stop offset="100%" stop-color="#06060b" stop-opacity="0"/>
+        </radialGradient>
+        <linearGradient id="hg2" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="rgba(108,140,255,0.55)"/>
+          <stop offset="100%" stop-color="rgba(167,139,250,0.15)"/>
+        </linearGradient>
+      </defs>
+      <rect width="800" height="600" fill="url(#hg1)"/>
+      <g stroke="url(#hg2)" stroke-width="0.8" fill="none" opacity="0.55">
+        <path d="M120 420 L240 300 L360 360 L460 220 L580 280 L700 180"/>
+        <path d="M80 180 L200 220 L320 140 L440 200 L560 120 L680 200"/>
+        <path d="M150 520 L280 460 L400 520 L520 440 L640 500 L760 420"/>
+        <path d="M60 320 L180 380 L300 280 L420 340 L540 260 L660 320 L780 260"/>
+      </g>
+      <g fill="#a78bfa">
+        <circle cx="240" cy="300" r="2.2" opacity="0.75"/>
+        <circle cx="460" cy="220" r="2.4" opacity="0.8"/>
+        <circle cx="320" cy="140" r="2.2" opacity="0.7"/>
+        <circle cx="560" cy="120" r="1.8" opacity="0.85"/>
+        <circle cx="400" cy="520" r="2" opacity="0.65"/>
+        <circle cx="300" cy="280" r="2" opacity="0.7"/>
+        <circle cx="540" cy="260" r="1.8" opacity="0.9"/>
+        <circle cx="680" cy="200" r="2" opacity="0.6"/>
+      </g>
+    </svg>
+  </div>
+  <div class="hero-kicker">By a PhD scientist at Colossal Biosciences</div>
+  <h1>The science <span class="highlight">rewriting biology</span>, <span class="highlight">intelligence</span>, and <span class="highlight-alt">what comes next</span></h1>
+  <p class="hero-sub">Weekly long-form analysis from <strong>a working scientist</strong> on the frontier of de-extinction and artificial biology. The research reshaping civilization — before it hits the news.</p>
   <div class="hero-actions">
     <a href="#subscribe" class="btn-primary">Subscribe free &rarr;</a>
     <a href="https://blog.neuralnexus.press" target="_blank" rel="noopener noreferrer" class="btn-games">Read latest issue &rarr;</a>
@@ -29,9 +61,10 @@
   <div class="section-label">Latest</div>
   <h2 class="section-title">Recent deep dives</h2>
   <div class="article-grid">
-    <% (locals.featuredArticles || []).forEach(function(article) { %>
-    <a href="<%= article.url %>" target="_blank" rel="noopener noreferrer" class="article-card">
+    <% (locals.featuredArticles || []).forEach(function(article, idx) { %>
+    <a href="<%= article.url %>" target="_blank" rel="noopener noreferrer" class="article-card<%= idx === 0 ? ' article-card-featured' : '' %>">
       <div class="article-meta">
+        <% if (idx === 0) { %><div class="article-flag">Latest</div><% } %>
         <div class="article-date"><%= new Date(article.date + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></div>
         <h3><%= article.title %></h3>
         <p class="desc"><%= article.description %></p>
@@ -73,37 +106,37 @@
 <section class="section-wrap" id="topics">
   <div class="section-label">Coverage</div>
   <h2 class="section-title">What we write about</h2>
-  <div class="card-grid">
-    <div class="card">
+  <div class="card-grid card-grid-topics">
+    <a class="card topic-card t-bio" href="/topics/biotech">
       <span class="card-icon">🧬</span>
-      <h3>Biotech & De-Extinction</h3>
+      <h3>Biotech &amp; De-Extinction</h3>
       <p>Gene editing, synthetic biology, artificial wombs, and bringing species back from the dead.</p>
-    </div>
-    <div class="card">
+    </a>
+    <a class="card topic-card t-ai" href="/topics/ai">
       <span class="card-icon">🧠</span>
       <h3>Artificial Intelligence</h3>
       <p>Foundation models, agents, and AGI. What's real, what's hype, and what actually matters.</p>
-    </div>
-    <div class="card">
+    </a>
+    <a class="card topic-card t-health" href="/topics/health">
       <span class="card-icon">🏥</span>
-      <h3>Health & Longevity</h3>
+      <h3>Health &amp; Longevity</h3>
       <p>Drug discovery, bioinformatics, personalized medicine, and the science of living longer.</p>
-    </div>
-    <div class="card">
+    </a>
+    <a class="card topic-card t-robotics" href="/topics/robotics">
       <span class="card-icon">🤖</span>
       <h3>Robotics</h3>
       <p>Humanoids, automation, and the machines reshaping labor and daily life.</p>
-    </div>
-    <div class="card">
+    </a>
+    <a class="card topic-card t-chips" href="/topics/semiconductors">
       <span class="card-icon">⚡</span>
       <h3>Semiconductors</h3>
       <p>Chip wars, fab capacity, compute economics, and the silicon powering everything.</p>
-    </div>
-    <div class="card">
+    </a>
+    <a class="card topic-card t-future" href="/topics">
       <span class="card-icon">🔮</span>
       <h3>The Future</h3>
       <p>Connecting dots between breakthroughs. The big picture of where this is all going.</p>
-    </div>
+    </a>
   </div>
   <div class="explore-topics"><a href="/topics" class="explore-topics-link">Explore all topics &rarr;</a></div>
 </section>

@@ -482,7 +482,8 @@ app.get('/', async (req, res) => {
     pageType: 'home',
     pageCampaign: 'home',
     pageCSS: 'home.css',
-    bodyClass: 'home-page'
+    bodyClass: 'home-page',
+    hideSubscribeCta: true  // homepage has its own full subscribe section; avoid duplicate CTA
   });
 });
 
