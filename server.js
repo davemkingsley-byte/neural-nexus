@@ -58,6 +58,15 @@ try {
   console.error('Failed to load connections puzzles module:', err.message);
 }
 
+// Contexto puzzles module
+let contextoPuzzles;
+try {
+  contextoPuzzles = require('./src/contexto-puzzles');
+  console.log('Contexto puzzles module loaded successfully');
+} catch (err) {
+  console.error('Failed to load contexto puzzles module:', err.message);
+}
+
 const app = express();
 const PORT = process.env.PORT || 4000;
 
@@ -860,6 +869,24 @@ app.get('/connections', (req, res) => {
     hideSiteChrome: true
   });
 });
+app.get('/contexto', (req, res) => {
+  renderPage(res, 'games/contexto', {
+    title: 'Contexto',
+    description: 'Play the daily Neural NeXus Contexto puzzle — guess the word by semantic similarity.',
+    canonical: 'https://www.neuralnexus.press/contexto',
+    activePage: 'games',
+    pageType: 'game',
+    structuredData: [
+      buildBreadcrumbJsonLd([
+        { label: 'Home', href: '/' },
+        { label: 'Games', href: '/contexto' },
+        { label: 'Contexto', href: '/contexto' }
+      ]),
+      buildGameJsonLd({ name: 'Contexto — Neural NeXus', description: 'Free daily word puzzle. Guess the target word using semantic similarity hints. New word every day.', url: 'https://www.neuralnexus.press/contexto' })
+    ],
+    hideSiteChrome: true
+  });
+});
 
 // Dashboard (password-protected)
 function dashboardLoginPage(req, res, next) {
@@ -1488,6 +1515,102 @@ app.get('/api/connections/archive/:date', (req, res) => {
   } catch (err) {
     console.error('Error getting connections archive date:', err);
     res.status(500).json({ error: 'Failed to get data' });
+  }
+});
+
+// ─── Contexto API ─────────────────────────────────────────────────────────────
+app.get('/api/contexto/today', (req, res) => {
+  try {
+    if (!contextoPuzzles) return res.status(503).json({ error: 'Contexto module not loaded' });
+    const dateStr = req.query.date || getTodayStr();
+    const puzzle = contextoPuzzles.getPuzzleForDate(dateStr);
+    if (!puzzle) return res.status(404).json({ error: 'No puzzle available' });
+    // Never send target or rankings to client
+    res.json({ date: dateStr, totalWords: puzzle.totalWords });
+  } catch (err) {
+    console.error('Error getting contexto puzzle:', err);
+    res.status(500).json({ error: 'Failed to get puzzle' });
+  }
+});
+
+app.post('/api/contexto/guess', (req, res) => {
+  try {
+    if (!contextoPuzzles) return res.status(503).json({ error: 'Contexto module not loaded' });
+    const { date, guess } = req.body || {};
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date' });
+    if (typeof guess !== 'string') return res.status(400).json({ error: 'Missing guess' });
+    const g = guess.trim().toLowerCase();
+    if (g.length < 2 || g.length > 40) return res.status(400).json({ error: 'Guess length out of range' });
+
+    const puzzle = contextoPuzzles.getPuzzleForDate(date);
+    if (!puzzle) return res.status(404).json({ error: 'No puzzle' });
+
+    const result = contextoPuzzles.lookupRank(puzzle, g);
+    res.json(result);
+  } catch (err) {
+    console.error('Error processing contexto guess:', err);
+    res.status(500).json({ error: 'Failed to process guess' });
+  }
+});
+
+app.post('/api/contexto/hint', (req, res) => {
+  try {
+    if (!contextoPuzzles) return res.status(503).json({ error: 'Contexto module not loaded' });
+    const { date, bestRank, hintsUsed } = req.body || {};
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date' });
+
+    const used = Number(hintsUsed) || 0;
+    if (used >= 3) return res.json({ error: 'hint-limit' });
+
+    const puzzle = contextoPuzzles.getPuzzleForDate(date);
+    if (!puzzle) return res.status(404).json({ error: 'No puzzle' });
+
+    const hint = contextoPuzzles.getHint(puzzle, Number(bestRank));
+    if (!hint) return res.json({ error: 'no-hints-available' });
+
+    res.json(hint);
+  } catch (err) {
+    console.error('Error processing contexto hint:', err);
+    res.status(500).json({ error: 'Failed to get hint' });
+  }
+});
+
+app.post('/api/contexto/score', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const { date, nickname, guesses, hintsUsed, timeSeconds, completed } = req.body || {};
+    if (!date || !nickname || guesses === undefined || timeSeconds === undefined) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+    const hints = Math.max(0, Math.min(3, parseInt(hintsUsed || 0, 10)));
+    const guessCount = Math.max(0, parseInt(guesses, 10));
+    const effective = guessCount + 15 * hints; // server computes, don't trust client
+    spellDB.submitContextoScore(
+      date,
+      String(nickname).trim().slice(0, 20),
+      guessCount,
+      hints,
+      effective,
+      Math.max(0, parseInt(timeSeconds, 10)),
+      completed
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Error saving contexto score:', err);
+    res.status(500).json({ error: 'Failed to save score' });
+  }
+});
+
+app.get('/api/contexto/leaderboard', (req, res) => {
+  if (!checkDB(res)) return;
+  try {
+    const date = req.query.date || getTodayStr();
+    const tab = req.query.tab === 'speed' ? 'speed' : 'guesses';
+    const entries = spellDB.getContextoLeaderboard(date, tab);
+    res.json({ entries, tab });
+  } catch (err) {
+    console.error('Error getting contexto leaderboard:', err);
+    res.status(500).json({ error: 'Failed to get leaderboard' });
   }
 });
 

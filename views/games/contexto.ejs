@@ -1,0 +1,833 @@
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #08080f;
+  --text: #f0f0f5;
+  --text-dim: rgba(255,255,255,0.45);
+  --text-mid: rgba(255,255,255,0.65);
+  --accent: #60a5fa;
+  --accent-2: #a78bfa;
+  --green: #22c55e;
+  --yellow: #eab308;
+  --orange: #f97316;
+  --red: #ef4444;
+  --surface: rgba(255,255,255,0.04);
+  --surface-2: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.08);
+  --card-bg: rgba(255,255,255,0.03);
+}
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'DM Sans', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: flex; flex-direction: column; min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Ambient */
+body::before {
+  content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+  background:
+    radial-gradient(ellipse at 25% 15%, rgba(96,165,250,0.07) 0%, transparent 50%),
+    radial-gradient(ellipse at 75% 85%, rgba(167,139,250,0.05) 0%, transparent 50%);
+  animation: ambientShift 20s ease-in-out infinite alternate;
+  pointer-events: none; z-index: 0;
+}
+body::after {
+  content: ''; position: fixed; inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.015'/%3E%3C/svg%3E");
+  pointer-events: none; z-index: 0;
+}
+@keyframes ambientShift {
+  0% { transform: translate(0,0) rotate(0deg); }
+  100% { transform: translate(-2%,-1%) rotate(3deg); }
+}
+
+/* Nav */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px; gap: 12px;
+  background: rgba(10,10,26,0.88); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+.nav-left { display: flex; align-items: center; gap: 10px; }
+.nav-brand img { width: 32px; height: 32px; border-radius: 8px; }
+.nav-divider { width: 1px; height: 20px; background: rgba(255,255,255,0.12); }
+.nav-title { font-family: 'Instrument Serif', serif; font-size: 1.15rem; color: var(--text); }
+.nav-links { display: flex; gap: 8px; align-items: center; }
+.nav-links a {
+  color: var(--text-dim); text-decoration: none; font-size: 0.82rem;
+  padding: 5px 10px; border-radius: 6px; transition: all 0.2s;
+}
+.nav-links a:hover { color: var(--text); background: var(--surface); }
+.nav-pill { background: var(--surface) !important; }
+
+/* Layout */
+main {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 20px 16px 24px; position: relative; z-index: 1;
+  max-width: 520px; margin: 0 auto; width: 100%;
+}
+
+/* Header */
+.game-header { text-align: center; margin-bottom: 14px; width: 100%; }
+.game-header h1 {
+  font-family: 'Instrument Serif', serif; font-size: 1.8rem; font-weight: 400;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 50%, var(--accent) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; background-size: 200% auto;
+  animation: shimmer 4s linear infinite;
+}
+@keyframes shimmer {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+.game-subtitle { color: var(--text-dim); font-size: 0.78rem; margin-top: 4px; letter-spacing: 0.3px; }
+
+/* Status bar */
+.status-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 10px 14px; margin-bottom: 14px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+}
+.status-group { display: flex; align-items: center; gap: 16px; }
+.status-item { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: var(--text-mid); }
+.status-item .val { font-weight: 700; color: var(--text); font-family: 'JetBrains Mono', monospace; }
+.status-divider { width: 1px; height: 18px; background: rgba(255,255,255,0.1); }
+#timer { font-family: 'JetBrains Mono', monospace; font-weight: 700; color: var(--accent); }
+
+/* Input */
+.guess-form {
+  display: flex; gap: 8px; width: 100%; margin-bottom: 10px;
+}
+.guess-input {
+  flex: 1; padding: 13px 16px; border-radius: 12px;
+  border: 1.5px solid var(--border); background: var(--surface);
+  color: var(--text); font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem; outline: none;
+  transition: all 0.2s;
+}
+.guess-input:focus { border-color: var(--accent); box-shadow: 0 0 16px rgba(96,165,250,0.12); }
+.guess-input::placeholder { color: rgba(255,255,255,0.25); }
+.btn-submit {
+  padding: 13px 22px; border-radius: 12px; border: none;
+  background: linear-gradient(135deg, var(--accent), #4f8ef7);
+  color: #fff; font-weight: 700; font-size: 0.85rem;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  box-shadow: 0 4px 16px rgba(96,165,250,0.18);
+  transition: all 0.2s;
+}
+.btn-submit:hover:not(:disabled) { box-shadow: 0 6px 22px rgba(96,165,250,0.3); transform: translateY(-1px); }
+.btn-submit:disabled { opacity: 0.5; cursor: default; }
+
+/* Hint button */
+.hint-row { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 12px; }
+.btn-hint {
+  padding: 8px 16px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-mid); cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 0.78rem; font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-hint:hover:not(:disabled) { background: var(--surface-2); color: var(--text); }
+.btn-hint:disabled { opacity: 0.4; cursor: default; }
+.hint-counter { font-size: 0.72rem; color: var(--text-dim); }
+
+/* Most recent guess */
+.latest-guess-wrap { width: 100%; min-height: 44px; margin-bottom: 10px; }
+.latest-guess { animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+@keyframes slideIn {
+  0% { opacity: 0; transform: translateY(-8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Guess item */
+.guess-item {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 10px 14px; margin-bottom: 5px;
+  border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  font-size: 0.88rem; position: relative; overflow: hidden;
+}
+.guess-item .bar {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, currentColor, transparent);
+  opacity: 0.12; pointer-events: none;
+  transition: width 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.guess-item .word {
+  flex: 1; font-weight: 700; text-transform: lowercase;
+  position: relative; z-index: 1;
+}
+.guess-item .rank {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 700; font-size: 0.82rem;
+  position: relative; z-index: 1;
+}
+/* Color by rank bucket */
+.guess-item.r-win { color: var(--green); background: rgba(34,197,94,0.1); border-color: rgba(34,197,94,0.35); }
+.guess-item.r-hot { color: var(--green); }
+.guess-item.r-warm { color: var(--yellow); }
+.guess-item.r-cool { color: var(--orange); }
+.guess-item.r-cold { color: var(--text-mid); }
+.guess-item.r-hint { color: var(--accent-2); font-style: italic; }
+.guess-item.r-hint::after { content: 'hint'; font-size: 0.6rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7; }
+
+/* Guess history */
+.guess-history { width: 100%; }
+.history-header {
+  font-size: 0.62rem; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; color: var(--text-dim); margin: 8px 0 6px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center; padding: 20px; color: var(--text-dim);
+  font-size: 0.85rem; line-height: 1.5;
+}
+
+/* Toast */
+#toast {
+  position: fixed; top: 66px; left: 50%; transform: translateX(-50%) translateY(-8px);
+  background: var(--text); color: var(--bg); padding: 9px 18px;
+  border-radius: 10px; font-weight: 600; font-size: 0.82rem;
+  opacity: 0; pointer-events: none; z-index: 250;
+  transition: opacity 0.25s, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+#toast.error { background: var(--red); color: #fff; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(8,8,15,0.85); backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.3s; padding: 16px;
+}
+.modal-overlay.show { opacity: 1; pointer-events: auto; }
+.modal {
+  background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.02) 100%);
+  border: 1px solid var(--border);
+  border-radius: 22px; padding: 28px 24px; width: min(420px, 92vw);
+  text-align: center; max-height: 90vh; overflow-y: auto;
+  animation: overlayReveal 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+  backdrop-filter: blur(30px); box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+}
+@keyframes overlayReveal {
+  0% { opacity: 0; transform: scale(0.88) translateY(20px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal h2 {
+  font-family: 'Instrument Serif', serif; font-size: 1.7rem; margin-bottom: 4px;
+  background: linear-gradient(135deg, var(--green), #86efac);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.target-word {
+  font-family: 'Instrument Serif', serif; font-size: 2.4rem;
+  margin: 10px 0; letter-spacing: 0.5px;
+  background: linear-gradient(135deg, #fff, rgba(255,255,255,0.7));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.modal-stats { display: flex; justify-content: center; gap: 22px; margin: 14px 0; }
+.stat-item { text-align: center; }
+.stat-val { font-size: 1.4rem; font-weight: 800; }
+.stat-lbl { font-size: 0.6rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+/* Leaderboard tabs */
+.lb-tabs { display: flex; gap: 6px; justify-content: center; margin: 16px 0 10px; }
+.lb-tab {
+  padding: 7px 16px; border-radius: 10px; border: 1px solid var(--border);
+  background: var(--surface); color: var(--text-mid); cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 700;
+  letter-spacing: 0.4px; transition: all 0.2s;
+}
+.lb-tab:hover { background: var(--surface-2); color: var(--text); }
+.lb-tab.active { background: rgba(96,165,250,0.15); border-color: rgba(96,165,250,0.35); color: var(--accent); }
+.lb-list { max-height: 190px; overflow-y: auto; text-align: left; margin-bottom: 14px; }
+.lb-row {
+  display: flex; justify-content: space-between; padding: 7px 12px;
+  border-radius: 8px; font-size: 0.8rem;
+}
+.lb-row:nth-child(odd) { background: rgba(255,255,255,0.03); }
+.lb-name { font-weight: 600; }
+.lb-score { color: var(--text-dim); font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
+.lb-empty { padding: 16px; text-align: center; color: var(--text-dim); font-size: 0.78rem; }
+
+/* Nickname form */
+.nickname-section { display: flex; gap: 8px; margin-bottom: 12px; }
+.nickname-input {
+  flex: 1; padding: 10px 14px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text); font-size: 0.85rem; outline: none;
+}
+.nickname-input:focus { border-color: var(--accent); }
+.btn-submit-lb {
+  padding: 10px 16px; border-radius: 10px; border: none;
+  background: var(--accent); color: #000; font-weight: 800;
+  cursor: pointer; font-size: 0.82rem; white-space: nowrap;
+  transition: all 0.2s;
+}
+.btn-submit-lb:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-submit-lb:disabled { opacity: 0.4; cursor: default; transform: none; }
+
+/* Modal actions */
+.modal-actions { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 10px; }
+.btn-modal {
+  padding: 9px 16px; border-radius: 10px;
+  background: var(--surface); border: 1px solid var(--border);
+  color: var(--text-mid); text-decoration: none;
+  font-size: 0.76rem; font-weight: 700; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+}
+.btn-modal:hover { background: var(--surface-2); color: var(--text); transform: translateY(-1px); }
+.btn-share {
+  background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(34,197,94,0.08));
+  border-color: rgba(34,197,94,0.35); color: var(--green);
+}
+.btn-share:hover { box-shadow: 0 4px 16px rgba(34,197,94,0.2); }
+
+/* Subscribe CTA */
+.game-subscribe-cta {
+  width: min(100%, 480px); margin: 8px auto 0; padding: 14px 16px;
+  background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px;
+  text-align: center; position: relative; z-index: 1;
+}
+.game-subscribe-copy { font-size: 0.76rem; color: var(--text-dim); }
+.game-subscribe-button {
+  margin-left: 8px; padding: 5px 14px; border-radius: 18px;
+  background: rgba(96,165,250,0.15); border: 1px solid rgba(96,165,250,0.3);
+  color: var(--accent); text-decoration: none; font-weight: 700; font-size: 0.76rem;
+}
+.game-subscribe-button:hover { background: rgba(96,165,250,0.25); }
+
+/* Responsive */
+@media (max-width: 480px) {
+  main { padding: 14px 10px 20px; }
+  .game-header h1 { font-size: 1.5rem; }
+  .status-group { gap: 10px; }
+  .status-item { font-size: 0.72rem; }
+  .btn-submit { padding: 12px 16px; font-size: 0.78rem; }
+  .modal { padding: 22px 16px; }
+}
+
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+const MAX_HINTS = 3;
+const HINT_PENALTY = 15;
+
+// State
+let todayDate = '';
+let totalWords = 0;
+let guesses = []; // [{word, lemma, rank, isHint, isTarget, guessNum}]
+let guessCount = 0;
+let hintsUsed = 0;
+let solved = false;
+let startedAt = null;
+let timerInterval = null;
+let secondsElapsed = 0;
+
+// DOM
+const form = document.getElementById('guess-form');
+const input = document.getElementById('guess-input');
+const submitBtn = document.getElementById('submit-btn');
+const hintBtn = document.getElementById('hint-btn');
+const hintCounter = document.getElementById('hint-counter');
+const latestWrap = document.getElementById('latest-wrap');
+const history = document.getElementById('history');
+const timerEl = document.getElementById('timer');
+const guessCountEl = document.getElementById('guess-count-val');
+const streakEl = document.getElementById('streak-val');
+const vocabEl = document.getElementById('vocab-val');
+
+function showToast(msg, isError, duration) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', !!isError);
+  t.classList.add('show');
+  clearTimeout(t._to);
+  t._to = setTimeout(() => t.classList.remove('show'), duration || 1800);
+}
+
+function startTimer() {
+  if (startedAt) return;
+  startedAt = Date.now() - secondsElapsed * 1000;
+  timerInterval = setInterval(() => {
+    secondsElapsed = Math.floor((Date.now() - startedAt) / 1000);
+    updateTimer();
+    if (secondsElapsed % 5 === 0) saveState();
+  }, 1000);
+}
+
+function stopTimer() {
+  if (timerInterval) { clearInterval(timerInterval); timerInterval = null; }
+}
+
+function updateTimer() {
+  const m = Math.floor(secondsElapsed / 60);
+  const s = secondsElapsed % 60;
+  timerEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+function rankClass(rank) {
+  if (rank === 1) return 'r-win';
+  if (rank <= 50) return 'r-hot';
+  if (rank <= 250) return 'r-warm';
+  if (rank <= 1000) return 'r-cool';
+  return 'r-cold';
+}
+
+function renderGuessItem(g, isLatest) {
+  const el = document.createElement('div');
+  el.className = 'guess-item ' + rankClass(g.rank) + (g.isHint ? ' r-hint' : '');
+  // Bar width: proportional to "closeness" (inverse of rank)
+  const pct = Math.max(2, Math.min(100, 100 * (1 - Math.log(g.rank) / Math.log(totalWords))));
+  el.innerHTML = `
+    <div class="bar" style="width: ${pct.toFixed(1)}%"></div>
+    <span class="word">${g.lemma}</span>
+    <span class="rank">${g.rank.toLocaleString()}</span>
+  `;
+  if (isLatest) el.classList.add('latest-guess');
+  return el;
+}
+
+function renderAll() {
+  // Latest guess (most recent, not sorted)
+  latestWrap.innerHTML = '';
+  if (guesses.length > 0) {
+    const last = guesses[guesses.length - 1];
+    latestWrap.appendChild(renderGuessItem(last, true));
+  }
+
+  // History: all guesses sorted by rank ascending (closest first)
+  history.innerHTML = '';
+  const sorted = [...guesses].sort((a, b) => a.rank - b.rank);
+  if (sorted.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = 'Guess any word. You\'ll see how close it is — rank 1 wins.';
+    history.appendChild(empty);
+    return;
+  }
+  sorted.forEach(g => {
+    history.appendChild(renderGuessItem(g, false));
+  });
+}
+
+function updateCounters() {
+  guessCountEl.textContent = guessCount;
+  hintCounter.textContent = `${MAX_HINTS - hintsUsed} left`;
+  hintBtn.disabled = hintsUsed >= MAX_HINTS || solved || getBestRank() === null || getBestRank() <= 5;
+  submitBtn.disabled = solved;
+  input.disabled = solved;
+  if (solved) {
+    submitBtn.textContent = 'Solved';
+    input.placeholder = 'Puzzle complete!';
+  }
+}
+
+function getBestRank() {
+  if (guesses.length === 0) return null;
+  return Math.min(...guesses.map(g => g.rank));
+}
+
+async function submitGuess() {
+  const raw = input.value.trim();
+  if (!raw) return;
+  input.value = '';
+
+  if (solved) return;
+
+  // Check for duplicate
+  if (guesses.some(g => g.lemma === raw.toLowerCase() || g.word === raw.toLowerCase())) {
+    showToast('Already guessed');
+    return;
+  }
+
+  submitBtn.disabled = true;
+  try {
+    const res = await fetch('/api/contexto/guess', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: todayDate, guess: raw })
+    });
+    const data = await res.json();
+
+    if (!data.inVocab) {
+      showToast(`"${raw}" not in vocabulary`, true);
+      return;
+    }
+
+    // Check for duplicate lemma
+    if (guesses.some(g => g.lemma === data.lemma)) {
+      showToast(`Already guessed "${data.lemma}"`);
+      return;
+    }
+
+    startTimer();
+    guessCount++;
+
+    const g = {
+      word: raw.toLowerCase(),
+      lemma: data.lemma,
+      rank: data.rank,
+      isTarget: data.isTarget,
+      isHint: false,
+      guessNum: guessCount,
+    };
+    guesses.push(g);
+    saveState();
+    renderAll();
+    updateCounters();
+
+    if (data.isTarget) {
+      solved = true;
+      stopTimer();
+      updateStreak(true);
+      setTimeout(() => showWinModal(data.lemma), 500);
+    }
+  } catch (err) {
+    showToast('Network error', true);
+  } finally {
+    submitBtn.disabled = solved;
+  }
+}
+
+async function useHint() {
+  if (solved || hintsUsed >= MAX_HINTS) return;
+  const bestRank = getBestRank();
+  if (!bestRank || bestRank <= 5) return;
+
+  hintBtn.disabled = true;
+  try {
+    const res = await fetch('/api/contexto/hint', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ date: todayDate, bestRank, hintsUsed })
+    });
+    const data = await res.json();
+    if (data.error) {
+      showToast(data.error === 'hint-limit' ? 'No hints left' : 'Too close for a hint');
+      return;
+    }
+    startTimer();
+    hintsUsed++;
+    guesses.push({
+      word: data.word,
+      lemma: data.word,
+      rank: data.rank,
+      isHint: true,
+      isTarget: false,
+      guessNum: null,
+    });
+    saveState();
+    renderAll();
+    updateCounters();
+    showToast(`Hint: ${data.word}`);
+  } catch (err) {
+    showToast('Network error', true);
+  }
+}
+
+function updateStreak(won) {
+  if (!won) return;
+  const last = localStorage.getItem('nn-contexto-last');
+  const streak = parseInt(localStorage.getItem('nn-contexto-streak') || '0', 10);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yStr = yesterday.toLocaleDateString('en-CA');
+  let newStreak;
+  if (last === todayDate) {
+    newStreak = streak; // already counted
+  } else if (last === yStr) {
+    newStreak = streak + 1;
+  } else {
+    newStreak = 1;
+  }
+  localStorage.setItem('nn-contexto-streak', String(newStreak));
+  localStorage.setItem('nn-contexto-last', todayDate);
+  streakEl.textContent = newStreak;
+}
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
+
+async function showWinModal(target) {
+  const modal = document.getElementById('modal');
+  document.getElementById('target-word').textContent = target;
+  const effective = guessCount + HINT_PENALTY * hintsUsed;
+  document.getElementById('stat-guesses').textContent = guessCount;
+  document.getElementById('stat-hints').textContent = hintsUsed;
+  document.getElementById('stat-time').textContent = formatTime(secondsElapsed);
+  document.getElementById('stat-effective').textContent = effective;
+  modal.classList.add('show');
+
+  // Submit score unless already submitted today
+  const submittedKey = 'nn-contexto-submitted-' + todayDate;
+  if (!localStorage.getItem(submittedKey)) {
+    const savedNick = localStorage.getItem('nn-nickname') || '';
+    document.getElementById('nickname-input').value = savedNick;
+  } else {
+    document.getElementById('nickname-section').style.display = 'none';
+  }
+  loadLeaderboard('guesses');
+}
+
+async function loadLeaderboard(tab) {
+  document.querySelectorAll('.lb-tab').forEach(el => {
+    el.classList.toggle('active', el.dataset.tab === tab);
+  });
+  const list = document.getElementById('lb-list');
+  list.innerHTML = '<div class="lb-empty">Loading…</div>';
+  try {
+    const res = await fetch(`/api/contexto/leaderboard?date=${todayDate}&tab=${tab}`);
+    const data = await res.json();
+    const entries = data.entries || [];
+    if (!entries.length) {
+      list.innerHTML = '<div class="lb-empty">No scores yet today</div>';
+      return;
+    }
+    const medals = ['\u{1F947}', '\u{1F948}', '\u{1F949}'];
+    list.innerHTML = entries.map((e, i) => {
+      const left = `${i < 3 ? medals[i] : i + 1} <span class="lb-name">${(e.nickname || '').replace(/</g, '&lt;')}</span>`;
+      const right = tab === 'speed'
+        ? `${formatTime(e.time_seconds)}`
+        : `${e.effective_guesses}${e.hints_used ? ` (${e.hints_used}h)` : ''}`;
+      return `<div class="lb-row"><span>${left}</span><span class="lb-score">${right}</span></div>`;
+    }).join('');
+  } catch {
+    list.innerHTML = '<div class="lb-empty">Failed to load</div>';
+  }
+}
+
+async function submitScore() {
+  const nick = document.getElementById('nickname-input').value.trim();
+  if (!nick) return;
+  localStorage.setItem('nn-nickname', nick);
+  const btn = document.getElementById('submit-lb-btn');
+  btn.disabled = true;
+  try {
+    await fetch('/api/contexto/score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        date: todayDate,
+        nickname: nick,
+        guesses: guessCount,
+        hintsUsed,
+        timeSeconds: secondsElapsed,
+        completed: true,
+      }),
+    });
+    localStorage.setItem('nn-contexto-submitted-' + todayDate, '1');
+    document.getElementById('nickname-section').style.display = 'none';
+    loadLeaderboard(document.querySelector('.lb-tab.active')?.dataset.tab || 'guesses');
+  } catch {
+    showToast('Failed to submit', true);
+    btn.disabled = false;
+  }
+}
+
+function buildShareText() {
+  const effective = guessCount + HINT_PENALTY * hintsUsed;
+  let text = `Contexto \u2014 Neural NeXus\n${todayDate}\n\n`;
+  text += `\u{1F3AF} Solved in ${guessCount} guesses`;
+  if (hintsUsed) text += ` (\u{1F4A1} ${hintsUsed} hint${hintsUsed > 1 ? 's' : ''}, +${HINT_PENALTY * hintsUsed})`;
+  text += `\n\u23F1\uFE0F  ${formatTime(secondsElapsed)}\n`;
+  text += `\u{1F4CA} Best rank progression: `;
+  // Show progression of best ranks
+  const sorted = [...guesses].filter(g => !g.isHint).sort((a, b) => a.guessNum - b.guessNum);
+  let best = Infinity;
+  const progression = [];
+  for (const g of sorted) {
+    if (g.rank < best) { best = g.rank; progression.push(best); }
+  }
+  text += progression.slice(0, 5).join(' \u2192 ');
+  text += `\n\nhttps://www.neuralnexus.press/contexto`;
+  return text;
+}
+
+function saveState() {
+  const state = { guesses, guessCount, hintsUsed, solved, secondsElapsed, startedAt: startedAt ? true : false };
+  localStorage.setItem('nn-contexto-' + todayDate, JSON.stringify(state));
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem('nn-contexto-' + todayDate);
+    return raw ? JSON.parse(raw) : null;
+  } catch { return null; }
+}
+
+function restoreStreakDisplay() {
+  const last = localStorage.getItem('nn-contexto-last');
+  const streak = parseInt(localStorage.getItem('nn-contexto-streak') || '0', 10);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yStr = yesterday.toLocaleDateString('en-CA');
+  // Streak still valid if last play was today or yesterday
+  const valid = last === todayDate || last === yStr;
+  streakEl.textContent = valid ? streak : 0;
+}
+
+async function init() {
+  try {
+    const res = await fetch('/api/contexto/today');
+    const data = await res.json();
+    todayDate = data.date;
+    totalWords = data.totalWords;
+    vocabEl.textContent = totalWords.toLocaleString();
+  } catch {
+    showToast('Failed to load puzzle', true);
+    return;
+  }
+
+  const saved = loadState();
+  if (saved) {
+    guesses = saved.guesses || [];
+    guessCount = saved.guessCount || 0;
+    hintsUsed = saved.hintsUsed || 0;
+    solved = saved.solved || false;
+    secondsElapsed = saved.secondsElapsed || 0;
+    updateTimer();
+    if (saved.startedAt && !solved) startTimer();
+    if (solved) {
+      // Don't auto-open modal — user has already seen it. But allow showing when win again triggers.
+      updateCounters();
+      renderAll();
+      return;
+    }
+  }
+
+  restoreStreakDisplay();
+  renderAll();
+  updateCounters();
+  input.focus();
+}
+
+// Event bindings
+form.addEventListener('submit', e => { e.preventDefault(); submitGuess(); });
+hintBtn.addEventListener('click', useHint);
+document.querySelectorAll('.lb-tab').forEach(tab => {
+  tab.addEventListener('click', () => loadLeaderboard(tab.dataset.tab));
+});
+document.getElementById('submit-lb-btn').addEventListener('click', submitScore);
+document.getElementById('nickname-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitScore();
+});
+document.getElementById('btn-share').addEventListener('click', () => {
+  const text = buildShareText();
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
+  }
+});
+document.getElementById('modal').addEventListener('click', e => {
+  if (e.target.id === 'modal') e.currentTarget.classList.remove('show');
+});
+
+init();
+});
+</script>
+
+<nav>
+  <div class="nav-left">
+    <a href="/" class="nav-brand"><img src="/img/neuron-logo.jpg" alt="Neural NeXus" width="1024" height="1024" decoding="async"></a>
+    <div class="nav-divider"></div>
+    <span class="nav-title">Contexto</span>
+  </div>
+  <div class="nav-links">
+    <a href="/">Home</a>
+    <a href="/play" class="nav-pill">&#x1F41D; Bee</a>
+    <a href="/wordle" class="nav-pill">&#x1F7E9; Wordie</a>
+    <a href="/connections" class="nav-pill">&#x1F7EA; Connect</a>
+    <a href="/crossword" class="nav-pill">&#x270F;&#xFE0F; Cross</a>
+  </div>
+</nav>
+
+<main>
+  <div class="game-header">
+    <h1>Guess by meaning</h1>
+    <p class="game-subtitle">Rank 1 wins &middot; closer words rank lower</p>
+  </div>
+
+  <div class="status-bar">
+    <div class="status-group">
+      <div class="status-item">Guesses <span class="val" id="guess-count-val">0</span></div>
+      <div class="status-divider"></div>
+      <div class="status-item">Time <span id="timer">0:00</span></div>
+    </div>
+    <div class="status-group">
+      <div class="status-item">Streak <span class="val" id="streak-val">0</span></div>
+      <div class="status-divider"></div>
+      <div class="status-item">Vocab <span class="val" id="vocab-val">—</span></div>
+    </div>
+  </div>
+
+  <form class="guess-form" id="guess-form" autocomplete="off">
+    <input class="guess-input" id="guess-input" type="text" placeholder="Type a word..." maxlength="30" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <button class="btn-submit" id="submit-btn" type="submit">Guess</button>
+  </form>
+
+  <div class="hint-row">
+    <button class="btn-hint" id="hint-btn" type="button">&#x1F4A1; Hint (+15 penalty)</button>
+    <span class="hint-counter" id="hint-counter">3 left</span>
+  </div>
+
+  <div class="latest-guess-wrap" id="latest-wrap"></div>
+
+  <div class="guess-history">
+    <div class="history-header">Your guesses &middot; sorted by closeness</div>
+    <div id="history"></div>
+  </div>
+</main>
+
+<div class="game-subscribe-cta">
+  <p class="game-subscribe-copy">
+    Enjoyed the puzzle? Get weekly deep dives on AI and biotech &rarr;
+    <a class="game-subscribe-button" href="https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=game-contexto" onclick="gtag('event', 'subscribe_click', {page_type: 'game', campaign: 'game-contexto'})">Subscribe</a>
+  </p>
+</div>
+
+<div id="toast"></div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2>&#x1F389; Solved!</h2>
+    <div class="target-word" id="target-word">word</div>
+    <div class="modal-stats">
+      <div class="stat-item"><div class="stat-val" id="stat-guesses">0</div><div class="stat-lbl">Guesses</div></div>
+      <div class="stat-item"><div class="stat-val" id="stat-hints">0</div><div class="stat-lbl">Hints</div></div>
+      <div class="stat-item"><div class="stat-val" id="stat-time">0:00</div><div class="stat-lbl">Time</div></div>
+      <div class="stat-item"><div class="stat-val" id="stat-effective">0</div><div class="stat-lbl">Score</div></div>
+    </div>
+
+    <div class="nickname-section" id="nickname-section">
+      <input class="nickname-input" id="nickname-input" placeholder="Your nickname" maxlength="20" autocomplete="off">
+      <button class="btn-submit-lb" id="submit-lb-btn">Submit &rarr;</button>
+    </div>
+
+    <div class="lb-tabs">
+      <button class="lb-tab active" data-tab="guesses" type="button">Fewest Guesses</button>
+      <button class="lb-tab" data-tab="speed" type="button">Fastest</button>
+    </div>
+    <div class="lb-list" id="lb-list"></div>
+
+    <div class="modal-actions">
+      <button class="btn-modal btn-share" id="btn-share">Share &#x1F4CB;</button>
+      <a href="/play" class="btn-modal">&#x1F41D; Bee</a>
+      <a href="/wordle" class="btn-modal">&#x1F7E9; Wordie</a>
+      <a href="/connections" class="btn-modal">&#x1F7EA; Connect</a>
+    </div>
+  </div>
+</div>
