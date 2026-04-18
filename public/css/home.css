@@ -5,13 +5,6 @@
 
 body.home-page main { padding-top: 0; }
 
-/* --------- Scroll-reveal (below-fold-only) --------- */
-.animate-on-scroll {
-  opacity: 0; transform: translateY(16px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-.animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
-
 /* --------- Subscribe inline feedback --------- */
 .subscribe-status {
   opacity: 0; margin-top: 10px; font-size: 0.8rem;
@@ -20,13 +13,13 @@ body.home-page main { padding-top: 0; }
 }
 .subscribe-status.visible { opacity: 1; }
 
-/* --------- Hero visual (SVG network graphic, behind copy) --------- */
+/* --------- Hero canvas particle network --------- */
 body.home-page .hero {
   position: relative;
   overflow: hidden;
   padding: 120px 24px 72px;
   min-height: 78vh;
-  max-width: none;            /* let the visual go edge-to-edge */
+  max-width: none;
 }
 body.home-page .hero > :not(.hero-visual) {
   position: relative;
@@ -34,19 +27,19 @@ body.home-page .hero > :not(.hero-visual) {
   max-width: 760px;
   margin-left: auto; margin-right: auto;
 }
-.hero-visual {
+/* canvas has presentation attrs (width/height default 300/150) that beat a
+   plain class selector in UA stylesheets — bump specificity with the tag. */
+canvas.hero-visual {
   position: absolute; inset: 0;
-  z-index: 0; pointer-events: none;
-  opacity: 0.55;
-  mask-image: radial-gradient(ellipse 70% 70% at 50% 45%, black 55%, transparent 95%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 45%, black 55%, transparent 95%);
-  animation: heroVisualPulse 12s ease-in-out infinite;
+  width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+  opacity: 0.75;
+  mask-image: radial-gradient(ellipse 75% 75% at 50% 45%, black 55%, transparent 95%);
+  -webkit-mask-image: radial-gradient(ellipse 75% 75% at 50% 45%, black 55%, transparent 95%);
 }
-.hero-visual svg { width: 100%; height: 100%; display: block; }
-@keyframes heroVisualPulse {
-  0%, 100% { opacity: 0.5; transform: scale(1); }
-  50%      { opacity: 0.65; transform: scale(1.03); }
-}
+
 body.home-page .hero h1 {
   font-size: clamp(2.6rem, 6.5vw, 4rem);
   letter-spacing: -0.01em;
@@ -56,6 +49,30 @@ body.home-page .hero-sub {
   font-size: 1.08rem;
   max-width: 560px;
   margin-bottom: 36px;
+}
+
+/* --------- Article grid skeleton / fallback --------- */
+.article-skeleton {
+  padding: 36px;
+  border: 1px dashed var(--border, rgba(255,255,255,0.08));
+  border-radius: 14px;
+  background: var(--surface, rgba(255,255,255,0.03));
+  color: var(--text-dim, #9aa0ab);
+  text-align: center;
+  font-size: 0.9rem;
+  grid-column: 1 / -1;
+}
+.article-card-fallback {
+  grid-column: 1 / -1;
+  min-height: 160px;
+  justify-content: center;
+  text-align: center;
+}
+.article-card-fallback h3 {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-weight: 400;
+  font-size: 1.4rem;
+  margin-bottom: 10px;
 }
 
 /* --------- Featured article (first card = editorial anchor) --------- */
@@ -132,12 +149,13 @@ body.home-page .card-grid-topics {
 }
 .topic-card {
   display: block;
-  padding: 30px 28px 28px;
+  padding: 32px 30px 28px;
   text-decoration: none;
   color: inherit;
   position: relative;
   overflow: hidden;
   transition: all 0.3s ease;
+  border-left: 3px solid var(--topic-accent, var(--accent));
 }
 .topic-card::before {
   content: '';
@@ -153,33 +171,34 @@ body.home-page .card-grid-topics {
   box-shadow: 0 12px 40px rgba(0,0,0,0.35);
 }
 .topic-card .card-icon {
-  font-size: 2.4rem;
+  font-size: 2.5rem;
   margin-bottom: 14px;
+  display: inline-block;
   filter: drop-shadow(0 2px 12px var(--topic-glow, rgba(108,140,255,0.35)));
 }
 .topic-card h3 {
-  font-size: 1.05rem;
+  font-size: 1.08rem;
   font-weight: 700;
   margin-bottom: 8px;
   color: var(--text);
 }
 .topic-card p {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   color: var(--text-dim);
   line-height: 1.6;
 }
 .topic-card.t-bio      { --topic-accent: #34d399; --topic-glow: rgba(52,211,153,0.35);
-  background: linear-gradient(160deg, rgba(52,211,153,0.08) 0%, rgba(52,211,153,0.02) 60%, transparent 100%); }
+  background: linear-gradient(160deg, rgba(52,211,153,0.09) 0%, rgba(52,211,153,0.02) 60%, transparent 100%); }
 .topic-card.t-ai       { --topic-accent: #a78bfa; --topic-glow: rgba(167,139,250,0.35);
-  background: linear-gradient(160deg, rgba(167,139,250,0.10) 0%, rgba(108,140,255,0.03) 60%, transparent 100%); }
+  background: linear-gradient(160deg, rgba(167,139,250,0.12) 0%, rgba(108,140,255,0.03) 60%, transparent 100%); }
 .topic-card.t-health   { --topic-accent: #f472b6; --topic-glow: rgba(244,114,182,0.35);
-  background: linear-gradient(160deg, rgba(244,114,182,0.08) 0%, rgba(236,72,153,0.02) 60%, transparent 100%); }
+  background: linear-gradient(160deg, rgba(244,114,182,0.09) 0%, rgba(236,72,153,0.02) 60%, transparent 100%); }
 .topic-card.t-robotics { --topic-accent: #fb923c; --topic-glow: rgba(251,146,60,0.35);
-  background: linear-gradient(160deg, rgba(251,146,60,0.08) 0%, rgba(234,88,12,0.02) 60%, transparent 100%); }
+  background: linear-gradient(160deg, rgba(251,146,60,0.09) 0%, rgba(234,88,12,0.02) 60%, transparent 100%); }
 .topic-card.t-chips    { --topic-accent: var(--gold); --topic-glow: rgba(240,192,64,0.35);
-  background: linear-gradient(160deg, rgba(240,192,64,0.08) 0%, rgba(234,179,8,0.02) 60%, transparent 100%); }
+  background: linear-gradient(160deg, rgba(240,192,64,0.09) 0%, rgba(234,179,8,0.02) 60%, transparent 100%); }
 .topic-card.t-future   { --topic-accent: #60a5fa; --topic-glow: rgba(96,165,250,0.35);
-  background: linear-gradient(160deg, rgba(96,165,250,0.08) 0%, rgba(129,140,248,0.02) 60%, transparent 100%); }
+  background: linear-gradient(160deg, rgba(96,165,250,0.09) 0%, rgba(129,140,248,0.02) 60%, transparent 100%); }
 
 /* --------- "Explore all topics" link --------- */
 .explore-topics { margin-top: 32px; text-align: center; }

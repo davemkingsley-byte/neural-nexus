@@ -454,19 +454,12 @@ function extensionlessHtmlFallback(dir) {
     next();
   };
 }
-app.get('/', async (req, res) => {
-  // Prefer live Substack RSS; fall back to static articles.json if the feed is unavailable.
-  let featured = [];
-  try {
-    featured = await getSubstackPosts(4);
-  } catch (_) { featured = []; }
-  if (!featured || featured.length === 0) featured = articles.slice(0, 4);
-
+app.get('/', (req, res) => {
+  // Articles are now rendered client-side via /api/posts — no blocking RSS fetch here.
   renderPage(res, 'pages/home', {
     title: 'Neural NeXus',
     description: 'Weekly deep dives on AI, biotech, robotics, semiconductors, health, and the future by David Kingsley, PhD. Read Neural NeXus.',
     canonical: 'https://www.neuralnexus.press/',
-    featuredArticles: featured,
     structuredData: [{
       '@context': 'https://schema.org',
       '@type': 'WebSite',

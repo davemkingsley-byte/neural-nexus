@@ -1,37 +1,6 @@
 <!-- Hero -->
 <section class="hero">
-  <div class="hero-visual" aria-hidden="true">
-    <svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="hg1" cx="50%" cy="40%" r="60%">
-          <stop offset="0%" stop-color="#6c8cff" stop-opacity="0.35"/>
-          <stop offset="55%" stop-color="#a78bfa" stop-opacity="0.08"/>
-          <stop offset="100%" stop-color="#06060b" stop-opacity="0"/>
-        </radialGradient>
-        <linearGradient id="hg2" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="rgba(108,140,255,0.55)"/>
-          <stop offset="100%" stop-color="rgba(167,139,250,0.15)"/>
-        </linearGradient>
-      </defs>
-      <rect width="800" height="600" fill="url(#hg1)"/>
-      <g stroke="url(#hg2)" stroke-width="0.8" fill="none" opacity="0.55">
-        <path d="M120 420 L240 300 L360 360 L460 220 L580 280 L700 180"/>
-        <path d="M80 180 L200 220 L320 140 L440 200 L560 120 L680 200"/>
-        <path d="M150 520 L280 460 L400 520 L520 440 L640 500 L760 420"/>
-        <path d="M60 320 L180 380 L300 280 L420 340 L540 260 L660 320 L780 260"/>
-      </g>
-      <g fill="#a78bfa">
-        <circle cx="240" cy="300" r="2.2" opacity="0.75"/>
-        <circle cx="460" cy="220" r="2.4" opacity="0.8"/>
-        <circle cx="320" cy="140" r="2.2" opacity="0.7"/>
-        <circle cx="560" cy="120" r="1.8" opacity="0.85"/>
-        <circle cx="400" cy="520" r="2" opacity="0.65"/>
-        <circle cx="300" cy="280" r="2" opacity="0.7"/>
-        <circle cx="540" cy="260" r="1.8" opacity="0.9"/>
-        <circle cx="680" cy="200" r="2" opacity="0.6"/>
-      </g>
-    </svg>
-  </div>
+  <canvas id="hero-canvas" class="hero-visual" aria-hidden="true"></canvas>
   <div class="hero-kicker">By a PhD scientist at Colossal Biosciences</div>
   <h1>The science <span class="highlight">rewriting biology</span>, <span class="highlight">intelligence</span>, and <span class="highlight-alt">what comes next</span></h1>
   <p class="hero-sub">Weekly long-form analysis from <strong>a working scientist</strong> on the frontier of de-extinction and artificial biology. The research reshaping civilization — before it hits the news.</p>
@@ -60,21 +29,8 @@
 <section class="section-wrap" id="articles">
   <div class="section-label">Latest</div>
   <h2 class="section-title">Recent deep dives</h2>
-  <div class="article-grid">
-    <% (locals.featuredArticles || []).forEach(function(article, idx) { %>
-    <a href="<%= article.url %>" target="_blank" rel="noopener noreferrer" class="article-card<%= idx === 0 ? ' article-card-featured' : '' %>">
-      <div class="article-meta">
-        <% if (idx === 0) { %><div class="article-flag">Latest</div><% } %>
-        <div class="article-date"><%= new Date(article.date + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) %></div>
-        <h3><%= article.title %></h3>
-        <p class="desc"><%= article.description %></p>
-        <div class="article-cta">Read →</div>
-      </div>
-      <% if (article.thumbnail) { %>
-      <img class="article-thumb" src="<%= article.thumbnail %>" alt="<%= article.title %>" loading="lazy" width="720" height="405">
-      <% } %>
-    </a>
-    <% }); %>
+  <div class="article-grid" id="article-grid" aria-busy="true">
+    <div class="article-skeleton">Loading latest posts…</div>
   </div>
   <div class="archive-link">
     <a href="/archive">Explore the on-site archive →</a>
@@ -206,10 +162,12 @@
   <div class="sub-note">Delivered via Substack · Unsubscribe anytime</div>
 </section>
 <script>
+/* Subscribe CTA */
 (function() {
   var btn = document.getElementById('subscribe-btn');
   var input = document.getElementById('email-input');
   var status = document.getElementById('subscribe-status');
+  if (!btn || !input) return;
   function go() {
     var email = input.value.trim();
     var url = email
@@ -222,26 +180,140 @@
   input.addEventListener('keydown', function(e) { if (e.key === 'Enter') go(); });
 })();
 
-// Scroll-reveal: only hide elements that are NOT already in the viewport on load,
-// so content above the fold appears instantly.
-window.addEventListener('load', function() {
-  var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.05, rootMargin: '0px 0px -20px 0px' });
-  var nodes = document.querySelectorAll('.card, .about-card, .game-card, .article-card');
-  nodes.forEach(function(el) {
-    var rect = el.getBoundingClientRect();
-    if (rect.top > window.innerHeight) {
-      el.classList.add('animate-on-scroll');
-      observer.observe(el);
+/* Articles: client-side fetch from /api/posts with graceful fallback. */
+(function() {
+  var grid = document.getElementById('article-grid');
+  if (!grid) return;
+  function fmt(d) {
+    try {
+      return new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch (_) { return d || ''; }
+  }
+  function escape(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function render(posts) {
+    grid.removeAttribute('aria-busy');
+    if (!posts || !posts.length) {
+      grid.innerHTML = '<a class="article-card article-card-fallback" href="https://blog.neuralnexus.press" target="_blank" rel="noopener noreferrer">' +
+        '<div class="article-meta"><div class="article-date">Neural NeXus</div><h3>Read the latest issues on Substack →</h3>' +
+        '<p class="desc">Weekly deep dives on AI, biotech, longevity, and the science reshaping civilization.</p></div></a>';
+      return;
     }
+    grid.innerHTML = posts.map(function(p, i) {
+      var featured = i === 0;
+      var flag = featured ? '<div class="article-flag">Latest</div>' : '';
+      var img = p.thumbnail
+        ? '<img class="article-thumb" src="' + escape(p.thumbnail) + '" alt="' + escape(p.title) + '" loading="lazy" width="720" height="405">'
+        : '';
+      return '<a href="' + escape(p.url) + '" target="_blank" rel="noopener noreferrer" class="article-card' + (featured ? ' article-card-featured' : '') + '">' +
+        '<div class="article-meta">' + flag +
+        '<div class="article-date">' + escape(fmt(p.date)) + '</div>' +
+        '<h3>' + escape(p.title) + '</h3>' +
+        (p.description ? '<p class="desc">' + escape(p.description) + '</p>' : '') +
+        '<div class="article-cta">Read →</div>' +
+        '</div>' + img + '</a>';
+    }).join('');
+  }
+  fetch('/api/posts')
+    .then(function(r) { return r.ok ? r.json() : { posts: [] }; })
+    .then(function(data) { render((data && data.posts) || []); })
+    .catch(function() { render([]); });
+})();
+
+/* Hero canvas particle network — dark, subtle, slow drift, no libs. */
+(function() {
+  var canvas = document.getElementById('hero-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  if (!ctx) return;
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    return; // respect user preference — leave canvas blank
+  }
+  var dpr = Math.min(window.devicePixelRatio || 1, 2);
+  var particles = [];
+  var width = 0, height = 0;
+  var rafId = 0;
+  var COUNT = 56;
+  var MAX_DIST = 150; // px in CSS space for line drawing
+  function resize() {
+    var rect = canvas.getBoundingClientRect();
+    width = rect.width;
+    height = rect.height;
+    canvas.width = Math.max(1, Math.round(width * dpr));
+    canvas.height = Math.max(1, Math.round(height * dpr));
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function init() {
+    resize();
+    particles = [];
+    for (var i = 0; i < COUNT; i++) {
+      particles.push({
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.22,
+        vy: (Math.random() - 0.5) * 0.22,
+        r: Math.random() * 1.4 + 0.6
+      });
+    }
+  }
+  function step() {
+    ctx.clearRect(0, 0, width, height);
+    for (var i = 0; i < particles.length; i++) {
+      var p = particles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      if (p.x < 0 || p.x > width) p.vx = -p.vx;
+      if (p.y < 0 || p.y > height) p.vy = -p.vy;
+    }
+    // lines
+    for (var i2 = 0; i2 < particles.length; i2++) {
+      for (var j = i2 + 1; j < particles.length; j++) {
+        var a = particles[i2], b = particles[j];
+        var dx = a.x - b.x, dy = a.y - b.y;
+        var d = Math.sqrt(dx * dx + dy * dy);
+        if (d < MAX_DIST) {
+          var alpha = (1 - d / MAX_DIST) * 0.22;
+          var grad = ctx.createLinearGradient(a.x, a.y, b.x, b.y);
+          grad.addColorStop(0, 'rgba(108,140,255,' + alpha + ')');
+          grad.addColorStop(1, 'rgba(167,139,250,' + alpha + ')');
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 0.7;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b.x, b.y);
+          ctx.stroke();
+        }
+      }
+    }
+    // dots with glow
+    for (var k = 0; k < particles.length; k++) {
+      var pp = particles[k];
+      var halo = ctx.createRadialGradient(pp.x, pp.y, 0, pp.x, pp.y, pp.r * 5);
+      halo.addColorStop(0, 'rgba(167,139,250,0.55)');
+      halo.addColorStop(1, 'rgba(167,139,250,0)');
+      ctx.fillStyle = halo;
+      ctx.beginPath(); ctx.arc(pp.x, pp.y, pp.r * 5, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = 'rgba(236,230,255,0.85)';
+      ctx.beginPath(); ctx.arc(pp.x, pp.y, pp.r, 0, Math.PI * 2); ctx.fill();
+    }
+    rafId = requestAnimationFrame(step);
+  }
+  init();
+  step();
+  var resizeT;
+  window.addEventListener('resize', function() {
+    clearTimeout(resizeT);
+    resizeT = setTimeout(init, 150);
   });
-});
+  // Pause when tab hidden to save CPU
+  document.addEventListener('visibilitychange', function() {
+    if (document.hidden) { cancelAnimationFrame(rafId); }
+    else { rafId = requestAnimationFrame(step); }
+  });
+})();
 </script>
 
 

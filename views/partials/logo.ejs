@@ -1,0 +1,30 @@
+<%
+  // Inline SVG lettermark. Callers pass { size, variant } via include's data arg.
+  // Unique gradient IDs per variant so multiple instances on one page don't clash.
+  const _logoSize = (locals.size || 30);
+  const _logoVariant = (locals.variant || 'nav');
+  const _gradId = 'nn-grad-' + _logoVariant;
+  const _nodeId = 'nn-node-' + _logoVariant;
+%>
+<svg class="nn-logo nn-logo-<%= _logoVariant %>" width="<%= _logoSize %>" height="<%= _logoSize %>"
+     viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"
+     role="img" aria-label="Neural NeXus logo">
+  <defs>
+    <linearGradient id="<%= _gradId %>" x1="4" y1="4" x2="36" y2="36" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#60a5fa"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <radialGradient id="<%= _nodeId %>" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+      <stop offset="50%" stop-color="#a78bfa" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#a78bfa" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <!-- Stylized N: vertical | diagonal \ vertical |  with rounded joins -->
+  <path d="M7 33 V 7 L 33 33 V 7"
+        stroke="url(#<%= _gradId %>)" stroke-width="4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Neural node at the top-right vertex -->
+  <circle cx="33" cy="7" r="5" fill="url(#<%= _nodeId %>)"/>
+  <circle cx="33" cy="7" r="1.8" fill="#ecebff"/>
+</svg>
