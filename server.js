@@ -100,14 +100,40 @@ app.locals.topics = topics;
 // --- Substack RSS fetch (cached, 1h TTL) ---
 // Feeds the homepage's featured articles. Falls back to static articles.json on any failure.
 const httpsModule = require('https');
+const dnsModule = require('dns');
+// Substack is set as a custom domain (blog.neuralnexus.press). The substack.com
+// subdomain 301-redirects into this, so we go straight to the authoritative host.
 const SUBSTACK_FEED_URL = 'https://blog.neuralnexus.press/feed';
 const RSS_TTL_MS = 3600000; // 1 hour
 let rssCache = null;
 let rssCacheTime = 0;
 
+// Custom DNS lookup — prefer c-ares direct resolve, fall back to system getaddrinfo.
+// Rationale: macOS mDNSResponder holds long negative caches (flushable only with
+// sudo), so if a hostname was NXDOMAIN recently, getaddrinfo keeps failing even
+// after the CNAME is fixed at the registrar. dns.resolve4 queries the DNS server
+// directly and sidesteps that cache.
+// Node's http(s) agent calls this with { all: true } — must return an array in
+// that case (array-of-object form), otherwise a single address string.
+function resolveLookup(hostname, options, callback) {
+  dnsModule.resolve4(hostname, (err, addrs) => {
+    if (!err && addrs && addrs.length) {
+      if (options && options.all) {
+        return callback(null, addrs.map((a) => ({ address: a, family: 4 })));
+      }
+      return callback(null, addrs[0], 4);
+    }
+    dnsModule.lookup(hostname, options, callback);
+  });
+}
+
 function fetchUrl(url, redirectsLeft = 3) {
   return new Promise((resolve, reject) => {
-    const req = httpsModule.get(url, { timeout: 5000, headers: { 'User-Agent': 'NeuralNexus/1.0 (+https://www.neuralnexus.press)' } }, (res) => {
+    const req = httpsModule.get(url, {
+      timeout: 5000,
+      lookup: resolveLookup,
+      headers: { 'User-Agent': 'NeuralNexus/1.0 (+https://www.neuralnexus.press)' }
+    }, (res) => {
       if ([301, 302, 307, 308].includes(res.statusCode) && res.headers.location && redirectsLeft > 0) {
         res.resume();
         return resolve(fetchUrl(new URL(res.headers.location, url).toString(), redirectsLeft - 1));
@@ -168,9 +194,9 @@ function parseRSSItems(xml, limit = 4) {
   return items;
 }
 
-async function getSubstackPosts(limit = 4) {
+async function getSubstackPosts(limit = 4, forceRefresh = false) {
   const now = Date.now();
-  if (rssCache && (now - rssCacheTime) < RSS_TTL_MS) return rssCache.slice(0, limit);
+  if (!forceRefresh && rssCache && (now - rssCacheTime) < RSS_TTL_MS) return rssCache.slice(0, limit);
   try {
     const xml = await fetchUrl(SUBSTACK_FEED_URL);
     const parsed = parseRSSItems(xml, 12);
@@ -752,12 +778,16 @@ app.get('/api/charters/:id', (req, res) => {
 });
 
 // JSON endpoint exposing the same Substack RSS the homepage uses.
+// Supports ?refresh=1 to bust the in-process cache (handy after DNS changes).
 app.get('/api/posts', async (req, res) => {
   try {
     const limit = Math.min(parseInt(req.query.limit, 10) || 4, 12);
-    const posts = await getSubstackPosts(limit);
-    res.set('Cache-Control', 'public, max-age=600');
-    res.json({ posts });
+    const refresh = req.query.refresh === '1' || req.query.refresh === 'true';
+    if (refresh) { rssCache = null; rssCacheTime = 0; }
+    const posts = await getSubstackPosts(limit, refresh);
+    // Shorter cache header when refresh was requested so intermediaries don't re-serve stale.
+    res.set('Cache-Control', refresh ? 'no-store' : 'public, max-age=600');
+    res.json({ posts, cached: !refresh && !!posts.length });
   } catch (e) {
     res.status(500).json({ posts: [], error: 'rss_unavailable' });
   }
