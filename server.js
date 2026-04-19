@@ -89,6 +89,24 @@ function renderPage(res, view, options) {
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: false }));
 
+// ── TEMPORARY: blog.neuralnexus.press custom-domain redirect ────────────────
+// The Substack Cloudflare-for-SaaS custom hostname for blog.neuralnexus.press
+// is currently in a failed/invalid state, so every request to that host
+// 404s/1014s. Route requests arriving on that host to a working Substack URL
+// until the custom domain is re-verified in Substack's dashboard. Once it is,
+// delete this block.
+app.use((req, res, next) => {
+  const host = (req.hostname || (req.headers.host || '').split(':')[0] || '').toLowerCase();
+  if (host === 'blog.neuralnexus.press') {
+    // Substack's direct publication URL 301s into the custom domain (which is
+    // broken), so we route readers to the publication profile on substack.com,
+    // which is always reachable. From there, readers can reach posts, subscribe,
+    // and David can reach his dashboard.
+    return res.redirect(302, 'https://substack.com/@davidkingsley');
+  }
+  next();
+});
+
 const packageJson = require('./package.json');
 const topics = require('./data/topics.json');
 const articles = require('./data/articles.json');
