@@ -634,6 +634,54 @@ body.site-shell main {
   .mobile-drawer {
     width: min(320px, 92vw);
   }
+
+  /* Footer links need ≥44px tap target on mobile. */
+  .site-footer-group ul { gap: 4px; }
+  .site-footer-group a {
+    display: inline-block;
+    padding: 12px 4px;
+    font-size: 0.9rem;
+  }
+
+  /* Mobile drawer nav items get generous tap area. */
+  .mobile-drawer ul li a {
+    display: block;
+    padding: 14px 20px;
+    min-height: 44px;
+  }
+
+  /* Subscribe CTA button on non-home pages (shared partial). */
+  .subscribe-cta .btn-primary {
+    min-height: 48px;
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Inputs anywhere else on site should not trigger iOS auto-zoom. */
+  input[type="email"], input[type="text"], input[type="search"], textarea, select {
+    font-size: 16px;
+  }
+
+  /* Game page navs (inline-styled per game) overflow at 375px — these classes
+     come from spelling-bee / wordle / crossword / connections / contexto / their
+     archive pages. Make the nav-link row horizontally scrollable and prevent
+     wrapping so all games stay reachable with a swipe. */
+  .game-nav > div,
+  nav .nav-links,
+  nav > .nav-links {
+    overflow-x: auto !important;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    flex-wrap: nowrap !important;
+    max-width: calc(100vw - 100px) !important;
+  }
+  .game-nav > div::-webkit-scrollbar,
+  nav .nav-links::-webkit-scrollbar,
+  nav > .nav-links::-webkit-scrollbar { display: none; }
+  .nav-pill, .game-nav-link, .nav-links a {
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+  }
 }
 
 @media (max-width: 375px) {

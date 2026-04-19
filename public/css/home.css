@@ -267,3 +267,49 @@ body.home-page .about-bio {
   body.home-page .about-photo { width: 140px; height: 140px; }
   body.home-page .about-handle { justify-content: center; }
 }
+
+/* --------- Mobile (<= 640px): tap targets + input font sizing --------- */
+@media (max-width: 640px) {
+  /* Subscribe input: 16px prevents iOS Safari from auto-zooming on focus. */
+  body.home-page .subscribe-input { font-size: 16px !important; min-height: 44px; }
+  body.home-page .subscribe-btn { min-height: 44px; font-size: 15px; }
+  body.home-page .subscribe-form { flex-direction: column; gap: 10px; }
+  body.home-page .subscribe-form .subscribe-input,
+  body.home-page .subscribe-form .subscribe-btn { width: 100%; }
+
+  /* Game card CTAs need to hit the 44px minimum tap size. */
+  body.home-page #games .game-card .btn-game {
+    min-height: 44px;
+    padding: 12px 20px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Hero CTAs full-width on mobile. */
+  body.home-page .hero-actions { flex-direction: column; width: 100%; gap: 10px; }
+  body.home-page .hero-actions .btn-primary,
+  body.home-page .hero-actions .btn-games {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+  }
+
+  /* Featured article card: stack vertically (already handled at 720px but tighten). */
+  body.home-page .article-card-featured .article-meta { padding: 22px 20px 26px; min-height: 0; }
+  body.home-page .article-card-featured h3 { font-size: 1.25rem; }
+
+  /* Archive + about inline links: give them a tappable padded area. */
+  body.home-page .archive-link a,
+  body.home-page .about-handle a,
+  body.home-page .explore-topics-link {
+    display: inline-block;
+    padding: 10px 4px;
+  }
+
+  /* Topic cards gain a bit of padding on mobile so the tap area is comfortable. */
+  body.home-page .topic-card { padding: 26px 22px 24px; }
+
+  /* Hero kicker can get pinched by its gradient lines at 375px — tighten. */
+  body.home-page .hero-kicker { letter-spacing: 2px; }
+}
