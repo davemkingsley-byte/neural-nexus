@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RCA Tool — Agent Operations</title>
+<style>
+  :root {
+    --bg: #06060b;
+    --surface: #0f0f1a;
+    --surface2: #16162a;
+    --border: rgba(255,255,255,0.08);
+    --accent: #6366f1;
+    --accent2: #818cf8;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --danger: #ef4444;
+    --warn: #f59e0b;
+    --success: #10b981;
+    --tag-model: #7c3aed;
+    --tag-config: #0891b2;
+    --tag-dns: #b45309;
+    --tag-agent: #15803d;
+    --tag-tool: #be185d;
+    --tag-rate: #c2410c;
+    --tag-human: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; min-height: 100vh; }
+  a { color: var(--accent2); }
+
+  /* Layout */
+  .app { display: grid; grid-template-columns: 280px 1fr; min-height: 100vh; }
+  .sidebar { background: var(--surface); border-right: 1px solid var(--border); padding: 24px 16px; display: flex; flex-direction: column; gap: 8px; }
+  .main { padding: 32px; overflow-y: auto; }
+
+  /* Sidebar */
+  .sidebar-title { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); padding: 8px 8px 4px; }
+  .incident-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; }
+  .incident-item:hover { background: var(--surface2); border-color: var(--border); }
+  .incident-item.active { background: rgba(99,102,241,0.15); border-color: var(--accent); }
+  .incident-item .inc-title { font-size: 0.875rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .incident-item .inc-date { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+  .btn-new { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 8px; background: var(--accent); color: white; border: none; cursor: pointer; font-size: 0.875rem; font-weight: 600; width: 100%; transition: opacity 0.15s; }
+  .btn-new:hover { opacity: 0.85; }
+
+  /* Header */
+  .page-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 32px; gap: 16px; }
+  .page-header h1 { font-size: 1.5rem; font-weight: 700; }
+  .page-header .subtitle { font-size: 0.875rem; color: var(--muted); margin-top: 4px; }
+  .header-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  /* Buttons */
+  .btn { padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); cursor: pointer; font-size: 0.8rem; font-weight: 500; transition: all 0.15s; white-space: nowrap; }
+  .btn:hover { border-color: var(--accent); color: var(--accent2); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: white; }
+  .btn-primary:hover { opacity: 0.85; color: white; }
+  .btn-danger { border-color: var(--danger); color: var(--danger); }
+  .btn-danger:hover { background: rgba(239,68,68,0.1); }
+
+  /* Form */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+  .card-title { font-size: 1rem; font-weight: 600; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+  .card-title .step-badge { background: var(--accent); color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; flex-shrink: 0; }
+  label { display: block; font-size: 0.8rem; font-weight: 500; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.05em; }
+  input, textarea, select { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 10px 14px; color: var(--text); font-size: 0.875rem; font-family: inherit; outline: none; transition: border-color 0.15s; }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+  textarea { resize: vertical; min-height: 80px; }
+
+  /* Tags */
+  .tag-group { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .tag { padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: 1px solid transparent; transition: all 0.15s; opacity: 0.5; }
+  .tag:hover { opacity: 0.8; }
+  .tag.selected { opacity: 1; }
+  .tag-model { background: rgba(124,58,237,0.2); color: #a78bfa; border-color: var(--tag-model); }
+  .tag-config { background: rgba(8,145,178,0.2); color: #67e8f9; border-color: var(--tag-config); }
+  .tag-dns { background: rgba(180,83,9,0.2); color: #fbbf24; border-color: var(--tag-dns); }
+  .tag-agent { background: rgba(21,128,61,0.2); color: #4ade80; border-color: var(--tag-agent); }
+  .tag-tool { background: rgba(190,24,93,0.2); color: #f9a8d4; border-color: var(--tag-tool); }
+  .tag-rate { background: rgba(194,65,12,0.2); color: #fb923c; border-color: var(--tag-rate); }
+  .tag-human { background: rgba(71,85,105,0.2); color: #94a3b8; border-color: var(--tag-human); }
+
+  /* Why nodes */
+  .why-chain { display: flex; flex-direction: column; gap: 12px; }
+  .why-node { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 16px; position: relative; }
+  .why-node::before { content: ''; position: absolute; left: 24px; top: -12px; width: 2px; height: 12px; background: var(--border); }
+  .why-node:first-child::before { display: none; }
+  .why-level { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent2); margin-bottom: 8px; }
+  .why-content { font-size: 0.9rem; line-height: 1.5; }
+  .why-input-row { display: flex; gap: 8px; align-items: flex-start; }
+  .why-input-row textarea { flex: 1; min-height: 60px; }
+  .why-actions { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .why-branch { margin-left: 32px; margin-top: 12px; border-left: 2px solid var(--border); padding-left: 16px; display: flex; flex-direction: column; gap: 12px; }
+
+  /* Tree visualization */
+  .tree-container { overflow-x: auto; padding: 16px 0; }
+  .tree { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; font-size: 0.8rem; }
+  .tree-node { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 6px; background: var(--surface2); border: 1px solid var(--border); white-space: nowrap; }
+  .tree-node.root-node { border-color: var(--danger); background: rgba(239,68,68,0.1); }
+  .tree-node.incident-node { border-color: var(--accent); background: rgba(99,102,241,0.1); }
+  .tree-connector { color: var(--muted); padding-left: 16px; }
+
+  /* Report */
+  .report-section { margin-bottom: 24px; }
+  .report-section h3 { font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent2); margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+  .report-item { padding: 10px 14px; border-radius: 8px; background: var(--surface2); margin-bottom: 8px; font-size: 0.875rem; line-height: 1.5; }
+  .report-item.root { border-left: 3px solid var(--danger); }
+  .report-item.contrib { border-left: 3px solid var(--warn); }
+  .report-item.fix { border-left: 3px solid var(--success); }
+  .report-item.prevent { border-left: 3px solid var(--accent); }
+  textarea.report-input { min-height: 60px; margin-bottom: 8px; }
+
+  /* Empty state */
+  .empty { text-align: center; padding: 80px 32px; color: var(--muted); }
+  .empty h2 { font-size: 1.25rem; margin-bottom: 8px; color: var(--text); }
+  .empty p { font-size: 0.875rem; margin-bottom: 24px; }
+
+  /* Print */
+  @media print {
+    .sidebar, .header-actions, .btn, .why-input-row button, .why-actions { display: none !important; }
+    .app { grid-template-columns: 1fr; }
+    body { background: white; color: black; }
+    .card, .why-node, .report-item { background: white; border-color: #ddd; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <button class="btn-new" onclick="newIncident()">＋ New Incident</button>
+    <div class="sidebar-title" style="margin-top:16px;">Incidents</div>
+    <div id="incident-list"></div>
+  </div>
+
+  <!-- Main -->
+  <div class="main" id="main-content">
+    <div class="empty">
+      <h2>Root Cause Analysis</h2>
+      <p>Create a new incident to begin your 5-Why analysis.</p>
+      <button class="btn btn-primary" onclick="newIncident()">＋ New Incident</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const TAGS = [
+  { id: 'model', label: 'Model Failure' },
+  { id: 'config', label: 'Config Error' },
+  { id: 'dns', label: 'DNS/Infrastructure' },
+  { id: 'agent', label: 'Agent Logic' },
+  { id: 'tool', label: 'Tool Failure' },
+  { id: 'rate', label: 'Rate Limit' },
+  { id: 'human', label: 'Human Error' },
+];
+
+let state = {
+  incidents: [],
+  current: null,
+};
+
+// Load from localStorage
+function load() {
+  try {
+    const saved = localStorage.getItem('rca-state');
+    if (saved) state = JSON.parse(saved);
+  } catch(e) {}
+  renderSidebar();
+  if (state.current) renderIncident(state.current);
+}
+
+function save() {
+  localStorage.setItem('rca-state', JSON.stringify(state));
+}
+
+function newIncident() {
+  const id = 'inc-' + Date.now();
+  const inc = {
+    id,
+    title: 'Untitled Incident',
+    date: new Date().toISOString(),
+    description: '',
+    tags: [],
+    whys: [],
+    report: { rootCauses: [], contributing: [], fixes: [], prevention: [] },
+    status: 'open',
+  };
+  state.incidents.unshift(inc);
+  state.current = id;
+  save();
+  renderSidebar();
+  renderIncident(id);
+}
+
+function deleteIncident(id) {
+  if (!confirm('Delete this incident?')) return;
+  state.incidents = state.incidents.filter(i => i.id !== id);
+  if (state.current === id) {
+    state.current = state.incidents[0]?.id || null;
+  }
+  save();
+  renderSidebar();
+  if (state.current) renderIncident(state.current);
+  else document.getElementById('main-content').innerHTML = `<div class="empty"><h2>Root Cause Analysis</h2><p>No incidents. Create one to begin.</p><button class="btn btn-primary" onclick="newIncident()">＋ New Incident</button></div>`;
+}
+
+function getIncident(id) {
+  return state.incidents.find(i => i.id === id);
+}
+
+function renderSidebar() {
+  const list = document.getElementById('incident-list');
+  if (!state.incidents.length) {
+    list.innerHTML = '<div style="padding:8px 12px;font-size:0.8rem;color:var(--muted)">No incidents yet</div>';
+    return;
+  }
+  list.innerHTML = state.incidents.map(inc => `
+    <div class="incident-item ${state.current === inc.id ? 'active' : ''}" onclick="selectIncident('${inc.id}')">
+      <div class="inc-title">${esc(inc.title)}</div>
+      <div class="inc-date">${new Date(inc.date).toLocaleDateString()} · ${inc.status}</div>
+    </div>
+  `).join('');
+}
+
+function selectIncident(id) {
+  state.current = id;
+  save();
+  renderSidebar();
+  renderIncident(id);
+}
+
+function renderIncident(id) {
+  const inc = getIncident(id);
+  if (!inc) return;
+
+  const main = document.getElementById('main-content');
+  main.innerHTML = `
+    <div class="page-header">
+      <div>
+        <h1 contenteditable="true" id="inc-title" onblur="updateTitle('${id}', this.innerText)" style="outline:none;min-width:200px;">${esc(inc.title)}</h1>
+        <div class="subtitle">${new Date(inc.date).toLocaleString()} · Status:
+          <select onchange="updateStatus('${id}', this.value)" style="width:auto;padding:2px 8px;margin-left:4px;display:inline-block;">
+            <option ${inc.status==='open'?'selected':''}>open</option>
+            <option ${inc.status==='in-progress'?'selected':''}>in-progress</option>
+            <option ${inc.status==='resolved'?'selected':''}>resolved</option>
+          </select>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn" onclick="exportJSON('${id}')">↓ Export JSON</button>
+        <button class="btn" onclick="window.print()">🖨 Print</button>
+        <button class="btn btn-danger" onclick="deleteIncident('${id}')">Delete</button>
+      </div>
+    </div>
+
+    <!-- Step 1: Incident -->
+    <div class="card">
+      <div class="card-title"><span class="step-badge">1</span> Incident Description</div>
+      <label>What happened?</label>
+      <textarea id="inc-desc" placeholder="Describe the incident clearly and concisely..." onchange="updateDesc('${id}', this.value)">${esc(inc.description)}</textarea>
+      <div style="margin-top:16px;">
+        <label>Category Tags</label>
+        <div class="tag-group" id="tag-group">
+          ${TAGS.map(t => `<span class="tag tag-${t.id} ${inc.tags.includes(t.id)?'selected':''}" onclick="toggleTag('${id}','${t.id}')">${t.label}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: 5-Why -->
+    <div class="card">
+      <div class="card-title"><span class="step-badge">2</span> 5-Why Analysis</div>
+      <div class="why-chain" id="why-chain">
+        ${renderWhyChain(inc)}
+      </div>
+      <button class="btn btn-primary" style="margin-top:16px;" onclick="addWhy('${id}', null)">＋ Add Why</button>
+    </div>
+
+    <!-- Step 3: Tree -->
+    <div class="card">
+      <div class="card-title"><span class="step-badge">3</span> Causal Tree</div>
+      <div class="tree-container">
+        <div class="tree" id="tree-view">${renderTree(inc)}</div>
+      </div>
+    </div>
+
+    <!-- Step 4: Report -->
+    <div class="card">
+      <div class="card-title"><span class="step-badge">4</span> RCA Report</div>
+      ${renderReport(inc, id)}
+    </div>
+  `;
+}
+
+function renderWhyChain(inc, whys, depth, parentIdx) {
+  whys = whys || inc.whys;
+  depth = depth || 0;
+  if (!whys.length) return '<div style="color:var(--muted);font-size:0.875rem;">No causes added yet. Click "+ Add Why" to begin.</div>';
+
+  return whys.map((w, i) => {
+    const wIdx = parentIdx !== undefined ? `${parentIdx}-${i}` : `${i}`;
+    return `
+      <div class="why-node" id="why-${wIdx}">
+        <div class="why-level">Why ${depth + 1}${w.branches?.length ? ` (${w.branches.length} branches)` : ''}</div>
+        <div class="why-content">${esc(w.text) || '<em style="color:var(--muted)">No description</em>'}</div>
+        ${w.tag ? `<div style="margin-top:8px;"><span class="tag tag-${w.tag} selected" style="cursor:default;">${TAGS.find(t=>t.id===w.tag)?.label||w.tag}</span></div>` : ''}
+        <div class="why-actions">
+          <button class="btn" onclick="editWhy('${inc.id}','${wIdx}')">✏ Edit</button>
+          <button class="btn" onclick="addWhy('${inc.id}','${wIdx}')">＋ Branch</button>
+          <button class="btn btn-danger" onclick="removeWhy('${inc.id}','${wIdx}')">✕ Remove</button>
+        </div>
+        ${w.branches?.length ? `<div class="why-branch">${renderWhyChain(inc, w.branches, depth+1, wIdx)}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderTree(inc) {
+  if (!inc.description && !inc.whys.length) return '<div style="color:var(--muted)">No data yet.</div>';
+  let html = '';
+  if (inc.description) html += `<div class="tree-node incident-node">📋 ${esc(inc.description.slice(0,60))}${inc.description.length>60?'…':''}</div>`;
+
+  function walkWhys(whys, depth) {
+    whys.forEach(w => {
+      const pad = '&nbsp;'.repeat(depth * 4);
+      const arrow = depth > 0 ? '└─ ' : '↳ ';
+      html += `<div class="tree-connector">${pad}${arrow}</div>`;
+      html += `<div class="tree-node ${!w.branches?.length ? 'root-node' : ''}" style="margin-left:${depth*16}px">${w.tag ? `<span class="tag tag-${w.tag} selected" style="padding:2px 8px;cursor:default;">${TAGS.find(t=>t.id===w.tag)?.label||w.tag}</span>` : ''} ${esc(w.text?.slice(0,70)||'...')}${(w.text?.length||0)>70?'…':''}</div>`;
+      if (w.branches?.length) walkWhys(w.branches, depth+1);
+    });
+  }
+  walkWhys(inc.whys, 0);
+  return html;
+}
+
+function renderReport(inc, id) {
+  const r = inc.report;
+  return `
+    <div class="report-section">
+      <h3>Root Causes</h3>
+      ${r.rootCauses.map((c,i) => `<div class="report-item root">${esc(c)} <button class="btn btn-danger" style="float:right;padding:2px 8px;" onclick="removeReportItem('${id}','rootCauses',${i})">✕</button></div>`).join('')}
+      <textarea class="report-input" id="root-input" placeholder="Describe a root cause..."></textarea>
+      <button class="btn btn-primary" onclick="addReportItem('${id}','rootCauses','root-input')">＋ Add Root Cause</button>
+    </div>
+    <div class="report-section">
+      <h3>Contributing Factors</h3>
+      ${r.contributing.map((c,i) => `<div class="report-item contrib">${esc(c)} <button class="btn btn-danger" style="float:right;padding:2px 8px;" onclick="removeReportItem('${id}','contributing',${i})">✕</button></div>`).join('')}
+      <textarea class="report-input" id="contrib-input" placeholder="Describe a contributing factor..."></textarea>
+      <button class="btn" onclick="addReportItem('${id}','contributing','contrib-input')">＋ Add Factor</button>
+    </div>
+    <div class="report-section">
+      <h3>Recommended Fixes</h3>
+      ${r.fixes.map((c,i) => `<div class="report-item fix">${esc(c)} <button class="btn btn-danger" style="float:right;padding:2px 8px;" onclick="removeReportItem('${id}','fixes',${i})">✕</button></div>`).join('')}
+      <textarea class="report-input" id="fix-input" placeholder="Describe a fix..."></textarea>
+      <button class="btn" onclick="addReportItem('${id}','fixes','fix-input')">＋ Add Fix</button>
+    </div>
+    <div class="report-section">
+      <h3>Prevention Steps</h3>
+      ${r.prevention.map((c,i) => `<div class="report-item prevent">${esc(c)} <button class="btn btn-danger" style="float:right;padding:2px 8px;" onclick="removeReportItem('${id}','prevention',${i})">✕</button></div>`).join('')}
+      <textarea class="report-input" id="prevent-input" placeholder="Describe a prevention step..."></textarea>
+      <button class="btn" onclick="addReportItem('${id}','prevention','prevent-input')">＋ Add Prevention</button>
+    </div>
+  `;
+}
+
+// Mutations
+function updateTitle(id, val) {
+  const inc = getIncident(id);
+  inc.title = val.trim() || 'Untitled Incident';
+  save(); renderSidebar();
+}
+function updateDesc(id, val) {
+  getIncident(id).description = val; save();
+}
+function updateStatus(id, val) {
+  getIncident(id).status = val; save(); renderSidebar();
+}
+function toggleTag(id, tag) {
+  const inc = getIncident(id);
+  const idx = inc.tags.indexOf(tag);
+  if (idx >= 0) inc.tags.splice(idx, 1); else inc.tags.push(tag);
+  save();
+  document.querySelectorAll('#tag-group .tag').forEach(el => {
+    if (el.onclick.toString().includes(`'${tag}'`)) el.classList.toggle('selected');
+  });
+}
+
+function getWhyByPath(inc, path) {
+  if (path === null) return null;
+  const parts = path.split('-').map(Number);
+  let arr = inc.whys;
+  let node = null;
+  for (let i = 0; i < parts.length; i++) {
+    node = arr[parts[i]];
+    if (i < parts.length - 1) arr = node.branches = node.branches || [];
+  }
+  return { node, arr, idx: parts[parts.length-1] };
+}
+
+function addWhy(id, parentPath) {
+  const text = prompt('Describe this cause:');
+  if (!text) return;
+  const tagChoice = prompt('Tag (model/config/dns/agent/tool/rate/human or leave blank):') || '';
+  const inc = getIncident(id);
+  const newNode = { text, tag: TAGS.find(t=>t.id===tagChoice)?.id || '', branches: [] };
+  if (parentPath === null) {
+    inc.whys.push(newNode);
+  } else {
+    const { node } = getWhyByPath(inc, parentPath);
+    node.branches = node.branches || [];
+    node.branches.push(newNode);
+  }
+  save();
+  renderIncident(id);
+}
+
+function editWhy(id, path) {
+  const inc = getIncident(id);
+  const { node } = getWhyByPath(inc, path);
+  const text = prompt('Edit cause:', node.text);
+  if (text === null) return;
+  node.text = text;
+  const tagChoice = prompt('Tag (model/config/dns/agent/tool/rate/human or leave blank):', node.tag || '');
+  if (tagChoice !== null) node.tag = TAGS.find(t=>t.id===tagChoice)?.id || '';
+  save();
+  renderIncident(id);
+}
+
+function removeWhy(id, path) {
+  if (!confirm('Remove this cause and all its branches?')) return;
+  const inc = getIncident(id);
+  const parts = path.split('-').map(Number);
+  if (parts.length === 1) {
+    inc.whys.splice(parts[0], 1);
+  } else {
+    const parentPath = parts.slice(0,-1).join('-');
+    const { node } = getWhyByPath(inc, parentPath);
+    node.branches.splice(parts[parts.length-1], 1);
+  }
+  save();
+  renderIncident(id);
+}
+
+function addReportItem(id, field, inputId) {
+  const el = document.getElementById(inputId);
+  const val = el.value.trim();
+  if (!val) return;
+  getIncident(id).report[field].push(val);
+  el.value = '';
+  save();
+  renderIncident(id);
+}
+
+function removeReportItem(id, field, idx) {
+  getIncident(id).report[field].splice(idx, 1);
+  save();
+  renderIncident(id);
+}
+
+function exportJSON(id) {
+  const inc = getIncident(id);
+  const blob = new Blob([JSON.stringify(inc, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `rca-${inc.id}.json`;
+  a.click();
+}
+
+function importJSON() {
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = e => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onload = ev => {
+      try {
+        const inc = JSON.parse(ev.target.result);
+        if (!inc.id) inc.id = 'inc-' + Date.now();
+        state.incidents.unshift(inc);
+        state.current = inc.id;
+        save();
+        renderSidebar();
+        renderIncident(inc.id);
+      } catch(e) { alert('Invalid JSON file'); }
+    };
+    reader.readAsText(file);
+  };
+  input.click();
+}
+
+function esc(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+load();
+</script>
+</body>
+</html>
