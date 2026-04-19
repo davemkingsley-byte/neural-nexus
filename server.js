@@ -89,38 +89,6 @@ function renderPage(res, view, options) {
 app.use(express.json({ limit: '100kb' }));
 app.use(express.urlencoded({ extended: false }));
 
-// ── TEMPORARY: blog.neuralnexus.press custom-domain redirect ────────────────
-// The Substack Cloudflare-for-SaaS custom hostname for blog.neuralnexus.press
-// is currently failing, so every request to that host 404s/1014s. Route
-// requests per-path to whatever Substack URL actually works (many paths on
-// davidkingsley.substack.com 301 back to blog.neuralnexus.press and loop —
-// only /publish/* and the substack.com/@handle profile escape the loop).
-// Delete this block once the custom domain is re-verified in Substack.
-app.use((req, res, next) => {
-  const host = (req.hostname || (req.headers.host || '').split(':')[0] || '').toLowerCase();
-  if (host !== 'blog.neuralnexus.press') return next();
-
-  const path = req.originalUrl || '/';
-
-  // Dashboard / authoring / stats / settings-in-publish — these live on
-  // <handle>.substack.com/publish/* and redirect to Substack's login flow
-  // without bouncing back to the broken custom domain.
-  if (path.startsWith('/publish')) {
-    return res.redirect(302, 'https://davidkingsley.substack.com' + path);
-  }
-
-  // Substack sign-in path passthrough (login-required link flows).
-  if (path.startsWith('/account/login') || path.startsWith('/sign-in')) {
-    return res.redirect(302, 'https://substack.com' + path);
-  }
-
-  // Everything else — the reader-facing publication content (posts, archive,
-  // subscribe, settings, profile) all currently loop back to this host and
-  // have no working Substack URL. Best-available destination is the author's
-  // profile on substack.com, which is always reachable.
-  return res.redirect(302, 'https://substack.com/@davidkingsley');
-});
-
 const packageJson = require('./package.json');
 const topics = require('./data/topics.json');
 const articles = require('./data/articles.json');
