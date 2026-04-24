@@ -48,7 +48,7 @@
 </head>
 <body>
   <div id="wrap"><canvas id="game" aria-label="Rift Runner platform game"></canvas></div>
-  <div class="hud"><div class="pill" id="score">Shards 0</div><div class="pill" id="status">Rift 1</div><div class="pill" id="lives">Lives 3</div><div class="pill" id="version">v24</div><button class="pill mini" id="pauseBtn">↻</button></div><div id="toast" role="status" aria-live="polite"></div>
+  <div class="hud"><div class="pill" id="score">Shards 0</div><div class="pill" id="status">Rift 1</div><div class="pill" id="lives">Lives 3</div><div class="pill" id="version">v25</div><button class="pill mini" id="pauseBtn">↻</button></div><div id="toast" role="status" aria-live="polite"></div>
   <div class="controls" aria-hidden="true">
     <div class="cluster"><div class="ctrl" data-k="left">◀</div><div class="ctrl" data-k="right">▶</div></div>
     <div class="cluster"><div class="ctrl down sprint" data-k="run"><span>⚡</span><small>SPRINT</small></div><div class="ctrl big" data-k="jump">↑</div></div>
@@ -134,12 +134,12 @@
     const vv = window.visualViewport;
     const rawW = vv && vv.width ? vv.width : innerWidth, rawH = vv && vv.height ? vv.height : innerHeight;
     const vw = Math.max(280, Number.isFinite(rawW) ? rawW : innerWidth);
-    const vh = Math.max(320, Number.isFinite(rawH) ? rawH : innerHeight);
+    const vh = Math.max(220, Number.isFinite(rawH) ? rawH : innerHeight);
     const portrait = vh > vw;
     const cssW = vw;
     const top = portrait ? Math.max(36, (vv ? vv.offsetTop : 0) + 36) : 0;
     const dock = portrait ? 118 : 0;
-    const cssH = portrait ? Math.max(330, vh - top - dock) : vh;
+    const cssH = portrait ? Math.max(260, Math.min(vh - 8, vh - top - dock)) : Math.max(220, vh);
     canvas.style.width = Math.round(cssW) + 'px';
     canvas.style.height = Math.round(cssH) + 'px';
     W = portrait ? 360 : BASE_W;
@@ -195,7 +195,7 @@
     p.jumpWasDown = !!jump;
     p.jumpBuffer = Math.max(0, p.jumpBuffer-dt);
     p.coyote = p.on ? .105 : Math.max(0, p.coyote-dt);
-    const accel = run ? 1180 : 820, max = run ? 205 : 142, brake = p.on ? .00018 : .025;
+    const accel = run ? 1260 : 900, max = run ? 202 : 140, brake = p.on ? .00005 : .014;
     if(left) { p.vx -= accel*dt; p.face=-1; } if(right){ p.vx += accel*dt; p.face=1; }
     if(!left && !right) p.vx *= Math.pow(brake, dt);
     p.vx = Math.max(-max, Math.min(max, p.vx));
@@ -421,6 +421,10 @@
   function setKey(k,v){ keys[k]=v; }
   addEventListener('keydown',e=>{ if(['ArrowLeft','ArrowRight','ArrowUp','Space','Shift'].includes(e.code||e.key)) e.preventDefault(); keys[e.code] = keys[e.key] = true; });
   addEventListener('keyup',e=>{ keys[e.code] = keys[e.key] = false; });
+  function clearDirectionalInput(){ dirPointers.clear(); setKey('left',false); setKey('right',false); document.querySelectorAll('[data-k="left"],[data-k="right"]').forEach(b=>b.classList.remove('pressed')); }
+  addEventListener('pointercancel', clearDirectionalInput, {passive:false});
+  addEventListener('blur', clearDirectionalInput);
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden) clearDirectionalInput(); });
   document.querySelectorAll('[data-k]').forEach(el=>{
     const k=el.dataset.k; let activePointer=null, lastToggle=0;
     el.addEventListener('pointerdown', e=>{
@@ -448,7 +452,7 @@
   function startGame(){ if(starting) return; starting = true; if(!audioCtx){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) audioCtx=new AC(); } if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); const next=ui.start && ui.start.dataset.next==='1'; if(next) levelNo++; else levelNo=1; ui.overlay.style.display='none'; dirPointers.clear(); setKey('left',false); setKey('right',false); mobileSprint=false; const runBtn=document.querySelector('[data-k=\"run\"]'); if(runBtn){ runBtn.classList.remove('active'); runBtn.classList.remove('pressed'); const tag=runBtn.querySelector('small'); if(tag) tag.textContent='SPRINT'; } reset(!next); if(levelNo===2){ message='Rift 2: short echoes'; updateHud(); } running=true; sfx('power'); last=performance.now(); setTimeout(()=>{ starting=false; }, 250); }
   bindStart();
   ui.pause.addEventListener('pointerup', e=>{
-    e.preventDefault(); running=false; levelNo=1;
+    e.preventDefault(); running=false; clearDirectionalInput(); levelNo=1;
     ui.overlay.style.display='grid';
     ui.overlay.querySelector('#panel').innerHTML='<h1>Retry Rift?</h1><p>Reset the run and start fresh.</p><button id="start">Restart</button>';
     bindStart();
