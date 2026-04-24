@@ -13,6 +13,7 @@
     canvas { width:100vw; height:100dvh; display:block; image-rendering: pixelated; }
     .hud { position:fixed; inset: max(12px, env(safe-area-inset-top)) 12px auto 12px; display:flex; justify-content:space-between; gap:10px; color:white; font-weight:900; text-shadow:0 2px 0 #123, 0 0 8px #123; pointer-events:none; letter-spacing:.03em; }
     .pill { background:rgba(3,18,32,.35); border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:8px 12px; backdrop-filter: blur(8px); }
+    .mini { color:white; font-weight:1000; pointer-events:auto; font-size:1rem; }
     #overlay { position:fixed; inset:0; display:grid; place-items:center; padding:22px; background:radial-gradient(circle at 50% 35%, rgba(255,255,255,.25), rgba(3,12,24,.78)); color:white; text-align:center; }
     #panel { max-width:520px; background:rgba(4,18,35,.72); border:1px solid rgba(255,255,255,.22); border-radius:28px; padding:24px; box-shadow:0 20px 80px rgba(0,0,0,.35); backdrop-filter: blur(14px); }
     h1 { margin:.1rem 0 .3rem; font-size:clamp(2rem, 10vw, 4rem); line-height:.9; }
@@ -46,7 +47,7 @@
 </head>
 <body>
   <div id="wrap"><canvas id="game" aria-label="Rift Runner platform game"></canvas></div>
-  <div class="hud"><div class="pill" id="score">Shards 0</div><div class="pill" id="status">Rift 1</div><div class="pill" id="lives">Lives 3</div></div>
+  <div class="hud"><div class="pill" id="score">Shards 0</div><div class="pill" id="status">Rift 1</div><div class="pill" id="lives">Lives 3</div><button class="pill mini" id="pauseBtn">↻</button></div>
   <div class="controls" aria-hidden="true">
     <div class="cluster"><div class="ctrl" data-k="left">◀</div><div class="ctrl" data-k="right">▶</div></div>
     <div class="cluster"><div class="ctrl down sprint" data-k="run"><span>⚡</span><small>SPRINT</small></div><div class="ctrl big" data-k="jump">↑</div></div>
@@ -55,11 +56,11 @@
 <script>
 (() => {
   const canvas = document.getElementById('game'), ctx = canvas.getContext('2d');
-  const ui = { score: document.getElementById('score'), lives: document.getElementById('lives'), status: document.getElementById('status'), overlay: document.getElementById('overlay'), start: document.getElementById('start') };
+  const ui = { score: document.getElementById('score'), lives: document.getElementById('lives'), status: document.getElementById('status'), overlay: document.getElementById('overlay'), start: document.getElementById('start'), pause: document.getElementById('pauseBtn') };
   const BASE_W = 432, H = 243, keys = Object.create(null);
   let W = BASE_W, VH = H, yOff = 0, mobileSprint = false;
   const initialPanel = document.getElementById('panel').innerHTML;
-  let last = 0, cam = 0, running = false, starting = false, message = '', boostToken = 0, secretFlash = 0, shake = 0, hitPause = 0, audioCtx = null;
+  let last = 0, cam = 0, running = false, starting = false, message = '', boostToken = 0, secretFlash = 0, levelNo = 1, shake = 0, hitPause = 0, audioCtx = null;
   const levels = [{
     width: 3300,
     platforms: [[0,220,520,40],[600,220,410,40],[1080,220,95,40],[1325,220,185,40],[1600,220,150,40],[1840,220,200,40],[2130,220,160,40],[2450,220,110,40],[2650,220,650,40],[250,178,100,18],[380,154,90,18],[700,166,130,18],[890,138,100,18],[1380,146,95,18],[1710,160,130,18],[1930,132,95,18],[2250,168,120,18],[2470,140,95,18],[2740,160,120,18],[2940,128,110,18]],
@@ -67,7 +68,7 @@
     rifts: [[1085,188,34,32,[0]],[1565,188,34,32,[1]],[2190,188,34,32,[2]],[2705,188,34,32,[3]]],
     hidden: [[1124,220,220,18,false,0],[1740,220,118,18,false,0],[2280,220,185,18,false,0],[2752,148,185,18,false,0]],
     gates: [[1450,184,28,36],[2065,184,28,36],[2525,184,28,36]],
-    signs: [[1010,188,'SHARD → BRIDGE'],[1490,188,'SAFE OR PHASE?'],[2625,188,'PHASE/ECHO → SECRET']],
+    signs: [[1010,188,'SHARD → BRIDGE'],[1490,188,'SAFE OR PHASE?'],[2590,188,'ECHO STAYS 2s'],[2720,188,'ECHO → SECRET']],
     props: [[180,188,'spire'],[1000,188,'spire'],[1510,188,'arch'],[2140,188,'spire'],[2880,188,'arch']],
     coins: [[150,184],[220,184],[298,120],[330,120],[420,128],[640,184],[750,108],[900,112],[960,108],[1125,194],[1180,194],[1240,194],[1300,194],[1390,118],[1510,184],[1640,140],[1730,132],[1810,194],[1940,100],[2180,184],[2300,194],[2380,194],[2490,112],[2710,128],[2825,100],[2865,100],[2965,102],[3040,74],[3150,184]],
     enemies: [[760,188,75],[1320,188,90],[1830,188,95],[2390,188,105],[3060,188,100]],
@@ -106,7 +107,7 @@
     ctx.imageSmoothingEnabled = false;
   }
   addEventListener('resize', resize); resize(); reset(true);
-  function updateHud(){ ui.score.textContent = 'Shards ' + p.coins; ui.lives.textContent = 'Lives ' + p.lives; ui.status.textContent = message || (p.phase>0 ? 'Phase x'+(p.combo||1) : (p.phaseMemory>0 ? 'Phase echo' : 'Rift 1')); }
+  function updateHud(){ ui.score.textContent = 'Shards ' + p.coins; ui.lives.textContent = 'Lives ' + p.lives; ui.status.textContent = message || (p.phase>0 ? 'Phase x'+(p.combo||1) : (p.phaseMemory>0 ? 'Phase echo' : 'Rift '+levelNo)); }
   function hit(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
   function solidAt(r){
     const platform = L.platforms.find(([x,y,w,h]) => hit(r,{x,y,w,h}));
@@ -124,7 +125,8 @@
   function floater(x,y,text,c='#fff'){ floaters.push({x,y,text,c,t:.75}); }
   function tone(freq=440,dur=.08,type='square',gain=.045){ if(!audioCtx) return; const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type=type; o.frequency.value=freq; g.gain.setValueAtTime(gain,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+dur); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+dur); }
   function sfx(name){ const map={jump:[520,.08,'square'],coin:[880,.07,'triangle'],block:[220,.08,'sawtooth'],stomp:[150,.10,'square'],hurt:[90,.18,'sawtooth'],power:[660,.16,'triangle'],win:[980,.22,'triangle'],land:[110,.04,'square']}; const a=map[name]; if(a) tone(a[0],a[1],a[2]); }
-  function die(){ if (p.dead) return; p.lives--; p.dead=.8; shake=.35; hitPause=.08; sfx('hurt'); puff(p.x+p.w/2,p.y+p.h/2,'#ff725c',18,135); if(p.lives<1){ running=false; message='Game over'; updateHud(); ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML = '<h1>Game Over</h1><p>The rift collapsed. Final charge: <b>'+p.coins+'</b> shards.</p><button id="start">Try again</button>'; bindStart(); } else setTimeout(()=>reset(false),700); updateHud(); }
+  function die(){ if (p.dead) return; p.lives--; p.dead=.8; shake=.35; hitPause=.08; sfx('hurt'); puff(p.x+p.w/2,p.y+p.h/2,'#ff725c',18,135); if(p.lives<1){ running=false; message='Game over'; updateHud(); ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML = '<h1>Game Over</h1><p>The rift collapsed. Final charge: <b>'+p.coins+'</b> shards.</p><button id="start">Try again</button>'; bindStart();
+  ui.pause.addEventListener('pointerup', e=>{ e.preventDefault(); running=false; levelNo=1; ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML='<h1>Retry Rift?</h1><p>Reset the run and start fresh.</p><button id="start">Restart</button>'; bindStart(); }, {passive:false}); } else setTimeout(()=>reset(false),700); updateHud(); }
   function win(){
     running=false; p.win=true; message='Portal cleared!'; sfx('win');
     shake=p.secret ? .75 : .45; secretFlash=p.secret ? 1.2 : .35;
@@ -133,7 +135,8 @@
     const secret=p.secret, score=p.coins;
     setTimeout(()=>{
       ui.overlay.style.display='grid';
-      ui.overlay.querySelector('#panel').innerHTML = `<h1>${secret ? 'Secret Rift Sealed' : 'Rift Sealed'}</h1><p>Phase shards chained: <b>${score}</b>. ${secret ? 'You found the high-route cache.' : 'The gate folds shut behind you.'}</p><button id="start">Run again</button>`;
+      const next = levelNo < 2;
+      ui.overlay.querySelector('#panel').innerHTML = `<h1>${secret ? 'Secret Rift Sealed' : 'Rift Sealed'}</h1><p>Phase shards chained: <b>${score}</b>. ${secret ? 'You found the high-route cache.' : 'The gate folds shut behind you.'}</p><button id="start" data-next="${next?'1':'0'}">${next?'Enter Rift 2':'Run again'}</button>`;
       if(secret) ui.overlay.querySelector('#panel').style.boxShadow='0 0 0 2px rgba(255,107,255,.5), 0 0 80px rgba(255,107,255,.45), 0 20px 80px rgba(0,0,0,.35)';
       bindStart();
     }, secret ? 850 : 450);
@@ -393,8 +396,14 @@
     ui.start.addEventListener('pointerup', e=>{ e.preventDefault(); startGame(); }, {passive:false});
     ui.start.addEventListener('click', e=>{ e.preventDefault(); if(e.detail===0) startGame(); }, {passive:false});
   }
-  function startGame(){ if(starting) return; starting = true; if(!audioCtx){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) audioCtx=new AC(); } if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); ui.overlay.style.display='none'; mobileSprint=false; const runBtn=document.querySelector('[data-k=\"run\"]'); if(runBtn){ runBtn.classList.remove('active'); runBtn.classList.remove('pressed'); const tag=runBtn.querySelector('small'); if(tag) tag.textContent='SPRINT'; } reset(true); running=true; sfx('power'); last=performance.now(); setTimeout(()=>{ starting=false; }, 250); }
+  function startGame(){ if(starting) return; starting = true; if(!audioCtx){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) audioCtx=new AC(); } if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); const next=ui.start && ui.start.dataset.next==='1'; if(next) levelNo++; else levelNo=1; ui.overlay.style.display='none'; mobileSprint=false; const runBtn=document.querySelector('[data-k=\"run\"]'); if(runBtn){ runBtn.classList.remove('active'); runBtn.classList.remove('pressed'); const tag=runBtn.querySelector('small'); if(tag) tag.textContent='SPRINT'; } reset(!next); if(levelNo===2){ message='Rift 2: faster echoes'; for(const e of L.enemies) e[2]+=35; for(const r of (L.rifts||[])) r[0]+=10; } running=true; sfx('power'); last=performance.now(); setTimeout(()=>{ starting=false; }, 250); }
   bindStart();
+  ui.pause.addEventListener('pointerup', e=>{
+    e.preventDefault(); running=false; levelNo=1;
+    ui.overlay.style.display='grid';
+    ui.overlay.querySelector('#panel').innerHTML='<h1>Retry Rift?</h1><p>Reset the run and start fresh.</p><button id="start">Restart</button>';
+    bindStart();
+  }, {passive:false});
 })();
 </script>
 </body>
