@@ -57,7 +57,8 @@
   function reset(full=false){
     boostToken++;
     L = cloneLevel(levels[0]); cam = 0; particles = [];
-    p = {x:52,y:150,w:20,h:28,vx:0,vy:0,on:false,face:1,lives: full?3:(p?.lives??3),coins: full?0:(p?.coins??0),big:false,dead:0,win:false};
+    const oldLives = p ? p.lives : 3, oldCoins = p ? p.coins : 0;
+    p = {x:52,y:150,w:20,h:28,vx:0,vy:0,on:false,face:1,lives: full?3:oldLives,coins: full?0:oldCoins,big:false,dead:0,win:false};
     if (full) ui.overlay.querySelector('#panel').innerHTML = initialPanel;
     message=''; updateHud();
   }
@@ -80,8 +81,8 @@
     return block && [block[0],block[1],block[2],block[3],block[4],block];
   }
   function puff(x,y,c='#fff'){ for(let i=0;i<12;i++) particles.push({x,y,vx:(Math.random()-.5)*85,vy:(Math.random()-.9)*85,t:.55,c}); }
-  function die(){ if (p.dead) return; p.lives--; p.dead=.8; puff(p.x+p.w/2,p.y+p.h/2,'#ff725c'); if(p.lives<1){ running=false; message='Game over'; updateHud(); ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML = '<h1>Game Over</h1><p>The rift collapsed. Final haul: <b>'+p.coins+'</b> coins.</p><button id="start">Try again</button>'; ui.start = document.getElementById('start'); ui.start.onclick = startGame; } else setTimeout(()=>reset(false),700); updateHud(); }
-  function win(){ running=false; p.win=true; message='Portal cleared!'; updateHud(); ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML = `<h1>Rift Sealed</h1><p>You cleared the rift with <b>${p.coins}</b> coins. Want another run?</p><button id="start">Play again</button>`; ui.start = document.getElementById('start'); ui.start.onclick = startGame; }
+  function die(){ if (p.dead) return; p.lives--; p.dead=.8; puff(p.x+p.w/2,p.y+p.h/2,'#ff725c'); if(p.lives<1){ running=false; message='Game over'; updateHud(); ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML = '<h1>Game Over</h1><p>The rift collapsed. Final haul: <b>'+p.coins+'</b> coins.</p><button id="start">Try again</button>'; bindStart(); } else setTimeout(()=>reset(false),700); updateHud(); }
+  function win(){ running=false; p.win=true; message='Portal cleared!'; updateHud(); ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML = `<h1>Rift Sealed</h1><p>You cleared the rift with <b>${p.coins}</b> coins. Want another run?</p><button id="start">Play again</button>`; bindStart(); }
   function step(dt){
     if(!running) return;
     dt = Math.min(dt, .033);
@@ -97,7 +98,7 @@
     p.y += p.vy*dt; p.on=false; s = solidAt(p); if(s){ if(p.vy>0){ p.y=s[1]-p.h; p.on=true; } else { p.y=s[1]+s[3]; bumpBlock(s); } p.vy=0; }
     p.x = Math.max(0, Math.min(L.width-p.w, p.x)); if(p.y>H+80) die();
     for(const c of L.coins){ if(!c[2] && hit(p,{x:c[0]-8,y:c[1]-8,w:16,h:16})){ c[2]=1; p.coins++; puff(c[0],c[1],colors.coin); updateHud(); }}
-    for(const e of L.enemies){ if(e.dead) continue; e.x ??= e[0]; e.dir ??= 1; e.x += e.dir*35*dt; if(Math.abs(e.x-e[0])>e[2]) e.dir*=-1; const er={x:e.x,y:e[1],w:24,h:24}; if(hit(p,er)){ if(p.vy>70 && p.y+p.h-8<er.y+8){ e.dead=1; p.vy=-210; p.coins+=2; puff(er.x+12,er.y+12,'#9cff6a'); updateHud(); } else die(); }}
+    for(const e of L.enemies){ if(e.dead) continue; if(e.x == null) e.x = e[0]; if(e.dir == null) e.dir = 1; e.x += e.dir*35*dt; if(Math.abs(e.x-e[0])>e[2]) e.dir*=-1; const er={x:e.x,y:e[1],w:24,h:24}; if(hit(p,er)){ if(p.vy>70 && p.y+p.h-8<er.y+8){ e.dead=1; p.vy=-210; p.coins+=2; puff(er.x+12,er.y+12,'#9cff6a'); updateHud(); } else die(); }}
     if(p.x > L.flag) win();
     particles = particles.filter(q => (q.t-=dt)>0).map(q => (q.x+=q.vx*dt, q.y+=q.vy*dt, q.vy+=180*dt, q));
     cam += (Math.max(0, Math.min(L.width-W, p.x - W*.38)) - cam) * Math.min(1, dt*6);
@@ -137,9 +138,20 @@
   function setKey(k,v){ keys[k]=v; }
   addEventListener('keydown',e=>{ if(['ArrowLeft','ArrowRight','ArrowUp','Space','Shift'].includes(e.code||e.key)) e.preventDefault(); keys[e.code] = keys[e.key] = true; });
   addEventListener('keyup',e=>{ keys[e.code] = keys[e.key] = false; });
-  document.querySelectorAll('[data-k]').forEach(el=>{ const k=el.dataset.k; const on=e=>{e.preventDefault(); setKey(k,true)}; const off=e=>{e.preventDefault(); setKey(k,false)}; el.addEventListener('pointerdown',on); el.addEventListener('pointerup',off); el.addEventListener('pointercancel',off); el.addEventListener('pointerleave',off); });
+  document.querySelectorAll('[data-k]').forEach(el=>{
+    const k=el.dataset.k;
+    const on=e=>{e.preventDefault(); setKey(k,true)};
+    const off=e=>{e.preventDefault(); setKey(k,false)};
+    ['pointerdown','touchstart','mousedown'].forEach(t=>el.addEventListener(t,on,{passive:false}));
+    ['pointerup','pointercancel','pointerleave','touchend','touchcancel','mouseup','mouseleave'].forEach(t=>el.addEventListener(t,off,{passive:false}));
+  });
+  function bindStart(){
+    ui.start = document.getElementById('start');
+    if (!ui.start) return;
+    ['click','pointerup','touchend'].forEach(t=>ui.start.addEventListener(t, e=>{ e.preventDefault(); startGame(); }, {passive:false}));
+  }
   function startGame(){ ui.overlay.style.display='none'; reset(true); running=true; last=performance.now(); }
-  ui.start.onclick = startGame;
+  bindStart();
 })();
 </script>
 </body>
