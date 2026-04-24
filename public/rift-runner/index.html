@@ -14,6 +14,7 @@
     .hud { position:fixed; inset: max(12px, env(safe-area-inset-top)) 12px auto 12px; display:flex; justify-content:space-between; gap:10px; color:white; font-weight:900; text-shadow:0 2px 0 #123, 0 0 8px #123; pointer-events:none; letter-spacing:.03em; }
     .pill { background:rgba(3,18,32,.35); border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:8px 12px; backdrop-filter: blur(8px); }
     .mini { color:white; font-weight:1000; pointer-events:auto; font-size:1rem; }
+    #toast { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); max-width:320px; padding:12px 14px; border-radius:14px; background:rgba(4,18,35,.9); border:1px solid rgba(157,252,255,.45); color:white; font-weight:800; text-align:center; display:none; z-index:5; }
     #overlay { position:fixed; inset:0; display:grid; place-items:center; padding:22px; background:radial-gradient(circle at 50% 35%, rgba(255,255,255,.25), rgba(3,12,24,.78)); color:white; text-align:center; }
     #panel { max-width:520px; background:rgba(4,18,35,.72); border:1px solid rgba(255,255,255,.22); border-radius:28px; padding:24px; box-shadow:0 20px 80px rgba(0,0,0,.35); backdrop-filter: blur(14px); }
     h1 { margin:.1rem 0 .3rem; font-size:clamp(2rem, 10vw, 4rem); line-height:.9; }
@@ -47,7 +48,7 @@
 </head>
 <body>
   <div id="wrap"><canvas id="game" aria-label="Rift Runner platform game"></canvas></div>
-  <div class="hud"><div class="pill" id="score">Shards 0</div><div class="pill" id="status">Rift 1</div><div class="pill" id="lives">Lives 3</div><button class="pill mini" id="pauseBtn">↻</button></div>
+  <div class="hud"><div class="pill" id="score">Shards 0</div><div class="pill" id="status">Rift 1</div><div class="pill" id="lives">Lives 3</div><div class="pill" id="version">v22</div><button class="pill mini" id="pauseBtn">↻</button></div><div id="toast" role="status" aria-live="polite"></div>
   <div class="controls" aria-hidden="true">
     <div class="cluster"><div class="ctrl" data-k="left">◀</div><div class="ctrl" data-k="right">▶</div></div>
     <div class="cluster"><div class="ctrl down sprint" data-k="run"><span>⚡</span><small>SPRINT</small></div><div class="ctrl big" data-k="jump">↑</div></div>
@@ -98,11 +99,19 @@
   }];
   let L, p, particles, floaters;
   const colors = { dirt:'#a45a2a', grass:'#28c840', shadow:'#5d3219', shard:'#9dfcff', sky:'#77cdfd', tile:'#d9893c', tileDark:'#8d4b22' };
+  const arrRect = a => ({ x:a[0], y:a[1], w:a[2], h:a[3], on:!!a[4], t:a[5]||0, grace:!!a[7] });
+  const rectArr = r => [r.x,r.y,r.w,r.h,r.on,r.t,0,r.grace];
+  function normalizeLevel(level){
+    level.hidden = (level.hidden||[]).map(h => Array.isArray(h) ? arrRect(h) : h);
+    level.secret = (level.secret||[]).map(h => Array.isArray(h) ? arrRect(h) : h);
+    return level;
+  }
+
   
   function cloneLevel(level){ return JSON.parse(JSON.stringify(level)); }
   function reset(full=false){
     boostToken++;
-    L = cloneLevel(levels[Math.max(0, Math.min(levels.length-1, levelNo-1))]); riftTime=L.riftTime||7.5; echoTime=L.echoTime||2.2; cam = 0; particles = []; floaters = [];
+    L = normalizeLevel(cloneLevel(levels[Math.max(0, Math.min(levels.length-1, levelNo-1))])); riftTime=L.riftTime||7.5; echoTime=L.echoTime||2.2; cam = 0; particles = []; floaters = [];
     const oldLives = p ? p.lives : 3, oldCoins = p ? p.coins : 0;
     p = {x:52,y:150,w:20,h:28,vx:0,vy:0,on:false,wasOn:false,face:1,lives: full?3:oldLives,coins: full?0:oldCoins,big:false,dead:0,win:false,coyote:0,jumpBuffer:0,jumpWasDown:false,runT:0,phase:0,phaseMemory:0,combo:1,secret:false,msgT:0};
     if (full){ const panel=ui.overlay.querySelector('#panel'); panel.innerHTML = initialPanel; panel.style.boxShadow=''; }
@@ -110,11 +119,13 @@
   }
   function resize(){
     const dpr = Math.min(devicePixelRatio || 1, 3);
-    const portrait = innerHeight > innerWidth;
-    const cssW = innerWidth;
-    const top = portrait ? Math.max(36, (window.visualViewport ? window.visualViewport.offsetTop : 0) + 36) : 0;
+    const vv = window.visualViewport;
+    const vw = vv ? vv.width : innerWidth, vh = vv ? vv.height : innerHeight;
+    const portrait = vh > vw;
+    const cssW = vw;
+    const top = portrait ? Math.max(36, (vv ? vv.offsetTop : 0) + 36) : 0;
     const dock = portrait ? 118 : 0;
-    const cssH = portrait ? Math.max(330, innerHeight - top - dock) : innerHeight;
+    const cssH = portrait ? Math.max(330, vh - top - dock) : vh;
     canvas.style.height = Math.round(cssH) + 'px';
     W = portrait ? 360 : BASE_W;
     const scale = cssW / W;
@@ -125,16 +136,16 @@
     ctx.setTransform(scale*dpr,0,0,scale*dpr,0,0);
     ctx.imageSmoothingEnabled = false;
   }
-  addEventListener('resize', resize); resize(); reset(true);
+  addEventListener('resize', resize); if(window.visualViewport) window.visualViewport.addEventListener('resize', resize); resize(); reset(true);
   function updateHud(){ ui.score.textContent = 'Shards ' + p.coins; ui.lives.textContent = 'Lives ' + p.lives; ui.status.textContent = message || (p.phase>0 ? 'Phase x'+(p.combo||1) : (p.phaseMemory>0 ? 'Phase echo' : 'Rift '+levelNo)); }
   function hit(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
   function solidAt(r){
     const platform = L.platforms.find(([x,y,w,h]) => hit(r,{x,y,w,h}));
     if (platform) return platform;
-    const hidden = (L.hidden||[]).find(([x,y,w,h,on]) => on && hit(r,{x,y,w,h}));
-    if (hidden) return hidden;
-    const secret = (L.secret||[]).find(([x,y,w,h,on]) => on && hit(r,{x,y,w,h}));
-    if (secret) return secret;
+    const hidden = (L.hidden||[]).find(h => h.on && hit(r,h));
+    if (hidden) return [hidden.x,hidden.y,hidden.w,hidden.h];
+    const secret = (L.secret||[]).find(h => h.on && hit(r,h));
+    if (secret) return [secret.x,secret.y,secret.w,secret.h];
     const gate = (L.gates||[]).find(([x,y,w,h]) => p && p.phase<=0 && hit(r,{x,y,w,h}));
     if (gate){ message='Need phase charge'; if(p) p.msgT=.9; updateHud(); return gate; }
     const block = L.blocks.find(b => hit(r,{x:b[0],y:b[1],w:b[2],h:b[3]}));
@@ -186,10 +197,10 @@
     if(p.x > L.flag) win();
     for(const r of (L.rifts||[])){ if(r[3]>0 && hit(p,{x:r[0],y:r[1],w:r[2],h:r[3]})){ r[3]=0; revealRift(r[4]||[]); sfx('power'); floater(p.x+12,p.y-8,'PHASE ROUTE','#9dfcff'); puff(p.x+10,p.y+10,'#9dfcff',24,160); shake=.18; }}
     let anyBridge=false;
-    for(const h of (L.hidden||[])) if(h[4]){ h[5]=Math.max(0,(h[5]||0)-dt); if(h[5]===0){ if(hit(p,{x:h[0],y:h[1]-6,w:h[2],h:h[3]+12})){ h[5]=.65; h[7]=true; } else { h[4]=false; h[7]=false; } } if(h[4]) anyBridge=true; }
+    for(const h of (L.hidden||[])) if(h.on){ h.t=Math.max(0,(h.t||0)-dt); if(h.t===0){ if(hit(p,{x:h.x,y:h.y-6,w:h.w,h:h.h+12})){ h.t=.65; h.grace=true; } else { h.on=false; h.grace=false; } } if(h.on) anyBridge=true; }
     if(!anyBridge && message && message.indexOf('BRIDGE OPEN')===0){ message=''; updateHud(); }
-    if(L.secret && (p.phase>0 || p.phaseMemory>0) && p.x>2840){ for(const h of L.secret){ if(!h[4]){ floater(h[0]+60,h[1]-10,'SECRET ROUTE','#fff28a'); sfx('power'); } h[4]=true; h[5]=Math.max(h[5]||0,6.5); } }
-    for(const h of (L.secret||[])) if(h[4] && h[5]){ h[5]=Math.max(0,h[5]-dt); if(h[5]===0) h[4]=false; } 
+    if(L.secret && (p.phase>0 || p.phaseMemory>0) && p.x>2840){ for(const h of L.secret){ if(!h.on){ floater(h.x+h.w/2,h.y-10,'SECRET ROUTE','#fff28a'); sfx('power'); } h.on=true; h.t=Math.max(h.t||0,6.5); } }
+    for(const h of (L.secret||[])) if(h.on && h.t){ h.t=Math.max(0,h.t-dt); if(h.t===0) h.on=false; } 
     if(p.phase>0){ p.phaseMemory=echoTime; p.phase=Math.max(0,p.phase-dt); if(!p.phase) p.combo=1; }
     if(p.phaseMemory>0) p.phaseMemory=Math.max(0,p.phaseMemory-dt);
     if(p.msgT>0){ p.msgT=Math.max(0,p.msgT-dt); if(!p.msgT && message==='Need phase charge'){ message=''; updateHud(); } }
@@ -213,7 +224,7 @@
   }
   function revealRift(indices){
     const targets = (indices||[]).map(i => L.hidden && L.hidden[i]).filter(Boolean);
-    for(const h of targets){ h[4]=true; h[5]=riftTime; for(let x=h[0]; x<h[0]+h[2]; x+=14) puff(x,h[1]+2,'#9dfcff',3,45); }
+    for(const h of targets){ h.on=true; h.t=riftTime; for(let x=h.x; x<h.x+h.w; x+=14) puff(x,h.y+2,'#9dfcff',3,45); }
     message=indices && indices[0]===0 ? 'BRIDGE OPEN — FOLLOW GLOW' : ('BRIDGE OPEN '+Math.ceil(riftTime)+'s — GO →'); p.phase=riftTime; p.combo=2; updateHud();
   }
   function draw(){
@@ -227,8 +238,8 @@
     ctx.save(); ctx.translate(-pxCam,yOff);
     drawProps(); drawSigns(); drawPhaseGates();
     for(const [x,y,w,h] of L.platforms) drawGround(x,y,w,h);
-    for(const h of (L.hidden||[])) h[4] ? drawPhasePlatform(h[0],h[1],h[2],h[3],h[5],h[7]) : drawGhostPlatform(h[0],h[1],h[2],h[3]);
-    for(const h of (L.secret||[])) if(h[4]) drawSecretPlatform(h[0],h[1],h[2],h[3],h[5]);
+    for(const h of (L.hidden||[])) h.on ? drawPhasePlatform(h.x,h.y,h.w,h.h,h.t,h.grace) : drawGhostPlatform(h.x,h.y,h.w,h.h);
+    for(const h of (L.secret||[])) if(h.on) drawSecretPlatform(h.x,h.y,h.w,h.h,h.t);
     for(const b of L.blocks) drawQuestionBlock(b);
     for(const r of (L.rifts||[])) { if(r[3]>0) drawShard(r[0],r[1]); else drawRiftTrail(r); }
     for(const c of L.coins) if(!c[2]) drawShardPickup(c[0],c[1]);
@@ -290,8 +301,8 @@
   function drawRiftTrail(r){
     const targets=(r[4]||[]).map(i=>L.hidden&&L.hidden[i]).filter(Boolean);
     for(const h of targets){
-      ctx.globalAlpha=.42+Math.sin(performance.now()/70)*.2; ctx.strokeStyle='#9dfcff'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(r[0]+17,r[1]); ctx.lineTo(h[0]+h[2]/2,h[1]); ctx.stroke();
-      ctx.fillStyle='#9dfcff'; ctx.font='900 12px ui-rounded, system-ui'; ctx.textAlign='center'; ctx.fillText('GO →',h[0]+h[2]/2,h[1]-16); ctx.globalAlpha=1;
+      ctx.globalAlpha=.42+Math.sin(performance.now()/70)*.2; ctx.strokeStyle='#9dfcff'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(r[0]+17,r[1]); ctx.lineTo(h.x+h.w/2,h.y); ctx.stroke();
+      ctx.fillStyle='#9dfcff'; ctx.font='900 12px ui-rounded, system-ui'; ctx.textAlign='center'; ctx.fillText('GO →',h.x+h.w/2,h.y-16); ctx.globalAlpha=1;
     }
   }
   function drawSecretPlatform(x,y,w,h,time){
@@ -428,6 +439,7 @@
     bindStart();
   }, {passive:false});
 })();
+window.addEventListener('error', e=>{ const t=document.getElementById('toast'); if(t){ t.textContent='Rift Runner hit an error. Tap ↻ to restart.'; t.style.display='block'; } });
 </script>
 </body>
 </html>
