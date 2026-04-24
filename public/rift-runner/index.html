@@ -23,10 +23,11 @@
     .cluster { display:flex; gap:12px; pointer-events:auto; }
     .ctrl { width:66px; height:66px; border-radius:50%; border:2px solid rgba(255,255,255,.33); background:rgba(5,22,40,.42); color:white; font-size:28px; font-weight:1000; display:grid; place-items:center; user-select:none; box-shadow:inset 0 2px 8px rgba(255,255,255,.12), 0 8px 24px rgba(0,0,0,.22); backdrop-filter: blur(8px); transition:transform .06s ease, background .06s ease, box-shadow .06s ease; }
     .ctrl.pressed { transform:translateY(4px) scale(.96); background:rgba(157,252,255,.72); color:#05223b; box-shadow:inset 0 2px 10px rgba(255,255,255,.22), 0 4px 14px rgba(0,0,0,.22); }
-    .ctrl small { display:block; font-size:9px; line-height:1; letter-spacing:.06em; margin-top:-10px; }
-    .ctrl.sprint { font-size:22px; grid-template-rows:1fr auto; padding-top:8px; }
+    .ctrl small { display:block; font-size:10px; line-height:1; letter-spacing:.04em; margin-top:-6px; }
+    .ctrl.sprint { font-size:21px; grid-template-rows:1fr auto; padding:10px 3px 7px; }
     .ctrl.big { width:78px; height:78px; background:rgba(255,180,38,.55); }
     .ctrl.down { transform:translateY(10px); }
+    .ctrl.down.pressed { transform:translateY(14px) scale(.96); }
     .ctrl.active { background:rgba(157,252,255,.7); color:#05223b; box-shadow:0 0 0 4px rgba(157,252,255,.22), 0 10px 28px rgba(0,0,0,.25); }
     @media (min-width: 900px) { .ctrl { opacity:.45 } }
     @media (orientation: portrait) {
@@ -59,13 +60,13 @@
   let last = 0, cam = 0, running = false, starting = false, message = '', boostToken = 0, riftToken = 0, runId = 0, shake = 0, hitPause = 0, audioCtx = null;
   const levels = [{
     width: 3300,
-    platforms: [[0,220,520,40],[600,220,410,40],[1080,220,430,40],[1600,220,440,40],[2130,220,430,40],[2650,220,650,40],[250,178,100,18],[380,154,90,18],[700,166,130,18],[890,138,100,18],[1160,172,130,18],[1380,146,95,18],[1710,160,130,18],[1930,132,95,18],[2250,168,120,18],[2470,140,95,18],[2740,160,120,18],[2940,128,110,18]],
+    platforms: [[0,220,520,40],[600,220,410,40],[1080,220,95,40],[1325,220,185,40],[1600,220,150,40],[1840,220,200,40],[2130,220,160,40],[2450,220,110,40],[2650,220,650,40],[250,178,100,18],[380,154,90,18],[700,166,130,18],[890,138,100,18],[1380,146,95,18],[1710,160,130,18],[1930,132,95,18],[2250,168,120,18],[2470,140,95,18],[2740,160,120,18],[2940,128,110,18]],
     blocks: [[285,146,28,28,'coin'],[317,146,28,28,'coin'],[735,134,28,28,'boost'],[1210,140,28,28,'coin'],[1242,140,28,28,'coin'],[1760,128,28,28,'boost'],[2310,136,28,28,'coin'],[2810,126,28,28,'coin'],[2842,126,28,28,'coin'],[3012,96,28,28,'boost']],
     rifts: [[1085,188,34,32,[0]],[1565,188,34,32,[1]],[2190,188,34,32,[2]],[2705,188,34,32,[3]]],
-    hidden: [[1135,184,120,18,false,0],[1618,168,120,18,false,0],[2245,152,150,18,false,0],[2760,148,170,18,false,0]],
-    signs: [[1020,188,'TOUCH SHARD'],[1498,188,'PHASE PATH'],[2635,188,'FINAL CHAIN']],
+    hidden: [[1130,220,205,18,false,0],[1748,220,100,18,false,0],[2288,220,170,18,false,0],[2760,148,170,18,false,0]],
+    signs: [[1020,188,'SHARD OPENS BRIDGE'],[1498,188,'TIME THE PHASE'],[2635,188,'FINAL CHAIN']],
     props: [[180,188,'spire'],[1000,188,'spire'],[1510,188,'arch'],[2140,188,'spire'],[2880,188,'arch']],
-    coins: [[150,184],[220,184],[298,120],[330,120],[420,128],[640,184],[750,108],[900,112],[960,108],[1120,154],[1190,156],[1260,156],[1390,118],[1510,184],[1640,140],[1730,132],[1940,100],[2180,184],[2290,124],[2370,124],[2490,112],[2710,128],[2825,100],[2865,100],[2965,102],[3040,74],[3150,184]],
+    coins: [[150,184],[220,184],[298,120],[330,120],[420,128],[640,184],[750,108],[900,112],[960,108],[1125,194],[1180,194],[1240,194],[1300,194],[1390,118],[1510,184],[1640,140],[1730,132],[1810,194],[1940,100],[2180,184],[2300,194],[2380,194],[2490,112],[2710,128],[2825,100],[2865,100],[2965,102],[3040,74],[3150,184]],
     enemies: [[760,188,75],[1320,188,90],[1830,188,95],[2390,188,105],[3060,188,100]],
     flag: 3220
   }];
@@ -86,14 +87,14 @@
     const dpr = Math.min(devicePixelRatio || 1, 3);
     const portrait = innerHeight > innerWidth;
     const cssW = innerWidth;
-    const top = portrait ? Math.max(36, 36) : 0;
+    const top = portrait ? Math.max(36, (window.visualViewport ? window.visualViewport.offsetTop : 0) + 36) : 0;
     const dock = portrait ? 142 : 0;
     const cssH = portrait ? Math.max(330, innerHeight - top - dock) : innerHeight;
     canvas.style.height = Math.round(cssH) + 'px';
     W = portrait ? 320 : BASE_W;
     const scale = cssW / W;
     VH = Math.max(H, Math.round(cssH / scale));
-    yOff = Math.max(0, VH - H);
+    yOff = portrait ? Math.min(112, Math.max(70, Math.round(VH*.2))) : 0;
     canvas.width = Math.round(cssW * dpr);
     canvas.height = Math.round(cssH * dpr);
     ctx.setTransform(scale*dpr,0,0,scale*dpr,0,0);
@@ -174,9 +175,10 @@
     ctx.clearRect(0,0,W,VH);
     if(shake>0){ ctx.save(); ctx.translate((Math.random()-.5)*shake*18,(Math.random()-.5)*shake*12); }
     drawSky();
-    ctx.save(); ctx.translate(-cam*.18,yOff); drawFarHills(); ctx.restore();
-    ctx.save(); ctx.translate(-cam*.42,yOff); drawNearHills(); ctx.restore();
-    ctx.save(); ctx.translate(-cam,yOff);
+    const pxCam=Math.round(cam);
+    ctx.save(); ctx.translate(-Math.round(cam*.18),yOff); drawFarHills(); ctx.restore();
+    ctx.save(); ctx.translate(-Math.round(cam*.42),yOff); drawNearHills(); ctx.restore();
+    ctx.save(); ctx.translate(-pxCam,yOff);
     drawProps(); drawSigns();
     for(const [x,y,w,h] of L.platforms) drawGround(x,y,w,h);
     for(const h of (L.hidden||[])) if(h[4]) drawPhasePlatform(h[0],h[1],h[2],h[3],h[5]);
@@ -243,7 +245,9 @@
     ctx.fillStyle='#fff28a'; ctx.beginPath(); ctx.ellipse(x,y,wob,10,0,0,7); ctx.fill();
     ctx.fillStyle='#e4a51d'; ctx.fillRect(x-1,y-7,2,14);
   }
+  function drawShadow(x,y,w=22){ ctx.fillStyle='rgba(13,33,30,.28)'; ctx.beginPath(); ctx.ellipse(x,y,w,5,0,0,7); ctx.fill(); }
   function drawCritter(x,y){
+    drawShadow(x+12,y+25,15);
     const bob=Math.sin((performance.now()/120)+(x||0))*2; y+=bob;
     rounded(x,y+4,24,20,5,'#8a4a2a');
     ctx.fillStyle='#623018'; ctx.fillRect(x+2,y+20,7,4); ctx.fillRect(x+15,y+20,7,4);
@@ -251,8 +255,8 @@
     ctx.fillStyle='#201008'; ctx.fillRect(x+7,y+11,2,2); ctx.fillRect(x+17,y+11,2,2);
   }
   function drawSigns(){
-    if(!L.signs) return; ctx.font='900 9px ui-rounded, system-ui'; ctx.textAlign='center';
-    for(const [x,y,text] of L.signs){ ctx.fillStyle='rgba(5,22,40,.82)'; rounded(x-34,y-34,68,20,4); ctx.fillStyle='#9dfcff'; ctx.fillText(text,x,y-20); ctx.fillStyle='#9dfcff'; ctx.beginPath(); ctx.moveTo(x,y-12); ctx.lineTo(x-5,y-5); ctx.lineTo(x+5,y-5); ctx.fill(); }
+    if(!L.signs) return; ctx.font='900 10px ui-rounded, system-ui'; ctx.textAlign='center';
+    for(const [x,y,text] of L.signs){ ctx.fillStyle='rgba(5,22,40,.88)'; rounded(x-48,y-38,96,24,5); ctx.fillStyle='#9dfcff'; ctx.fillText(text,x,y-22); ctx.fillStyle='#9dfcff'; ctx.beginPath(); ctx.moveTo(x,y-13); ctx.lineTo(x-7,y-4); ctx.lineTo(x+7,y-4); ctx.fill(); }
   }
   function drawProps(){
     if(!L.props) return;
@@ -270,6 +274,7 @@
     ctx.strokeStyle='#9d69ff'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(x+7,y,16,0,7); ctx.stroke();
   }
   function drawHero(x,y,face,big){
+    drawShadow(x+11,y+(big?36:30),13);
     const speed=Math.abs(p.vx||0), h=big?34:28, bob=p.on&&speed>20?Math.sin(performance.now()/55)*2:0;
     x|=0; y=(y+bob)|0;
     // boots and legs
