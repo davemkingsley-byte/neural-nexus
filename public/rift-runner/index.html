@@ -48,7 +48,7 @@
 </head>
 <body>
   <div id="wrap"><canvas id="game" aria-label="Rift Runner platform game"></canvas></div>
-  <div class="hud"><div class="pill" id="score">Shards 0</div><div class="pill" id="status">Rift 1</div><div class="pill" id="lives">Lives 3</div><div class="pill" id="version">v22</div><button class="pill mini" id="pauseBtn">↻</button></div><div id="toast" role="status" aria-live="polite"></div>
+  <div class="hud"><div class="pill" id="score">Shards 0</div><div class="pill" id="status">Rift 1</div><div class="pill" id="lives">Lives 3</div><div class="pill" id="version">v24</div><button class="pill mini" id="pauseBtn">↻</button></div><div id="toast" role="status" aria-live="polite"></div>
   <div class="controls" aria-hidden="true">
     <div class="cluster"><div class="ctrl" data-k="left">◀</div><div class="ctrl" data-k="right">▶</div></div>
     <div class="cluster"><div class="ctrl down sprint" data-k="run"><span>⚡</span><small>SPRINT</small></div><div class="ctrl big" data-k="jump">↑</div></div>
@@ -119,13 +119,22 @@
   }
   function applyDirPointers(){
     let left=false, right=false;
-    for(const x of dirPointers.values()){ if(x < (window.visualViewport ? window.visualViewport.width : innerWidth)/2) left=true; else right=true; }
+    for(const d of dirPointers.values()){ if(d==='left') left=true; if(d==='right') right=true; }
     setKey('left',left); setKey('right',right);
+  }
+  function directionFromPoint(x){
+    const leftBtn=document.querySelector('[data-k=\"left\"]'), rightBtn=document.querySelector('[data-k=\"right\"]');
+    const lb=leftBtn && leftBtn.getBoundingClientRect(), rb=rightBtn && rightBtn.getBoundingClientRect();
+    if(lb && rb){ const mid=(lb.right+rb.left)/2; return x < mid ? 'left' : 'right'; }
+    const vv=window.visualViewport; const offset=vv?vv.offsetLeft:0, width=vv&&vv.width?vv.width:innerWidth;
+    return x < offset + width/2 ? 'left' : 'right';
   }
   function resize(){
     const dpr = Math.min(devicePixelRatio || 1, 3);
     const vv = window.visualViewport;
-    const vw = vv ? vv.width : innerWidth, vh = vv ? vv.height : innerHeight;
+    const rawW = vv && vv.width ? vv.width : innerWidth, rawH = vv && vv.height ? vv.height : innerHeight;
+    const vw = Math.max(280, Number.isFinite(rawW) ? rawW : innerWidth);
+    const vh = Math.max(320, Number.isFinite(rawH) ? rawH : innerHeight);
     const portrait = vh > vw;
     const cssW = vw;
     const top = portrait ? Math.max(36, (vv ? vv.offsetTop : 0) + 36) : 0;
@@ -420,13 +429,13 @@
       if(k==='run'){
         const now=performance.now(); if(now-lastToggle<260) return; lastToggle=now;
         mobileSprint=!mobileSprint; el.classList.toggle('active',mobileSprint); const tag=el.querySelector('small'); if(tag) tag.textContent=mobileSprint?'ON':'SPRINT'; sfx(mobileSprint?'power':'land');
-      } else if(k==='left'||k==='right'){ dirPointers.set(e.pointerId,e.clientX); applyDirPointers(); }
+      } else if(k==='left'||k==='right'){ dirPointers.set(e.pointerId,k); applyDirPointers(); }
       else setKey(k,true);
     }, {passive:false});
     const release=e=>{ e.preventDefault(); if(activePointer!==null && e.pointerId!==activePointer) return; activePointer=null; el.classList.remove('pressed'); if(k==='left'||k==='right'){ dirPointers.delete(e.pointerId); applyDirPointers(); } else if(k!=='run') setKey(k,false); };
     el.addEventListener('pointermove', e=>{
       if(activePointer===null || (k!=='left' && k!=='right')) return;
-      dirPointers.set(e.pointerId,e.clientX); applyDirPointers();
+      dirPointers.set(e.pointerId,directionFromPoint(e.clientX)); applyDirPointers();
     }, {passive:false});
     ['pointerup','pointercancel','lostpointercapture'].forEach(t=>el.addEventListener(t,release,{passive:false}));
   });
