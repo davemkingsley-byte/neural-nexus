@@ -67,7 +67,7 @@
     rifts: [[1085,188,34,32,[0]],[1565,188,34,32,[1]],[2190,188,34,32,[2]],[2705,188,34,32,[3]]],
     hidden: [[1124,220,220,18,false,0],[1740,220,118,18,false,0],[2280,220,185,18,false,0],[2752,148,185,18,false,0]],
     gates: [[1450,184,28,36],[2065,184,28,36],[2525,184,28,36]],
-    signs: [[1010,188,'SHARD → BRIDGE'],[1490,188,'SAFE OR PHASE?'],[2625,188,'CHAIN RIFTS → SECRET']],
+    signs: [[1010,188,'SHARD → BRIDGE'],[1490,188,'SAFE OR PHASE?'],[2625,188,'PHASE/ECHO → SECRET']],
     props: [[180,188,'spire'],[1000,188,'spire'],[1510,188,'arch'],[2140,188,'spire'],[2880,188,'arch']],
     coins: [[150,184],[220,184],[298,120],[330,120],[420,128],[640,184],[750,108],[900,112],[960,108],[1125,194],[1180,194],[1240,194],[1300,194],[1390,118],[1510,184],[1640,140],[1730,132],[1810,194],[1940,100],[2180,184],[2300,194],[2380,194],[2490,112],[2710,128],[2825,100],[2865,100],[2965,102],[3040,74],[3150,184]],
     enemies: [[760,188,75],[1320,188,90],[1830,188,95],[2390,188,105],[3060,188,100]],
@@ -106,7 +106,7 @@
     ctx.imageSmoothingEnabled = false;
   }
   addEventListener('resize', resize); resize(); reset(true);
-  function updateHud(){ ui.score.textContent = 'Shards ' + p.coins; ui.lives.textContent = 'Lives ' + p.lives; ui.status.textContent = message || (p.phase>0 ? 'Phase x'+(p.combo||1) : 'Rift 1'); }
+  function updateHud(){ ui.score.textContent = 'Shards ' + p.coins; ui.lives.textContent = 'Lives ' + p.lives; ui.status.textContent = message || (p.phase>0 ? 'Phase x'+(p.combo||1) : (p.phaseMemory>0 ? 'Phase echo' : 'Rift 1')); }
   function hit(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
   function solidAt(r){
     const platform = L.platforms.find(([x,y,w,h]) => hit(r,{x,y,w,h}));
@@ -160,7 +160,7 @@
     p.x = Math.max(0, Math.min(L.width-p.w, p.x)); if(p.y>H+80) die();
     for(const c of L.coins){ if(!c[2] && hit(p,{x:c[0]-8,y:c[1]-8,w:16,h:16})){ c[2]=1; const gain=p.combo||1; p.coins+=gain; sfx('coin'); floater(c[0],c[1]-8,(gain>1?'PHASE +':' +')+gain, gain>1?'#9dfcff':'#fff28a'); puff(c[0],c[1],gain>1?'#9dfcff':'#fff28a',12,95); updateHud(); }}
     for(const c of (L.phaseShards||[])){ if(!c[2] && p.phase>0 && hit(p,{x:c[0]-9,y:c[1]-9,w:18,h:18})){ c[2]=1; p.combo=Math.min(5,(p.combo||1)+1); p.phase=Math.min(8,p.phase+1.1); const gain=p.combo*2; p.coins+=gain; sfx('power'); floater(c[0],c[1]-10,'CHAIN +'+gain,'#ff6bff'); puff(c[0],c[1],'#ff6bff',18,130); updateHud(); }}
-    for(const c of (L.secretShards||[])){ if(!c[2] && p.phase>0 && hit(p,{x:c[0]-10,y:c[1]-10,w:20,h:20})){ c[2]=1; if(!p.secret){ shake=.3; floater(c[0],c[1]-30,'SECRET CACHE FOUND','#fff28a'); } p.secret=true; p.combo=Math.min(7,(p.combo||1)+2); p.phase=Math.min(9,p.phase+1.5); const gain=10; p.coins+=gain; sfx('win'); shake=.16; floater(c[0],c[1]-12,'SECRET +'+gain,'#fff28a'); puff(c[0],c[1],'#fff28a',28,180); updateHud(); }}
+    for(const c of (L.secretShards||[])){ if(!c[2] && (p.phase>0 || p.phaseMemory>0) && hit(p,{x:c[0]-10,y:c[1]-10,w:20,h:20})){ c[2]=1; if(!p.secret){ shake=.3; floater(c[0],c[1]-30,'SECRET CACHE FOUND','#fff28a'); } p.secret=true; p.combo=Math.min(7,(p.combo||1)+2); p.phase=Math.min(9,p.phase+1.5); const gain=10; p.coins+=gain; sfx('win'); shake=.16; floater(c[0],c[1]-12,'SECRET +'+gain,'#fff28a'); puff(c[0],c[1],'#fff28a',28,180); updateHud(); }}
     for(const e of L.enemies){ if(e.dead) continue; if(e.x == null) e.x = e[0]; if(e.dir == null) e.dir = 1; e.walk=(e.walk||0)+dt*8; e.x += e.dir*38*dt; if(Math.abs(e.x-e[0])>e[2]) e.dir*=-1; const er={x:e.x,y:e[1],w:24,h:24}; if(hit(p,er)){ if(p.vy>70 && p.y+p.h-8<er.y+8){ e.dead=1; p.vy=-235; p.coins+=2; p.phase=Math.max(p.phase,.9); sfx('stomp'); hitPause=.045; shake=.12; floater(er.x+12,er.y,'RIFT +2','#9cff6a'); puff(er.x+12,er.y+12,'#9cff6a',18,125); updateHud(); } else die(); }}
     if(p.x > L.flag) win();
     for(const r of (L.rifts||[])){ if(r[3]>0 && hit(p,{x:r[0],y:r[1],w:r[2],h:r[3]})){ r[3]=0; revealRift(r[4]||[]); sfx('power'); floater(p.x+12,p.y-8,'PHASE ROUTE','#9dfcff'); puff(p.x+10,p.y+10,'#9dfcff',24,160); shake=.18; }}
@@ -215,7 +215,7 @@
     for(const c of (L.secretShards||[])) if(!c[2]) drawSecretShard(c[0],c[1]);
     for(const e of L.enemies) if(!e.dead) drawCritter(e.x == null ? e[0] : e.x,e[1]);
     drawGate(L.flag,126);
-    if(p.phase>0){ ctx.globalAlpha=.42; ctx.fillStyle='#9dfcff'; ctx.fillRect((p.x-8)|0,(p.y+8)|0,6,16); ctx.fillRect((p.x-17)|0,(p.y+12)|0,4,10); ctx.globalAlpha=1; }
+    if(p.phase>0 || p.phaseMemory>0){ ctx.globalAlpha=p.phase>0?.42:.22; ctx.fillStyle=p.phase>0?'#9dfcff':'#fff28a'; ctx.fillRect((p.x-8)|0,(p.y+8)|0,6,16); ctx.fillRect((p.x-17)|0,(p.y+12)|0,4,10); ctx.globalAlpha=1; }
     drawHero(p.x,p.y,p.face,p.big);
     for(const q of particles){ ctx.globalAlpha=Math.max(0,q.t/.55); ctx.fillStyle=q.c; ctx.fillRect(q.x|0,q.y|0,4,4); ctx.globalAlpha=1; }
     for(const f of floaters){ ctx.globalAlpha=Math.max(0,f.t/.75); ctx.fillStyle=f.c; ctx.font='900 10px ui-rounded, system-ui'; ctx.textAlign='center'; ctx.fillText(f.text,f.x,f.y); ctx.globalAlpha=1; }
@@ -277,7 +277,7 @@
     ctx.globalAlpha=.72+Math.sin(performance.now()/80)*.2; ctx.fillStyle='#ff6bff'; ctx.fillRect(x,y,w,h); ctx.fillStyle='#fff28a'; ctx.fillRect(x,y,w,3); ctx.globalAlpha=1;
   }
   function drawSecretShard(x,y){
-    const live=p && p.phase>0 && p.x>2840; ctx.globalAlpha=live?1:.18; drawShadow(x,y+16,10); const t=performance.now()/80+x; ctx.save(); ctx.translate(x,y); ctx.rotate(t/2); ctx.fillStyle='#fff28a'; ctx.beginPath(); ctx.moveTo(0,-15); ctx.lineTo(11,0); ctx.lineTo(0,15); ctx.lineTo(-11,0); ctx.closePath(); ctx.fill(); ctx.strokeStyle='#ff6bff'; ctx.lineWidth=3; ctx.stroke(); ctx.restore(); ctx.globalAlpha=1;
+    const live=p && (p.phase>0 || p.phaseMemory>0) && p.x>2840; ctx.globalAlpha=live?1:.18; drawShadow(x,y+16,10); const t=performance.now()/80+x; ctx.save(); ctx.translate(x,y); ctx.rotate(t/2); ctx.fillStyle='#fff28a'; ctx.beginPath(); ctx.moveTo(0,-15); ctx.lineTo(11,0); ctx.lineTo(0,15); ctx.lineTo(-11,0); ctx.closePath(); ctx.fill(); ctx.strokeStyle='#ff6bff'; ctx.lineWidth=3; ctx.stroke(); ctx.restore(); ctx.globalAlpha=1;
   }
   function drawPhaseShard(x,y){
     if(p && p.phase<=0) ctx.globalAlpha=.24; else ctx.globalAlpha=.95;
