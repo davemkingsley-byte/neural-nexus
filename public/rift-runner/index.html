@@ -30,11 +30,11 @@
     .ctrl.active { background:rgba(157,252,255,.7); color:#05223b; box-shadow:0 0 0 4px rgba(157,252,255,.22), 0 10px 28px rgba(0,0,0,.25); }
     @media (min-width: 900px) { .ctrl { opacity:.45 } }
     @media (orientation: portrait) {
-      #wrap { align-items:start; padding-top:max(38px, env(safe-area-inset-top)); }
-      canvas { width:100vw; height:calc(100dvh - 126px - var(--safe-bottom)); border-radius:0 0 18px 18px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
+      #wrap { align-items:start; padding-top:max(36px, env(safe-area-inset-top)); padding-bottom:142px; }
+      canvas { width:100vw; height:320px; border-radius:0 0 18px 18px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
       .hud { inset:max(8px, env(safe-area-inset-top)) 8px auto 8px; }
       .pill { padding:7px 10px; font-size:.88rem; }
-      .controls { bottom:calc(10px + var(--safe-bottom)); padding:0 12px; background:linear-gradient(transparent, rgba(6,21,33,.72) 28%, rgba(6,21,33,.95)); padding-top:18px; }
+      .controls { bottom:0; min-height:calc(132px + var(--safe-bottom)); align-items:center; padding:18px 12px calc(12px + var(--safe-bottom)); background:linear-gradient(transparent, rgba(6,21,33,.82) 24%, rgba(6,21,33,.98)); }
       .ctrl { width:76px; height:76px; background:rgba(5,22,40,.68); border-color:rgba(157,252,255,.45); }
       .ctrl.big { width:92px; height:92px; }
       .cluster { gap:10px; }
@@ -54,19 +54,20 @@
   const canvas = document.getElementById('game'), ctx = canvas.getContext('2d');
   const ui = { score: document.getElementById('score'), lives: document.getElementById('lives'), status: document.getElementById('status'), overlay: document.getElementById('overlay'), start: document.getElementById('start') };
   const BASE_W = 432, H = 243, keys = Object.create(null);
-  let W = BASE_W, mobileSprint = false;
+  let W = BASE_W, VH = H, yOff = 0, mobileSprint = false;
   const initialPanel = document.getElementById('panel').innerHTML;
   let last = 0, cam = 0, running = false, starting = false, message = '', boostToken = 0, riftToken = 0, runId = 0, shake = 0, hitPause = 0, audioCtx = null;
   const levels = [{
-    width: 2920,
-    platforms: [[0,220,470,40],[540,220,390,40],[1000,220,360,40],[1430,220,410,40],[1910,220,640,40],[2610,220,310,40],[310,176,120,18],[650,166,145,18],[850,138,90,18],[1120,172,130,18],[1510,150,150,18],[1710,122,95,18],[2070,166,150,18],[2350,148,120,18],[2530,124,105,18]],
-    blocks: [[330,144,28,28,'coin'],[362,144,28,28,'coin'],[690,134,28,28,'boost'],[1160,140,28,28,'coin'],[1192,140,28,28,'coin'],[1740,90,28,28,'boost'],[2120,134,28,28,'coin'],[2560,92,28,28,'coin'],[2592,92,28,28,'coin']],
-    rifts: [[1185,188,34,32,[0]],[1845,188,34,32,[1]],[2440,188,34,32,[2]]],
-    hidden: [[1238,176,95,18,false,0],[1870,148,120,18,false,0],[2486,156,150,18,false,0]],
-    props: [[250,188,'spire'],[970,188,'spire'],[1580,188,'arch'],[2240,188,'spire']],
-    coins: [[180,184],[250,184],[342,118],[374,118],[590,184],[704,108],[820,112],[890,108],[1130,142],[1210,112],[1265,148],[1315,148],[1528,122],[1588,122],[1720,92],[1940,184],[2090,136],[2180,136],[2370,118],[2420,108],[2575,70],[2625,70],[2730,184]],
-    enemies: [[760,188,80],[1500,188,85],[1660,188,95],[2200,188,120],[2700,188,75]],
-    flag: 2840
+    width: 3300,
+    platforms: [[0,220,520,40],[600,220,410,40],[1080,220,430,40],[1600,220,440,40],[2130,220,430,40],[2650,220,650,40],[250,178,100,18],[380,154,90,18],[700,166,130,18],[890,138,100,18],[1160,172,130,18],[1380,146,95,18],[1710,160,130,18],[1930,132,95,18],[2250,168,120,18],[2470,140,95,18],[2740,160,120,18],[2940,128,110,18]],
+    blocks: [[285,146,28,28,'coin'],[317,146,28,28,'coin'],[735,134,28,28,'boost'],[1210,140,28,28,'coin'],[1242,140,28,28,'coin'],[1760,128,28,28,'boost'],[2310,136,28,28,'coin'],[2810,126,28,28,'coin'],[2842,126,28,28,'coin'],[3012,96,28,28,'boost']],
+    rifts: [[1085,188,34,32,[0]],[1565,188,34,32,[1]],[2190,188,34,32,[2]],[2705,188,34,32,[3]]],
+    hidden: [[1135,184,120,18,false,0],[1618,168,120,18,false,0],[2245,152,150,18,false,0],[2760,148,170,18,false,0]],
+    signs: [[1020,188,'TOUCH SHARD'],[1498,188,'PHASE PATH'],[2635,188,'FINAL CHAIN']],
+    props: [[180,188,'spire'],[1000,188,'spire'],[1510,188,'arch'],[2140,188,'spire'],[2880,188,'arch']],
+    coins: [[150,184],[220,184],[298,120],[330,120],[420,128],[640,184],[750,108],[900,112],[960,108],[1120,154],[1190,156],[1260,156],[1390,118],[1510,184],[1640,140],[1730,132],[1940,100],[2180,184],[2290,124],[2370,124],[2490,112],[2710,128],[2825,100],[2865,100],[2965,102],[3040,74],[3150,184]],
+    enemies: [[760,188,75],[1320,188,90],[1830,188,95],[2390,188,105],[3060,188,100]],
+    flag: 3220
   }];
   let L, p, particles, floaters;
   const colors = { dirt:'#a45a2a', grass:'#28c840', shadow:'#5d3219', coin:'#ffd84a', sky:'#77cdfd', tile:'#d9893c', tileDark:'#8d4b22' };
@@ -85,13 +86,17 @@
     const dpr = Math.min(devicePixelRatio || 1, 3);
     const portrait = innerHeight > innerWidth;
     const cssW = innerWidth;
-    const cssH = portrait ? Math.max(360, innerHeight - 126 - (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom'))||0)) : innerHeight;
+    const top = portrait ? Math.max(36, 36) : 0;
+    const dock = portrait ? 142 : 0;
+    const cssH = portrait ? Math.max(330, innerHeight - top - dock) : innerHeight;
     canvas.style.height = Math.round(cssH) + 'px';
+    W = portrait ? 320 : BASE_W;
+    const scale = cssW / W;
+    VH = Math.max(H, Math.round(cssH / scale));
+    yOff = Math.max(0, VH - H);
     canvas.width = Math.round(cssW * dpr);
     canvas.height = Math.round(cssH * dpr);
-    const scale = canvas.height / H;
-    W = Math.max(portrait ? 270 : BASE_W, Math.round(canvas.width / scale));
-    ctx.setTransform(scale,0,0,scale,0,0);
+    ctx.setTransform(scale*dpr,0,0,scale*dpr,0,0);
     ctx.imageSmoothingEnabled = false;
   }
   addEventListener('resize', resize); resize(); reset(true);
@@ -166,13 +171,13 @@
     }, 6500);
   }
   function draw(){
-    ctx.clearRect(0,0,W,H);
+    ctx.clearRect(0,0,W,VH);
     if(shake>0){ ctx.save(); ctx.translate((Math.random()-.5)*shake*18,(Math.random()-.5)*shake*12); }
     drawSky();
-    ctx.save(); ctx.translate(-cam*.18,0); drawFarHills(); ctx.restore();
-    ctx.save(); ctx.translate(-cam*.42,0); drawNearHills(); ctx.restore();
-    ctx.save(); ctx.translate(-cam,0);
-    drawProps();
+    ctx.save(); ctx.translate(-cam*.18,yOff); drawFarHills(); ctx.restore();
+    ctx.save(); ctx.translate(-cam*.42,yOff); drawNearHills(); ctx.restore();
+    ctx.save(); ctx.translate(-cam,yOff);
+    drawProps(); drawSigns();
     for(const [x,y,w,h] of L.platforms) drawGround(x,y,w,h);
     for(const h of (L.hidden||[])) if(h[4]) drawPhasePlatform(h[0],h[1],h[2],h[3],h[5]);
     for(const b of L.blocks) drawQuestionBlock(b);
@@ -187,7 +192,7 @@
     if(shake>0) ctx.restore();
   }
   function drawSky(){
-    const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#61c7ff'); g.addColorStop(.58,'#b7f1ff'); g.addColorStop(.59,'#67d868'); g.addColorStop(1,'#167034'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    const g=ctx.createLinearGradient(0,0,0,VH); g.addColorStop(0,'#61c7ff'); g.addColorStop(.58,'#b7f1ff'); g.addColorStop(.59,'#67d868'); g.addColorStop(1,'#167034'); ctx.fillStyle=g; ctx.fillRect(0,0,W,VH);
     ctx.fillStyle='rgba(255,255,255,.92)';
     for(let x=20; x<W+120; x+=145) cloud(x+(performance.now()/90%145),42+(x%4)*9);
   }
@@ -244,6 +249,10 @@
     ctx.fillStyle='#623018'; ctx.fillRect(x+2,y+20,7,4); ctx.fillRect(x+15,y+20,7,4);
     ctx.fillStyle='white'; ctx.fillRect(x+5,y+9,5,5); ctx.fillRect(x+15,y+9,5,5);
     ctx.fillStyle='#201008'; ctx.fillRect(x+7,y+11,2,2); ctx.fillRect(x+17,y+11,2,2);
+  }
+  function drawSigns(){
+    if(!L.signs) return; ctx.font='900 9px ui-rounded, system-ui'; ctx.textAlign='center';
+    for(const [x,y,text] of L.signs){ ctx.fillStyle='rgba(5,22,40,.82)'; rounded(x-34,y-34,68,20,4); ctx.fillStyle='#9dfcff'; ctx.fillText(text,x,y-20); ctx.fillStyle='#9dfcff'; ctx.beginPath(); ctx.moveTo(x,y-12); ctx.lineTo(x-5,y-5); ctx.lineTo(x+5,y-5); ctx.fill(); }
   }
   function drawProps(){
     if(!L.props) return;
