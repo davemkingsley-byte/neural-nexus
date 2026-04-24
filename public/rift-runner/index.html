@@ -21,17 +21,20 @@
     button:active { transform:translateY(4px); box-shadow:0 2px 0 #9b5512; }
     .controls { position:fixed; left:0; right:0; bottom:calc(12px + var(--safe-bottom)); display:flex; justify-content:space-between; padding:0 18px; pointer-events:none; }
     .cluster { display:flex; gap:12px; pointer-events:auto; }
-    .ctrl { width:66px; height:66px; border-radius:50%; border:2px solid rgba(255,255,255,.33); background:rgba(5,22,40,.42); color:white; font-size:28px; font-weight:1000; display:grid; place-items:center; user-select:none; box-shadow:inset 0 2px 8px rgba(255,255,255,.12), 0 8px 24px rgba(0,0,0,.22); backdrop-filter: blur(8px); }
+    .ctrl { width:66px; height:66px; border-radius:50%; border:2px solid rgba(255,255,255,.33); background:rgba(5,22,40,.42); color:white; font-size:28px; font-weight:1000; display:grid; place-items:center; user-select:none; box-shadow:inset 0 2px 8px rgba(255,255,255,.12), 0 8px 24px rgba(0,0,0,.22); backdrop-filter: blur(8px); transition:transform .06s ease, background .06s ease, box-shadow .06s ease; }
+    .ctrl.pressed { transform:translateY(4px) scale(.96); background:rgba(157,252,255,.72); color:#05223b; box-shadow:inset 0 2px 10px rgba(255,255,255,.22), 0 4px 14px rgba(0,0,0,.22); }
+    .ctrl small { display:block; font-size:9px; line-height:1; letter-spacing:.06em; margin-top:-10px; }
+    .ctrl.sprint { font-size:22px; grid-template-rows:1fr auto; padding-top:8px; }
     .ctrl.big { width:78px; height:78px; background:rgba(255,180,38,.55); }
     .ctrl.down { transform:translateY(10px); }
     .ctrl.active { background:rgba(157,252,255,.7); color:#05223b; box-shadow:0 0 0 4px rgba(157,252,255,.22), 0 10px 28px rgba(0,0,0,.25); }
     @media (min-width: 900px) { .ctrl { opacity:.45 } }
     @media (orientation: portrait) {
       #wrap { align-items:start; padding-top:max(38px, env(safe-area-inset-top)); }
-      canvas { width:100vw; height:calc(100dvh - 8px); border-radius:0; box-shadow:none; }
+      canvas { width:100vw; height:calc(100dvh - 126px - var(--safe-bottom)); border-radius:0 0 18px 18px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
       .hud { inset:max(8px, env(safe-area-inset-top)) 8px auto 8px; }
       .pill { padding:7px 10px; font-size:.88rem; }
-      .controls { bottom:calc(10px + var(--safe-bottom)); padding:0 12px; }
+      .controls { bottom:calc(10px + var(--safe-bottom)); padding:0 12px; background:linear-gradient(transparent, rgba(6,21,33,.72) 28%, rgba(6,21,33,.95)); padding-top:18px; }
       .ctrl { width:76px; height:76px; background:rgba(5,22,40,.68); border-color:rgba(157,252,255,.45); }
       .ctrl.big { width:92px; height:92px; }
       .cluster { gap:10px; }
@@ -43,7 +46,7 @@
   <div class="hud"><div class="pill" id="score">Coins 0</div><div class="pill" id="status">Rift 1</div><div class="pill" id="lives">Lives 3</div></div>
   <div class="controls" aria-hidden="true">
     <div class="cluster"><div class="ctrl" data-k="left">◀</div><div class="ctrl" data-k="right">▶</div></div>
-    <div class="cluster"><div class="ctrl down" data-k="run">⚡</div><div class="ctrl big" data-k="jump">↑</div></div>
+    <div class="cluster"><div class="ctrl down sprint" data-k="run"><span>⚡</span><small>SPRINT</small></div><div class="ctrl big" data-k="jump">↑</div></div>
   </div>
   <div id="overlay"><div id="panel"><h1>Rift Runner</h1><p>A bright 16-bit adventure: sprint, jump, crack crystal caches, dodge goblins, gather shards, and reach the rift gate.</p><p><b>Controls:</b> touch buttons, or keyboard arrows + space.</p><button id="start">Play</button></div></div>
 <script>
@@ -55,15 +58,15 @@
   const initialPanel = document.getElementById('panel').innerHTML;
   let last = 0, cam = 0, running = false, starting = false, message = '', boostToken = 0, riftToken = 0, runId = 0, shake = 0, hitPause = 0, audioCtx = null;
   const levels = [{
-    width: 2550,
-    platforms: [[0,220,470,40],[540,220,390,40],[1000,220,360,40],[1430,220,410,40],[1910,220,640,40],[310,176,120,18],[650,166,145,18],[850,138,90,18],[1120,172,130,18],[1510,150,150,18],[1710,122,95,18],[2070,166,150,18]],
-    blocks: [[330,144,28,28,'coin'],[362,144,28,28,'coin'],[690,134,28,28,'boost'],[1160,140,28,28,'coin'],[1192,140,28,28,'coin'],[1740,90,28,28,'boost'],[2120,134,28,28,'coin']],
-    rifts: [[1280,188,34,32,[0]],[1845,188,34,32,[1]]],
-    hidden: [[1350,172,100,18,false,0],[1870,148,120,18,false,0]],
+    width: 2920,
+    platforms: [[0,220,470,40],[540,220,390,40],[1000,220,360,40],[1430,220,410,40],[1910,220,640,40],[2610,220,310,40],[310,176,120,18],[650,166,145,18],[850,138,90,18],[1120,172,130,18],[1510,150,150,18],[1710,122,95,18],[2070,166,150,18],[2350,148,120,18],[2530,124,105,18]],
+    blocks: [[330,144,28,28,'coin'],[362,144,28,28,'coin'],[690,134,28,28,'boost'],[1160,140,28,28,'coin'],[1192,140,28,28,'coin'],[1740,90,28,28,'boost'],[2120,134,28,28,'coin'],[2560,92,28,28,'coin'],[2592,92,28,28,'coin']],
+    rifts: [[1185,188,34,32,[0]],[1845,188,34,32,[1]],[2440,188,34,32,[2]]],
+    hidden: [[1238,176,95,18,false,0],[1870,148,120,18,false,0],[2486,156,150,18,false,0]],
     props: [[250,188,'spire'],[970,188,'spire'],[1580,188,'arch'],[2240,188,'spire']],
-    coins: [[180,184],[250,184],[342,118],[374,118],[590,184],[704,108],[820,112],[890,108],[1130,142],[1210,112],[1528,122],[1588,122],[1720,92],[1940,184],[2090,136],[2180,136],[2370,184]],
-    enemies: [[760,188,80],[1240,188,70],[1660,188,95],[2200,188,120]],
-    flag: 2440
+    coins: [[180,184],[250,184],[342,118],[374,118],[590,184],[704,108],[820,112],[890,108],[1130,142],[1210,112],[1265,148],[1315,148],[1528,122],[1588,122],[1720,92],[1940,184],[2090,136],[2180,136],[2370,118],[2420,108],[2575,70],[2625,70],[2730,184]],
+    enemies: [[760,188,80],[1500,188,85],[1660,188,95],[2200,188,120],[2700,188,75]],
+    flag: 2840
   }];
   let L, p, particles, floaters;
   const colors = { dirt:'#a45a2a', grass:'#28c840', shadow:'#5d3219', coin:'#ffd84a', sky:'#77cdfd', tile:'#d9893c', tileDark:'#8d4b22' };
@@ -82,7 +85,8 @@
     const dpr = Math.min(devicePixelRatio || 1, 3);
     const portrait = innerHeight > innerWidth;
     const cssW = innerWidth;
-    const cssH = portrait ? Math.min(innerHeight * .64, 560) : innerHeight;
+    const cssH = portrait ? Math.max(360, innerHeight - 126 - (parseInt(getComputedStyle(document.documentElement).getPropertyValue('--safe-bottom'))||0)) : innerHeight;
+    canvas.style.height = Math.round(cssH) + 'px';
     canvas.width = Math.round(cssW * dpr);
     canvas.height = Math.round(cssH * dpr);
     const scale = canvas.height / H;
@@ -106,7 +110,7 @@
   function tone(freq=440,dur=.08,type='square',gain=.045){ if(!audioCtx) return; const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type=type; o.frequency.value=freq; g.gain.setValueAtTime(gain,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+dur); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+dur); }
   function sfx(name){ const map={jump:[520,.08,'square'],coin:[880,.07,'triangle'],block:[220,.08,'sawtooth'],stomp:[150,.10,'square'],hurt:[90,.18,'sawtooth'],power:[660,.16,'triangle'],win:[980,.22,'triangle'],land:[110,.04,'square']}; const a=map[name]; if(a) tone(a[0],a[1],a[2]); }
   function die(){ if (p.dead) return; p.lives--; p.dead=.8; shake=.35; hitPause=.08; sfx('hurt'); puff(p.x+p.w/2,p.y+p.h/2,'#ff725c',18,135); if(p.lives<1){ running=false; message='Game over'; updateHud(); ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML = '<h1>Game Over</h1><p>The rift collapsed. Final haul: <b>'+p.coins+'</b> coins.</p><button id="start">Try again</button>'; bindStart(); } else setTimeout(()=>reset(false),700); updateHud(); }
-  function win(){ running=false; p.win=true; message='Portal cleared!'; sfx('win'); updateHud(); ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML = `<h1>Rift Sealed</h1><p>You cleared the rift with <b>${p.coins}</b> coins. Want another run?</p><button id="start">Play again</button>`; bindStart(); }
+  function win(){ running=false; p.win=true; message='Portal cleared!'; sfx('win'); shake=.45; puff(p.x,p.y,'#fff28a',40,210); floater(p.x+20,p.y-10,'RIFT SEALED','#fff28a'); updateHud(); ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML = `<h1>Rift Sealed</h1><p>Shards gathered: <b>${p.coins}</b>. The gate folds shut behind you.</p><button id="start">Run again</button>`; bindStart(); }
   function step(dt){
     if(!running) return;
     dt = Math.min(dt, .033);
@@ -154,7 +158,7 @@
     const token = ++riftToken, thisRun = runId;
     const targets = (indices||[]).map(i => L.hidden && L.hidden[i]).filter(Boolean);
     for(const h of targets){ h[4]=true; h[5]=6.5; }
-    message='Rift path stable 6s'; updateHud();
+    message=indices && indices[0]===0 ? 'Practice path revealed' : 'Rift path stable 6s'; updateHud();
     setTimeout(()=>{
       if(!L || thisRun!==runId || token!==riftToken) return;
       for(const h of targets){ h[4]=false; h[5]=0; }
@@ -284,12 +288,13 @@
     const k=el.dataset.k; let activePointer=null, lastToggle=0;
     el.addEventListener('pointerdown', e=>{
       e.preventDefault(); activePointer=e.pointerId; if(el.setPointerCapture) el.setPointerCapture(e.pointerId);
+      el.classList.add('pressed');
       if(k==='run'){
         const now=performance.now(); if(now-lastToggle<260) return; lastToggle=now;
         mobileSprint=!mobileSprint; el.classList.toggle('active',mobileSprint); sfx(mobileSprint?'power':'land');
       } else setKey(k,true);
     }, {passive:false});
-    const release=e=>{ e.preventDefault(); if(activePointer!==null && e.pointerId!==activePointer) return; activePointer=null; if(k!=='run') setKey(k,false); };
+    const release=e=>{ e.preventDefault(); if(activePointer!==null && e.pointerId!==activePointer) return; activePointer=null; el.classList.remove('pressed'); if(k!=='run') setKey(k,false); };
     ['pointerup','pointercancel','lostpointercapture'].forEach(t=>el.addEventListener(t,release,{passive:false}));
   });
   function bindStart(){
@@ -298,7 +303,7 @@
     ui.start.addEventListener('pointerup', e=>{ e.preventDefault(); startGame(); }, {passive:false});
     ui.start.addEventListener('click', e=>{ e.preventDefault(); if(e.detail===0) startGame(); }, {passive:false});
   }
-  function startGame(){ if(starting) return; starting = true; if(!audioCtx){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) audioCtx=new AC(); } if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); ui.overlay.style.display='none'; mobileSprint=false; const runBtn=document.querySelector('[data-k=\"run\"]'); if(runBtn) runBtn.classList.remove('active'); reset(true); running=true; sfx('power'); last=performance.now(); setTimeout(()=>{ starting=false; }, 250); }
+  function startGame(){ if(starting) return; starting = true; if(!audioCtx){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) audioCtx=new AC(); } if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); ui.overlay.style.display='none'; mobileSprint=false; const runBtn=document.querySelector('[data-k=\"run\"]'); if(runBtn){ runBtn.classList.remove('active'); runBtn.classList.remove('pressed'); } reset(true); running=true; sfx('power'); last=performance.now(); setTimeout(()=>{ starting=false; }, 250); }
   bindStart();
 })();
 </script>
