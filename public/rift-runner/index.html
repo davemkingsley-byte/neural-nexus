@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#6ec6ff" />
+  <title>Rift Runner — Neural NeXus</title>
+  <style>
+    :root { color-scheme: dark; --safe-bottom: env(safe-area-inset-bottom, 0px); }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; }
+    html, body { margin:0; height:100%; overflow:hidden; background:#061521; font-family: ui-rounded, system-ui, -apple-system, Segoe UI, sans-serif; }
+    #wrap { position:fixed; inset:0; display:grid; place-items:center; background:linear-gradient(#6ec6ff 0%, #a8e7ff 48%, #274262 49%, #061521 100%); }
+    canvas { width:100vw; height:100dvh; display:block; image-rendering: pixelated; }
+    @media (orientation: portrait) { canvas { width:100vw; height:56.25vw; max-height:72dvh; border-radius:18px; box-shadow:0 18px 70px rgba(0,0,0,.28); } }
+    .hud { position:fixed; inset: max(12px, env(safe-area-inset-top)) 12px auto 12px; display:flex; justify-content:space-between; gap:10px; color:white; font-weight:900; text-shadow:0 2px 0 #123, 0 0 8px #123; pointer-events:none; letter-spacing:.03em; }
+    .pill { background:rgba(3,18,32,.35); border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:8px 12px; backdrop-filter: blur(8px); }
+    #overlay { position:fixed; inset:0; display:grid; place-items:center; padding:22px; background:radial-gradient(circle at 50% 35%, rgba(255,255,255,.25), rgba(3,12,24,.78)); color:white; text-align:center; }
+    #panel { max-width:520px; background:rgba(4,18,35,.72); border:1px solid rgba(255,255,255,.22); border-radius:28px; padding:24px; box-shadow:0 20px 80px rgba(0,0,0,.35); backdrop-filter: blur(14px); }
+    h1 { margin:.1rem 0 .3rem; font-size:clamp(2rem, 10vw, 4rem); line-height:.9; }
+    p { margin:.7rem 0; color:#dbefff; font-size:1rem; }
+    button { appearance:none; border:0; border-radius:999px; padding:14px 22px; margin-top:12px; font:900 1.05rem ui-rounded, system-ui; color:#05223b; background:linear-gradient(#ffe86c,#ffb22e); box-shadow:0 6px 0 #9b5512, 0 12px 30px rgba(0,0,0,.3); }
+    button:active { transform:translateY(4px); box-shadow:0 2px 0 #9b5512; }
+    .controls { position:fixed; left:0; right:0; bottom:calc(12px + var(--safe-bottom)); display:flex; justify-content:space-between; padding:0 18px; pointer-events:none; }
+    .cluster { display:flex; gap:12px; pointer-events:auto; }
+    .ctrl { width:66px; height:66px; border-radius:50%; border:2px solid rgba(255,255,255,.33); background:rgba(5,22,40,.42); color:white; font-size:28px; font-weight:1000; display:grid; place-items:center; user-select:none; box-shadow:inset 0 2px 8px rgba(255,255,255,.12), 0 8px 24px rgba(0,0,0,.22); backdrop-filter: blur(8px); }
+    .ctrl.big { width:78px; height:78px; background:rgba(255,180,38,.55); }
+    .ctrl.down { transform:translateY(10px); }
+    @media (min-width: 900px) { .ctrl { opacity:.45 } }
+  </style>
+</head>
+<body>
+  <div id="wrap"><canvas id="game" aria-label="Rift Runner platform game"></canvas></div>
+  <div class="hud"><div class="pill" id="score">Coins 0</div><div class="pill" id="status">Rift 1</div><div class="pill" id="lives">Lives 3</div></div>
+  <div class="controls" aria-hidden="true">
+    <div class="cluster"><div class="ctrl" data-k="left">◀</div><div class="ctrl" data-k="right">▶</div></div>
+    <div class="cluster"><div class="ctrl down" data-k="run">⚡</div><div class="ctrl big" data-k="jump">↑</div></div>
+  </div>
+  <div id="overlay"><div id="panel"><h1>Rift Runner</h1><p>An original pocket platformer: jump, stomp, collect coins, and reach the portal. Built for iPhone Safari.</p><p><b>Controls:</b> touch buttons, or keyboard arrows + space.</p><button id="start">Play</button></div></div>
+<script>
+(() => {
+  const canvas = document.getElementById('game'), ctx = canvas.getContext('2d');
+  const ui = { score: document.getElementById('score'), lives: document.getElementById('lives'), status: document.getElementById('status'), overlay: document.getElementById('overlay'), start: document.getElementById('start') };
+  const W = 432, H = 243, keys = Object.create(null);
+  const initialPanel = document.getElementById('panel').innerHTML;
+  let last = 0, cam = 0, running = false, message = '', boostToken = 0;
+  const levels = [{
+    width: 3550,
+    platforms: [[0,220,720,40],[820,220,470,40],[1390,220,600,40],[2090,220,580,40],[2780,220,770,40],[430,170,150,18],[980,155,170,18],[1220,130,120,18],[1670,165,170,18],[2350,150,160,18],[2555,118,120,18],[3010,170,180,18]],
+    blocks: [[640,160,28,28,'coin'],[694,160,28,28,'boost'],[748,160,28,28,'coin'],[1510,155,28,28,'coin'],[1540,155,28,28,'coin'],[2460,126,28,28,'boost']],
+    coins: [[310,174],[470,138],[1035,122],[1270,98],[1730,134],[2410,116],[2605,84],[2870,184],[3050,138],[3300,184]],
+    enemies: [[870,188,80],[1170,188,80],[1810,188,120],[2240,188,100],[2950,188,140]],
+    flag: 3430
+  }];
+  let L, p, particles;
+  const colors = { dirt:'#8d5524', grass:'#32a852', shadow:'#3b2617', coin:'#ffd84a', sky:'#77cdfd' };
+  function cloneLevel(level){ return JSON.parse(JSON.stringify(level)); }
+  function reset(full=false){
+    boostToken++;
+    L = cloneLevel(levels[0]); cam = 0; particles = [];
+    p = {x:52,y:150,w:20,h:28,vx:0,vy:0,on:false,face:1,lives: full?3:(p?.lives??3),coins: full?0:(p?.coins??0),big:false,dead:0,win:false};
+    if (full) ui.overlay.querySelector('#panel').innerHTML = initialPanel;
+    message=''; updateHud();
+  }
+  function resize(){
+    const dpr = Math.min(devicePixelRatio || 1, 3);
+    const portrait = innerHeight > innerWidth;
+    const cssW = innerWidth;
+    const cssH = portrait ? Math.min(innerHeight * .72, cssW * H / W) : innerHeight;
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(cssH * dpr);
+    ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);
+  }
+  addEventListener('resize', resize); resize(); reset(true);
+  function updateHud(){ ui.score.textContent = 'Coins ' + p.coins; ui.lives.textContent = 'Lives ' + p.lives; ui.status.textContent = message || 'Rift 1'; }
+  function hit(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
+  function solidAt(r){
+    const platform = L.platforms.find(([x,y,w,h]) => hit(r,{x,y,w,h}));
+    if (platform) return platform;
+    const block = L.blocks.find(b => hit(r,{x:b[0],y:b[1],w:b[2],h:b[3]}));
+    return block && [block[0],block[1],block[2],block[3],block[4],block];
+  }
+  function puff(x,y,c='#fff'){ for(let i=0;i<12;i++) particles.push({x,y,vx:(Math.random()-.5)*85,vy:(Math.random()-.9)*85,t:.55,c}); }
+  function die(){ if (p.dead) return; p.lives--; p.dead=.8; puff(p.x+p.w/2,p.y+p.h/2,'#ff725c'); if(p.lives<1){ running=false; message='Game over'; updateHud(); ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML = '<h1>Game Over</h1><p>The rift collapsed. Final haul: <b>'+p.coins+'</b> coins.</p><button id="start">Try again</button>'; ui.start = document.getElementById('start'); ui.start.onclick = startGame; } else setTimeout(()=>reset(false),700); updateHud(); }
+  function win(){ running=false; p.win=true; message='Portal cleared!'; updateHud(); ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML = `<h1>Rift Sealed</h1><p>You cleared the rift with <b>${p.coins}</b> coins. Want another run?</p><button id="start">Play again</button>`; ui.start = document.getElementById('start'); ui.start.onclick = startGame; }
+  function step(dt){
+    if(!running) return;
+    dt = Math.min(dt, .033);
+    const left=keys.left||keys.ArrowLeft, right=keys.right||keys.ArrowRight, run=keys.run||keys.Shift, jump=keys.jump||keys.Space||keys.ArrowUp;
+    const accel = run ? 900 : 650, max = run ? 185 : 130;
+    if(left) { p.vx -= accel*dt; p.face=-1; } if(right){ p.vx += accel*dt; p.face=1; }
+    if(!left && !right) p.vx *= Math.pow(.0008, dt);
+    p.vx = Math.max(-max, Math.min(max, p.vx));
+    if(jump && p.on && !keys._jumpLock){ p.vy = -310; p.on=false; keys._jumpLock=true; puff(p.x+p.w/2,p.y+p.h,'#dff7ff'); }
+    if(!jump) keys._jumpLock=false;
+    p.vy += 760*dt;
+    p.x += p.vx*dt; let s = solidAt(p); if(s){ if(p.vx>0) p.x=s[0]-p.w; else if(p.vx<0) p.x=s[0]+s[2]; p.vx=0; }
+    p.y += p.vy*dt; p.on=false; s = solidAt(p); if(s){ if(p.vy>0){ p.y=s[1]-p.h; p.on=true; } else { p.y=s[1]+s[3]; bumpBlock(s); } p.vy=0; }
+    p.x = Math.max(0, Math.min(L.width-p.w, p.x)); if(p.y>H+80) die();
+    for(const c of L.coins){ if(!c[2] && hit(p,{x:c[0]-8,y:c[1]-8,w:16,h:16})){ c[2]=1; p.coins++; puff(c[0],c[1],colors.coin); updateHud(); }}
+    for(const e of L.enemies){ if(e.dead) continue; e.x ??= e[0]; e.dir ??= 1; e.x += e.dir*35*dt; if(Math.abs(e.x-e[0])>e[2]) e.dir*=-1; const er={x:e.x,y:e[1],w:24,h:24}; if(hit(p,er)){ if(p.vy>70 && p.y+p.h-8<er.y+8){ e.dead=1; p.vy=-210; p.coins+=2; puff(er.x+12,er.y+12,'#9cff6a'); updateHud(); } else die(); }}
+    if(p.x > L.flag) win();
+    particles = particles.filter(q => (q.t-=dt)>0).map(q => (q.x+=q.vx*dt, q.y+=q.vy*dt, q.vy+=180*dt, q));
+    cam += (Math.max(0, Math.min(L.width-W, p.x - W*.38)) - cam) * Math.min(1, dt*6);
+  }
+  function bumpBlock(s){
+    const b = s && s[5];
+    if(!b || b.hit) return;
+    b.hit=1; p.coins += b[4]==='coin'?3:0;
+    if(b[4]==='boost') {
+      const token = ++boostToken; p.big=true; p.h=34; message='Power jump!';
+      setTimeout(()=>{ if(p && token===boostToken){p.big=false;p.h=28;message='';updateHud();}},7000);
+    }
+    puff(b[0]+14,b[1],'#ffe26b'); updateHud();
+  }
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#62c8ff'); g.addColorStop(.65,'#d7f8ff'); g.addColorStop(.66,'#315277'); g.addColorStop(1,'#08172a'); ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    ctx.save(); ctx.translate(-cam*.25,0); for(let x=-100; x<L.width*.25+W; x+=160){ ctx.fillStyle='rgba(255,255,255,.75)'; cloud(x,42+(x%3)*18); } ctx.restore();
+    ctx.save(); ctx.translate(-cam,0);
+    for(const [x,y,w,h] of L.platforms){ ctx.fillStyle=colors.grass; ctx.fillRect(x,y,w,8); ctx.fillStyle=colors.dirt; ctx.fillRect(x,y+8,w,h-8); ctx.fillStyle='rgba(0,0,0,.18)'; for(let i=x;i<x+w;i+=26) ctx.fillRect(i,y+8,13,h-8); }
+    for(const b of L.blocks){ ctx.fillStyle=b.hit?'#8a6b3b':'#f0a629'; ctx.fillRect(b[0],b[1],b[2],b[3]); ctx.fillStyle='#fff2a0'; if(!b.hit) ctx.fillText('?',b[0]+10,b[1]+20); }
+    for(const c of L.coins) if(!c[2]){ ctx.fillStyle=colors.coin; ctx.beginPath(); ctx.ellipse(c[0],c[1],6+Math.sin(performance.now()/130)*2,9,0,0,7); ctx.fill(); }
+    for(const e of L.enemies) if(!e.dead){ ctx.fillStyle='#7b4a25'; rounded(e.x,e[1],24,24,6); ctx.fillStyle='white'; ctx.fillRect(e.x+5,e[1]+6,4,4); ctx.fillRect(e.x+15,e[1]+6,4,4); }
+    ctx.fillStyle='#a34cff'; ctx.fillRect(L.flag,126,12,94); ctx.fillStyle='#dbb2ff'; ctx.beginPath(); ctx.arc(L.flag+6,118,24,0,7); ctx.strokeStyle='#f7e8ff'; ctx.lineWidth=5; ctx.stroke();
+    ctx.fillStyle=p.big?'#ff593d':'#e63232'; rounded(p.x,p.y,p.w,p.h,5); ctx.fillStyle='#2453ff'; ctx.fillRect(p.x+3,p.y+p.h*.48,p.w-6,p.h*.45); ctx.fillStyle='#ffe0ac'; ctx.fillRect(p.x+4,p.y+6,p.w-8,9); ctx.fillStyle='#331'; ctx.fillRect(p.x+(p.face>0?13:4),p.y+8,3,3);
+    for(const q of particles){ ctx.globalAlpha=Math.max(0,q.t/.55); ctx.fillStyle=q.c; ctx.fillRect(q.x,q.y,3,3); ctx.globalAlpha=1; }
+    ctx.restore();
+  }
+  function cloud(x,y){ ctx.beginPath(); ctx.arc(x,y,18,0,7); ctx.arc(x+20,y-7,22,0,7); ctx.arc(x+43,y,17,0,7); ctx.fill(); }
+  function rounded(x,y,w,h,r){
+    ctx.beginPath();
+    if (ctx.roundRect) ctx.roundRect(x,y,w,h,r);
+    else { ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); }
+    ctx.fill();
+  }
+  function loop(t){ const dt=(t-last)/1000||0; last=t; step(dt); draw(); requestAnimationFrame(loop); } requestAnimationFrame(loop);
+  function setKey(k,v){ keys[k]=v; }
+  addEventListener('keydown',e=>{ if(['ArrowLeft','ArrowRight','ArrowUp','Space','Shift'].includes(e.code||e.key)) e.preventDefault(); keys[e.code] = keys[e.key] = true; });
+  addEventListener('keyup',e=>{ keys[e.code] = keys[e.key] = false; });
+  document.querySelectorAll('[data-k]').forEach(el=>{ const k=el.dataset.k; const on=e=>{e.preventDefault(); setKey(k,true)}; const off=e=>{e.preventDefault(); setKey(k,false)}; el.addEventListener('pointerdown',on); el.addEventListener('pointerup',off); el.addEventListener('pointercancel',off); el.addEventListener('pointerleave',off); });
+  function startGame(){ ui.overlay.style.display='none'; reset(true); running=true; last=performance.now(); }
+  ui.start.onclick = startGame;
+})();
+</script>
+</body>
+</html>
