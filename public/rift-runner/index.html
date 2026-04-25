@@ -1,464 +1,84 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
-  <meta name="theme-color" content="#6ec6ff" />
-  <title>Rift Runner — Neural NeXus</title>
-  <style>
-    :root { color-scheme: dark; --safe-bottom: env(safe-area-inset-bottom, 0px); }
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: none; }
-    html, body { margin:0; height:100%; overflow:hidden; background:#061521; font-family: ui-rounded, system-ui, -apple-system, Segoe UI, sans-serif; }
-    #wrap { position:fixed; inset:0; display:grid; place-items:center; background:linear-gradient(#6ec6ff 0%, #a8e7ff 48%, #274262 49%, #061521 100%); }
-    canvas { width:100vw; height:100dvh; display:block; image-rendering: pixelated; }
-    .hud { position:fixed; inset: max(12px, env(safe-area-inset-top)) 12px auto 12px; display:flex; justify-content:space-between; gap:10px; color:white; font-weight:900; text-shadow:0 2px 0 #123, 0 0 8px #123; pointer-events:none; letter-spacing:.03em; }
-    .pill { background:rgba(3,18,32,.35); border:1px solid rgba(255,255,255,.22); border-radius:999px; padding:8px 12px; backdrop-filter: blur(8px); }
-    .mini { color:white; font-weight:1000; pointer-events:auto; font-size:1rem; }
-    #toast { position:fixed; left:50%; top:50%; transform:translate(-50%,-50%); max-width:320px; padding:12px 14px; border-radius:14px; background:rgba(4,18,35,.9); border:1px solid rgba(157,252,255,.45); color:white; font-weight:800; text-align:center; display:none; z-index:5; }
-    #overlay { position:fixed; inset:0; display:grid; place-items:center; padding:22px; background:radial-gradient(circle at 50% 35%, rgba(255,255,255,.25), rgba(3,12,24,.78)); color:white; text-align:center; }
-    #panel { max-width:520px; background:rgba(4,18,35,.72); border:1px solid rgba(255,255,255,.22); border-radius:28px; padding:24px; box-shadow:0 20px 80px rgba(0,0,0,.35); backdrop-filter: blur(14px); }
-    h1 { margin:.1rem 0 .3rem; font-size:clamp(2rem, 10vw, 4rem); line-height:.9; }
-    p { margin:.7rem 0; color:#dbefff; font-size:1rem; }
-    button { appearance:none; border:0; border-radius:999px; padding:14px 22px; margin-top:12px; font:900 1.05rem ui-rounded, system-ui; color:#05223b; background:linear-gradient(#ffe86c,#ffb22e); box-shadow:0 6px 0 #9b5512, 0 12px 30px rgba(0,0,0,.3); }
-    button:active { transform:translateY(4px); box-shadow:0 2px 0 #9b5512; }
-    .controls { position:fixed; left:0; right:0; bottom:calc(12px + var(--safe-bottom)); display:flex; justify-content:space-between; padding:0 18px; pointer-events:none; }
-    .cluster { display:flex; gap:12px; pointer-events:auto; }
-    .ctrl { width:66px; height:66px; border-radius:50%; border:2px solid rgba(255,255,255,.33); background:rgba(5,22,40,.42); position:relative; color:white; font-size:28px; font-weight:1000; display:grid; place-items:center; user-select:none; box-shadow:inset 0 2px 8px rgba(255,255,255,.12), 0 8px 24px rgba(0,0,0,.22); backdrop-filter: blur(8px); transition:transform .06s ease, background .06s ease, box-shadow .06s ease; }
-    .ctrl::before { content:''; position:absolute; inset:-12px; border-radius:50%; }
-    .ctrl.pressed { transform:translateY(4px) scale(.96); background:rgba(157,252,255,.72); color:#05223b; box-shadow:inset 0 2px 10px rgba(255,255,255,.22), 0 4px 14px rgba(0,0,0,.22); }
-    .ctrl small { display:block; font-size:10px; line-height:1; letter-spacing:.04em; margin-top:-6px; }
-    .ctrl.sprint { font-size:21px; grid-template-rows:1fr auto; padding:10px 3px 7px; }
-    .ctrl.big { width:78px; height:78px; background:rgba(255,180,38,.55); }
-    .ctrl.down { transform:translateY(10px); }
-    .ctrl.down.pressed { transform:translateY(14px) scale(.96); }
-    .ctrl.active { background:rgba(157,252,255,.7); color:#05223b; box-shadow:0 0 0 4px rgba(157,252,255,.22), 0 10px 28px rgba(0,0,0,.25); }
-    @media (min-width: 900px) { .ctrl { opacity:.45 } }
-    @media (orientation: portrait) {
-      #wrap { align-items:start; padding-top:max(36px, env(safe-area-inset-top)); padding-bottom:118px; }
-      canvas { width:100vw; height:320px; border-radius:0 0 18px 18px; box-shadow:0 10px 30px rgba(0,0,0,.25); }
-      .hud { inset:max(8px, env(safe-area-inset-top)) 8px auto 8px; }
-      .pill { padding:7px 10px; font-size:.88rem; }
-      .controls { bottom:0; min-height:calc(104px + var(--safe-bottom)); align-items:center; padding:10px 12px calc(10px + var(--safe-bottom)); background:linear-gradient(transparent, rgba(6,21,33,.18) 18%, rgba(6,21,33,.58)); }
-      .ctrl { width:64px; height:64px; background:rgba(5,22,40,.54); border-color:rgba(157,252,255,.5); position:relative; }
-      .ctrl::before { content:''; position:absolute; inset:-12px; border-radius:50%; }
-      .ctrl.big { width:78px; height:78px; }
-      .cluster { gap:10px; }
-    }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta name="theme-color" content="#111827" />
+<title>Rift Runner — Neural NeXus</title>
+<style>
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;touch-action:none}html,body{margin:0;height:100%;overflow:hidden;background:#0a1020;font-family:ui-rounded,system-ui,-apple-system,Segoe UI,sans-serif;color:white}#game{position:fixed;inset:0;width:100vw;height:100dvh;display:block;image-rendering:pixelated;background:#65c9ff}.hud{position:fixed;left:10px;right:10px;top:max(8px,env(safe-area-inset-top));display:flex;gap:8px;align-items:center;justify-content:space-between;pointer-events:none;text-shadow:0 2px 0 #102}.pill{background:rgba(5,15,32,.56);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:8px 10px;font-weight:900;backdrop-filter:blur(8px);font-size:14px}.mini{pointer-events:auto;color:white}.controls{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:space-between;align-items:end;padding:16px 16px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(transparent,rgba(7,13,28,.72));pointer-events:none}.pad,.actions{display:flex;gap:14px;pointer-events:auto}.btn{width:78px;height:78px;border-radius:24px;border:2px solid rgba(255,255,255,.32);background:rgba(9,20,42,.58);color:white;display:grid;place-items:center;font-weight:1000;font-size:28px;box-shadow:0 8px 26px rgba(0,0,0,.24),inset 0 2px 10px rgba(255,255,255,.12);user-select:none;position:relative}.btn:before{content:'';position:absolute;inset:-16px}.btn.jump{width:94px;height:94px;border-radius:30px;background:rgba(255,207,64,.74);color:#172033}.btn.phase{font-size:18px;background:rgba(124,92,255,.7)}.btn.down{transform:translateY(8px)}.btn.on,.btn.pressed{background:rgba(126,245,255,.82);color:#071426;transform:translateY(4px) scale(.97)}#overlay{position:fixed;inset:0;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 50% 34%,rgba(138,240,255,.22),rgba(8,12,26,.84));text-align:center}#panel{max-width:520px;background:rgba(7,15,32,.78);border:1px solid rgba(255,255,255,.22);border-radius:28px;padding:24px;box-shadow:0 30px 90px rgba(0,0,0,.45)}h1{font-size:clamp(2.5rem,13vw,5rem);margin:0 0 8px;line-height:.9}.lede{color:#d9f7ff;line-height:1.45}button{border:0;border-radius:999px;padding:15px 24px;margin-top:12px;background:linear-gradient(#fff27a,#ffba35);color:#102033;font:1000 1.05rem ui-rounded,system-ui;box-shadow:0 6px 0 #935313}#toast{position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);display:none;background:rgba(7,15,32,.92);border:1px solid #7ef5ff;border-radius:16px;padding:12px 14px;font-weight:900;text-align:center;z-index:4}@media(orientation:landscape){.btn{width:68px;height:68px;border-radius:22px}.btn.jump{width:80px;height:80px}.controls{padding-bottom:10px}.pill{font-size:13px}}
+</style>
 </head>
 <body>
-  <div id="wrap"><canvas id="game" aria-label="Rift Runner platform game"></canvas></div>
-  <div class="hud"><div class="pill" id="score">Shards 0</div><div class="pill" id="status">Rift 1</div><div class="pill" id="lives">Lives 3</div><div class="pill" id="version">v25</div><button class="pill mini" id="pauseBtn">↻</button></div><div id="toast" role="status" aria-live="polite"></div>
-  <div class="controls" aria-hidden="true">
-    <div class="cluster"><div class="ctrl" data-k="left">◀</div><div class="ctrl" data-k="right">▶</div></div>
-    <div class="cluster"><div class="ctrl down sprint" data-k="run"><span>⚡</span><small>SPRINT</small></div><div class="ctrl big" data-k="jump">↑</div></div>
-  </div>
-  <div id="overlay"><div id="panel"><h1>Rift Runner</h1><p>A bright 16-bit adventure: sprint, jump, crack crystal caches, dodge goblins, chain phase shards, and reach the rift gate.</p><p><b>Controls:</b> arrows/buttons to move, ↑ to jump. Tap ⚡ once to toggle sprint.</p><button id="start">Play</button></div></div>
+<canvas id="game"></canvas>
+<div class="hud"><div class="pill" id="score">Shards 0</div><div class="pill" id="status">Rift Grove</div><div class="pill" id="lives">Lives 3</div><button class="pill mini" id="retry">↻</button></div>
+<div class="controls" aria-hidden="true"><div class="pad"><div class="btn" data-k="left">◀</div><div class="btn" data-k="right">▶</div></div><div class="actions"><div class="btn phase down" data-k="phase">PHASE</div><div class="btn jump" data-k="jump">↑</div></div></div>
+<div id="overlay"><div id="panel"><h1>Rift Runner</h1><p class="lede">A fast, original iPhone platformer. Sprint automatically. Collect rift crystals to open phase bridges. Hold <b>PHASE</b> for a faster dash through shard routes.</p><p class="lede"><b>Goal:</b> reach the rift gate. Secret route: keep phase alive through the gold trail.</p><button id="start">Play</button></div></div>
+<div id="toast"></div>
 <script>
-(() => {
-  const canvas = document.getElementById('game'), ctx = canvas.getContext('2d');
-  const ui = { score: document.getElementById('score'), lives: document.getElementById('lives'), status: document.getElementById('status'), overlay: document.getElementById('overlay'), start: document.getElementById('start'), pause: document.getElementById('pauseBtn') };
-  const BASE_W = 432, H = 243, keys = Object.create(null);
-  let W = BASE_W, VH = H, yOff = 0, mobileSprint = false, dirPointers = new Map();
-  const initialPanel = document.getElementById('panel').innerHTML;
-  let last = 0, cam = 0, running = false, starting = false, message = '', boostToken = 0, secretFlash = 0, levelNo = 1, riftTime = 7.5, echoTime = 2.2, shake = 0, hitPause = 0, audioCtx = null;
-  const levels = [{
-    width: 3300,
-    platforms: [[0,220,520,40],[600,220,410,40],[1080,220,95,40],[1325,220,185,40],[1600,220,150,40],[1840,220,200,40],[2130,220,160,40],[2450,220,110,40],[2650,220,650,40],[250,178,100,18],[380,154,90,18],[700,166,130,18],[890,138,100,18],[1380,146,95,18],[1710,160,130,18],[1930,132,95,18],[2250,168,120,18],[2470,140,95,18],[2740,160,120,18],[2940,128,110,18]],
-    blocks: [[285,146,28,28,'coin'],[317,146,28,28,'coin'],[735,134,28,28,'boost'],[1210,140,28,28,'coin'],[1242,140,28,28,'coin'],[1760,128,28,28,'boost'],[2310,136,28,28,'coin'],[2810,126,28,28,'coin'],[2842,126,28,28,'coin'],[3012,96,28,28,'boost']],
-    rifts: [[1085,188,34,32,[0]],[1565,188,34,32,[1]],[2190,188,34,32,[2]],[2705,188,34,32,[3]]],
-    hidden: [[1124,220,220,18,false,0],[1740,220,118,18,false,0],[2280,220,185,18,false,0],[2752,148,185,18,false,0]],
-    gates: [[1450,184,28,36],[2065,184,28,36],[2525,184,28,36]],
-    signs: [[1010,188,'SHARD → BRIDGE'],[1490,188,'SAFE OR PHASE?'],[2590,188,'ECHO STAYS 2s'],[2720,188,'ECHO → SECRET']],
-    props: [[180,188,'spire'],[1000,188,'spire'],[1510,188,'arch'],[2140,188,'spire'],[2880,188,'arch']],
-    coins: [[150,184],[220,184],[298,120],[330,120],[420,128],[640,184],[750,108],[900,112],[960,108],[1125,194],[1180,194],[1240,194],[1300,194],[1390,118],[1510,184],[1640,140],[1730,132],[1810,194],[1940,100],[2180,184],[2300,194],[2380,194],[2490,112],[2710,128],[2825,100],[2865,100],[2965,102],[3040,74],[3150,184]],
-    enemies: [[760,188,75],[1320,188,90],[1830,188,95],[2390,188,105],[3060,188,100]],
-    phaseShards: [[1445,116],[1485,116],[1525,116],[1995,92],[2035,92],[2075,92],[2860,96],[2900,96],[2940,96]],
-    secret: [[3050,82,120,18,false,0]],
-    secretShards: [[3070,54],[3105,44],[3140,54]],
-    flag: 3220,
-    riftTime: 7.5,
-    echoTime: 2.2
-  },{
-    width: 3300,
-    platforms: [[0,220,420,40],[500,220,280,40],[880,220,210,40],[1210,220,260,40],[1580,220,190,40],[1880,220,240,40],[2220,220,160,40],[2500,220,800,40],[210,168,120,18],[430,138,110,18],[650,112,100,18],[980,164,120,18],[1320,142,110,18],[1700,112,130,18],[2020,150,110,18],[2320,118,120,18],[2760,104,120,18],[2990,146,130,18]],
-    blocks: [[450,106,28,28,'boost'],[1340,110,28,28,'coin'],[1718,80,28,28,'boost'],[2790,72,28,28,'coin'],[3020,114,28,28,'boost']],
-    rifts: [[720,188,34,32,[0]],[1030,188,34,32,[1]],[1410,188,34,32,[2]],[2070,188,34,32,[3]],[2320,188,34,32,[4]]],
-    hidden: [[780,184,120,18,false,0],[1090,198,120,18,false,0],[1470,184,110,18,false,0],[2130,184,120,18,false,0],[2380,154,120,18,false,0]],
-    gates: [[1160,184,28,36],[1810,184,28,36],[2460,184,28,36]],
-    signs: [[650,188,'RIFT 2: SHORT ECHO'],[980,188,'CHAIN OR FALL'],[2260,188,'ECHO → HIGH CACHE']],
-    props: [[120,188,'arch'],[520,188,'spire'],[1170,188,'arch'],[1860,188,'spire'],[2600,188,'arch'],[3090,188,'spire']],
-    coins: [[170,184],[245,150],[455,106],[620,184],[690,86],[735,86],[930,184],[1010,136],[1130,190],[1270,184],[1360,116],[1510,184],[1730,78],[1900,184],[2045,122],[2170,184],[2350,92],[2428,126],[2570,184],[2780,76],[2845,76],[3028,92],[3160,184]],
-    enemies: [[560,188,90],[1280,188,100],[1940,188,120],[2580,188,100],[3070,188,85]],
-    phaseShards: [[820,154],[860,154],[1125,170],[1515,154],[2170,156],[2420,126],[2460,126]],
-    secret: [[2820,84,170,18,false,0]],
-    secretShards: [[2860,56],[2910,46],[2960,56]],
-    flag: 3220,
-    riftTime: 5.5,
-    echoTime: 1.25
-  }];
-  let L, p, particles, floaters;
-  const colors = { dirt:'#a45a2a', grass:'#28c840', shadow:'#5d3219', shard:'#9dfcff', sky:'#77cdfd', tile:'#d9893c', tileDark:'#8d4b22' };
-  const arrRect = a => ({ x:+a[0]||0, y:+a[1]||0, w:+a[2]||0, h:+a[3]||0, on:!!a[4], t:+a[5]||0, grace:!!a[7] });
-  const objRect = r => ({ x:+r.x||0, y:+r.y||0, w:+r.w||0, h:+r.h||0, on:!!r.on, t:+r.t||0, grace:!!r.grace });
-  function normalizeLevel(level){
-    level.hidden = (level.hidden||[]).map(h => Array.isArray(h) ? arrRect(h) : objRect(h));
-    level.secret = (level.secret||[]).map(h => Array.isArray(h) ? arrRect(h) : objRect(h));
-    return level;
-  }
-
-  
-  function cloneLevel(level){ return JSON.parse(JSON.stringify(level)); }
-  function reset(full=false){
-    boostToken++;
-    L = normalizeLevel(cloneLevel(levels[Math.max(0, Math.min(levels.length-1, levelNo-1))])); riftTime=L.riftTime||7.5; echoTime=L.echoTime||2.2; cam = 0; particles = []; floaters = [];
-    const oldLives = p ? p.lives : 3, oldCoins = p ? p.coins : 0;
-    p = {x:52,y:150,w:20,h:28,vx:0,vy:0,on:false,wasOn:false,face:1,lives: full?3:oldLives,coins: full?0:oldCoins,big:false,dead:0,win:false,coyote:0,jumpBuffer:0,jumpWasDown:false,runT:0,phase:0,phaseMemory:0,combo:1,secret:false,msgT:0};
-    if (full){ const panel=ui.overlay.querySelector('#panel'); panel.innerHTML = initialPanel; panel.style.boxShadow=''; }
-    message=''; updateHud();
-  }
-  function applyDirPointers(){
-    let left=false, right=false;
-    for(const d of dirPointers.values()){ if(d==='left') left=true; if(d==='right') right=true; }
-    setKey('left',left); setKey('right',right);
-  }
-  function directionFromPoint(x){
-    const leftBtn=document.querySelector('[data-k=\"left\"]'), rightBtn=document.querySelector('[data-k=\"right\"]');
-    const lb=leftBtn && leftBtn.getBoundingClientRect(), rb=rightBtn && rightBtn.getBoundingClientRect();
-    if(lb && rb){ const mid=(lb.right+rb.left)/2; return x < mid ? 'left' : 'right'; }
-    const vv=window.visualViewport; const offset=vv?vv.offsetLeft:0, width=vv&&vv.width?vv.width:innerWidth;
-    return x < offset + width/2 ? 'left' : 'right';
-  }
-  function resize(){
-    const dpr = Math.min(devicePixelRatio || 1, 3);
-    const vv = window.visualViewport;
-    const rawW = vv && vv.width ? vv.width : innerWidth, rawH = vv && vv.height ? vv.height : innerHeight;
-    const vw = Math.max(280, Number.isFinite(rawW) ? rawW : innerWidth);
-    const vh = Math.max(220, Number.isFinite(rawH) ? rawH : innerHeight);
-    const portrait = vh > vw;
-    const cssW = vw;
-    const top = portrait ? Math.max(36, (vv ? vv.offsetTop : 0) + 36) : 0;
-    const dock = portrait ? 118 : 0;
-    const cssH = portrait ? Math.max(260, Math.min(vh - 8, vh - top - dock)) : Math.max(220, vh);
-    canvas.style.width = Math.round(cssW) + 'px';
-    canvas.style.height = Math.round(cssH) + 'px';
-    W = portrait ? 360 : BASE_W;
-    const scale = cssW / W;
-    VH = Math.max(H, Math.round(cssH / scale));
-    yOff = portrait ? Math.min(112, Math.max(70, Math.round(VH*.2))) : 0;
-    canvas.width = Math.round(cssW * dpr);
-    canvas.height = Math.round(cssH * dpr);
-    ctx.setTransform(scale*dpr,0,0,scale*dpr,0,0);
-    ctx.imageSmoothingEnabled = false;
-  }
-  addEventListener('resize', resize); if(window.visualViewport){ window.visualViewport.addEventListener('resize', resize); window.visualViewport.addEventListener('scroll', resize); } resize(); reset(true);
-  function updateHud(){ ui.score.textContent = 'Shards ' + p.coins; ui.lives.textContent = 'Lives ' + p.lives; ui.status.textContent = message || (p.phase>0 ? 'Phase x'+(p.combo||1) : (p.phaseMemory>0 ? 'Phase echo' : 'Rift '+levelNo)); }
-  function hit(a,b){ return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y; }
-  function solidAt(r){
-    const platform = L.platforms.find(([x,y,w,h]) => hit(r,{x,y,w,h}));
-    if (platform) return platform;
-    const hidden = (L.hidden||[]).find(h => h.on && hit(r,h));
-    if (hidden) return [hidden.x,hidden.y,hidden.w,hidden.h];
-    const secret = (L.secret||[]).find(h => h.on && hit(r,h));
-    if (secret) return [secret.x,secret.y,secret.w,secret.h];
-    const gate = (L.gates||[]).find(([x,y,w,h]) => p && p.phase<=0 && hit(r,{x,y,w,h}));
-    if (gate){ message='Need phase charge'; if(p) p.msgT=.9; updateHud(); return gate; }
-    const block = L.blocks.find(b => hit(r,{x:b[0],y:b[1],w:b[2],h:b[3]}));
-    return block && [block[0],block[1],block[2],block[3],block[4],block];
-  }
-  function puff(x,y,c='#fff',n=12,power=85){ for(let i=0;i<n;i++) particles.push({x,y,vx:(Math.random()-.5)*power,vy:(Math.random()-.9)*power,t:.55,c}); }
-  function floater(x,y,text,c='#fff'){ floaters.push({x,y,text,c,t:.75}); }
-  function tone(freq=440,dur=.08,type='square',gain=.045){ if(!audioCtx) return; const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type=type; o.frequency.value=freq; g.gain.setValueAtTime(gain,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+dur); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+dur); }
-  function sfx(name){ const map={jump:[520,.08,'square'],coin:[880,.07,'triangle'],block:[220,.08,'sawtooth'],stomp:[150,.10,'square'],hurt:[90,.18,'sawtooth'],power:[660,.16,'triangle'],win:[980,.22,'triangle'],land:[110,.04,'square']}; const a=map[name]; if(a) tone(a[0],a[1],a[2]); }
-  function die(){ if (p.dead) return; p.lives--; p.dead=.8; shake=.35; hitPause=.08; sfx('hurt'); puff(p.x+p.w/2,p.y+p.h/2,'#ff725c',18,135); if(p.lives<1){ running=false; message='Game over'; updateHud(); ui.overlay.style.display='grid'; ui.overlay.querySelector('#panel').innerHTML = '<h1>Game Over</h1><p>The rift collapsed. Final charge: <b>'+p.coins+'</b> shards.</p><button id="start">Try again</button>'; bindStart(); } else setTimeout(()=>reset(false),700); updateHud(); }
-  function win(){
-    running=false; p.win=true; message='Portal cleared!'; sfx('win');
-    shake=p.secret ? .75 : .45; secretFlash=p.secret ? 1.2 : .35;
-    puff(p.x,p.y,p.secret?'#ff6bff':'#fff28a',p.secret?70:40,p.secret?260:210);
-    floater(p.x+20,p.y-10,p.secret?'SECRET RIFT SEALED':'RIFT SEALED',p.secret?'#ff6bff':'#fff28a'); updateHud();
-    const secret=p.secret, score=p.coins;
-    setTimeout(()=>{
-      ui.overlay.style.display='grid';
-      const next = levelNo < 2;
-      ui.overlay.querySelector('#panel').innerHTML = `<h1>${secret ? 'Secret Rift Sealed' : 'Rift Sealed'}</h1><p>Phase shards chained: <b>${score}</b>. ${secret ? 'You found the high-route cache.' : 'The gate folds shut behind you.'}</p><button id="start" data-next="${next?'1':'0'}">${next?'Enter Rift 2':'Run again'}</button>`;
-      if(secret) ui.overlay.querySelector('#panel').style.boxShadow='0 0 0 2px rgba(255,107,255,.5), 0 0 80px rgba(255,107,255,.45), 0 20px 80px rgba(0,0,0,.35)';
-      bindStart();
-    }, secret ? 850 : 450);
-  }
-  function step(dt){
-    if(!running) return;
-    dt = Math.min(dt, .033);
-    if(hitPause>0){ hitPause-=dt; return; }
-    const left=keys.left||keys.ArrowLeft, right=keys.right||keys.ArrowRight, run=mobileSprint||keys.run||keys.Shift, jump=keys.jump||keys.Space||keys.ArrowUp;
-    if(jump && !p.jumpWasDown) p.jumpBuffer = .11;
-    if(!jump && p.jumpWasDown && p.vy < -95) p.vy *= .48;
-    p.jumpWasDown = !!jump;
-    p.jumpBuffer = Math.max(0, p.jumpBuffer-dt);
-    p.coyote = p.on ? .105 : Math.max(0, p.coyote-dt);
-    const accel = run ? 1260 : 900, max = run ? 202 : 140, brake = p.on ? .00005 : .014;
-    if(left) { p.vx -= accel*dt; p.face=-1; } if(right){ p.vx += accel*dt; p.face=1; }
-    if(!left && !right) p.vx *= Math.pow(brake, dt);
-    p.vx = Math.max(-max, Math.min(max, p.vx));
-    if(p.jumpBuffer>0 && p.coyote>0){ p.vy = p.big ? -355 : -322; p.on=false; p.coyote=0; p.jumpBuffer=0; sfx('jump'); puff(p.x+p.w/2,p.y+p.h,'#dff7ff',14,105); }
-    p.vy += 820*dt;
-    p.x += p.vx*dt; let s = solidAt(p); if(s){ if(p.vx>0) p.x=s[0]-p.w; else if(p.vx<0) p.x=s[0]+s[2]; p.vx=0; }
-    p.wasOn = p.on;
-    p.y += p.vy*dt; p.on=false; s = solidAt(p); if(s){ if(p.vy>0){ p.y=s[1]-p.h; p.on=true; if(!p.wasOn && p.vy>160){ sfx('land'); puff(p.x+p.w/2,p.y+p.h,'#eaffff',14,80); } } else { p.y=s[1]+s[3]; bumpBlock(s); } p.vy=0; }
-    p.x = Math.max(0, Math.min(L.width-p.w, p.x)); if(p.y>H+80) die();
-    for(const c of L.coins){ if(!c[2] && hit(p,{x:c[0]-8,y:c[1]-8,w:16,h:16})){ c[2]=1; const gain=p.combo||1; p.coins+=gain; sfx('coin'); floater(c[0],c[1]-8,(gain>1?'PHASE +':' +')+gain, gain>1?'#9dfcff':'#fff28a'); puff(c[0],c[1],gain>1?'#9dfcff':'#fff28a',12,95); updateHud(); }}
-    for(const c of (L.phaseShards||[])){ if(!c[2] && p.phase>0 && hit(p,{x:c[0]-9,y:c[1]-9,w:18,h:18})){ c[2]=1; p.combo=Math.min(5,(p.combo||1)+1); p.phase=Math.min(8,p.phase+1.1); const gain=p.combo*2; p.coins+=gain; sfx('power'); floater(c[0],c[1]-10,'CHAIN +'+gain,'#ff6bff'); puff(c[0],c[1],'#ff6bff',18,130); updateHud(); }}
-    for(const c of (L.secretShards||[])){ if(!c[2] && (p.phase>0 || p.phaseMemory>0) && hit(p,{x:c[0]-10,y:c[1]-10,w:20,h:20})){ c[2]=1; if(!p.secret){ shake=.3; floater(c[0],c[1]-30,'SECRET CACHE FOUND','#fff28a'); } p.secret=true; p.combo=Math.min(7,(p.combo||1)+2); p.phase=Math.min(9,p.phase+1.5); const gain=10; p.coins+=gain; sfx('win'); shake=.16; floater(c[0],c[1]-12,'SECRET +'+gain,'#fff28a'); puff(c[0],c[1],'#fff28a',28,180); updateHud(); }}
-    for(const e of L.enemies){ if(e.dead) continue; if(e.x == null) e.x = e[0]; if(e.dir == null) e.dir = 1; e.walk=(e.walk||0)+dt*8; e.x += e.dir*38*dt; if(Math.abs(e.x-e[0])>e[2]) e.dir*=-1; const er={x:e.x,y:e[1],w:24,h:24}; if(hit(p,er)){ if(p.vy>70 && p.y+p.h-8<er.y+8){ e.dead=1; p.vy=-235; p.coins+=2; p.phase=Math.max(p.phase,.9); sfx('stomp'); hitPause=.045; shake=.12; floater(er.x+12,er.y,'RIFT +2','#9cff6a'); puff(er.x+12,er.y+12,'#9cff6a',18,125); updateHud(); } else die(); }}
-    if(p.x > L.flag) win();
-    for(const r of (L.rifts||[])){ if(r[3]>0 && hit(p,{x:r[0],y:r[1],w:r[2],h:r[3]})){ r[3]=0; revealRift(r[4]||[]); sfx('power'); floater(p.x+12,p.y-8,'PHASE ROUTE','#9dfcff'); puff(p.x+10,p.y+10,'#9dfcff',24,160); shake=.18; }}
-    let anyBridge=false;
-    for(const h of (L.hidden||[])) if(h.on){ h.t=Math.max(0,(h.t||0)-dt); if(h.t===0){ if(hit(p,{x:h.x,y:h.y-6,w:h.w,h:h.h+12})){ h.t=.65; h.grace=true; } else { h.on=false; h.grace=false; } } if(h.on) anyBridge=true; }
-    if(!anyBridge && message && message.indexOf('BRIDGE OPEN')===0){ message=''; updateHud(); }
-    if(L.secret && (p.phase>0 || p.phaseMemory>0) && p.x>2840){ for(const h of L.secret){ if(!h.on){ floater(h.x+h.w/2,h.y-10,'SECRET ROUTE','#fff28a'); sfx('power'); } h.on=true; h.t=Math.max(h.t||0,6.5); } }
-    for(const h of (L.secret||[])) if(h.on && h.t){ h.t=Math.max(0,h.t-dt); if(h.t===0) h.on=false; } 
-    if(p.phase>0){ p.phaseMemory=echoTime; p.phase=Math.max(0,p.phase-dt); if(!p.phase) p.combo=1; }
-    if(p.phaseMemory>0) p.phaseMemory=Math.max(0,p.phaseMemory-dt);
-    if(p.msgT>0){ p.msgT=Math.max(0,p.msgT-dt); if(!p.msgT && message==='Need phase charge'){ message=''; updateHud(); } }
-    for(const b of L.blocks) if(b.bump) b.bump=Math.max(0,b.bump-dt);
-    particles = particles.filter(q => (q.t-=dt)>0).map(q => (q.x+=q.vx*dt, q.y+=q.vy*dt, q.vy+=180*dt, q));
-    floaters = floaters.filter(f => (f.t-=dt)>0).map(f => (f.y-=22*dt, f));
-    shake=Math.max(0,shake-dt);
-    const look = p.face>0 ? 76 : 34;
-    cam += (Math.max(0, Math.min(L.width-W, p.x - W*.42 + look)) - cam) * Math.min(1, dt*7.5);
-  }
-  function bumpBlock(s){
-    const b = s && s[5];
-    if(!b || b.hit) return;
-    b.hit=1; b.bump=.18; p.coins += b[4]==='coin'?3:0;
-    if(b[4]==='boost') {
-      const token = ++boostToken; p.big=true; p.h=34; message='Power jump!'; sfx('power'); floater(b[0]+14,b[1]-8,'RIFT BOOST','#9dfcff');
-      setTimeout(()=>{ if(p && token===boostToken){p.big=false;p.h=28; if(message==='Power jump!') message=''; updateHud();}},7000);
-    }
-    else { sfx('block'); floater(b[0]+14,b[1]-8,'CACHE +3','#9dfcff'); }
-    puff(b[0]+14,b[1],'#9dfcff',16,120); shake=.08; updateHud();
-  }
-  function revealRift(indices){
-    const targets = (indices||[]).map(i => L.hidden && L.hidden[i]).filter(Boolean);
-    for(const h of targets){ h.on=true; h.t=riftTime; for(let x=h.x; x<h.x+h.w; x+=14) puff(x,h.y+2,'#9dfcff',3,45); }
-    message=indices && indices[0]===0 ? 'BRIDGE OPEN — FOLLOW GLOW' : ('BRIDGE OPEN '+Math.ceil(riftTime)+'s — GO →'); p.phase=riftTime; p.combo=2; updateHud();
-  }
-  function draw(){
-    ctx.clearRect(0,0,W,VH);
-    if(shake>0){ ctx.save(); ctx.translate((Math.random()-.5)*shake*18,(Math.random()-.5)*shake*12); }
-    drawSky();
-    const pxCam=Math.round(cam);
-    ctx.save(); ctx.translate(-Math.round(cam*.18),yOff); drawFarHills(); ctx.restore();
-    ctx.save(); ctx.translate(-Math.round(cam*.42),yOff); drawNearHills(); ctx.restore();
-    drawBottomFill(yOff+220);
-    ctx.save(); ctx.translate(-pxCam,yOff);
-    drawProps(); drawSigns(); drawPhaseGates();
-    for(const [x,y,w,h] of L.platforms) drawGround(x,y,w,h);
-    for(const h of (L.hidden||[])) h.on ? drawPhasePlatform(h.x,h.y,h.w,h.h,h.t,h.grace) : drawGhostPlatform(h.x,h.y,h.w,h.h);
-    for(const h of (L.secret||[])) if(h.on) drawSecretPlatform(h.x,h.y,h.w,h.h,h.t);
-    for(const b of L.blocks) drawQuestionBlock(b);
-    for(const r of (L.rifts||[])) { if(r[3]>0) drawShard(r[0],r[1]); else drawRiftTrail(r); }
-    for(const c of L.coins) if(!c[2]) drawShardPickup(c[0],c[1]);
-    for(const c of (L.phaseShards||[])) if(!c[2]) drawPhaseShard(c[0],c[1]);
-    for(const c of (L.secretShards||[])) if(!c[2]) drawSecretShard(c[0],c[1]);
-    for(const e of L.enemies) if(!e.dead) drawCritter(e.x == null ? e[0] : e.x,e[1]);
-    drawGate(L.flag,126);
-    if(p.phase>0 || p.phaseMemory>0){ ctx.globalAlpha=p.phase>0?.42:.22; ctx.fillStyle=p.phase>0?'#9dfcff':'#fff28a'; ctx.fillRect((p.x-8)|0,(p.y+8)|0,6,16); ctx.fillRect((p.x-17)|0,(p.y+12)|0,4,10); ctx.globalAlpha=1; }
-    drawHero(p.x,p.y,p.face,p.big);
-    for(const q of particles){ ctx.globalAlpha=Math.max(0,q.t/.55); ctx.fillStyle=q.c; ctx.fillRect(q.x|0,q.y|0,4,4); ctx.globalAlpha=1; }
-    for(const f of floaters){ ctx.globalAlpha=Math.max(0,f.t/.75); ctx.fillStyle=f.c; ctx.font='900 10px ui-rounded, system-ui'; ctx.textAlign='center'; ctx.fillText(f.text,f.x,f.y); ctx.globalAlpha=1; }
-    ctx.restore();
-    if(shake>0) ctx.restore();
-    if(secretFlash>0){ ctx.globalAlpha=Math.min(.45,secretFlash*.38); ctx.fillStyle=p&&p.secret?'#ff6bff':'#fff28a'; ctx.fillRect(0,0,W,VH); ctx.globalAlpha=1; secretFlash=Math.max(0,secretFlash-.025); }
-  }
-  function drawSky(){
-    const g=ctx.createLinearGradient(0,0,0,VH); g.addColorStop(0,'#61c7ff'); g.addColorStop(.58,'#b7f1ff'); g.addColorStop(.59,'#67d868'); g.addColorStop(1,'#167034'); ctx.fillStyle=g; ctx.fillRect(0,0,W,VH);
-    ctx.fillStyle='rgba(255,255,255,.92)';
-    for(let x=20; x<W+120; x+=145) cloud(x+(performance.now()/90%145),42+(x%4)*9);
-  }
-  function drawFarHills(){
-    for(let x=-220; x<L.width*.18+W+220; x+=210){
-      ctx.fillStyle='#4fc56b'; ctx.beginPath(); ctx.arc(x,221,118,Math.PI,0); ctx.fill();
-      ctx.fillStyle='#76dc82'; ctx.beginPath(); ctx.arc(x+40,221,78,Math.PI,0); ctx.fill();
-      ctx.fillStyle='rgba(255,255,255,.25)'; ctx.beginPath(); ctx.arc(x-44,142,12,0,7); ctx.arc(x+6,128,10,0,7); ctx.fill();
-    }
-  }
-  function drawNearHills(){
-    for(let x=-160; x<L.width*.42+W+160; x+=260){
-      ctx.fillStyle='#25a858'; ctx.beginPath(); ctx.arc(x,222,70,Math.PI,0); ctx.fill();
-      ctx.fillStyle='#38bd64'; ctx.fillRect(x-54,182,108,40);
-      ctx.fillStyle='#167034'; for(let i=-44;i<52;i+=22) ctx.fillRect(x+i,194,10,18);
-    }
-  }
-  function drawGround(x,y,w,h){
-    ctx.fillStyle='#25bc3f'; ctx.fillRect(x,y,w,9);
-    ctx.fillStyle='#80e35f'; ctx.fillRect(x,y,w,3);
-    for(let tx=x; tx<x+w; tx+=16){
-      for(let ty=y+9; ty<y+h; ty+=16){
-        ctx.fillStyle=((tx+ty)/16)%2<1 ? colors.tile : '#c87534'; ctx.fillRect(tx,ty,16,16);
-        ctx.fillStyle=colors.tileDark; ctx.fillRect(tx,ty,16,2); ctx.fillRect(tx,ty,2,16);
-      }
-    }
-  }
-  function drawBottomFill(y){
-    ctx.fillStyle='#1f8c44'; ctx.fillRect(0,y,W,VH-y);
-    ctx.fillStyle='#146a36';
-    for(let x=0;x<W;x+=18){ ctx.fillRect(x,y+8+(x%36?8:0),10,VH-y); }
-    ctx.fillStyle='rgba(8,30,24,.22)'; ctx.fillRect(0,y,W,8);
-  }
-  function drawGhostPlatform(x,y,w,h){
-    const near = Math.abs((p ? p.x : 0) - x) < 260;
-    ctx.globalAlpha = near ? .34 : .16;
-    ctx.fillStyle='#9dfcff';
-    for(let xx=x; xx<x+w; xx+=18) ctx.fillRect(xx,y+7,10,3);
-    ctx.fillStyle='#ffffff'; if(near){ ctx.font='900 9px ui-rounded, system-ui'; ctx.textAlign='center'; ctx.fillText('PHASE BRIDGE',x+w/2,y-6); }
-    ctx.globalAlpha=1;
-  }
-  function drawRiftTrail(r){
-    const targets=(r[4]||[]).map(i=>L.hidden&&L.hidden[i]).filter(Boolean);
-    for(const h of targets){
-      ctx.globalAlpha=.42+Math.sin(performance.now()/70)*.2; ctx.strokeStyle='#9dfcff'; ctx.lineWidth=3; ctx.beginPath(); ctx.moveTo(r[0]+17,r[1]); ctx.lineTo(h.x+h.w/2,h.y); ctx.stroke();
-      ctx.fillStyle='#9dfcff'; ctx.font='900 12px ui-rounded, system-ui'; ctx.textAlign='center'; ctx.fillText('GO →',h.x+h.w/2,h.y-16); ctx.globalAlpha=1;
-    }
-  }
-  function drawSecretPlatform(x,y,w,h,time){
-    ctx.globalAlpha=.72+Math.sin(performance.now()/80)*.2; ctx.fillStyle='#ff6bff'; ctx.fillRect(x,y,w,h); ctx.fillStyle='#fff28a'; ctx.fillRect(x,y,w,3); ctx.globalAlpha=1;
-  }
-  function drawSecretShard(x,y){
-    const live=p && (p.phase>0 || p.phaseMemory>0) && p.x>2840; ctx.globalAlpha=live?1:.18; drawShadow(x,y+16,10); const t=performance.now()/80+x; ctx.save(); ctx.translate(x,y); ctx.rotate(t/2); ctx.fillStyle='#fff28a'; ctx.beginPath(); ctx.moveTo(0,-15); ctx.lineTo(11,0); ctx.lineTo(0,15); ctx.lineTo(-11,0); ctx.closePath(); ctx.fill(); ctx.strokeStyle='#ff6bff'; ctx.lineWidth=3; ctx.stroke(); ctx.restore(); ctx.globalAlpha=1;
-  }
-  function drawPhaseShard(x,y){
-    if(p && p.phase<=0) ctx.globalAlpha=.24; else ctx.globalAlpha=.95;
-    drawShadow(x,y+15,8); const t=performance.now()/110+x; ctx.save(); ctx.translate(x,y); ctx.rotate(t/3); ctx.fillStyle='#ff6bff'; ctx.beginPath(); ctx.moveTo(0,-12); ctx.lineTo(8,0); ctx.lineTo(0,12); ctx.lineTo(-8,0); ctx.closePath(); ctx.fill(); ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke(); ctx.restore(); ctx.globalAlpha=1;
-  }
-  function drawPhasePlatform(x,y,w,h,time,grace){
-    const low=time && time<1.5, blink=low && Math.sin(performance.now()/55)<0;
-    if(blink) return;
-    ctx.globalAlpha=.82+Math.sin(performance.now()/90)*.16; ctx.fillStyle='#70f7ff'; ctx.fillRect(x,y,w,h); ctx.fillStyle='#ffffff'; ctx.fillRect(x,y,w,3); ctx.fillStyle='#7d4cff'; for(let xx=x;xx<x+w;xx+=14) ctx.fillRect(xx,y+4,7,h-7);
-    if(time){ ctx.globalAlpha=1; ctx.fillStyle=grace?'#fff28a':(time<2?'#ff3dff':'#082f46'); ctx.fillRect(x,y-8,Math.max(4,w*(time/riftTime)),5); ctx.fillStyle='#fff'; ctx.font='900 9px ui-rounded, system-ui'; ctx.textAlign='center'; ctx.fillText(Math.ceil(time),x+w/2,y-11); }
-    ctx.globalAlpha=1;
-  }
-  function drawShard(x,y){
-    drawShadow(x+17,y+34,16);
-    const t=performance.now()/160; ctx.save(); ctx.translate(x+17,y+14); ctx.rotate(t/4); ctx.fillStyle='#9dfcff'; ctx.beginPath(); ctx.moveTo(0,-16); ctx.lineTo(12,0); ctx.lineTo(0,16); ctx.lineTo(-12,0); ctx.closePath(); ctx.fill(); ctx.strokeStyle='#7d4cff'; ctx.lineWidth=3; ctx.stroke(); ctx.restore();
-  }
-  function drawQuestionBlock(b){
-    const x=b[0], y=b[1] - Math.sin((b.bump||0)*18)*6, w=b[2], h=b[3];
-    drawShadow(x+w/2,b[1]+h+4,14);
-    ctx.fillStyle=b.hit?'#594a71':'#5dd6ff'; ctx.fillRect(x,y,w,h);
-    ctx.fillStyle=b.hit?'#3b3151':'#2368d5'; ctx.fillRect(x,y+h-5,w,5); ctx.fillRect(x+w-5,y,5,h);
-    ctx.fillStyle=b.hit?'#8e7caf':'#d7fbff'; ctx.fillRect(x+4,y+4,w-8,4); ctx.fillRect(x+4,y+4,4,h-8);
-    if(!b.hit){ ctx.fillStyle='#823ee8'; ctx.beginPath(); ctx.moveTo(x+14,y+5); ctx.lineTo(x+23,y+14); ctx.lineTo(x+14,y+23); ctx.lineTo(x+5,y+14); ctx.closePath(); ctx.fill(); ctx.fillStyle='#effcff'; ctx.fillRect(x+13,y+9,2,10); }
-  }
-  function drawShardPickup(x,y){
-    drawShadow(x,y+14,7);
-    y += Math.sin(performance.now()/180+x)*2;
-    const t=performance.now()/180+x;
-    ctx.save(); ctx.translate(x,y); ctx.rotate(t/5);
-    ctx.fillStyle='#d7fbff'; ctx.beginPath(); ctx.moveTo(0,-10); ctx.lineTo(7,0); ctx.lineTo(0,10); ctx.lineTo(-7,0); ctx.closePath(); ctx.fill();
-    ctx.strokeStyle='#5dd6ff'; ctx.lineWidth=2; ctx.stroke();
-    ctx.restore();
-  }
-  function drawShadow(x,y,w=22){ ctx.fillStyle='rgba(13,33,30,.28)'; ctx.beginPath(); ctx.ellipse(x,y,w,5,0,0,7); ctx.fill(); }
-  function drawCritter(x,y){
-    drawShadow(x+12,y+25,15);
-    const bob=Math.sin((performance.now()/120)+(x||0))*2; y+=bob;
-    rounded(x,y+4,24,20,5,'#8a4a2a');
-    ctx.fillStyle='#623018'; ctx.fillRect(x+2,y+20,7,4); ctx.fillRect(x+15,y+20,7,4);
-    ctx.fillStyle='white'; ctx.fillRect(x+5,y+9,5,5); ctx.fillRect(x+15,y+9,5,5);
-    ctx.fillStyle='#201008'; ctx.fillRect(x+7,y+11,2,2); ctx.fillRect(x+17,y+11,2,2);
-  }
-  function drawPhaseGates(){
-    if(!L.gates) return;
-    for(const [x,y,w,h] of L.gates){
-      if(p && p.phase>0){ ctx.globalAlpha=.28; ctx.fillStyle='#9dfcff'; ctx.fillRect(x,y,w,h); ctx.globalAlpha=1; continue; }
-      drawShadow(x+w/2,y+h+4,16); ctx.fillStyle='#492076'; ctx.fillRect(x,y,w,h); ctx.fillStyle='#ff5cff'; ctx.fillRect(x+5,y+4,w-10,h-8); ctx.fillStyle='#160b29'; ctx.fillRect(x+10,y+9,w-20,h-18);
-      ctx.fillStyle='#fff'; ctx.font='900 8px ui-rounded, system-ui'; ctx.textAlign='center'; ctx.fillText('PHASE',x+w/2,y-5);
-    }
-  }
-  function drawSigns(){
-    if(!L.signs) return; ctx.font='900 11px ui-rounded, system-ui'; ctx.textAlign='center';
-    for(const [x,y,text] of L.signs){ drawShadow(x,y+2,30); ctx.fillStyle='#3b1b68'; ctx.fillRect(x-58,y-43,116,28); ctx.fillStyle='#9dfcff'; ctx.fillRect(x-54,y-39,108,20); ctx.fillStyle='#082f46'; ctx.fillText(text,x,y-25); ctx.fillStyle='#3b1b68'; ctx.fillRect(x-3,y-15,6,22); ctx.fillStyle='#9dfcff'; ctx.beginPath(); ctx.moveTo(x,y-12); ctx.lineTo(x-8,y-2); ctx.lineTo(x+8,y-2); ctx.fill(); }
-  }
-  function drawProps(){
-    if(!L.props) return;
-    for(const [x,y,t] of L.props){
-      if(t==='spire'){
-        drawShadow(x+18,y+4,22);
-        ctx.fillStyle='#3147a8'; ctx.fillRect(x+9,y-46,18,46); ctx.fillStyle='#6df0ff'; ctx.fillRect(x+13,y-58,10,18); ctx.fillStyle='#1e2c75'; ctx.fillRect(x+27,y-42,5,42); ctx.fillStyle='#b9fbff'; ctx.fillRect(x+13,y-42,5,36); ctx.fillStyle='#7e4cff'; ctx.fillRect(x+2,y-8,34,8);
-      } else {
-        drawShadow(x+29,y+4,30);
-        ctx.fillStyle='#7a4ad8'; ctx.fillRect(x,y-54,12,54); ctx.fillRect(x+46,y-54,12,54); ctx.fillRect(x,y-54,58,12); ctx.fillStyle='#c6a8ff'; ctx.fillRect(x+8,y-46,42,6);
-      }
-    }
-  }
-  function drawGate(x,y){
-    ctx.fillStyle='#6538c8'; ctx.fillRect(x,y+10,14,84);
-    ctx.strokeStyle='#f2dcff'; ctx.lineWidth=6; ctx.beginPath(); ctx.arc(x+7,y,24,0,7); ctx.stroke();
-    ctx.strokeStyle='#9d69ff'; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(x+7,y,16,0,7); ctx.stroke();
-  }
-  function drawHero(x,y,face,big){
-    drawShadow(x+11,y+(big?36:30),13);
-    const speed=Math.abs(p.vx||0), h=big?34:28, bob=p.on&&speed>20?Math.sin(performance.now()/55)*2:0;
-    x|=0; y=(y+bob)|0;
-    // boots and legs
-    const stride=p.on?Math.sin(performance.now()/55)*(Math.min(4, speed/45)):0; ctx.fillStyle='#203a9a'; ctx.fillRect(x+4+stride,y+h-9,5,8); ctx.fillRect(x+12-stride,y+h-9,5,8);
-    ctx.fillStyle='#3b2418'; ctx.fillRect(x+2,y+h-3,8,4); ctx.fillRect(x+11,y+h-3,8,4);
-    // body, cape/scarf, head, cap — original sprite, SNES-like silhouette
-    ctx.fillStyle=big?'#ff9f1c':'#19b6c8'; ctx.fillRect(x+3,y+11,15,12);
-    ctx.fillStyle='#7d4cff'; ctx.fillRect(x+1,y+13,6,5);
-    ctx.fillStyle='#ffe0ac'; ctx.fillRect(x+4,y+5,14,9); ctx.fillRect(x+7,y+2,9,5);
-    ctx.fillStyle='#2a1a12'; ctx.fillRect(x+(face>0?14:5),y+8,3,3);
-    ctx.fillStyle='#522c8f'; ctx.fillRect(x+4,y+1,14,4); ctx.fillRect(x+8,y-3,8,5);
-    ctx.fillStyle='rgba(0,0,0,.2)'; ctx.fillRect(x+2,y+h,18,2);
-  }
-  function cloud(x,y){ x|=0; y|=0; ctx.fillRect(x,y,18,10); ctx.fillRect(x+10,y-8,30,18); ctx.fillRect(x+34,y,22,10); ctx.fillRect(x+6,y+8,42,8); }
-  function rounded(x,y,w,h,r,c){ if(c) ctx.fillStyle=c; ctx.beginPath();
-    if (ctx.roundRect) ctx.roundRect(x,y,w,h,r);
-    else { ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y); ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y); }
-    ctx.fill();
-  }
-  function loop(t){ const dt=(t-last)/1000||0; last=t; step(dt); draw(); requestAnimationFrame(loop); } requestAnimationFrame(loop);
-  function setKey(k,v){ keys[k]=v; }
-  addEventListener('keydown',e=>{ if(['ArrowLeft','ArrowRight','ArrowUp','Space','Shift'].includes(e.code||e.key)) e.preventDefault(); keys[e.code] = keys[e.key] = true; });
-  addEventListener('keyup',e=>{ keys[e.code] = keys[e.key] = false; });
-  function clearDirectionalInput(){ dirPointers.clear(); setKey('left',false); setKey('right',false); document.querySelectorAll('[data-k="left"],[data-k="right"]').forEach(b=>b.classList.remove('pressed')); }
-  addEventListener('pointercancel', clearDirectionalInput, {passive:false});
-  addEventListener('blur', clearDirectionalInput);
-  document.addEventListener('visibilitychange', ()=>{ if(document.hidden) clearDirectionalInput(); });
-  document.querySelectorAll('[data-k]').forEach(el=>{
-    const k=el.dataset.k; let activePointer=null, lastToggle=0;
-    el.addEventListener('pointerdown', e=>{
-      e.preventDefault(); activePointer=e.pointerId; if(el.setPointerCapture) el.setPointerCapture(e.pointerId);
-      el.classList.add('pressed');
-      if(k==='run'){
-        const now=performance.now(); if(now-lastToggle<260) return; lastToggle=now;
-        mobileSprint=!mobileSprint; el.classList.toggle('active',mobileSprint); const tag=el.querySelector('small'); if(tag) tag.textContent=mobileSprint?'ON':'SPRINT'; sfx(mobileSprint?'power':'land');
-      } else if(k==='left'||k==='right'){ dirPointers.set(e.pointerId,k); applyDirPointers(); }
-      else setKey(k,true);
-    }, {passive:false});
-    const release=e=>{ e.preventDefault(); if(activePointer!==null && e.pointerId!==activePointer) return; activePointer=null; el.classList.remove('pressed'); if(k==='left'||k==='right'){ dirPointers.delete(e.pointerId); applyDirPointers(); } else if(k!=='run') setKey(k,false); };
-    el.addEventListener('pointermove', e=>{
-      if(activePointer===null || (k!=='left' && k!=='right')) return;
-      dirPointers.set(e.pointerId,directionFromPoint(e.clientX)); applyDirPointers();
-    }, {passive:false});
-    ['pointerup','pointercancel','lostpointercapture'].forEach(t=>el.addEventListener(t,release,{passive:false}));
-  });
-  function bindStart(){
-    ui.start = document.getElementById('start');
-    if (!ui.start) return;
-    ui.start.addEventListener('pointerup', e=>{ e.preventDefault(); startGame(); }, {passive:false});
-    ui.start.addEventListener('click', e=>{ e.preventDefault(); if(e.detail===0) startGame(); }, {passive:false});
-  }
-  function startGame(){ if(starting) return; starting = true; if(!audioCtx){ const AC=window.AudioContext||window.webkitAudioContext; if(AC) audioCtx=new AC(); } if(audioCtx && audioCtx.state==='suspended') audioCtx.resume(); const next=ui.start && ui.start.dataset.next==='1'; if(next) levelNo++; else levelNo=1; ui.overlay.style.display='none'; dirPointers.clear(); setKey('left',false); setKey('right',false); mobileSprint=false; const runBtn=document.querySelector('[data-k=\"run\"]'); if(runBtn){ runBtn.classList.remove('active'); runBtn.classList.remove('pressed'); const tag=runBtn.querySelector('small'); if(tag) tag.textContent='SPRINT'; } reset(!next); if(levelNo===2){ message='Rift 2: short echoes'; updateHud(); } running=true; sfx('power'); last=performance.now(); setTimeout(()=>{ starting=false; }, 250); }
-  bindStart();
-  ui.pause.addEventListener('pointerup', e=>{
-    e.preventDefault(); running=false; clearDirectionalInput(); levelNo=1;
-    ui.overlay.style.display='grid';
-    ui.overlay.querySelector('#panel').innerHTML='<h1>Retry Rift?</h1><p>Reset the run and start fresh.</p><button id="start">Restart</button>';
-    bindStart();
-  }, {passive:false});
+(()=>{
+'use strict';
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const ui={score:score,status:status,lives:lives,overlay:overlay,panel:panel,start:start,retry:retry,toast:toast};
+const BASE={w:360,h:240}; let W=360,H=240,scale=1,last=0,cam=0,run=false,levelIndex=0,shake=0,flash=0,audio=null;
+const key=Object.create(null), ptrs=new Map();
+const levels=[{
+ name:'Rift Grove', width:2480, goal:2380, theme:['#62c9ff','#d9fbff','#38bd64','#166b3a'],
+ ground:[[0,212,500,60],[580,212,360,60],[1040,212,320,60],[1480,212,300,60],[1900,212,580,60]],
+ platforms:[[240,166,120,18],[410,136,110,18],[700,160,140,18],[900,126,100,18],[1160,164,110,18],[1560,150,140,18],[1760,116,120,18],[2050,158,130,18]],
+ bridges:[[515,190,80,18,0],[1370,190,100,18,1],[1810,168,95,18,2]],
+ gates:[[990,176,30,36],[1870,176,30,36]],
+ rifts:[[470,174,0],[1318,174,1],[1768,100,2]],
+ shards:[[150,184],[275,138],[330,134],[720,132],[940,98],[1180,136],[1600,120],[1790,88],[2080,128],[2220,184]],
+ phaseShards:[[540,160],[570,160],[1410,160],[1450,160],[1840,138]], enemies:[[760,184,90],[1220,184,70],[2130,184,110]], signs:[[420,184,'PHASE BRIDGE'],[1280,184,'KEEP CHAIN'],[1710,94,'SECRET HIGH']]
+},{
+ name:'Echo Spires', width:2700, goal:2580, theme:['#25295d','#5d7cff','#1f8d80','#0d3845'],
+ ground:[[0,212,360,60],[470,212,260,60],[850,212,230,60],[1220,212,250,60],[1600,212,220,60],[1950,212,260,60],[2350,212,350,60]],
+ platforms:[[180,158,100,18],[380,124,120,18],[610,152,90,18],[920,150,110,18],[1120,110,100,18],[1360,154,120,18],[1720,120,130,18],[2020,148,120,18],[2250,106,120,18]],
+ bridges:[[365,190,115,18,0],[735,188,120,18,1],[1080,174,140,18,2],[1470,190,130,18,3],[2210,170,140,18,4]],
+ gates:[[800,176,30,36],[1530,176,30,36],[2300,176,30,36]], rifts:[[320,174,0],[690,174,1],[1040,156,2],[1425,174,3],[2165,152,4]],
+ shards:[[110,184],[210,130],[390,96],[620,126],[940,124],[1145,82],[1380,126],[1740,92],[2045,120],[2260,78],[2440,184]],
+ phaseShards:[[405,160],[450,160],[770,158],[1130,144],[1510,160],[2250,140]], enemies:[[560,184,80],[980,184,70],[1660,184,90],[2420,184,75]], signs:[[285,184,'SHORT ECHO'],[1020,150,'CHAIN OR FALL'],[2120,148,'PHASE GATE']]
+}];
+let L,p,fx=[],text=[];
+function clone(o){return JSON.parse(JSON.stringify(o))}
+function reset(full=true){L=clone(levels[levelIndex]); cam=0; fx=[]; text=[]; const keep=p&&!full; p={x:42,y:150,w:20,h:30,vx:0,vy:0,face:1,on:false,was:false,lives:keep?p.lives:3,score:keep?p.score:0,phase:0,echo:0,combo:1,dead:false,won:false,coyote:0,jbuf:0,jheld:false,secret:false}; updateHud()}
+function size(){const vv=visualViewport; const vw=Math.max(280,vv&&vv.width||innerWidth), vh=Math.max(220,vv&&vv.height||innerHeight); const portrait=vh>vw; const dock=portrait?116:88; const top=portrait?Math.max(34,(vv?vv.offsetTop:0)+28):0; const cssH=Math.max(260,Math.min(vh-top-dock,vh-4)); W=portrait?360:460; scale=vw/W; H=Math.max(240,Math.round(cssH/scale)); canvas.style.width=vw+'px'; canvas.style.height=cssH+'px'; canvas.width=Math.round(vw*devicePixelRatio); canvas.height=Math.round(cssH*devicePixelRatio); ctx.setTransform(scale*devicePixelRatio,0,0,scale*devicePixelRatio,0,0); ctx.imageSmoothingEnabled=false}
+addEventListener('resize',size); if(visualViewport){visualViewport.addEventListener('resize',size);visualViewport.addEventListener('scroll',size)} size(); reset(true);
+function updateHud(){ui.score.textContent='Shards '+p.score; ui.lives.textContent='Lives '+p.lives; ui.status.textContent=p.phase>0?'Phase x'+p.combo:(p.echo>0?'Echo window':L.name)}
+function hit(a,b){return a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y}
+function solids(){let out=[...L.ground,...L.platforms].map(a=>({x:a[0],y:a[1],w:a[2],h:a[3]})); for(const b of L.bridges) if(b[4]>0) out.push({x:b[0],y:b[1],w:b[2],h:b[3],bridge:b}); for(const g of L.gates) if(p.phase<=0) out.push({x:g[0],y:g[1],w:g[2],h:g[3],gate:true}); return out}
+function particle(x,y,c,n=12,pow=90){for(let i=0;i<n;i++)fx.push({x,y,vx:(Math.random()-.5)*pow,vy:(Math.random()-.9)*pow,t:.55,c})}
+function label(x,y,s,c='#fff'){text.push({x,y,s,c,t:.8})}
+function beep(f=440,d=.06,type='square'){if(!audio)return; const o=audio.createOscillator(),g=audio.createGain(); o.type=type;o.frequency.value=f;g.gain.value=.04;g.gain.exponentialRampToValueAtTime(.0001,audio.currentTime+d);o.connect(g);g.connect(audio.destination);o.start();o.stop(audio.currentTime+d)}
+function die(){if(p.dead)return; p.lives--; p.dead=true; shake=.25; particle(p.x,p.y,'#ff6b6b',22,160); beep(90,.18,'sawtooth'); if(p.lives<1){run=false; showPanel('Rift Collapsed','You lost the thread. Restart the route.','Try again')} else setTimeout(()=>reset(false),650); updateHud()}
+function win(){run=false;p.won=true;flash=1;particle(p.x,p.y,p.secret?'#ffd84a':'#9dfcff',70,250);beep(980,.22,'triangle'); const next=levelIndex<levels.length-1; const title=p.secret?'Secret Rift Sealed':'Rift Sealed'; showPanel(title,`Shards chained: <b>${p.score}</b>. ${next?'A harder rift opens.':(p.secret?'You found the hidden phase cache.':'The gate folds shut.')}`,next?'Enter Rift 2':'Run again',next)}
+function showPanel(h,msg,btn,next=false){setTimeout(()=>{ui.overlay.style.display='grid';ui.panel.innerHTML=`<h1>${h}</h1><p class="lede">${msg}</p><button id="start" data-next="${next?1:0}">${btn}</button>`; ui.start=document.getElementById('start'); bindStart()},450)}
+function activateRift(id){const t=levelIndex?5.4:7.2; p.phase=t; p.echo=levelIndex?1.2:2.1; p.combo=Math.max(2,p.combo); for(const b of L.bridges) if(b[4]===id){b[4]=t; particle(b[0]+b[2]/2,b[1],'#9dfcff',22,120); label(b[0]+b[2]/2,b[1]-16,'BRIDGE OPEN','#9dfcff')} beep(660,.12,'triangle'); updateHud()}
+function step(dt){if(!run)return; dt=Math.min(dt,.033); const left=key.left,right=key.right,jump=key.jump,phase=key.phase; const accel=key.left||key.right?1260:0, max=key.phase?218:196, brake=p.on?.00004:.012; if(left){p.vx-=accel*dt;p.face=-1} if(right){p.vx+=accel*dt;p.face=1} if(!left&&!right)p.vx*=Math.pow(brake,dt); p.vx=Math.max(-max,Math.min(max,p.vx)); if(jump&&!p.jheld)p.jbuf=.11; if(!jump&&p.jheld&&p.vy<-90)p.vy*=.48; p.jheld=!!jump; p.jbuf=Math.max(0,p.jbuf-dt); p.coyote=p.on?.1:Math.max(0,p.coyote-dt); if(p.jbuf&&p.coyote){p.vy=-326;p.on=false;p.coyote=0;p.jbuf=0;particle(p.x+10,p.y+30,'#eaffff',10,80);beep(520,.07)} p.vy+=830*dt; p.x+=p.vx*dt; for(const s of solids())if(hit(p,s)){if(s.gate){label(p.x,p.y-10,'PHASE NEEDED','#ff8cff');} if(p.vx>0)p.x=s.x-p.w; else if(p.vx<0)p.x=s.x+s.w; p.vx=0} p.was=p.on; p.y+=p.vy*dt; p.on=false; for(const s of solids())if(hit(p,s)){if(p.vy>0){p.y=s.y-p.h;p.on=true;if(!p.was&&p.vy>160)particle(p.x+10,p.y+30,'#eaffff',9,60)}else{p.y=s.y+s.h} p.vy=0}
+ if(p.y>330)die(); p.x=Math.max(0,Math.min(L.width-p.w,p.x));
+ for(const r of L.rifts) if(r[2]>=0&&hit(p,{x:r[0],y:r[1],w:34,h:34})){const id=r[2]; r[2]=-1; activateRift(id)}
+ for(const b of L.bridges) if(b[4]>0){b[4]=Math.max(0,b[4]-dt); if(b[4]===0&&hit(p,{x:b[0],y:b[1]-8,w:b[2],h:b[3]+14}))b[4]=.55}
+ if(p.phase>0){p.echo=levelIndex?1.2:2.1;p.phase=Math.max(0,p.phase-dt); if(!p.phase)p.combo=1} if(p.echo>0)p.echo=Math.max(0,p.echo-dt);
+ for(const c of L.shards) if(!c[2]&&hit(p,{x:c[0]-9,y:c[1]-9,w:18,h:18})){c[2]=1; const gain=p.combo||1; p.score+=gain; label(c[0],c[1]-12,'+'+gain,gain>1?'#9dfcff':'#fff27a'); particle(c[0],c[1],gain>1?'#9dfcff':'#fff27a',12,95);beep(880,.05,'triangle');updateHud()}
+ for(const c of L.phaseShards) if(!c[2]&&(p.phase>0||p.echo>0)&&hit(p,{x:c[0]-10,y:c[1]-10,w:20,h:20})){c[2]=1;p.combo=Math.min(7,p.combo+1);p.phase=Math.min(8,p.phase+1);p.score+=p.combo*2;label(c[0],c[1]-12,'CHAIN +'+p.combo*2,'#ff8cff');particle(c[0],c[1],'#ff8cff',20,150);beep(720,.1,'triangle');updateHud()}
+ for(const e of L.enemies){if(e.dead)continue; e.x??=e[0]; e.d??=1; e.x+=e.d*(levelIndex?52:42)*dt; if(Math.abs(e.x-e[0])>e[2])e.d*=-1; const er={x:e.x,y:e[1],w:24,h:24}; if(hit(p,er)){if(p.vy>60&&p.y+p.h-8<er.y+9){e.dead=true;p.vy=-235;p.score+=2;p.phase=Math.max(p.phase,.8);particle(er.x+12,er.y+12,'#9cff6a',18,120);label(er.x+12,er.y,'RIFT +2','#9cff6a');beep(150,.08)}else die()}}
+ if(p.x>L.goal)win(); for(const q of fx){q.t-=dt;q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=180*dt} fx=fx.filter(q=>q.t>0); for(const t of text){t.t-=dt;t.y-=22*dt} text=text.filter(t=>t.t>0); cam+=(Math.max(0,Math.min(L.width-W,p.x-W*.38+70))-cam)*Math.min(1,dt*7); shake=Math.max(0,shake-dt); flash=Math.max(0,flash-dt)}
+function rect(x,y,w,h,c){ctx.fillStyle=c;ctx.fillRect(x|0,y|0,w|0,h|0)}
+function draw(){ctx.clearRect(0,0,W,H); const th=L.theme; let g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,th[0]);g.addColorStop(.58,th[1]);g.addColorStop(.59,th[2]);g.addColorStop(1,th[3]);ctx.fillStyle=g;ctx.fillRect(0,0,W,H); if(shake)ctx.translate((Math.random()-.5)*shake*16,(Math.random()-.5)*shake*10); ctx.save();ctx.translate(-Math.round(cam*.25),0); for(let x=-80;x<W+L.width*.25;x+=130){rect(x,58,42,12,'rgba(255,255,255,.75)');rect(x+16,48,35,24,'rgba(255,255,255,.75)');rect(x+44,60,26,10,'rgba(255,255,255,.75)')}ctx.restore(); ctx.save();ctx.translate(-Math.round(cam),0);
+ for(const s of L.signs){rect(s[0]-48,s[1]-42,96,24,'#351a68');rect(s[0]-44,s[1]-38,88,16,'#9dfcff');ctx.fillStyle='#082f46';ctx.font='900 9px ui-rounded';ctx.textAlign='center';ctx.fillText(s[2],s[0],s[1]-26)}
+ for(const r of L.rifts) if(r[2]>=0){rect(r[0]+10,r[1]+4,14,30,'#703cff');rect(r[0]+4,r[1]+12,26,12,'#9dfcff')} for(const b of L.bridges){if(b[4]>0){ctx.globalAlpha=.75;rect(b[0],b[1],b[2],b[3],'#70f7ff');rect(b[0],b[1]-6,Math.max(3,b[2]*(b[4]/(levelIndex?5.4:7.2))),4,b[4]<1.6?'#ff4dff':'#062b42');ctx.globalAlpha=1}else{ctx.globalAlpha=.22; for(let x=b[0];x<b[0]+b[2];x+=18)rect(x,b[1]+8,10,3,'#9dfcff');ctx.globalAlpha=1}}
+ for(const a of [...L.ground,...L.platforms]){rect(a[0],a[1],a[2],8,'#2bd24a'); for(let x=a[0];x<a[0]+a[2];x+=16)for(let y=a[1]+8;y<a[1]+a[3];y+=16){rect(x,y,16,16,(x+y)%32?'#c87534':'#db8b42')}} for(const gate of L.gates){if(p.phase>0){ctx.globalAlpha=.25;rect(gate[0],gate[1],gate[2],gate[3],'#9dfcff');ctx.globalAlpha=1}else{rect(gate[0],gate[1],gate[2],gate[3],'#4b237c');rect(gate[0]+6,gate[1]+5,gate[2]-12,gate[3]-10,'#ff5cff')}}
+ for(const c of L.shards) if(!c[2])shard(c[0],c[1],p.phase>0?'#9dfcff':'#fff27a'); for(const c of L.phaseShards) if(!c[2]){ctx.globalAlpha=p.phase>0||p.echo>0?1:.25; shard(c[0],c[1],'#ff7cff'); ctx.globalAlpha=1} for(const e of L.enemies) if(!e.dead){e.x??=e[0]; rect(e.x,e[1]+4,24,20,'#8a4a2a');rect(e.x+5,e[1]+10,5,5,'#fff');rect(e.x+15,e[1]+10,5,5,'#fff')} rect(L.goal,132,16,80,'#6e3cff');ctx.strokeStyle='#e8d7ff';ctx.lineWidth=5;ctx.beginPath();ctx.arc(L.goal+8,120,24,0,7);ctx.stroke(); if(p.phase>0||p.echo>0){ctx.globalAlpha=p.phase>0?.45:.24;rect(p.x-10,p.y+8,6,16,p.phase>0?'#9dfcff':'#fff27a');ctx.globalAlpha=1} hero(); for(const q of fx){ctx.globalAlpha=Math.max(0,q.t/.55);rect(q.x,q.y,4,4,q.c);ctx.globalAlpha=1} for(const t of text){ctx.globalAlpha=Math.max(0,t.t/.8);ctx.fillStyle=t.c;ctx.font='900 10px ui-rounded';ctx.textAlign='center';ctx.fillText(t.s,t.x,t.y);ctx.globalAlpha=1} ctx.restore(); if(flash){ctx.globalAlpha=Math.min(.4,flash*.4);rect(0,0,W,H,p.secret?'#ff6bff':'#fff27a');ctx.globalAlpha=1}}
+function shard(x,y,c){ctx.save();ctx.translate(x,y);ctx.rotate((performance.now()/300+x)/4);ctx.fillStyle=c;ctx.beginPath();ctx.moveTo(0,-10);ctx.lineTo(7,0);ctx.lineTo(0,10);ctx.lineTo(-7,0);ctx.closePath();ctx.fill();ctx.restore()} function hero(){const bob=p.on&&Math.abs(p.vx)>20?Math.sin(performance.now()/55)*2:0,x=p.x|0,y=(p.y+bob)|0;rect(x+3,y+11,15,13,p.phase>0?'#ff9f1c':'#19b6c8');rect(x+4,y+5,14,9,'#ffe0ac');rect(x+4,y+1,14,4,'#522c8f');rect(x+4,y+23,5,7,'#203a9a');rect(x+13,y+23,5,7,'#203a9a');rect(x+(p.face>0?14:5),y+8,3,3,'#201008')}
+function loop(t){let dt=(t-last)/1000||0;last=t;step(dt);draw();requestAnimationFrame(loop)} requestAnimationFrame(loop);
+function setKey(k,v){key[k]=v} addEventListener('keydown',e=>{if(e.code==='ArrowLeft')key.left=1;if(e.code==='ArrowRight')key.right=1;if(e.code==='ArrowUp'||e.code==='Space')key.jump=1;if(e.code==='Shift')key.phase=1}); addEventListener('keyup',e=>{if(e.code==='ArrowLeft')key.left=0;if(e.code==='ArrowRight')key.right=0;if(e.code==='ArrowUp'||e.code==='Space')key.jump=0;if(e.code==='Shift')key.phase=0});
+function dirFrom(x){const l=document.querySelector('[data-k=left]').getBoundingClientRect(),r=document.querySelector('[data-k=right]').getBoundingClientRect();return x<(l.right+r.left)/2?'left':'right'} function applyDirs(){let l=0,r=0;for(const d of ptrs.values()){if(d==='left')l=1;if(d==='right')r=1}key.left=l;key.right=r} function clearDirs(){ptrs.clear();key.left=key.right=0;document.querySelectorAll('.pressed').forEach(b=>b.classList.remove('pressed'))}
+document.querySelectorAll('[data-k]').forEach(b=>{let id=null;const k=b.dataset.k;b.addEventListener('pointerdown',e=>{e.preventDefault();id=e.pointerId;b.setPointerCapture&&b.setPointerCapture(id);b.classList.add('pressed'); if(k==='phase'){key.phase=1;b.classList.add('on')} else if(k==='jump')key.jump=1; else{ptrs.set(id,k);applyDirs()}},{passive:false});b.addEventListener('pointermove',e=>{if(id!==e.pointerId)return;if(k==='left'||k==='right'){ptrs.set(id,dirFrom(e.clientX));applyDirs()}},{passive:false});const up=e=>{if(id!==null&&e.pointerId!==id)return;b.classList.remove('pressed'); if(k==='phase'){key.phase=0;b.classList.remove('on')} else if(k==='jump')key.jump=0; else{ptrs.delete(e.pointerId);applyDirs()} id=null};['pointerup','pointercancel','lostpointercapture'].forEach(ev=>b.addEventListener(ev,up,{passive:false}))}); addEventListener('blur',clearDirs);document.addEventListener('visibilitychange',()=>{if(document.hidden)clearDirs()});
+function bindStart(){ui.start=document.getElementById('start');if(!ui.start)return;ui.start.addEventListener('pointerup',e=>{e.preventDefault();startGame()},{passive:false});ui.start.addEventListener('click',e=>{e.preventDefault();if(e.detail===0)startGame()},{passive:false})}
+function startGame(){if(!audio){const A=AudioContext||webkitAudioContext;if(A)audio=new A()} if(audio&&audio.state==='suspended')audio.resume(); const next=ui.start&&ui.start.dataset.next==='1'; levelIndex=next?Math.min(levelIndex+1,levels.length-1):0; ui.overlay.style.display='none'; clearDirs(); reset(!next); if(levelIndex) label(180,150,'RIFT 2: SHORT ECHO','#9dfcff'); run=true; last=performance.now(); beep(660,.12,'triangle')}
+bindStart(); ui.retry.addEventListener('pointerup',e=>{e.preventDefault();run=false;levelIndex=0;showPanel('Retry Rift?','Reset the run and start fresh.','Restart')},{passive:false}); window.addEventListener('error',()=>{ui.toast.textContent='Rift Runner hit an error. Tap ↻ to restart.';ui.toast.style.display='block'});
 })();
-window.addEventListener('error', e=>{ const t=document.getElementById('toast'); if(t){ t.textContent='Rift Runner hit an error. Tap ↻ to restart.'; t.style.display='block'; } });
 </script>
 </body>
 </html>
