@@ -13,7 +13,7 @@
 <canvas id="game"></canvas>
 <div class="hud"><div class="pill" id="score">Shards 0</div><div class="pill" id="status">Rift Grove</div><div class="pill" id="lives">Lives 3</div><button class="pill mini" id="retry">↻</button></div>
 <div class="controls" aria-hidden="true"><div class="pad"><div class="btn" data-k="left">◀</div><div class="btn" data-k="right">▶</div></div><div class="actions"><div class="btn phase down" data-k="phase">PHASE</div><div class="btn jump" data-k="jump">↑</div></div></div>
-<div id="overlay"><div id="panel"><h1>Rift Runner</h1><p class="lede">A fast iPhone platformer. You auto-run; steer with ◀ ▶, jump with ↑, and tap <b>PHASE</b> for a short rift dash that opens bridges and secret shard routes.</p><p class="lede"><b>Goal:</b> reach the rift gate. Secret route: keep phase alive through the gold trail.</p><button id="start">Play</button></div></div>
+<div id="overlay"><div id="panel"><h1>Rift Runner</h1><p class="lede">A fast iPhone platformer. You auto-run; steer with ◀ ▶, jump with ↑, and tap/hold <b>PHASE</b> to dash, slip through gates, and chain secret shard routes.</p><p class="lede"><b>Goal:</b> reach the rift gate. Secret route: keep phase alive through the gold trail.</p><button id="start">Play</button></div></div>
 <div id="toast"></div>
 <script>
 (()=>{
@@ -38,7 +38,7 @@ const levels=[{
  bridges:[[365,190,115,18,0],[735,188,120,18,1],[1080,174,140,18,2],[1470,190,130,18,3],[2210,170,140,18,4]],
  gates:[[800,176,30,36],[1530,176,30,36],[2300,176,30,36]], rifts:[[320,174,0],[690,174,1],[1040,156,2],[1425,174,3],[2165,152,4]],
  shards:[[110,184],[210,130],[390,96],[620,126],[940,124],[1145,82],[1380,126],[1740,92],[2045,120],[2260,78],[2440,184]],
- phaseShards:[[405,160],[450,160],[770,158],[1130,144],[1510,160],[2250,140]], enemies:[[560,184,80],[980,184,70],[1660,184,90],[2420,184,75]], signs:[[285,184,'SHORT ECHO'],[1020,150,'CHAIN OR FALL'],[2120,148,'PHASE GATE']]
+ phaseShards:[[405,160],[450,160],[770,158],[1130,144],[1510,160],[2250,140],[2295,78]], enemies:[[560,184,80],[980,184,70],[1660,184,90],[2420,184,75]], signs:[[285,184,'SHORT ECHO'],[1020,150,'CHAIN OR FALL'],[2120,148,'PHASE GATE'],[2260,112,'SECRET PHASE ↑']]
 }];
 let L,p,fx=[],text=[];
 function normalizeLevel(l){
