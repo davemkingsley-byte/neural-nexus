@@ -794,6 +794,7 @@ app.get('/api/posts', async (req, res) => {
 });
 
 app.get(['/rift-runner', '/rift-runner/'], (req, res) => {
+  res.set('Cache-Control', 'no-store, max-age=0');
   res.sendFile(path.join(__dirname, 'public', 'rift-runner', 'index.html'));
 });
 
