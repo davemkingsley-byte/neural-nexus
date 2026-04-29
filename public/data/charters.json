@@ -3510,6 +3510,165 @@
               "type": "charter"
             }
           ]
+        },
+        {
+          "id": "601",
+          "title": "Longform Task Harness",
+          "status": "📋 Planned",
+          "statusClean": "Planned",
+          "phase": "📋 Spec complete — ready for build by Claude Code",
+          "phaseIndex": 0,
+          "liveUrl": null,
+          "dateInitiated": "2026-04-29",
+          "targetDate": "2026-05-13",
+          "dateCompleted": null,
+          "daysActive": 0,
+          "overdue": false,
+          "owner": "David Kingsley",
+          "assignee": "Daedalus",
+          "priority": "High",
+          "program": "Miscellaneous",
+          "budget": "$0 (Claude Code build, GPT-5.5 OAuth runtime)",
+          "actualSpend": "$0",
+          "dependencies": [],
+          "enables": [
+            "110"
+          ],
+          "progress": 5,
+          "objective": "Build a Python harness that orchestrates LLMs through multistep science/writing workflows the same way Claude Code orchestrates Opus through software engineering. Externalized state, scoped per-phase prompts, deterministic + LLM-as-judge validators, retry/correction loops, resumable runs.",
+          "successCriteria": "harness run biowire-byte --topic '<bio topic>' produces a publishable BioWire Byte newsletter post end-to-end with zero human intervention beyond initial topic input. Mid-run kill + resume works cleanly. All citations verified to real primary sources. Voice match ≥7/10. <15 min wall clock per run.",
+          "blockers": [],
+          "outstanding": [
+            {
+              "done": true,
+              "text": "Draft spec v1 (Morpheus)"
+            },
+            {
+              "done": true,
+              "text": "Adversarial review (Dozer) — 6 blockers identified"
+            },
+            {
+              "done": true,
+              "text": "Spec v2 — all blockers addressed, scope tightened"
+            },
+            {
+              "done": true,
+              "text": "Spec uploaded to Google Docs, shared with David"
+            },
+            {
+              "done": false,
+              "text": "Hand spec to Claude Code, kick off build"
+            },
+            {
+              "done": false,
+              "text": "Build steps 1-4 — skeleton, schemas, state.py, templates.py, context.py"
+            },
+            {
+              "done": false,
+              "text": "Build step 5 — OpenAICodexClient with tool-calling support"
+            },
+            {
+              "done": false,
+              "text": "Build steps 6-7 — deterministic validators, research tools (pubmed/arxiv/web_fetch/doi)"
+            },
+            {
+              "done": false,
+              "text": "Build step 8 — runner.py state machine loop"
+            },
+            {
+              "done": false,
+              "text": "Build step 9 — LLM-as-judge validators with rubrics"
+            },
+            {
+              "done": false,
+              "text": "Build step 10 — Typer CLI"
+            },
+            {
+              "done": false,
+              "text": "End-to-end test: real BioWire Byte run on GPT-5.5"
+            },
+            {
+              "done": false,
+              "text": "David approves first AI-generated BioWire Byte as publishable"
+            },
+            {
+              "done": false,
+              "text": "v2 deferred work: Anthropic provider adapter, deep dive pipeline"
+            }
+          ],
+          "decisions": [
+            {
+              "date": "2026-04-29",
+              "text": "Build with Claude Code (free via Max), runtime LLM = GPT-5.5 via OAuth (free)"
+            },
+            {
+              "date": "2026-04-29",
+              "text": "Python over Node — best LLM tooling, Pydantic for schemas"
+            },
+            {
+              "date": "2026-04-29",
+              "text": "One pipeline in v1: BioWire Byte. Deep dive + paper critique deferred to v2/v3"
+            },
+            {
+              "date": "2026-04-29",
+              "text": "STATE.json canonical, STATE.md regenerated for humans (Dozer fix)"
+            },
+            {
+              "date": "2026-04-29",
+              "text": "Tool-calling baked into LLMClient protocol from day one (Dozer fix)"
+            },
+            {
+              "date": "2026-04-29",
+              "text": "Critics run sequentially in v1, not parallel (Dozer fix — avoids surprise async architecture)"
+            },
+            {
+              "date": "2026-04-29",
+              "text": "Same-model judge limitation accepted in v1, threshold lowered to 7/10 (Dozer fix)"
+            },
+            {
+              "date": "2026-04-29",
+              "text": "Pluggable provider design, but only OpenAI Codex implemented in v1 — no placeholder files"
+            },
+            {
+              "date": "2026-04-29",
+              "text": "Daedalus owns build; Morpheus owns spec + dashboard tracking"
+            }
+          ],
+          "risks": [
+            "GPT-5.5 spiralist vulnerability — mitigated by tightly scoped per-phase prompts; harness never forwards freeform user input",
+            "Same-model LLM-as-judge produces inflated scores — accepted v1 limitation, plan to use Anthropic in v2 for judging",
+            "Voice matching may be insufficient on first run — fallback is manual edit + retry; David's 21+ existing posts are the corpus",
+            "Tool-calling complexity could blow up scope — mitigated by explicit protocol design and v1 scope to 4 tools only"
+          ],
+          "milestones": [
+            {
+              "date": "2026-04-29",
+              "label": "Spec v2 finalized",
+              "done": true
+            },
+            {
+              "date": "2026-05-03",
+              "label": "Skeleton + state machine + provider adapter compiling",
+              "done": false
+            },
+            {
+              "date": "2026-05-08",
+              "label": "First end-to-end run on GPT-5.5",
+              "done": false
+            },
+            {
+              "date": "2026-05-13",
+              "label": "First publishable BioWire Byte produced by harness",
+              "done": false
+            }
+          ],
+          "documents": [
+            {
+              "title": "Build Spec v2 (Google Doc)",
+              "url": "https://docs.google.com/document/d/1Jzf223USRri-Mp-z-0objsHQI-IrZW6Tz5NI9_9zna8/edit",
+              "type": "spec"
+            }
+          ]
         }
       ]
     },
