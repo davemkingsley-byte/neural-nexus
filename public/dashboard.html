@@ -1127,6 +1127,51 @@ function statusTextClass(s) {
   return '';
 }
 
+function normalizeDocumentRef(d, fallbackTitle = 'Document') {
+  if (!d) return null;
+  const url = d.url || d.href || d.docUrl || d.googleDocUrl;
+  if (!url) return null;
+  return {
+    title: d.title || d.label || d.name || fallbackTitle,
+    url,
+    type: d.type || 'document'
+  };
+}
+
+function getCharterDocuments(c) {
+  const docs = (Array.isArray(c.documents) ? c.documents : [])
+    .map(d => normalizeDocumentRef(d))
+    .filter(Boolean);
+
+  [c.docUrl, c.googleDocUrl].forEach(url => {
+    if (url) docs.push({ title: 'Charter Document', url, type: 'charter' });
+  });
+
+  const seen = new Set();
+  return docs.filter(d => {
+    if (seen.has(d.url)) return false;
+    seen.add(d.url);
+    return true;
+  });
+}
+
+function documentIcon(type) {
+  return type === 'deck' ? '📊'
+    : type === 'review' ? '🔍'
+    : type === 'validation' ? '✅'
+    : type === 'plan' ? '📋'
+    : type === 'briefing' ? '☀️'
+    : '📄';
+}
+
+function renderDocumentLink(d, { mini = false } = {}) {
+  const icon = documentIcon(d.type);
+  if (mini) {
+    return `<a href="${escAttr(d.url)}" target="_blank" rel="noopener" style="color:var(--accent-2);font-size:0.78rem;text-decoration:none;margin-left:8px;">${icon} ${escHtml(d.title)} →</a>`;
+  }
+  return `<a href="${escAttr(d.url)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:0.75rem;color:var(--text);text-decoration:none;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'"><span style="font-size:0.85rem;">${icon}</span>${escHtml(d.title)}<span style="color:var(--text-dim);font-size:0.65rem;">↗</span></a>`;
+}
+
 function renderProjectCard(c, compact) {
   const dotCls = statusDotClass(c.statusClean);
   const txtCls = statusTextClass(c.statusClean);
@@ -1158,7 +1203,8 @@ function renderProjectCard(c, compact) {
   `).join('') || '<div style="color:var(--text-dim);font-size:0.82rem">No decisions logged</div>';
 
   const liveUrlHtml = c.liveUrl ? `<a href="${escAttr(c.liveUrl)}" target="_blank" style="color:var(--accent);font-size:0.78rem;text-decoration:none;">🔗 ${escHtml(c.liveUrl)} →</a>` : '';
-  const docsHtml = (c.documents && c.documents.length) ? c.documents.map(d => `<a href="${escAttr(d.url)}" target="_blank" style="color:var(--accent-2);font-size:0.78rem;text-decoration:none;margin-left:8px;">📜 ${escHtml(d.label)} →</a>`).join('') : '';
+  const documents = getCharterDocuments(c);
+  const docsHtml = documents.length ? documents.map(d => renderDocumentLink(d, { mini: true })).join('') : '';
   const charterPageHtml = docsHtml;
 
   // Priority badge
@@ -1262,12 +1308,11 @@ function renderProjectCard(c, compact) {
           <div class="detail-label" style="margin-bottom:8px;">Outstanding Items (${doneItems}/${totalItems})</div>
           ${checklistHtml}
         </div>
-        ${(c.documents && c.documents.length) || c.docUrl ? `
+        ${documents.length ? `
         <div style="margin-bottom:20px;">
-          <div class="detail-label" style="margin-bottom:8px;">📄 Documents (${(c.documents?.length || 0) + (c.docUrl && !(c.documents||[]).some(d=>d.url===c.docUrl) ? 1 : 0)})</div>
+          <div class="detail-label" style="margin-bottom:8px;">📄 Documents (${documents.length})</div>
           <div style="display:flex;flex-wrap:wrap;gap:8px;">
-            ${(c.documents||[]).map(d => `<a href="${escHtml(d.url)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:0.75rem;color:var(--text);text-decoration:none;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'"><span style="font-size:0.85rem;">${d.type === 'deck' ? '📊' : d.type === 'review' ? '🔍' : d.type === 'validation' ? '✅' : d.type === 'plan' ? '📋' : d.type === 'briefing' ? '☀️' : '📄'}</span>${escHtml(d.title)}<span style="color:var(--text-dim);font-size:0.65rem;">↗</span></a>`).join('')}
-            ${c.docUrl && !(c.documents||[]).some(d=>d.url===c.docUrl) ? `<a href="${escHtml(c.docUrl)}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:6px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:0.75rem;color:var(--text);text-decoration:none;transition:border-color 0.2s;" onmouseover="this.style.borderColor='var(--gold)'" onmouseout="this.style.borderColor='var(--border)'"><span style="font-size:0.85rem;">📄</span>Charter Document<span style="color:var(--text-dim);font-size:0.65rem;">↗</span></a>` : ''}
+            ${documents.map(d => renderDocumentLink(d)).join('')}
           </div>
         </div>` : ''}
         <div style="margin-bottom:20px;">

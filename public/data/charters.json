@@ -145,6 +145,13 @@
               "tasks": "Responsive design, share button, animations",
               "status": "✅ Complete"
             }
+          ],
+          "documents": [
+            {
+              "title": "Spelling Bee",
+              "url": "charters/neural-nexus/101-spelling-bee.md",
+              "type": "charter"
+            }
           ]
         },
         {
@@ -282,6 +289,13 @@
               "tasks": "Animations, responsive, SEO",
               "status": "✅ Complete"
             }
+          ],
+          "documents": [
+            {
+              "title": "Neural Nexus Website",
+              "url": "charters/neural-nexus/102-neural-nexus-website.md",
+              "type": "charter"
+            }
           ]
         },
         {
@@ -356,7 +370,14 @@
             }
           ],
           "risks": [],
-          "milestones": []
+          "milestones": [],
+          "documents": [
+            {
+              "title": "Wordle",
+              "url": "charters/neural-nexus/105-wordle.md",
+              "type": "charter"
+            }
+          ]
         },
         {
           "id": "106",
@@ -521,6 +542,13 @@
               "tasks": "TikTok caption, UTM tracking",
               "status": "⬜ Not started"
             }
+          ],
+          "documents": [
+            {
+              "title": "Substack To Tiktok",
+              "url": "charters/neural-nexus/106-substack-to-tiktok.md",
+              "type": "charter"
+            }
           ]
         },
         {
@@ -645,6 +673,13 @@
               "name": "Deploy",
               "tasks": "Production",
               "status": "✅ Complete"
+            }
+          ],
+          "documents": [
+            {
+              "title": "Mini Crossword",
+              "url": "charters/neural-nexus/107-mini-crossword.md",
+              "type": "charter"
             }
           ]
         },
@@ -777,7 +812,14 @@
               "mitigation": "Consider Plausible/Umami as supplement"
             }
           ],
-          "milestones": []
+          "milestones": [],
+          "documents": [
+            {
+              "title": "SEO Strategy",
+              "url": "charters/neural-nexus/108-seo-strategy.md",
+              "type": "strategy"
+            }
+          ]
         },
         {
           "id": "110",
@@ -822,7 +864,19 @@
           ],
           "decisions": [],
           "risks": [],
-          "milestones": []
+          "milestones": [],
+          "documents": [
+            {
+              "title": "Content Distribution Automation",
+              "url": "charters/neural-nexus/110-content-distribution-automation.md",
+              "type": "charter"
+            },
+            {
+              "title": "Platform Selection 2026 04",
+              "url": "charters/neural-nexus/110-platform-selection-2026-04.md",
+              "type": "charter"
+            }
+          ]
         }
       ]
     },
@@ -967,7 +1021,34 @@
               "mitigation": "Keep daily stack ≤8 supplements; simple AM/PM split"
             }
           ],
-          "milestones": []
+          "milestones": [],
+          "documents": [
+            {
+              "title": "Compound Review",
+              "url": "charters/cognitive-enhancements/201-compound-review.md",
+              "type": "review"
+            },
+            {
+              "title": "Novel Pathways",
+              "url": "charters/cognitive-enhancements/201-novel-pathways.md",
+              "type": "charter"
+            },
+            {
+              "title": "Oral Supplementation",
+              "url": "charters/cognitive-enhancements/201-oral-supplementation.md",
+              "type": "charter"
+            },
+            {
+              "title": "Peptide Derisking Playbook",
+              "url": "charters/cognitive-enhancements/201-peptide-derisking-playbook.md",
+              "type": "charter"
+            },
+            {
+              "title": "Shopping List",
+              "url": "charters/cognitive-enhancements/201-shopping-list.md",
+              "type": "deliverable"
+            }
+          ]
         },
         {
           "id": "202",
@@ -1118,7 +1199,14 @@
               "mitigation": "Pre-register expected effect before starting compound; blind analysis where possible"
             }
           ],
-          "milestones": []
+          "milestones": [],
+          "documents": [
+            {
+              "title": "Cognitive Performance Tracker",
+              "url": "charters/cognitive-enhancements/202-cognitive-performance-tracker.md",
+              "type": "charter"
+            }
+          ]
         },
         {
           "id": "203",
@@ -1196,7 +1284,14 @@
             }
           ],
           "risks": [],
-          "milestones": []
+          "milestones": [],
+          "documents": [
+            {
+              "title": "Mobile Cognitive App",
+              "url": "charters/cognitive-enhancements/203-mobile-cognitive-app.md",
+              "type": "charter"
+            }
+          ]
         }
       ]
     },
@@ -1326,6 +1421,11 @@
               "title": "Incretin Thesis v2",
               "url": "charters/treat-biosciences/incretin-thesis-v2.md",
               "type": "strategy"
+            },
+            {
+              "title": "Treat Restart",
+              "url": "charters/treat-biosciences/501-treat-restart.md",
+              "type": "charter"
             }
           ]
         },
@@ -1603,9 +1703,14 @@
               "type": "analysis"
             },
             {
-              "url": "https://docs.google.com/document/d/1S_X8S6A_vNIdI9xKZ_MxYa4zuyItT0BXR4DSpxAIM7E/edit",
               "title": "AF3 Validation Report (Final)",
+              "url": "https://docs.google.com/document/d/1S_X8S6A_vNIdI9xKZ_MxYa4zuyItT0BXR4DSpxAIM7E/edit",
               "type": "report"
+            },
+            {
+              "title": "Follistatin In Silico",
+              "url": "charters/treat-biosciences/505-follistatin-in-silico.md",
+              "type": "deliverable"
             }
           ]
         },
@@ -1710,6 +1815,11 @@
               "title": "Competitive Landscape Deep Dives",
               "url": "charters/treat-biosciences/competitive-deep-dives.md",
               "type": "analysis"
+            },
+            {
+              "title": "TRT-001 Triple Incretin",
+              "url": "charters/treat-biosciences/502-trt001-triple-incretin.md",
+              "type": "charter"
             }
           ]
         },
@@ -1835,6 +1945,11 @@
               "title": "Charter 703 Review Package",
               "url": "treat-biosciences/structures/CHARTER-703-REVIEW-PACKAGE.md",
               "type": "review"
+            },
+            {
+              "title": "TRT-002 Follistatin",
+              "url": "charters/treat-biosciences/503-trt002-follistatin.md",
+              "type": "deliverable"
             }
           ]
         },
@@ -1974,6 +2089,16 @@
               "title": "Financial Model",
               "url": "charters/treat-biosciences/financial-model.md",
               "type": "financial"
+            },
+            {
+              "title": "Deck v5 Edit Instructions",
+              "url": "charters/treat-biosciences/504-deck-v5-edit-instructions.md",
+              "type": "deck"
+            },
+            {
+              "title": "Fundraising",
+              "url": "charters/treat-biosciences/504-fundraising.md",
+              "type": "charter"
             }
           ]
         },
@@ -2086,6 +2211,11 @@
               "title": "Day 0.5 Report v2 (initial)",
               "url": "https://docs.google.com/document/d/1Jnu9rLPoZf8R5AYerBq7m9TtIq-n5YIh9Z5tsfQlS1c/edit",
               "type": "report"
+            },
+            {
+              "title": "R2 De Novo Actrii Blocker",
+              "url": "charters/treat-biosciences/506-R2-de-novo-actrii-blocker.md",
+              "type": "charter"
             }
           ],
           "lastUpdated": "2026-04-02"
@@ -2241,7 +2371,14 @@
           "owner": "David Kingsley",
           "agent": "Archimedes",
           "summary": "Pet health wearable for continuous biometric monitoring in dogs. Complements therapeutic pipeline with real-time metabolic health tracking, treatment response measurement, and owner-facing health dashboard.",
-          "googleDocUrl": null
+          "googleDocUrl": null,
+          "documents": [
+            {
+              "title": "Pet Wearable",
+              "url": "charters/treat-biosciences/508-pet-wearable.md",
+              "type": "charter"
+            }
+          ]
         },
         {
           "id": "509",
@@ -2255,7 +2392,13 @@
           "daysActive": 0,
           "progress": 0,
           "decisions": [],
-          "documents": [],
+          "documents": [
+            {
+              "title": "PD-1 Minipeptide",
+              "url": "charters/treat-biosciences/509-pd1-minipeptide.md",
+              "type": "charter"
+            }
+          ],
           "risks": [
             "PPI surface may be too flat for peptide disruption",
             "Canine structural data availability",
@@ -2352,7 +2495,14 @@
               "mitigation": "Immune system typically prevents reinfection"
             }
           ],
-          "milestones": []
+          "milestones": [],
+          "documents": [
+            {
+              "title": "Molluscum Treatment",
+              "url": "charters/physical-health/401-molluscum-treatment.md",
+              "type": "charter"
+            }
+          ]
         },
         {
           "id": "402",
@@ -2445,12 +2595,14 @@
           ],
           "documents": [
             {
-              "label": "Investigation Plan v5",
-              "url": "https://docs.google.com/document/d/1pVuCn53UGwQzzLxxM8_kQVGhjZhNhfYHqN9tnQEyhhQ/edit"
+              "title": "Investigation Plan v5",
+              "url": "https://docs.google.com/document/d/1pVuCn53UGwQzzLxxM8_kQVGhjZhNhfYHqN9tnQEyhhQ/edit",
+              "type": "document"
             },
             {
-              "label": "Neuroprotective Supplement Stack",
-              "url": "https://docs.google.com/spreadsheets/d/1oTCsXRLmXxgp6jOc94CjIkuxSlGqM9xep6ls0yw9doE/edit"
+              "title": "Neuroprotective Supplement Stack",
+              "url": "https://docs.google.com/spreadsheets/d/1oTCsXRLmXxgp6jOc94CjIkuxSlGqM9xep6ls0yw9doE/edit",
+              "type": "document"
             }
           ]
         }
@@ -2571,6 +2723,13 @@
               "tasks": "Gantt view of project phases",
               "status": "✅ Complete"
             }
+          ],
+          "documents": [
+            {
+              "title": "Project Management System",
+              "url": "charters/project-management/701-project-management-system.md",
+              "type": "charter"
+            }
           ]
         },
         {
@@ -2641,6 +2800,13 @@
               "tasks": "Cross-section links",
               "status": "✅ Complete"
             }
+          ],
+          "documents": [
+            {
+              "title": "Charter Dashboard",
+              "url": "charters/project-management/702-charter-dashboard.md",
+              "type": "charter"
+            }
           ]
         },
         {
@@ -2701,7 +2867,14 @@
             }
           ],
           "risks": [],
-          "milestones": []
+          "milestones": [],
+          "documents": [
+            {
+              "title": "Review Protocol",
+              "url": "charters/project-management/703-review-protocol.md",
+              "type": "plan"
+            }
+          ]
         },
         {
           "id": "704",
@@ -2791,6 +2964,16 @@
               "title": "Work Process Framework",
               "url": "https://docs.google.com/document/d/1UkLqdbHBuiuFDBPRRQS6kIPXJtByfUZKGzcrL9hw_W4/edit",
               "type": "charter"
+            },
+            {
+              "title": "Work Process Document",
+              "url": "charters/project-management/704-work-process-document.md",
+              "type": "document"
+            },
+            {
+              "title": "Work Process Framework",
+              "url": "charters/project-management/704-work-process-framework.md",
+              "type": "document"
             }
           ]
         },
@@ -2876,7 +3059,14 @@
               "text": "Update triggers: charter status change, deliverable completion, decision needed, end of session"
             }
           ],
-          "docUrl": "https://docs.google.com/document/d/1O-uX9hz7QXyEE7EQj__8igGPoUrj-aST_pcUAAmpBr0/edit"
+          "docUrl": "https://docs.google.com/document/d/1O-uX9hz7QXyEE7EQj__8igGPoUrj-aST_pcUAAmpBr0/edit",
+          "documents": [
+            {
+              "title": "Multi Agent Architecture",
+              "url": "charters/project-management/705-multi-agent-architecture.md",
+              "type": "charter"
+            }
+          ]
         },
         {
           "id": "706",
@@ -3129,7 +3319,39 @@
               "status": "🟡 In Progress — models registered, first test spawned"
             }
           ],
-          "lastUpdated": "2026-04-03"
+          "lastUpdated": "2026-04-03",
+          "documents": [
+            {
+              "title": "Baseline April4",
+              "url": "charters/707-baseline-april4.md",
+              "type": "baseline"
+            },
+            {
+              "title": "Migration Plan Google Doc",
+              "url": "charters/707-migration-plan-gdoc.md",
+              "type": "plan"
+            },
+            {
+              "title": "Migration Plan v1",
+              "url": "charters/707-migration-plan-v1.md",
+              "type": "plan"
+            },
+            {
+              "title": "Migration Plan v2",
+              "url": "charters/707-migration-plan-v2.md",
+              "type": "plan"
+            },
+            {
+              "title": "Migration Plan v3",
+              "url": "charters/707-migration-plan-v3.md",
+              "type": "plan"
+            },
+            {
+              "title": "Phase0 Config Draft",
+              "url": "charters/707-phase0-config-draft.md",
+              "type": "config"
+            }
+          ]
         }
       ]
     },
@@ -3278,8 +3500,14 @@
           ],
           "documents": [
             {
-              "name": "Charter Draft (Google Doc)",
-              "url": "https://docs.google.com/document/d/12Gm4n1RUF0JzAf-2_nxH4Geyz0y_10Dq9gf1jS1PO5s/edit"
+              "title": "Charter Draft (Google Doc)",
+              "url": "https://docs.google.com/document/d/12Gm4n1RUF0JzAf-2_nxH4Geyz0y_10Dq9gf1jS1PO5s/edit",
+              "type": "document"
+            },
+            {
+              "title": "Morpheus Embodiment",
+              "url": "charters/misc/601-morpheus-embodiment.md",
+              "type": "charter"
             }
           ]
         }
@@ -3370,6 +3598,11 @@
               "title": "Durham Rental Market Analysis",
               "url": "https://docs.google.com/document/d/1clLfRTFtLwrvTrxWr3MdjLyJQfPPVuVPk1RwZsz1iAw/edit",
               "type": "analysis"
+            },
+            {
+              "title": "Market Research",
+              "url": "charters/durham-property/901-market-research.md",
+              "type": "analysis"
             }
           ],
           "lastUpdated": "2026-03-31"
@@ -3423,7 +3656,13 @@
               "text": "Charter created"
             }
           ],
-          "documents": []
+          "documents": [
+            {
+              "title": "Property Preparation",
+              "url": "charters/durham-property/902-property-preparation.md",
+              "type": "charter"
+            }
+          ]
         },
         {
           "id": "903",
@@ -3479,7 +3718,13 @@
               "text": "Charter created"
             }
           ],
-          "documents": []
+          "documents": [
+            {
+              "title": "Listing Tenant Acquisition",
+              "url": "charters/durham-property/903-listing-tenant-acquisition.md",
+              "type": "deliverable"
+            }
+          ]
         },
         {
           "id": "904",
@@ -3534,7 +3779,13 @@
               "text": "Charter created"
             }
           ],
-          "documents": []
+          "documents": [
+            {
+              "title": "Operations Management",
+              "url": "charters/durham-property/904-operations-management.md",
+              "type": "charter"
+            }
+          ]
         },
         {
           "id": "905",
@@ -3587,7 +3838,13 @@
               "text": "Charter created"
             }
           ],
-          "documents": []
+          "documents": [
+            {
+              "title": "Financial Tax Optimization",
+              "url": "charters/durham-property/905-financial-tax-optimization.md",
+              "type": "charter"
+            }
+          ]
         }
       ]
     }
