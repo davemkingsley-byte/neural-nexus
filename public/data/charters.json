@@ -3514,15 +3514,15 @@
         {
           "id": "602",
           "title": "Longform Task Harness",
-          "status": "📋 Planned",
-          "statusClean": "Planned",
-          "phase": "📋 Spec complete — ready for build by Claude Code",
-          "phaseIndex": 0,
+          "status": "🟢 In Progress",
+          "statusClean": "In Progress",
+          "phase": "🔨 v1 build complete (105 tests pass) — awaiting voice corpus + real-LLM run",
+          "phaseIndex": 2,
           "liveUrl": null,
           "dateInitiated": "2026-04-29",
           "targetDate": "2026-05-13",
           "dateCompleted": null,
-          "daysActive": 0,
+          "daysActive": 1,
           "overdue": false,
           "owner": "David Kingsley",
           "assignee": "Daedalus",
@@ -3534,7 +3534,7 @@
           "enables": [
             "110"
           ],
-          "progress": 5,
+          "progress": 50,
           "objective": "Build a Python harness that orchestrates LLMs through multistep science/writing workflows the same way Claude Code orchestrates Opus through software engineering. Externalized state, scoped per-phase prompts, deterministic + LLM-as-judge validators, retry/correction loops, resumable runs.",
           "successCriteria": "harness run biowire-byte --topic '<bio topic>' produces a publishable BioWire Byte newsletter post end-to-end with zero human intervention beyond initial topic input. Mid-run kill + resume works cleanly. All citations verified to real primary sources. Voice match ≥7/10. <15 min wall clock per run.",
           "blockers": [],
@@ -3556,31 +3556,31 @@
               "text": "Spec uploaded to Google Docs, shared with David"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Hand spec to Claude Code, kick off build"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Build steps 1-4 — skeleton, schemas, state.py, templates.py, context.py"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Build step 5 — OpenAICodexClient with tool-calling support"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Build steps 6-7 — deterministic validators, research tools (pubmed/arxiv/web_fetch/doi)"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Build step 8 — runner.py state machine loop"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Build step 9 — LLM-as-judge validators with rubrics"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Build step 10 — Typer CLI"
             },
             {
@@ -3594,6 +3594,22 @@
             {
               "done": false,
               "text": "v2 deferred work: Anthropic provider adapter, deep dive pipeline"
+            },
+            {
+              "done": false,
+              "text": "Transfer code from build machine to OpenClaw via GitHub repo"
+            },
+            {
+              "done": false,
+              "text": "Fix Codex auth.json parser — actual file is ~/.codex/auth.json with auth_mode field"
+            },
+            {
+              "done": false,
+              "text": "Load David's 21+ existing BioWire Bytes into voice_corpus/"
+            },
+            {
+              "done": false,
+              "text": "Iterate on prompts/*.txt with real LLM responses"
             }
           ],
           "decisions": [
@@ -3632,6 +3648,14 @@
             {
               "date": "2026-04-29",
               "text": "Daedalus owns build; Morpheus owns spec + dashboard tracking"
+            },
+            {
+              "date": "2026-04-29",
+              "text": "Built on separate machine (kingsley_home), transferring via GitHub repo davemkingsley-byte/longform-harness"
+            },
+            {
+              "date": "2026-04-29",
+              "text": "Codex auth path corrected: ~/.codex/auth.json (not oauth.json), branches on auth_mode (apikey vs chatgpt)"
             }
           ],
           "risks": [
@@ -3649,7 +3673,7 @@
             {
               "date": "2026-05-03",
               "label": "Skeleton + state machine + provider adapter compiling",
-              "done": false
+              "done": true
             },
             {
               "date": "2026-05-08",
@@ -3667,6 +3691,11 @@
               "title": "Build Spec v2 (Google Doc)",
               "url": "https://docs.google.com/document/d/1Jzf223USRri-Mp-z-0objsHQI-IrZW6Tz5NI9_9zna8/edit",
               "type": "spec"
+            },
+            {
+              "title": "GitHub: davemkingsley-byte/longform-harness",
+              "url": "https://github.com/davemkingsley-byte/longform-harness",
+              "type": "repo"
             }
           ]
         }
