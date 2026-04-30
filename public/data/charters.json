@@ -3516,7 +3516,7 @@
           "title": "Longform Task Harness",
           "status": "🟢 In Progress",
           "statusClean": "In Progress",
-          "phase": "🔨 v1 build complete (105 tests pass) — awaiting voice corpus + real-LLM run",
+          "phase": "🔨 Code on OpenClaw machine, voice corpus loaded — awaiting auth for first real run",
           "phaseIndex": 2,
           "liveUrl": null,
           "dateInitiated": "2026-04-29",
@@ -3534,7 +3534,7 @@
           "enables": [
             "110"
           ],
-          "progress": 50,
+          "progress": 65,
           "objective": "Build a Python harness that orchestrates LLMs through multistep science/writing workflows the same way Claude Code orchestrates Opus through software engineering. Externalized state, scoped per-phase prompts, deterministic + LLM-as-judge validators, retry/correction loops, resumable runs.",
           "successCriteria": "harness run biowire-byte --topic '<bio topic>' produces a publishable BioWire Byte newsletter post end-to-end with zero human intervention beyond initial topic input. Mid-run kill + resume works cleanly. All citations verified to real primary sources. Voice match ≥7/10. <15 min wall clock per run.",
           "blockers": [],
@@ -3596,20 +3596,24 @@
               "text": "v2 deferred work: Anthropic provider adapter, deep dive pipeline"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Transfer code from build machine to OpenClaw via GitHub repo"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Fix Codex auth.json parser — actual file is ~/.codex/auth.json with auth_mode field"
             },
             {
-              "done": false,
+              "done": true,
               "text": "Load David's 21+ existing BioWire Bytes into voice_corpus/"
             },
             {
               "done": false,
               "text": "Iterate on prompts/*.txt with real LLM responses"
+            },
+            {
+              "done": false,
+              "text": "Resolve OpenAI auth for runtime: API key, ChatGPT OAuth via codex login, or local Ollama fallback"
             }
           ],
           "decisions": [
@@ -3656,6 +3660,10 @@
             {
               "date": "2026-04-29",
               "text": "Codex auth path corrected: ~/.codex/auth.json (not oauth.json), branches on auth_mode (apikey vs chatgpt)"
+            },
+            {
+              "date": "2026-04-29",
+              "text": "Voice corpus seeded with 9 published-quality BioWire Bytes (019-025 + specials)"
             }
           ],
           "risks": [
