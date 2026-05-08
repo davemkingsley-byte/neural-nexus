@@ -311,6 +311,26 @@
               "title": "Charter 102: Security Audit 2026-03-23",
               "url": "https://docs.google.com/document/d/1Gxl_Vp82I-AnE8A_aXMLzeKWVusyI6atQtYWFBO7lTM/edit",
               "type": "audit"
+            },
+            {
+              "title": "BioWire Bytes Topic Playbook",
+              "url": "https://docs.google.com/document/d/19noLzWfgWaAciBV9arrP_CwqM0rBB8z3ynyfPPNyH38/edit",
+              "type": "playbook"
+            },
+            {
+              "title": "Semax \u2014 Neural NeXus draft v2",
+              "url": "https://docs.google.com/document/d/1B2y3f9gS8ip9oxD_9z4wH1MEzlyDkRQNTaxdwFQPufQ/edit",
+              "type": "content"
+            },
+            {
+              "title": "Semax \u2014 Neural NeXus draft v3",
+              "url": "https://docs.google.com/document/d/1Zpd3L1xRrrk-TDX5Qd6eYb99pEfgNxPQ5J1pLLX6Xxg/edit",
+              "type": "content"
+            },
+            {
+              "title": "BioWire \u2014 The Peptide Ban Is Ending. The Evidence Gap Isn't.",
+              "url": "https://docs.google.com/document/d/1UAH8H7pxz7dvRKUOu3ZzQlz6XmM_LYmaTwrwloFQpeA/edit",
+              "type": "content"
             }
           ]
         },
@@ -2002,12 +2022,12 @@
               "type": "ip"
             },
             {
-              "title": "Retatrutide F6Y FTO & Patentability Review v2 (FORMATTED)",
+              "title": "Retatrutide F6Y FTO & Patentability Review v2 (FORMATTED) \u2014 superseded by v3",
               "url": "https://docs.google.com/document/d/1wCd1C-JaZrEs3YRmyymcDIioLJzUK7w1BwiB2LL1MdY/edit",
               "type": "ip"
             },
             {
-              "title": "Retatrutide F6Y FTO & Patentability Review v2 (Reviewed/markup)",
+              "title": "Retatrutide F6Y FTO & Patentability Review v2 (Reviewed/markup) \u2014 superseded by v3",
               "url": "https://docs.google.com/document/d/1kO1F1hAWcOX2nHc4ycVESx1so-gd7zbZMSx18ZUnoR8/edit",
               "type": "ip"
             },
@@ -2047,14 +2067,9 @@
               "type": "plan"
             },
             {
-              "title": "Daedalus Gate-3 Review (orthogonal validation, 2026-04-25)",
-              "url": "shared/archimedes-to-morpheus/REVIEW-DAEDALUS-GATE2-2026-04-25.md",
-              "type": "review"
-            },
-            {
-              "title": "Daedalus Retatrutide-Canine Plan Review (2026-04-25)",
-              "url": "shared/archimedes-to-morpheus/REVIEW-DAEDALUS-RETATRUTIDE-CANINE-PLAN-2026-04-25.md",
-              "type": "review"
+              "title": "Retatrutide F6Y FTO & Patentability Review v3 (Reconciled \u2014 CANONICAL)",
+              "url": "https://docs.google.com/document/d/1LAYZ-dGAR2AueF49Qd4a8OnYKNABPcIQKBOON0gIrQg/edit",
+              "type": "ip"
             }
           ]
         },
@@ -2195,6 +2210,11 @@
               "title": "Charter 503 \u2014 TRT-002 Engineered Follistatin Fragment (Google Doc)",
               "url": "https://docs.google.com/document/d/131nNkXyeACvxzyBKfP9Xajt_AG5hXdPye-N9j1qV23M/edit",
               "type": "charter"
+            },
+            {
+              "title": "D10v2 TRT-002a Gene Synthesis Order Specification",
+              "url": "https://docs.google.com/document/d/1FWM0q9S_6r6BlhbZbOadZXlURbNKYRo01Udfe1XHud8/edit",
+              "type": "spec"
             }
           ]
         },
@@ -2363,6 +2383,11 @@
               "title": "504 \u2014 Financial Model",
               "url": "https://docs.google.com/document/d/1DfhQVdUYJqk2cttlT67vJqDvY0qtyLyifEcF0K6bp10/edit",
               "type": "model"
+            },
+            {
+              "title": "Treat Biosciences \u2014 Investor Readiness Package",
+              "url": "https://docs.google.com/document/d/1fRgCoD_y1a66UYFkXpK-tka4Lge4RLrTHgUvQBqlPhY/edit",
+              "type": "investor"
             }
           ]
         },
@@ -2485,6 +2510,16 @@
               "title": "Charter 506 \u2014 Campaign R2 De Novo ActRIIB Blocker (Google Doc)",
               "url": "https://docs.google.com/document/d/18is6dz4SVNoB7dzISc7AXq5FhbZeHiMoN_45MyihnE8/edit",
               "type": "charter"
+            },
+            {
+              "title": "Campaign R2 \u2014 De Novo Miniprotein Blocker Design FINAL v6",
+              "url": "https://docs.google.com/document/d/1AKryc4cHKHkOS0eaxWBWN5kqyZDU0z4Z3Mm0VXqxmnY/edit",
+              "type": "plan"
+            },
+            {
+              "title": "Day 2 AF3 Results \u2014 Campaign R1 (FINAL)",
+              "url": "https://docs.google.com/document/d/1QUkHaGvr2T6qj367vZmYzaxoGrkjM2s2QEa0JQFLRYY/edit",
+              "type": "analysis"
             }
           ],
           "lastUpdated": "2026-04-02"
@@ -2951,6 +2986,11 @@
               "title": "Neuroprotective Supplement Stack",
               "url": "https://docs.google.com/spreadsheets/d/1oTCsXRLmXxgp6jOc94CjIkuxSlGqM9xep6ls0yw9doE/edit",
               "type": "document"
+            },
+            {
+              "title": "Neuropathy Investigation Plan v6 (May 1 2026)",
+              "url": "https://docs.google.com/document/d/12dPFR8jspuxqrwLylfOOFwC8soUp1UAsFLtzgnjVQNY/edit",
+              "type": "plan"
             }
           ]
         }
@@ -3825,11 +3865,6 @@
               "type": "plan"
             },
             {
-              "title": "Cord Blood Serum Sourcing Tracker",
-              "url": "https://docs.google.com/document/d/1WQEmzMK9_zG0DbsofxWbq1mCzXDQT5qmW2Jju7vu4_I/edit",
-              "type": "tracker"
-            },
-            {
               "title": "Apollo 3-5 Foxtrot v2 \u2014 Panel-Revised Protocol",
               "url": "https://docs.google.com/document/d/17cUXj05G4XlIGAsNBNfBrLGaBFrgkVGCxp9zqcdfv1Q/edit",
               "type": "protocol"
@@ -3845,11 +3880,6 @@
               "type": "protocol"
             },
             {
-              "title": "ExoDev Growth Factor Panel \u2014 E6.5\u2013E8.5 Supplementation",
-              "url": "https://docs.google.com/document/d/1K2dS7UcCUeBBlEX106JDjiyl1ypVW41fw2Wb8EcM14M/edit",
-              "type": "analysis"
-            },
-            {
               "title": "Charter 301 (local)",
               "url": "charters/colossal-biosciences/301-exodev-protocol-optimization.md",
               "type": "charter"
@@ -3858,6 +3888,11 @@
               "title": "Cord Serum Sourcing (local)",
               "url": "charters/exodev/cord-serum-sourcing.md",
               "type": "plan"
+            },
+            {
+              "title": "Colossal Stock Options \u2014 Tax Scenario Analysis",
+              "url": "https://docs.google.com/document/d/1DMQ16sU5kzcDl8uCGvUj4NOzX94tcHDKe_wT6JzLzV0/edit",
+              "type": "analysis"
             }
           ]
         }
@@ -4138,11 +4173,6 @@
               "title": "Build Spec v2 (Google Doc)",
               "url": "https://docs.google.com/document/d/1Jzf223USRri-Mp-z-0objsHQI-IrZW6Tz5NI9_9zna8/edit",
               "type": "spec"
-            },
-            {
-              "title": "GitHub: davemkingsley-byte/longform-harness",
-              "url": "https://github.com/davemkingsley-byte/longform-harness",
-              "type": "repo"
             }
           ]
         }
