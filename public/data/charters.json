@@ -17,7 +17,7 @@
           "dateCompleted": "2026-03-14",
           "daysActive": 5,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Aristotle",
           "assignee": "Morpheus",
           "priority": "Medium",
           "program": "Neural NeXus",
@@ -58,10 +58,6 @@
             {
               "done": true,
               "text": "Custom domain (neuralnexus.press/play)"
-            },
-            {
-              "done": true,
-              "text": "Substack integration"
             }
           ],
           "decisions": [
@@ -151,6 +147,11 @@
               "title": "Spelling Bee",
               "url": "charters/neural-nexus/101-spelling-bee.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 101: Spelling Bee Game",
+              "url": "https://docs.google.com/document/d/1kLm0QuEXu_FE1VkmGeTSIKbLzwtnSJXsBVJXLs649-U/edit",
+              "type": "charter"
             }
           ]
         },
@@ -167,7 +168,7 @@
           "dateCompleted": "2026-03-15",
           "daysActive": 4,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Aristotle",
           "assignee": "Morpheus",
           "priority": "High",
           "program": "Neural NeXus",
@@ -184,7 +185,7 @@
           "objective": "Build a professional website for the Neural NeXus newsletter brand — landing page, about, newsletter signup, and Spelling Bee game integration.",
           "successCriteria": "Fully externalized website on neuralnexus.press with newsletter signup, brand presence, and playable Spelling Bee game accessible to the public.",
           "blockers": [
-            "Bare domain SSL (needs Cloudflare migration)"
+            "Bare domain SSL (needs Cloudflare migration — plan documented)"
           ],
           "outstanding": [
             {
@@ -295,6 +296,21 @@
               "title": "Neural Nexus Website",
               "url": "charters/neural-nexus/102-neural-nexus-website.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 102: Neural NeXus Website",
+              "url": "https://docs.google.com/document/d/1OSlh4Rj4xZOGtPm3CdblVt7lz7tcTDGXxmU4hHOUsB8/edit",
+              "type": "charter"
+            },
+            {
+              "title": "Charter 102: Bare Domain SSL Migration Plan",
+              "url": "https://docs.google.com/document/d/1B4Ky6zoDwYnX56Juqs_qvD5HfN4xggQ-ifPnFxx_VGs/edit",
+              "type": "plan"
+            },
+            {
+              "title": "Charter 102: Security Audit 2026-03-23",
+              "url": "https://docs.google.com/document/d/1Gxl_Vp82I-AnE8A_aXMLzeKWVusyI6atQtYWFBO7lTM/edit",
+              "type": "audit"
             }
           ]
         },
@@ -311,7 +327,7 @@
           "dateCompleted": "2026-03-15",
           "daysActive": 4,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Aristotle",
           "assignee": "Morpheus",
           "priority": "Medium",
           "program": "Neural NeXus",
@@ -376,6 +392,11 @@
               "title": "Wordle",
               "url": "charters/neural-nexus/105-wordle.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 105: Wordle Game",
+              "url": "https://docs.google.com/document/d/11CUdvMorUWxH7vjJMgGQQLH-h_iaLZ8hRigcRrElg8k/edit",
+              "type": "charter"
             }
           ]
         },
@@ -392,7 +413,7 @@
           "dateCompleted": null,
           "daysActive": 3,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Aristotle",
           "assignee": "Pascal / Forge",
           "priority": "Medium",
           "program": "Neural NeXus",
@@ -416,19 +437,19 @@
             },
             {
               "done": true,
-              "text": "Voice — Clone David's voice via ElevenLabs."
+              "text": "Voice — clone David's voice via ElevenLabs (decision)"
             },
             {
               "done": true,
-              "text": "Approval — David reviews and approves scripts before rendering."
+              "text": "Approval — David reviews and approves scripts before rendering"
             },
             {
               "done": false,
-              "text": "Budget for TTS API (ElevenLabs ~$5-22/mo)?"
+              "text": "Budget for TTS API (ElevenLabs ~$5-22/mo)"
             },
             {
               "done": false,
-              "text": "David's TikTok handle (for backlog item)"
+              "text": "David's TikTok handle for backlog item"
             }
           ],
           "decisions": [
@@ -548,6 +569,11 @@
               "title": "Substack To Tiktok",
               "url": "charters/neural-nexus/106-substack-to-tiktok.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 106: Substack to TikTok Pipeline",
+              "url": "https://docs.google.com/document/d/1NND9qiZOCPGhilEi24gFjYlskTdvnApljhnfDeiGKZU/edit",
+              "type": "charter"
             }
           ]
         },
@@ -564,7 +590,7 @@
           "dateCompleted": "2026-03-16",
           "daysActive": 4,
           "overdue": false,
-          "owner": "Morpheus",
+          "owner": "Aristotle",
           "assignee": "Morpheus",
           "priority": "Medium",
           "program": "Neural NeXus",
@@ -680,6 +706,11 @@
               "title": "Mini Crossword",
               "url": "charters/neural-nexus/107-mini-crossword.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 107: Mini Crossword",
+              "url": "https://docs.google.com/document/d/1Md3X5N-4IXUXAPRCE5hLsh6PX16fyGD7SVc-1Lb7OVo/edit",
+              "type": "charter"
             }
           ]
         },
@@ -696,7 +727,7 @@
           "dateCompleted": null,
           "daysActive": 4,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Aristotle",
           "assignee": "Morpheus",
           "priority": "High",
           "program": "Neural NeXus",
@@ -712,7 +743,7 @@
           "objective": "Transform neuralnexus.press from a static hub into a search-discoverable, traffic-generating asset that complements Substack — driving organic visitors to the newsletter, games, and David's brand.",
           "successCriteria": "",
           "blockers": [
-            "Bare domain SSL fix (Cloudflare migration)"
+            "Bare domain SSL fix (Cloudflare migration — David action)"
           ],
           "outstanding": [
             {
@@ -740,16 +771,24 @@
               "text": "7 SEO topic pages built"
             },
             {
-              "done": false,
-              "text": "Bare domain SSL fix (Cloudflare migration)"
+              "done": true,
+              "text": "Sitemap automation (scripts/generate-sitemap.js, 23 URLs)"
             },
             {
               "done": false,
-              "text": "Programmatic GA4 analytics pipeline"
+              "text": "DNS migration to Cloudflare (bare domain SSL fix)"
             },
             {
               "done": false,
-              "text": "Internal linking between main site and Substack blog"
+              "text": "Send 5 personalized cross-promo outreach drafts (David approval pending)"
+            },
+            {
+              "done": false,
+              "text": "First monthly SEO review (Search Console + GA4 — was due ~Apr 18, now overdue)"
+            },
+            {
+              "done": false,
+              "text": "90-day Ghost migration evaluation (June 17, 2026)"
             }
           ],
           "decisions": [
@@ -818,6 +857,16 @@
               "title": "SEO Strategy",
               "url": "charters/neural-nexus/108-seo-strategy.md",
               "type": "strategy"
+            },
+            {
+              "title": "Charter 108: SEO & Analytics Strategy",
+              "url": "https://docs.google.com/document/d/1jrebpo7Wja-pTzaULxPaEm2pw117asXj8ClOveZAE8s/edit",
+              "type": "strategy"
+            },
+            {
+              "title": "Charter 108: Cross-Promo Outreach Drafts",
+              "url": "https://docs.google.com/document/d/1DPYuKGfYCKAR1C9VBDXOGYlCXYblWN4b5z9THMjwXnU/edit",
+              "type": "outreach"
             }
           ]
         },
@@ -826,7 +875,7 @@
           "title": "Content Distribution Automation",
           "status": "📋 Planned",
           "statusClean": "Planned",
-          "phase": "📋 Requirements",
+          "phase": "📋 Requirements + Platform Research Complete — Implementation pending answers",
           "phaseIndex": 0,
           "liveUrl": null,
           "dateInitiated": "2026-03-22",
@@ -834,7 +883,7 @@
           "dateCompleted": null,
           "daysActive": 1,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Aristotle",
           "assignee": "Pascal",
           "priority": "Low",
           "program": "Neural NeXus",
@@ -844,22 +893,48 @@
             "108"
           ],
           "enables": [],
-          "progress": 0,
+          "progress": 15,
           "objective": "Automate content distribution across social platforms from Substack posts.",
           "successCriteria": "One-click distribution from Substack to social channels with tracking.",
-          "blockers": [],
+          "blockers": [
+            "Awaiting David answers on Instagram account type, Buffer vs Later, and TikTok audit willingness"
+          ],
           "outstanding": [
             {
-              "done": false,
+              "done": true,
               "text": "Requirements gathering"
             },
             {
-              "done": false,
-              "text": "Platform selection (social channels)"
+              "done": true,
+              "text": "Platform selection research (Instagram, TikTok, X, LinkedIn, Substack — Buffer Essentials path recommended)"
             },
             {
               "done": false,
-              "text": "Automation pipeline design"
+              "text": "David: Instagram account type (Business vs Creator)"
+            },
+            {
+              "done": false,
+              "text": "David: Buffer vs Later preference"
+            },
+            {
+              "done": false,
+              "text": "David: ElevenLabs API key + voice sample (also blocks 106)"
+            },
+            {
+              "done": false,
+              "text": "Build Phase 1 — Instagram carousel generator"
+            },
+            {
+              "done": false,
+              "text": "Build quote card generator"
+            },
+            {
+              "done": false,
+              "text": "TikTok Developer App registration + audit"
+            },
+            {
+              "done": false,
+              "text": "Set up content calendar cron"
             }
           ],
           "decisions": [],
@@ -875,6 +950,16 @@
               "title": "Platform Selection 2026 04",
               "url": "charters/neural-nexus/110-platform-selection-2026-04.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 110: Content Distribution Automation",
+              "url": "https://docs.google.com/document/d/1sz5n0-1gfSoALolzJam59et3-aBM95QLGnuOPaqZkw8/edit",
+              "type": "charter"
+            },
+            {
+              "title": "Charter 110: Platform Selection Research (2026-04)",
+              "url": "https://docs.google.com/document/d/1BNamWllQV_0ubNxSnP-kmK_LnkiYapUb3VTZO33A-14/edit",
+              "type": "research"
             }
           ]
         }
@@ -889,7 +974,7 @@
           "title": "Oral Supplementation",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
-          "phase": "⚙️ Implementation (Phase 1 active)",
+          "phase": "⚙️ Implementation — Phase 1 steady-state, Phase 2 protocol locked, start 2026-05-15",
           "phaseIndex": 2,
           "liveUrl": null,
           "dateInitiated": "2026-03-17",
@@ -897,7 +982,7 @@
           "dateCompleted": null,
           "daysActive": 4,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Arete",
           "assignee": "Curie",
           "priority": "High",
           "program": "Cognitive Enhancements",
@@ -907,7 +992,7 @@
           "enables": [
             "202"
           ],
-          "progress": 50,
+          "progress": 65,
           "objective": "Design a personalized, evidence-based oral supplementation protocol targeting cognitive performance — memory, focus, processing speed, neuroprotection, and long-term brain health.",
           "successCriteria": "- [ ] Literature review of top-tier nootropic compounds completed",
           "blockers": [],
@@ -934,15 +1019,27 @@
             },
             {
               "done": true,
-              "text": "Phase 1 supplements all arrived and started"
+              "text": "Phase 1 supplements all arrived and started (steady-state ~7 weeks)"
+            },
+            {
+              "done": true,
+              "text": "Semax sourcing research completed"
+            },
+            {
+              "done": true,
+              "text": "Phase 2 protocol designed (Phenylpiracetam + Semax intranasal, 3-on/1-off cycling)"
             },
             {
               "done": false,
-              "text": "Phase 2: Phenylpiracetam protocol"
+              "text": "Phase 2 Phenylpiracetam start (scheduled 2026-05-15)"
             },
             {
               "done": false,
-              "text": "Semax sourcing research"
+              "text": "Phase 2 Semax intro (scheduled 2026-06-12)"
+            },
+            {
+              "done": false,
+              "text": "Phase 2 combination assessment (target 2026-07-10)"
             }
           ],
           "decisions": [
@@ -981,6 +1078,22 @@
             {
               "date": "2026-03-17",
               "text": "David's top 3 potent compounds selected"
+            },
+            {
+              "date": "2026-03-19",
+              "text": "Semax sourcing decision: Peptide Sciences (intranasal route)"
+            },
+            {
+              "date": "2026-04-15",
+              "text": "Phase 2 protocol locked: Phenylpiracetam + Semax intranasal, 3-week-on/1-week-off cycling"
+            },
+            {
+              "date": "2026-04-15",
+              "text": "Phase 2 sourcing: Phenylpiracetam from Nootropics Depot/Science.bio (~$15-25/mo); Semax from Peptide Sciences"
+            },
+            {
+              "date": "2026-04-15",
+              "text": "Phase 2 rollout schedule set — Phenylpiracetam 2026-05-15, Semax 2026-06-12, combo assessment 2026-07-10"
             }
           ],
           "risks": [
@@ -1047,6 +1160,41 @@
               "title": "Shopping List",
               "url": "charters/cognitive-enhancements/201-shopping-list.md",
               "type": "deliverable"
+            },
+            {
+              "title": "Compound Review",
+              "url": "https://docs.google.com/document/d/1t47HxQWvZlhIz1aQdui31oCSrbzUN9TaxybWTCyzAbQ/edit",
+              "type": "review"
+            },
+            {
+              "title": "Novel Pathways",
+              "url": "https://docs.google.com/document/d/1tV9dLZu9G5-iZtvvdWjxeTvxXWyY6xPxEtShha-ZFI8/edit",
+              "type": "charter"
+            },
+            {
+              "title": "Oral Supplementation (Main Charter)",
+              "url": "https://docs.google.com/document/d/18lUwlbohbgQwndeX4qzSd-9ydfqUW8hgd0iwAIzu4QU/edit",
+              "type": "charter"
+            },
+            {
+              "title": "Peptide Derisking Playbook",
+              "url": "https://docs.google.com/document/d/1qdTYjYx_qlxmKxOrxFPy8z1Vm4bpaaA7kMqpuOd2wJo/edit",
+              "type": "charter"
+            },
+            {
+              "title": "Shopping List",
+              "url": "https://docs.google.com/document/d/16B0xCHeacz7U4qY_tR4zkt1CpKOfPodR1s3wkQzdyJs/edit",
+              "type": "deliverable"
+            },
+            {
+              "title": "Phase 2 Phenylpiracetam + Semax Protocol",
+              "url": "https://docs.google.com/document/d/1cLB3Be1SYZaxLinrhe1eAwXt1Px90rjaWJ72j4WjVS8/edit",
+              "type": "protocol"
+            },
+            {
+              "title": "Semax Sourcing Research",
+              "url": "https://docs.google.com/document/d/1yVe9O_o84QqLqOoT4w1EatkdXW3LT5CMymrM-rRssqE/edit",
+              "type": "research"
             }
           ]
         },
@@ -1055,7 +1203,7 @@
           "title": "Cognitive Performance Dashboard",
           "status": "🟢 Live",
           "statusClean": "Live",
-          "phase": "✅ Deployed — Live at neuralnexus.press/cognitive/",
+          "phase": "🔧 Maintenance — core complete, iterating",
           "phaseIndex": 5,
           "liveUrl": "https://www.neuralnexus.press/cognitive/",
           "dateInitiated": "2026-03-20",
@@ -1063,7 +1211,7 @@
           "dateCompleted": "2026-03-20",
           "daysActive": 4,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Arete",
           "assignee": "Tensor",
           "priority": "High",
           "program": "Cognitive Enhancements",
@@ -1073,7 +1221,7 @@
             "201"
           ],
           "enables": [],
-          "progress": 85,
+          "progress": 95,
           "objective": "Build a longitudinal cognitive performance measurement system that combines standardized testing, chess ELO tracking, and Neural NeXus game analytics — with supplement/intervention phase markers — to objectively evaluate whether cognitive enhancement strategies are working.",
           "successCriteria": "- [ ] Standardized cognitive battery built and deployed on neuralnexus.press",
           "blockers": [],
@@ -1093,6 +1241,10 @@
             {
               "done": true,
               "text": "Stroop test built"
+            },
+            {
+              "done": true,
+              "text": "Stroop interference scoring"
             },
             {
               "done": true,
@@ -1123,16 +1275,16 @@
               "text": "WHOOP OAuth flow + API v2"
             },
             {
-              "done": false,
-              "text": "WHOOP refresh token persistence"
+              "done": true,
+              "text": "Public Brain Check version (live at /brain-check/, leaderboard)"
             },
             {
               "done": false,
-              "text": "Stroop interference scoring"
+              "text": "WHOOP refresh token persistence (env vars in Railway — David action)"
             },
             {
               "done": false,
-              "text": "Public Brain Check version"
+              "text": "2-week baseline data collection (operational, in progress)"
             }
           ],
           "decisions": [
@@ -1205,6 +1357,21 @@
               "title": "Cognitive Performance Tracker",
               "url": "charters/cognitive-enhancements/202-cognitive-performance-tracker.md",
               "type": "charter"
+            },
+            {
+              "title": "Cognitive Performance Dashboard (Main Charter)",
+              "url": "https://docs.google.com/document/d/1Wbd_fEH6gm5VeHe6eqEwvHKR8GUijlnIKxfwpRq2hWA/edit",
+              "type": "charter"
+            },
+            {
+              "title": "Cognitive Battery Analysis",
+              "url": "https://docs.google.com/document/d/1ZuGzbQlGZB30UVuy1ZHxa2x_TD9fSi1RL6sl4X6tjGM/edit",
+              "type": "research"
+            },
+            {
+              "title": "WHOOP Integration Plan",
+              "url": "https://docs.google.com/document/d/1wAEzo02ar_JtaHP4Xdq7QieGZJAf9OnNx0TzftFraRA/edit",
+              "type": "plan"
             }
           ]
         },
@@ -1221,7 +1388,7 @@
           "dateCompleted": "2026-03-20",
           "daysActive": 3,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Arete",
           "assignee": "Forge",
           "priority": "High",
           "program": "Cognitive Enhancements",
@@ -1290,6 +1457,11 @@
               "title": "Mobile Cognitive App",
               "url": "charters/cognitive-enhancements/203-mobile-cognitive-app.md",
               "type": "charter"
+            },
+            {
+              "title": "Mobile Cognitive App (PWA) Charter",
+              "url": "https://docs.google.com/document/d/1ayrMiN-Bfdn0q6FXu94_OZxm5Hammf3HQWXGHiaqY-4/edit",
+              "type": "charter"
             }
           ]
         }
@@ -1302,10 +1474,10 @@
       "charters": [
         {
           "id": "501",
-          "title": "Triple Incretin Program (TRT-001)",
-          "status": "🟡 In Progress",
+          "title": "Treat Biosciences (Master) — Two-Peptide Platform",
+          "status": "🟡 Active — Pre-Seed Fundraising / Active R&D",
           "statusClean": "In Progress",
-          "phase": "Two-peptide platform: TRT-001 (triple incretin) + TRT-002 (follistatin)",
+          "phase": "Two-peptide platform mid-build: TRT-001 in IP/sequence-design phase (TRT-001C v1.1 forced K20 architecture, Charter 703 Round 3 pending); TRT-002 awaiting GO on gene synthesis; fundraising at 1/3 of $500K target",
           "phaseIndex": 2,
           "liveUrl": null,
           "dateInitiated": "2026-03-19",
@@ -1313,7 +1485,7 @@
           "dateCompleted": null,
           "daysActive": 0,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Archimedes",
           "assignee": "David / Morpheus",
           "priority": "Critical",
           "program": "Treat Biosciences",
@@ -1325,12 +1497,16 @@
           "enables": [
             "502 (future: Clinical Trials)"
           ],
-          "progress": 40,
+          "progress": 50,
           "objective": "Canine-optimized triple incretin agonist modeled on retatrutide. Structural analysis: 80-90%+ probability unmodified retatrutide works. GLP-1R 93.1%, GIPR 100%, GCGR 100% conserved at binding contacts.",
           "successCriteria": "- [x] Competitive landscape analysis complete (updated 2026-03-19 with Okava, Teva generic, APOP)",
           "blockers": [
             {
-              "text": "Lilly patent landscape analysis pending",
+              "text": "Need 2-3 more investors for remaining ~$333K (charter 504)",
+              "severity": "high"
+            },
+            {
+              "text": "Frank/Niki participation status unconfirmed since restart (501 open question)",
               "severity": "medium"
             }
           ],
@@ -1426,21 +1602,31 @@
               "title": "Treat Restart",
               "url": "charters/treat-biosciences/501-treat-restart.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 501 — Treat Biosciences Master Charter (Google Doc)",
+              "url": "https://docs.google.com/document/d/1q34z-3JNK0me7hngcaBrFbrOzLZPIvky3tYmnlvkQ1A/edit",
+              "type": "charter"
+            },
+            {
+              "title": "Receptor Conservation Report v3-FINAL",
+              "url": "https://docs.google.com/document/d/1Vk89c3qImyV1_BUxEmuxem-bJKGzLgWsz1LChA5WMGA/edit",
+              "type": "analysis"
             }
           ]
         },
         {
           "id": "505",
           "title": "TRT-002 In Silico Design Pipeline",
-          "status": "🟡 Active",
+          "status": "🟢 Closed-Out — pending wet lab",
           "statusClean": "Active",
-          "phase": "Track 2: STRUCTURAL DISCRIMINATION COMPLETE — 4 Tier 1 candidates from 2 scaffold families pass all mechanism gates. Day 2 AF3 next. Track 1: Parked, awaiting David GO on gene synthesis.",
+          "phase": "Track 1 (TRT-002a, ProteinMPNN-engineered follistatin fragment) computational pipeline COMPLETE. Track 2 (de novo ActRIIB miniprotein blocker) spun out to Charter 506. All 10 deliverables (D1-D10) closed.",
           "phaseIndex": 3,
           "dateInitiated": "2026-03-25",
           "targetDate": "2026-04-15",
           "daysActive": 2,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Archimedes",
           "assignee": "Morpheus",
           "priority": "Critical",
           "program": "Treat Biosciences",
@@ -1450,14 +1636,10 @@
             "501"
           ],
           "enables": [],
-          "progress": 97,
+          "progress": 100,
           "objective": "Two-track drug design pipeline for TRT-002. Track 1: Engineered follistatin fragment (ND-FSD1-FSD2, 212 aa canine) as myostatin/activin antagonist. Track 2: De novo dual ActRIIA/ActRIIB competitive blocker (bimagrumab MOA) designed from Morvan crystal structures (2.0Å).",
           "successCriteria": "ELISA IC50 < 100 nM myostatin inhibition = GO. Gene synthesis order placed, binding data in 6 weeks.",
-          "blockers": [
-            {
-              "text": "David GO/NO-GO for GenScript gene synthesis order (~$400)"
-            }
-          ],
+          "blockers": [],
           "outstanding": [
             {
               "done": true,
@@ -1711,21 +1893,26 @@
               "title": "Follistatin In Silico",
               "url": "charters/treat-biosciences/505-follistatin-in-silico.md",
               "type": "deliverable"
+            },
+            {
+              "title": "Charter 505 — TRT-002 In Silico Design Pipeline (Google Doc)",
+              "url": "https://docs.google.com/document/d/1ephgZ4eraqcrDvu90-_f2aB7f5NEiUfWHy1O5HcFeGc/edit",
+              "type": "charter"
             }
           ]
         },
         {
           "id": "502",
-          "title": "TRT-001 Triple Incretin Agonist",
-          "status": "🟡 In Progress",
+          "title": "TRT-001 Triple Incretin Agonist (incl. TRT-001C canine variant)",
+          "status": "🟢 Active — Sequence design, IP-locked architecture",
           "statusClean": "In Progress",
-          "phase": "Structural analysis complete, IP strategy drafted",
+          "phase": "TRT-001 baseline (retatrutide scaffold) structurally validated against canine receptors (v3-final). TRT-001C v1.1 canine-optimized variant designed with forced K20 acylation (escapes US12371465B2 claim 9 + Novo WO2022090447A1 claim 1). Charter 703 Round 3 review pending on v1.1 before any gene synthesis spend.",
           "phaseIndex": 2,
           "dateInitiated": "2026-03-19",
           "targetDate": "2026-06-19",
           "daysActive": 8,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Archimedes",
           "assignee": "Morpheus",
           "priority": "Critical",
           "program": "Treat Biosciences",
@@ -1737,13 +1924,21 @@
           "enables": [
             "505"
           ],
-          "progress": 45,
+          "progress": 60,
           "objective": "Canine-optimized triple incretin agonist modeled on retatrutide (GLP-1/GIP/glucagon). Assess whether unmodified retatrutide works in dogs or needs species-specific modifications.",
           "successCriteria": "Confirmed binding at all 3 canine receptors. IP strategy for composition-of-matter patent if modifications needed.",
           "blockers": [
             {
-              "text": "Lilly patent landscape analysis pending (David ChatGPT search)",
+              "text": "Charter 703 Round 3 panel review of TRT-001C v1.1 pending (Hypatia + Socrates) before gene synthesis approval",
+              "severity": "high"
+            },
+            {
+              "text": "PLIP X17=Q vs X17=R decision deferred to Round 3",
               "severity": "medium"
+            },
+            {
+              "text": "Canine albumin Kd measurement gap (literature) — empirical Tier-1 add-on ~$8-15K",
+              "severity": "low"
             }
           ],
           "outstanding": [
@@ -1820,6 +2015,36 @@
               "title": "TRT-001 Triple Incretin",
               "url": "charters/treat-biosciences/502-trt001-triple-incretin.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 502 — TRT-001 Triple Incretin Agonist (Google Doc)",
+              "url": "https://docs.google.com/document/d/1mj8WYLm2UBgsQYuUokoRX_xTduvS3PebfhCeeuxWekE/edit",
+              "type": "charter"
+            },
+            {
+              "title": "Structural Comparison Report v3-FINAL (TRT-001 receptor conservation)",
+              "url": "https://docs.google.com/document/d/1Vk89c3qImyV1_BUxEmuxem-bJKGzLgWsz1LChA5WMGA/edit",
+              "type": "analysis"
+            },
+            {
+              "title": "TRT-001C Canine Incretin Development Plan v1.1 (forced K20)",
+              "url": "https://docs.google.com/document/d/1YVYIQMhRqLkGt13gCeS2THVXCuflB0HOWBPu983FL4I/edit",
+              "type": "plan"
+            },
+            {
+              "title": "TRT-001C Canine Incretin Development Plan v1-final (R2-approved, superseded)",
+              "url": "https://docs.google.com/document/d/1JSHZmJxUa_-hUfXhD0yziNzoh824ZGPZxkE4RXXnu1Y/edit",
+              "type": "plan"
+            },
+            {
+              "title": "Daedalus Gate-3 Review (orthogonal validation, 2026-04-25)",
+              "url": "shared/archimedes-to-morpheus/REVIEW-DAEDALUS-GATE2-2026-04-25.md",
+              "type": "review"
+            },
+            {
+              "title": "Daedalus Retatrutide-Canine Plan Review (2026-04-25)",
+              "url": "shared/archimedes-to-morpheus/REVIEW-DAEDALUS-RETATRUTIDE-CANINE-PLAN-2026-04-25.md",
+              "type": "review"
             }
           ]
         },
@@ -1828,13 +2053,13 @@
           "title": "TRT-002 Engineered Follistatin Fragment",
           "status": "🟡 Awaiting GO",
           "statusClean": "Awaiting GO",
-          "phase": "Drug design complete, gene synthesis spec ready — awaiting David GO",
+          "phase": "Computational design complete (212 aa canine FST288 ND-FSD1-FSD2 with K108C lipidation, 2026-03-27 sequence corrected). Gene synthesis spec ready. Awaiting David GO on GenScript order (~$400 gene, ~$2K to ELISA go/no-go).",
           "phaseIndex": 3,
           "dateInitiated": "2026-03-25",
           "targetDate": "2026-05-15",
           "daysActive": 2,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Archimedes",
           "assignee": "Morpheus",
           "priority": "Critical",
           "program": "Treat Biosciences",
@@ -1847,7 +2072,12 @@
           "progress": 75,
           "objective": "Engineer follistatin ND-FSD1-FSD2 fragment as myostatin/activin antagonist for canine muscle preservation during weight loss. Second peptide in Treat platform.",
           "successCriteria": "ELISA IC50 < 100 nM myostatin inhibition. Successful E. coli expression and refolding.",
-          "blockers": [],
+          "blockers": [
+            {
+              "text": "David GO/NO-GO on gene synthesis order pending",
+              "severity": "high"
+            }
+          ],
           "outstanding": [
             {
               "done": true,
@@ -1950,15 +2180,20 @@
               "title": "TRT-002 Follistatin",
               "url": "charters/treat-biosciences/503-trt002-follistatin.md",
               "type": "deliverable"
+            },
+            {
+              "title": "Charter 503 — TRT-002 Engineered Follistatin Fragment (Google Doc)",
+              "url": "https://docs.google.com/document/d/131nNkXyeACvxzyBKfP9Xajt_AG5hXdPye-N9j1qV23M/edit",
+              "type": "charter"
             }
           ]
         },
         {
           "id": "504",
-          "title": "Fundraising & Investor Materials",
+          "title": "Treat Biosciences Fundraising & Investor Materials",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
-          "phase": "Tony committed, finding remaining 2/3",
+          "phase": "Tony verbal commitment $167K (1/3); seeking 2 additional investors for remaining ~$333K. Pitch deck v5 edit instructions drafted (Morpheus, 2026-04-14) reflecting two-peptide platform thesis.",
           "phaseIndex": 2,
           "dateInitiated": "2026-03-23",
           "targetDate": "2026-05-01",
@@ -1986,6 +2221,10 @@
             },
             {
               "text": "Gray market exclusivity term needs attorney review",
+              "severity": "medium"
+            },
+            {
+              "text": "Pitch deck v5 edits not yet executed in active deck (still v4)",
               "severity": "medium"
             }
           ],
@@ -2099,6 +2338,21 @@
               "title": "Fundraising",
               "url": "charters/treat-biosciences/504-fundraising.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 504 — Treat Fundraising & Investor Materials (Google Doc)",
+              "url": "https://docs.google.com/document/d/161Q3pK-mbeD5PnZilYoV--0FdRqopa48oJ39TS3OOsM/edit",
+              "type": "charter"
+            },
+            {
+              "title": "504 — Pitch Deck v5 Edit Instructions",
+              "url": "https://docs.google.com/document/d/1szmqIYek3INmxTKtY27ggoVdrfqAmR1udCJxfhzdr1Q/edit",
+              "type": "edits"
+            },
+            {
+              "title": "504 — Financial Model",
+              "url": "https://docs.google.com/document/d/1DfhQVdUYJqk2cttlT67vJqDvY0qtyLyifEcF0K6bp10/edit",
+              "type": "model"
             }
           ]
         },
@@ -2107,7 +2361,7 @@
           "title": "Campaign R2: De Novo Miniprotein Blocker (ActRIIB)",
           "status": "🟡 Active",
           "statusClean": "Active",
-          "phase": "R2 Stage 1 report v4 FINAL — awaiting David GO for 250 BindCraft trajectories (~$50)",
+          "phase": "R2 Stage 1 plan finalized (v6, panel + 3 external reviews approved). Awaiting David GO on 250 BindCraft trajectories (~$50 Colab compute).",
           "phaseIndex": 2,
           "dateInitiated": "2026-04-01",
           "owner": "Archimedes",
@@ -2216,16 +2470,21 @@
               "title": "R2 De Novo Actrii Blocker",
               "url": "charters/treat-biosciences/506-R2-de-novo-actrii-blocker.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 506 — Campaign R2 De Novo ActRIIB Blocker (Google Doc)",
+              "url": "https://docs.google.com/document/d/18is6dz4SVNoB7dzISc7AXq5FhbZeHiMoN_45MyihnE8/edit",
+              "type": "charter"
             }
           ],
           "lastUpdated": "2026-04-02"
         },
         {
           "id": "507",
-          "title": "Company Website Rebuild",
+          "title": "Treat Biosciences Website Rebuild",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
-          "phase": "Design & Development — local draft reviewed at 9/10, executing final changes",
+          "phase": "Design & Development — local draft reviewed at 9/10, executing final-pass changes prior to public deploy",
           "phaseIndex": 3,
           "liveUrl": "https://www.treatbiosciences.com",
           "dateInitiated": "2026-04-14",
@@ -2233,7 +2492,7 @@
           "dateCompleted": null,
           "daysActive": 0,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Daedalus",
           "assignee": "Daedalus",
           "priority": "High",
           "program": "Treat Biosciences",
@@ -2257,6 +2516,10 @@
             },
             {
               "text": "David needs to approve exact pipeline stage labels",
+              "severity": "low"
+            },
+            {
+              "text": "Daedalus to publish canonical site spec / copy as Google Doc",
               "severity": "low"
             }
           ],
@@ -2355,14 +2618,25 @@
               "text": "Local draft built and under iteration"
             }
           ],
-          "documents": []
+          "documents": [
+            {
+              "title": "Charter 507 — Treat Biosciences Website Rebuild (Google Doc)",
+              "url": "https://docs.google.com/document/d/1Flfc5ch0ks28Ze31WlfSwNnIJyWSSJh9Z0OezliQSt0/edit",
+              "type": "charter"
+            },
+            {
+              "title": "Charter 507 (local)",
+              "url": "charters/treat-biosciences/507-website-rebuild.md",
+              "type": "charter"
+            }
+          ]
         },
         {
           "id": "508",
           "title": "Pet Health Wearable",
           "status": "🟡 Planning",
           "statusClean": "Planning",
-          "phase": "Concept — pet health wearable for continuous biometric monitoring in dogs",
+          "phase": "Concept — pet health wearable for continuous biometric monitoring in dogs; build vs partner decision pending",
           "phaseIndex": 1,
           "liveUrl": null,
           "dateInitiated": "2026-04-14",
@@ -2377,6 +2651,21 @@
               "title": "Pet Wearable",
               "url": "charters/treat-biosciences/508-pet-wearable.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 508 — Pet Health Wearable (Google Doc)",
+              "url": "https://docs.google.com/document/d/1s_cr5MLAONGjkqofv0iu71WWcyKGpRr3S67yxJxt3SM/edit",
+              "type": "charter"
+            }
+          ],
+          "blockers": [
+            {
+              "text": "Build vs partner decision (hardware capital-intensive)",
+              "severity": "medium"
+            },
+            {
+              "text": "No hardware engineering capability in-house",
+              "severity": "medium"
             }
           ]
         },
@@ -2385,7 +2674,7 @@
           "title": "TRT-004 PD-1 Minipeptide",
           "status": "🟡 Planning",
           "statusClean": "Planning",
-          "phase": "Canine PD-1/PD-L1 checkpoint inhibitor minipeptide — computational design",
+          "phase": "Canine PD-1/PD-L1 checkpoint inhibitor minipeptide — concept stage. Computational design pipeline (Charter 505 toolchain) reusable. Not yet started.",
           "phaseIndex": 1,
           "dateInitiated": "2026-04-14",
           "targetDate": "TBD",
@@ -2397,12 +2686,24 @@
               "title": "PD-1 Minipeptide",
               "url": "charters/treat-biosciences/509-pd1-minipeptide.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 509 — TRT-004 PD-1 Minipeptide (Google Doc)",
+              "url": "https://docs.google.com/document/d/1dWsrTui_D5ZtIVGw8zXrYLZRJmiITcQ3eMxFm0E8lLs/edit",
+              "type": "charter"
             }
           ],
           "risks": [
             "PPI surface may be too flat for peptide disruption",
             "Canine structural data availability",
             "IP landscape from human PD-1 programs"
+          ],
+          "owner": "Archimedes",
+          "blockers": [
+            {
+              "text": "No active work — TRT-001/TRT-002 take priority over 509 until at least one wet-lab readout lands",
+              "severity": "low"
+            }
           ]
         }
       ]
@@ -2416,7 +2717,7 @@
           "title": "Molluscum Contagiosum Treatment",
           "status": "🟢 Maintenance",
           "statusClean": "Maintenance",
-          "phase": "🔧 Maintenance — Treatment in progress",
+          "phase": "🔧 Maintenance — Imiquimod course active, ~50 days into 60-day target",
           "phaseIndex": 5,
           "liveUrl": null,
           "dateInitiated": "2026-03-19",
@@ -2424,7 +2725,7 @@
           "dateCompleted": "—",
           "daysActive": 0,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Arete",
           "assignee": "David Kingsley",
           "priority": "High",
           "program": "Physical Health",
@@ -2436,14 +2737,14 @@
           "enables": [
             "None"
           ],
-          "progress": 13,
+          "progress": 50,
           "objective": "Fully resolve molluscum contagiosum infection with combination of in-office cryotherapy and at-home imiquimod. Track treatment progress and clearance timeline.",
           "successCriteria": "- [ ] All visible lesions resolved",
           "blockers": [],
           "outstanding": [
             {
               "done": true,
-              "text": "Cryotherapy applied"
+              "text": "Cryotherapy applied (2026-03-19)"
             },
             {
               "done": true,
@@ -2451,15 +2752,19 @@
             },
             {
               "done": false,
-              "text": "Imiquimod 5% cream 3x/week (ongoing)"
+              "text": "Imiquimod 5% cream 3x/week (ongoing through clearance)"
             },
             {
               "done": false,
-              "text": "Return visit 3-4 weeks for reassessment"
+              "text": "Return visit for reassessment (was due ~2026-04-16; status unconfirmed in source .md)"
             },
             {
               "done": false,
-              "text": "8-week follow-up (May 14)"
+              "text": "8-week follow-up scheduled 2026-05-14"
+            },
+            {
+              "done": false,
+              "text": "Source .md not updated since 2026-03-19 — needs progress note from David"
             }
           ],
           "decisions": [],
@@ -2501,6 +2806,11 @@
               "title": "Molluscum Treatment",
               "url": "charters/physical-health/401-molluscum-treatment.md",
               "type": "charter"
+            },
+            {
+              "title": "Molluscum Contagiosum Treatment Charter",
+              "url": "https://docs.google.com/document/d/1uZT3vj2DxAsTa0DwIB9vrN02UhwNk-1Ojwmf7Ofjlko/edit",
+              "type": "charter"
             }
           ]
         },
@@ -2509,7 +2819,7 @@
           "title": "Neuropathy Investigation & Recovery",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
-          "phase": "🔬 Phase 1 — Diagnostic Workup",
+          "phase": "🔬 Phase 2 — Structural confirmation (skin punch biopsy + QSART at UTSW)",
           "phaseIndex": 1,
           "liveUrl": null,
           "dateInitiated": "2026-04-04",
@@ -2531,14 +2841,38 @@
             "Targeted treatment protocol",
             "Disability documentation if needed"
           ],
-          "progress": 15,
+          "progress": 40,
           "objective": "Diagnose root cause of recurring small fiber neuropathy (since July 2025) and establish evidence-based treatment protocol. Suspected autoimmune SFN with fluoroquinolone acceleration. Leading differential: autoimmune SFN (55-65%), Sjögren/MCTD subset (20-30%).",
           "successCriteria": "- [ ] Root cause identified\n- [ ] Autoimmune panel complete\n- [ ] UTSW neuromuscular evaluation\n- [ ] Treatment protocol initiated\n- [ ] Symptom reduction documented",
           "blockers": [],
           "outstanding": [
             {
-              "done": false,
-              "text": "Monday PCP blood draw (25+ marker panel inc. ANA, SSA/SSB, dsDNA, complement)"
+              "done": true,
+              "text": "Comprehensive autoimmune panel completed (drawn 2026-04-15 by Dr. Bellos)"
+            },
+            {
+              "done": true,
+              "text": "ANA 1:160 DFS pattern (DFS70+ likely — SARD-negative predictor)"
+            },
+            {
+              "done": true,
+              "text": "ENA antibodies all negative (dsDNA, Sm, U1 RNP, SSA, SSB, chromatin)"
+            },
+            {
+              "done": true,
+              "text": "Inflammatory markers normal (ESR 2 confirmed twice, RF negative)"
+            },
+            {
+              "done": true,
+              "text": "Investigation Plan v6 published (dual expert review: opus + gpt-5.5)"
+            },
+            {
+              "done": true,
+              "text": "Lupus / Sjögren / MCTD / scleroderma / RA / vasculitis ruled out"
+            },
+            {
+              "done": true,
+              "text": "Neuroprotective supplement stack initiated"
             },
             {
               "done": false,
@@ -2546,19 +2880,15 @@
             },
             {
               "done": false,
+              "text": "Skin punch biopsy (Phase 2 structural workup)"
+            },
+            {
+              "done": false,
+              "text": "QSART autonomic testing at UTSW"
+            },
+            {
+              "done": false,
               "text": "Aug 2025 hospitalization records retrieval (LP results)"
-            },
-            {
-              "done": true,
-              "text": "Neuroprotective supplement stack initiated"
-            },
-            {
-              "done": true,
-              "text": "Investigation plan v5 completed"
-            },
-            {
-              "done": true,
-              "text": "Longitudinal bloodwork compiled (6 panels, Dec 2023–Mar 2026)"
             }
           ],
           "decisions": [
@@ -2571,6 +2901,14 @@
               "date": "2026-04-04",
               "decision": "UTSW neuromuscular over Texas Neurology — academic center with SFN expertise",
               "by": "David + Arete"
+            },
+            {
+              "date": "2026-05-01",
+              "text": "Phase 1 autoimmune sweep complete → pivot to Phase 2 structural confirmation"
+            },
+            {
+              "date": "2026-05-01",
+              "text": "Updated differential v6: leading = immune-mediated SFN seronegative class (20-25%), FNSD (15-25%), FQAD (10-17%)"
             }
           ],
           "risks": [
@@ -2625,7 +2963,7 @@
           "dateCompleted": "2026-03-18",
           "daysActive": 4,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Morpheus",
           "assignee": "Morpheus",
           "priority": "Critical",
           "program": "Project Management",
@@ -2745,7 +3083,7 @@
           "dateCompleted": "2026-03-18",
           "daysActive": 4,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Morpheus",
           "assignee": "Morpheus",
           "priority": "Critical",
           "program": "Project Management",
@@ -2812,9 +3150,9 @@
         {
           "id": "703",
           "title": "Scientific Panel Architecture",
-          "status": "🟡 In Progress",
-          "statusClean": "In Progress",
-          "phase": "⚙️ Implementation",
+          "status": "🟢 Complete",
+          "statusClean": "Complete",
+          "phase": "✅ Protocol shipped — reusable across 5xx/3xx science charters",
           "phaseIndex": 2,
           "liveUrl": null,
           "dateInitiated": "2026-03-23",
@@ -2822,7 +3160,7 @@
           "dateCompleted": null,
           "daysActive": 0,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Morpheus",
           "assignee": "Archimedes",
           "priority": "Medium",
           "program": "Project Management",
@@ -2830,7 +3168,7 @@
           "actualSpend": "$0",
           "dependencies": [],
           "enables": [],
-          "progress": 75,
+          "progress": 100,
           "objective": "Multi-model adversarial review panel: Hypatia (Claude Opus) + Socrates (GPT-5.4) under Archimedes. Model diversity is non-negotiable.",
           "successCriteria": "",
           "blockers": [],
@@ -2889,7 +3227,7 @@
           "dateCompleted": "2026-03-23",
           "daysActive": 0,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Morpheus",
           "assignee": "Morpheus",
           "priority": "Critical",
           "program": "Project Management",
@@ -2989,7 +3327,7 @@
           "dateCompleted": "2026-03-27",
           "daysActive": 1,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Morpheus",
           "assignee": "Morpheus",
           "priority": "Critical",
           "program": "Project Management",
@@ -3071,12 +3409,12 @@
         {
           "id": "706",
           "title": "Infrastructure Scale-Out (Mac Mini + KVM)",
-          "status": "🟡 Awaiting Purchase",
-          "statusClean": "Awaiting Purchase",
+          "status": "🟢 Operational",
+          "statusClean": "Operational",
           "assignee": "Morpheus",
-          "phase": "Hardware acquisition — M4 Mac mini + 4-port dual-monitor KVM switch",
+          "phase": "Mac mini operational at AI-Computers-Mac-mini.local (192.168.1.123). Gateway running pid 33455. Archimedes/Aristotle/Arete migrated to claude-cli on Max plan. KVM + Aristotle-on-mini-2 deferred.",
           "objective": "Resolve agent browser contention by splitting agents across two Mac minis with shared peripherals via KVM switch. Current: 4 agents competing for one cursor/screen. Target: Archimedes + sub-agents on dedicated mini, Morpheus/Aristotle/Arete on existing mini.",
-          "progress": 10,
+          "progress": 75,
           "documents": [
             {
               "title": "ATLAHET 4-Port Dual Monitor KVM (Amazon)",
@@ -3141,20 +3479,21 @@
               "done": false,
               "text": "Re-enable AF3 monitoring cron on dedicated browser"
             }
-          ]
+          ],
+          "owner": "Morpheus"
         },
         {
           "id": "707",
           "title": "API Billing Migration",
-          "status": "🔴 Critical",
-          "statusClean": "Critical",
-          "phase": "Phase 0 executing — cost controls & baseline. Deadline: Apr 4 2pm CT",
+          "status": "🟢 Resolved",
+          "statusClean": "Resolved",
+          "phase": "Migration complete. Auth profiles populated (anthropic:claude-cli, anthropic:default, anthropic:manual, openai-codex). Fleet on Claude Max + free Codex OAuth — no API billing in use. Original Apr 4 deadline resolved 5+ weeks ago.",
           "phaseIndex": 1,
           "dateInitiated": "2026-04-03",
           "targetDate": "2026-04-04",
           "daysActive": 0,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Morpheus",
           "assignee": "Morpheus",
           "priority": "Critical",
           "program": "Project Management",
@@ -3162,19 +3501,10 @@
           "actualSpend": "$0",
           "dependencies": [],
           "enables": [],
-          "progress": 10,
+          "progress": 95,
           "objective": "Migrate the agent fleet from Claude Max subscription-based API access to pay-per-token API billing before Anthropic cuts off third-party access on April 4 at 12pm PT / 2pm CT. Restructure fleet model assignments and implement cost controls to stay within $600-1,000/mo budget.",
           "successCriteria": "All agents operational on API billing or free tiers. Monthly spend stays within $600-1,000. No service interruption. Daily cost monitoring in place.",
-          "blockers": [
-            {
-              "text": "Hard deadline: Account 1 loses third-party access April 4 2pm CT",
-              "severity": "critical"
-            },
-            {
-              "text": "Account 2 still active but may get flagged under heavy use",
-              "severity": "high"
-            }
-          ],
+          "blockers": [],
           "outstanding": [
             {
               "done": false,
@@ -3364,13 +3694,13 @@
           "title": "ExoDev Protocol Optimization (Apollo 3-5)",
           "status": "🟡 In Progress",
           "statusClean": "In Progress",
-          "phase": "Protocol review and hypothesis generation",
+          "phase": "Cord-serum sourcing + Alpha protocol revision; awaiting first vendor samples and Okolab repair",
           "phaseIndex": 2,
           "dateInitiated": "2026-03-24",
           "targetDate": null,
           "daysActive": 3,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Archimedes",
           "assignee": "Morpheus",
           "priority": "High",
           "program": "Colossal Biosciences",
@@ -3378,12 +3708,17 @@
           "actualSpend": null,
           "dependencies": [],
           "enables": [],
-          "progress": 30,
+          "progress": 35,
           "objective": "Optimize whole embryo culture (WEC) protocols for Apollo 3-5 Foxtrot. Address VYS swelling, yolk sac circulation failure, and cardiovascular compromise in extended culture.",
           "successCriteria": "Successful VYS vascular remodeling and cardiovascular development through gastrulation window.",
           "blockers": [
             {
-              "text": "Okolab H4 humidifier heater failure (H4.a + H4.d errors) — support email being drafted for Monday. Currently using water bottle bypass."
+              "text": "Okolab H4 humidifier heater failure (H4.a + H4.d errors) — water-bottle bypass active; module replacement requested",
+              "severity": "medium"
+            },
+            {
+              "text": "No cord-serum samples in hand — Phase 1 bench QC + Phase 2 embryo screen blocked until vendor shipments arrive",
+              "severity": "high"
             }
           ],
           "outstanding": [
@@ -3437,6 +3772,58 @@
               "date": "2026-03-28",
               "text": "Okolab H4 humidifier heater failure — water bottle bypass + enclosure setpoint adjustment"
             }
+          ],
+          "documents": [
+            {
+              "title": "Charter 301 — ExoDev Protocol Optimization (Master)",
+              "url": "https://docs.google.com/document/d/1RT0W8qojQCBiL0Vacrhf7ZHnhbaWxvrQ4q5Qew2Q32Q/edit",
+              "type": "charter"
+            },
+            {
+              "title": "Cord Blood Serum Sourcing Plan (15-vendor matrix)",
+              "url": "https://docs.google.com/document/d/1T6o8dEfQvthjPx-Eu5mkC_QRElZ0sqgBcXkn2OFrOmY/edit",
+              "type": "plan"
+            },
+            {
+              "title": "Cord Blood Serum Sourcing Plan (original 2026-03-24)",
+              "url": "https://docs.google.com/document/d/132XE8pqVJXqM_tb47AMWcVrTW98vMuA-BDFz2V5vXDs/edit",
+              "type": "plan"
+            },
+            {
+              "title": "Cord Blood Serum Sourcing Tracker",
+              "url": "https://docs.google.com/document/d/1WQEmzMK9_zG0DbsofxWbq1mCzXDQT5qmW2Jju7vu4_I/edit",
+              "type": "tracker"
+            },
+            {
+              "title": "Apollo 3-5 Foxtrot v2 — Panel-Revised Protocol",
+              "url": "https://docs.google.com/document/d/17cUXj05G4XlIGAsNBNfBrLGaBFrgkVGCxp9zqcdfv1Q/edit",
+              "type": "protocol"
+            },
+            {
+              "title": "Apollo 3-5 Clarification × Antioxidant Factorial (v3)",
+              "url": "https://docs.google.com/document/d/1FoQSjUu7UMCwDo8N5ZDKTD7U4um2KMBFUb-RnBkY9y0/edit",
+              "type": "protocol"
+            },
+            {
+              "title": "Apollo Run — E6.5 Factorial Protocol",
+              "url": "https://docs.google.com/document/d/1qRCE21yyiH59EbBhbyyXP1yVTf_MliUW823IybEop54/edit",
+              "type": "protocol"
+            },
+            {
+              "title": "ExoDev Growth Factor Panel — E6.5–E8.5 Supplementation",
+              "url": "https://docs.google.com/document/d/1K2dS7UcCUeBBlEX106JDjiyl1ypVW41fw2Wb8EcM14M/edit",
+              "type": "analysis"
+            },
+            {
+              "title": "Charter 301 (local)",
+              "url": "charters/colossal-biosciences/301-exodev-protocol-optimization.md",
+              "type": "charter"
+            },
+            {
+              "title": "Cord Serum Sourcing (local)",
+              "url": "charters/exodev/cord-serum-sourcing.md",
+              "type": "plan"
+            }
           ]
         }
       ]
@@ -3448,19 +3835,19 @@
         {
           "id": "601",
           "title": "Morpheus Digital Embodiment V1",
-          "status": "🟡 Active",
-          "statusClean": "Active",
-          "phase": "V1 deployed to neuralnexus.press/morpheus. Static scaffold with glassmorphism neural visualization, fleet status, morning briefing, action items. Next: live data integration (V2).",
+          "status": "🟡 Parked",
+          "statusClean": "Parked",
+          "phase": "V3 visual pass deployed at neuralnexus.press/morpheus behind shared dashboard auth; 420-point neural mesh/core visual and mouse tracking present; Hermes role corrected to CRO · Revenue; functional V2 live-data integration deferred.",
           "phaseIndex": 2,
           "dateInitiated": "2026-03-30",
           "targetDate": "TBD",
           "daysActive": 0,
           "overdue": false,
-          "owner": "Morpheus",
-          "assignee": "Daedalus",
+          "owner": "Daedalus",
+          "assignee": "Morpheus / Daedalus",
           "priority": "Low",
           "program": "Miscellaneous",
-          "progress": 35,
+          "progress": 60,
           "objective": "Persistent digital embodiment of Morpheus — visual identity, state system, interactive morning briefing. Utility first, not theater.",
           "successCriteria": "David can glance at Morpheus and understand state, priorities, blockers, and pending decisions without opening a chat.",
           "blockers": [],
@@ -3496,6 +3883,14 @@
             {
               "done": false,
               "text": "V3: Morning briefing auto-generation, real-time state updates"
+            },
+            {
+              "done": false,
+              "text": "V2 functional live data integration — pull from charters.json, session APIs, heartbeat state"
+            },
+            {
+              "done": false,
+              "text": "V3 functional morning briefing automation — generated briefing content, real-time state updates"
             }
           ],
           "documents": [
@@ -3508,6 +3903,11 @@
               "title": "Morpheus Embodiment",
               "url": "charters/misc/601-morpheus-embodiment.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 601 — Morpheus Digital Embodiment V1 — Audit Snapshot 2026-05-08",
+              "url": "https://docs.google.com/document/d/1MC5FwqTRxOQztyQsskS312FaKGdUGyeZyCvX-xtM4MI/edit?usp=drivesdk",
+              "type": "document"
             }
           ]
         },
@@ -3516,7 +3916,7 @@
           "title": "Longform Task Harness",
           "status": "🟢 In Progress",
           "statusClean": "In Progress",
-          "phase": "🔨 Code on OpenClaw machine, voice corpus loaded — awaiting auth for first real run",
+          "phase": "Code is present on the OpenClaw machine; provider configured as codex-cli with gpt-5.5; ~/.codex/auth.json exists in chatgpt mode; voice corpus loaded; automated tests pass; multiple BioWire Byte harness runs exist with FINAL.md/HEADLINES.md artifacts. Remaining work is quality/prompt iteration and David publishability approval.",
           "phaseIndex": 2,
           "liveUrl": null,
           "dateInitiated": "2026-04-29",
@@ -3524,7 +3924,7 @@
           "dateCompleted": null,
           "daysActive": 1,
           "overdue": false,
-          "owner": "David Kingsley",
+          "owner": "Daedalus",
           "assignee": "Daedalus",
           "priority": "High",
           "program": "Miscellaneous",
@@ -3534,7 +3934,7 @@
           "enables": [
             "110"
           ],
-          "progress": 65,
+          "progress": 80,
           "objective": "Build a Python harness that orchestrates LLMs through multistep science/writing workflows the same way Claude Code orchestrates Opus through software engineering. Externalized state, scoped per-phase prompts, deterministic + LLM-as-judge validators, retry/correction loops, resumable runs.",
           "successCriteria": "harness run biowire-byte --topic '<bio topic>' produces a publishable BioWire Byte newsletter post end-to-end with zero human intervention beyond initial topic input. Mid-run kill + resume works cleanly. All citations verified to real primary sources. Voice match ≥7/10. <15 min wall clock per run.",
           "blockers": [],
@@ -3614,6 +4014,10 @@
             {
               "done": false,
               "text": "Resolve OpenAI auth for runtime: API key, ChatGPT OAuth via codex login, or local Ollama fallback"
+            },
+            {
+              "done": false,
+              "text": "v2 deferred work: Anthropic provider adapter / alternate-model judging, deep dive pipeline"
             }
           ],
           "decisions": [
@@ -3718,13 +4122,13 @@
           "title": "Market Research & Pricing Strategy",
           "status": "🟡 Active",
           "statusClean": "Active",
-          "phase": "Market analysis complete — pricing recs documented, awaiting David property photos",
+          "phase": "Market analysis complete — pricing recs documented, awaiting David property photos + furnished-vs-cleaned-out decision",
           "phaseIndex": 2,
           "dateInitiated": "2026-03-31",
           "targetDate": "2026-04-03",
           "daysActive": 3,
           "overdue": false,
-          "owner": "Morpheus",
+          "owner": "Hermes",
           "assignee": "Hermes",
           "priority": "High",
           "program": "Durham Property Management",
@@ -3808,14 +4212,14 @@
           "title": "Property Preparation",
           "status": "🔴 Not Started",
           "statusClean": "Not Started",
-          "phase": "Awaiting photos from David",
+          "phase": "Plan documented in Google Doc — blocked on David photos",
           "phaseIndex": 1,
           "dateInitiated": "2026-03-31",
           "targetDate": "2026-04-07",
           "daysActive": 0,
           "overdue": false,
-          "owner": "Morpheus",
-          "assignee": "Daedalus",
+          "owner": "Hermes",
+          "assignee": "Hermes",
           "priority": "High",
           "program": "Durham Property Management",
           "progress": 0,
@@ -3857,6 +4261,11 @@
               "title": "Property Preparation",
               "url": "charters/durham-property/902-property-preparation.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 902: Property Preparation",
+              "url": "https://docs.google.com/document/d/1k38O14h19ijk1IULMhk0eNNjxBd1aL-C7U4gIKR_aRE/edit",
+              "type": "charter"
             }
           ]
         },
@@ -3865,14 +4274,14 @@
           "title": "Listing & Tenant Acquisition",
           "status": "🔴 Not Started",
           "statusClean": "Not Started",
-          "phase": "Blocked on 901 + 902",
+          "phase": "Plan documented in Google Doc — blocked on 901 (model decision) + 902 (property ready)",
           "phaseIndex": 0,
           "dateInitiated": "2026-03-31",
           "targetDate": "2026-04-30",
           "daysActive": 0,
           "overdue": false,
-          "owner": "Morpheus",
-          "assignee": "Daedalus",
+          "owner": "Hermes",
+          "assignee": "Hermes",
           "priority": "High",
           "program": "Durham Property Management",
           "progress": 0,
@@ -3919,6 +4328,11 @@
               "title": "Listing Tenant Acquisition",
               "url": "charters/durham-property/903-listing-tenant-acquisition.md",
               "type": "deliverable"
+            },
+            {
+              "title": "Charter 903: Listing & Tenant Acquisition",
+              "url": "https://docs.google.com/document/d/1r3nm7Sylnw2Sicbve6A7WFNzpWlsNfTceAz5cWDntqM/edit",
+              "type": "charter"
             }
           ]
         },
@@ -3927,14 +4341,14 @@
           "title": "Operations & Management System",
           "status": "🔴 Not Started",
           "statusClean": "Not Started",
-          "phase": "Blocked on 903",
+          "phase": "Plan documented in Google Doc — blocked on 903 (tenant placed)",
           "phaseIndex": 0,
           "dateInitiated": "2026-03-31",
           "targetDate": "2026-05-15",
           "daysActive": 0,
           "overdue": false,
-          "owner": "Morpheus",
-          "assignee": "Daedalus",
+          "owner": "Hermes",
+          "assignee": "Hermes",
           "priority": "Medium",
           "program": "Durham Property Management",
           "progress": 0,
@@ -3980,25 +4394,30 @@
               "title": "Operations Management",
               "url": "charters/durham-property/904-operations-management.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 904: Operations & Management System",
+              "url": "https://docs.google.com/document/d/1e_JyUUjo75EmcSnqMWD70PsQPenDDr4NKSlsVXAyPco/edit",
+              "type": "charter"
             }
           ]
         },
         {
           "id": "905",
           "title": "Financial & Tax Optimization",
-          "status": "🔴 Not Started",
-          "statusClean": "Not Started",
-          "phase": "Pending",
+          "status": "🟡 Plan Documented",
+          "statusClean": "Plan Documented",
+          "phase": "Plutus strategic review complete — concrete recommendations documented; execution gated on tenant placement + David decisions",
           "phaseIndex": 0,
           "dateInitiated": "2026-03-31",
           "targetDate": "2026-06-30",
           "daysActive": 0,
           "overdue": false,
-          "owner": "Morpheus",
-          "assignee": "Daedalus",
+          "owner": "Hermes",
+          "assignee": "Hermes",
           "priority": "Medium",
           "program": "Durham Property Management",
-          "progress": 0,
+          "progress": 15,
           "objective": "Optimize rental property financial structure — tax deductions, depreciation, insurance, LLC consideration — for maximum after-tax cash flow.",
           "successCriteria": "Tax-optimized structure in place before first filing; all deductions captured; appropriate insurance; LLC decision made.",
           "blockers": [],
@@ -4026,12 +4445,60 @@
             {
               "done": false,
               "text": "Accounting system setup"
+            },
+            {
+              "done": false,
+              "text": "Open separate bank account + dedicated credit card for 601 Eastway (this week)"
+            },
+            {
+              "done": false,
+              "text": "Build cost basis file: original purchase price, closing costs, capital improvements, FMV at conversion-to-rental date"
+            },
+            {
+              "done": false,
+              "text": "Photograph & inventory all furnishings with serial numbers and receipts (drives §168 schedule)"
+            },
+            {
+              "done": false,
+              "text": "W-9 collection protocol for all vendors >$600/yr (1099-NEC by Jan 31, 2027)"
+            },
+            {
+              "done": false,
+              "text": "Identify NC-licensed CPA for filing + tax-pro-flagged items"
+            },
+            {
+              "done": false,
+              "text": "QuickBooks Online Simple Start ($30/mo) — set up after first vendor invoice, not QB Self-Employed"
+            },
+            {
+              "done": false,
+              "text": "Travel log (mileage + lodging) for property visits"
+            },
+            {
+              "done": false,
+              "text": "Capital improvement vs repair classification policy (written rule for audit defense)"
             }
           ],
           "decisions": [
             {
               "date": "2026-03-31",
               "text": "Charter created"
+            },
+            {
+              "date": "2026-05-08",
+              "text": "Plutus strategic review completed — recommendations integrated into charter"
+            },
+            {
+              "date": "2026-05-08",
+              "text": "LLC formation deferred until 2nd property (mortgage due-on-sale + zero tax benefit on single-member SMLLC)"
+            },
+            {
+              "date": "2026-05-08",
+              "text": "Hold personally + $1–2M umbrella policy as the liability vehicle"
+            },
+            {
+              "date": "2026-05-08",
+              "text": "Skip cost-segregation study (basis too small to justify $3–5K cost)"
             }
           ],
           "documents": [
@@ -4039,10 +4506,28 @@
               "title": "Financial Tax Optimization",
               "url": "charters/durham-property/905-financial-tax-optimization.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 905: Financial & Tax Optimization",
+              "url": "https://docs.google.com/document/d/1hxhc5XQ6i0kzyGnTEaZ2iImVs3aj4F6SY-_uiJaXASE/edit",
+              "type": "charter"
             }
           ]
         }
       ]
     }
-  ]
+  ],
+  "_lastAudit": {
+    "date": "2026-05-08",
+    "by": "Morpheus (orchestrator)",
+    "agents": [
+      "aristotle",
+      "arete",
+      "archimedes",
+      "daedalus",
+      "hermes",
+      "morpheus"
+    ],
+    "chartersUpdated": 36
+  }
 }
