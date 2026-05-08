@@ -3067,6 +3067,11 @@
               "title": "Project Management System",
               "url": "charters/project-management/701-project-management-system.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 701: Project Management System",
+              "url": "https://docs.google.com/document/d/16jUCjUAAu40LhaSMrqdR3WTpJtdABntX0YrfdtcF-8E/edit?usp=drivesdk",
+              "type": "charter"
             }
           ]
         },
@@ -3144,6 +3149,11 @@
               "title": "Charter Dashboard",
               "url": "charters/project-management/702-charter-dashboard.md",
               "type": "charter"
+            },
+            {
+              "title": "Charter 702: Charter Dashboard",
+              "url": "https://docs.google.com/document/d/1DKsH6zvlSTl7XHlN2WTJOsAQdyBAMh7MWctek4Y0qD4/edit?usp=drivesdk",
+              "type": "charter"
             }
           ]
         },
@@ -3211,6 +3221,11 @@
               "title": "Review Protocol",
               "url": "charters/project-management/703-review-protocol.md",
               "type": "plan"
+            },
+            {
+              "title": "Charter 703: Scientific Panel Architecture",
+              "url": "https://docs.google.com/document/d/1o1BylB87EV3YQqGvSMg2UmR4Ho_5xhGKbE3fBVmlp3Q/edit?usp=drivesdk",
+              "type": "charter"
             }
           ]
         },
@@ -3402,6 +3417,11 @@
             {
               "title": "Multi Agent Architecture",
               "url": "charters/project-management/705-multi-agent-architecture.md",
+              "type": "charter"
+            },
+            {
+              "title": "Charter 705: Multi-Agent Architecture",
+              "url": "https://docs.google.com/document/d/12oIucyVpTp34a1IoGx3uV6fe6WMl9Kj3ZStTfrhtj6g/edit?usp=drivesdk",
               "type": "charter"
             }
           ]
@@ -3680,6 +3700,11 @@
               "title": "Phase0 Config Draft",
               "url": "charters/707-phase0-config-draft.md",
               "type": "config"
+            },
+            {
+              "title": "Charter 707: API Billing Migration (Resolved)",
+              "url": "https://docs.google.com/document/d/1NLTJ9xZee7qOPgZ7JqmSp-ZCp8fPogcGGeNicS_v61A/edit?usp=drivesdk",
+              "type": "charter"
             }
           ]
         }
