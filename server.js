@@ -592,6 +592,68 @@ app.use('/treat-docs', (req, res, next) => {
   res.redirect('/dashboard');
 }, extensionlessHtmlFallback(treatDocsDir), express.static(treatDocsDir));
 
+// Workspace markdown viewer (password-protected): serves charter docs and related markdown
+// referenced from the dashboard. Files live in the workspace repo (sibling of neural-nexus).
+const { marked } = require('marked');
+const WORKSPACE_ROOT = path.resolve(__dirname, '..');
+const MARKDOWN_VIEW_DIRS = ['charters', 'treat-biosciences', 'shared'];
+const MARKDOWN_MAX_BYTES = 2 * 1024 * 1024; // 2 MB
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+function renderMarkdownDoc(req, res) {
+  const reqPath = decodeURIComponent(req.path).replace(/^\/+/, '');
+  const safeReqPath = escapeHtml(reqPath);
+  if (!reqPath.endsWith('.md')) return res.type('text').status(404).send('Not Found');
+
+  const topDir = reqPath.split('/')[0];
+  if (!MARKDOWN_VIEW_DIRS.includes(topDir)) return res.type('text').status(404).send('Not Found');
+
+  const lexical = path.resolve(WORKSPACE_ROOT, reqPath);
+  const allowedRoot = path.resolve(WORKSPACE_ROOT, topDir);
+  if (!lexical.startsWith(allowedRoot + path.sep)) return res.type('text').status(403).send('Forbidden');
+
+  fs.realpath(lexical, (rpErr, real) => {
+    if (rpErr) return res.type('text').status(404).send('Not Found');
+    if (!real.startsWith(allowedRoot + path.sep)) return res.type('text').status(403).send('Forbidden');
+
+    fs.stat(real, (statErr, st) => {
+      if (statErr || !st.isFile()) return res.type('text').status(404).send('Not Found');
+      if (st.size > MARKDOWN_MAX_BYTES) return res.type('text').status(413).send('Document too large');
+
+      fs.readFile(real, 'utf8', (err, source) => {
+        if (err) return res.type('text').status(404).send('Not Found');
+        const title = escapeHtml(path.basename(reqPath, '.md'));
+        const body = marked.parse(source);
+        res.type('html').send(`<!doctype html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>${title} — Neural NeXus</title>
+<style>
+  body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;max-width:820px;margin:2rem auto;padding:0 1.5rem;line-height:1.55;color:#222;}
+  h1,h2,h3{line-height:1.25;}
+  pre{background:#f5f5f5;padding:0.75rem 1rem;border-radius:6px;overflow:auto;}
+  code{background:#f5f5f5;padding:0.1rem 0.3rem;border-radius:3px;}
+  pre code{background:none;padding:0;}
+  table{border-collapse:collapse;}
+  th,td{border:1px solid #ddd;padding:0.4rem 0.7rem;}
+  blockquote{border-left:4px solid #ccc;margin:1rem 0;padding-left:1rem;color:#555;}
+  .doc-path{color:#888;font-size:0.85rem;font-family:ui-monospace,monospace;margin-bottom:1.5rem;}
+  a{color:#0a66c2;}
+</style></head><body>
+<div class="doc-path">${safeReqPath}</div>
+${body}
+</body></html>`);
+      });
+    });
+  });
+}
+
+for (const dir of MARKDOWN_VIEW_DIRS) {
+  app.get(new RegExp(`^/${dir}/.*\\.md$`), dashboardAuth, renderMarkdownDoc);
+}
+
 // Treat Biosciences preview (public, no auth)
 app.get(['/treat-preview', '/treat-preview/'], (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'treat-preview', 'index.html'));
@@ -613,6 +675,14 @@ app.use('/cognitive', (req, res, next) => {
 // Unified health hub entry point
 app.get(['/app/health', '/app/health/'], dashboardLoginPage, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'cognitive', 'index.html'));
+});
+
+// Cognitive app entry points — directory routes that send the SPA's index.html
+app.get(['/app', '/app/'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'app', 'index.html'));
+});
+app.get(['/app/test', '/app/test/'], (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'app', 'test', 'index.html'));
 });
 
 app.get('/app/sw.js', (req, res) => {
