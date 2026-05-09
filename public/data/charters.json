@@ -2750,6 +2750,66 @@
               "severity": "low"
             }
           ]
+        },
+        {
+          "id": "510",
+          "title": "TRT De Novo Triple Agonist (clean-slate retatrutide alternative)",
+          "status": "\ud83d\udfe1 Initiating \u2014 Charter drafted 2026-05-08",
+          "statusClean": "Initiating",
+          "phase": "Charter authored. Phase 0 (receptor-structure assembly + binding-site map) ready to launch upon David approval of budget + scope.",
+          "phaseIndex": 0,
+          "dateInitiated": "2026-05-08",
+          "targetDate": "2026-06-01",
+          "daysActive": 0,
+          "overdue": false,
+          "owner": "Morpheus",
+          "assignee": "Morpheus",
+          "priority": "Medium-High",
+          "program": "Treat Biosciences",
+          "budget": "$25K\u201360K to first wet-lab readout (staged per phase)",
+          "actualSpend": "$0",
+          "dependencies": [
+            "502"
+          ],
+          "enables": [
+            "501",
+            "504"
+          ],
+          "progress": 5,
+          "objective": "Design a peptide triple agonist (GIP/GLP-1/GCGR) with no sequence relationship to Lilly retatrutide and no Lilly-scaffold inheritance. Achieves balanced multi-receptor agonism for metabolic-disease applications, optimized initially for canine. Resides outside every Lilly composition/formulation/process claim and outside Novo's WO2022090447A1 triagonist family. Parallel hedge to the derivative path under 502.",
+          "successCriteria": [
+            "At least one de novo candidate with measured triple-receptor binding (canine GLP-1R + GIPR + GCGR) at biological Kd",
+            "Outside-counsel FTO opinion confirming literal-claim clearance vs Lilly + Novo + Hanmi for at least one candidate",
+            "Reproducible de novo peptide design pipeline documented as fleet asset"
+          ],
+          "blockers": [
+            {
+              "text": "Awaiting David approval on budget envelope and parallel-execution decision (510 alongside 502 vs sequenced)",
+              "type": "decision"
+            }
+          ],
+          "outstanding": [
+            {
+              "text": "Confirm budget envelope ($25K\u201360K)"
+            },
+            {
+              "text": "Confirm canine-first scope vs human-first vs parallel"
+            },
+            {
+              "text": "Confirm parallel-with-502 vs sequenced execution"
+            },
+            {
+              "text": "Approve Phase 0 launch (Daedalus spawn for receptor-structure assembly)"
+            }
+          ],
+          "decisions": [],
+          "documents": [
+            {
+              "title": "Charter 510 \u2014 TRT De Novo Triple Agonist",
+              "url": "charters/treat-biosciences/510-trt-de-novo-triple-agonist.md",
+              "type": "charter"
+            }
+          ]
         }
       ]
     },
