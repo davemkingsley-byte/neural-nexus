@@ -2756,7 +2756,7 @@
           "title": "TRT De Novo Triple Agonist (clean-slate retatrutide alternative)",
           "status": "\ud83d\udfe1 Initiating \u2014 Charter drafted 2026-05-08",
           "statusClean": "Initiating",
-          "phase": "Charter authored. Phase 0 (receptor-structure assembly + binding-site map) ready to launch upon David approval of budget + scope.",
+          "phase": "Production charter authored 2026-05-08 (Morpheus, incorporating Archimedes R5-style corrections). Awaiting David approval on budget/scope/Socrates registration before Phase 0 launch.",
           "phaseIndex": 0,
           "dateInitiated": "2026-05-08",
           "targetDate": "2026-06-01",
@@ -2775,7 +2775,7 @@
             "501",
             "504"
           ],
-          "progress": 5,
+          "progress": 10,
           "objective": "Design a peptide triple agonist (GIP/GLP-1/GCGR) with no sequence relationship to Lilly retatrutide and no Lilly-scaffold inheritance. Achieves balanced multi-receptor agonism for metabolic-disease applications, optimized initially for canine. Resides outside every Lilly composition/formulation/process claim and outside Novo's WO2022090447A1 triagonist family. Parallel hedge to the derivative path under 502.",
           "successCriteria": [
             "At least one de novo candidate with measured triple-receptor binding (canine GLP-1R + GIPR + GCGR) at biological Kd",
@@ -2807,6 +2807,11 @@
             {
               "title": "Charter 510 \u2014 TRT De Novo Triple Agonist",
               "url": "charters/treat-biosciences/510-trt-de-novo-triple-agonist.md",
+              "type": "charter"
+            },
+            {
+              "title": "Charter 510 \u2014 TRT De Novo Triple Agonist (canonical plan, Google Doc)",
+              "url": "https://docs.google.com/document/d/1c9Ey1eNKQwnoMO4pug_M09MLjhXRNqDpXkqiYHsDN18/edit",
               "type": "charter"
             }
           ]
