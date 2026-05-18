@@ -658,64 +658,171 @@ body {
   </nav>
 
   <section class="health-section" id="cognitiveSection" aria-labelledby="cognitiveHeading">
-  <!-- Status Banner -->
-  <div class="card status-banner" id="statusBanner">
-    <div class="status-info">
-      <div class="status-date" id="todayDate"></div>
-      <div class="status-tests" id="testStatus">Loading test status&hellip;</div>
-    </div>
-    <span class="streak-badge" id="streakBadge" style="display:none;">&#128293; <span id="streakCount">0</span> day streak</span>
-    <a href="#" class="btn-gold" id="startBattery">Start Today's Battery</a>
+  <style>
+    /* ── Task-1 Dashboard (blue/purple, strict) ── */
+    :root {
+      --t1-blue: #60a5fa;
+      --t1-purple: #a78bfa;
+      --t1-pink: #f472b6;
+      --t1-bg: rgba(255,255,255,0.05);
+      --t1-border: rgba(255,255,255,0.1);
+      --t1-up: #34d399;
+      --t1-down: #f87171;
+      --t1-muted: rgba(255,255,255,0.4);
+    }
+    .t1-phase-banner {
+      background: linear-gradient(135deg, var(--t1-blue) 0%, var(--t1-purple) 100%);
+      border-radius: 12px;
+      padding: 24px 28px;
+      margin-bottom: 28px;
+      color: #fff;
+      box-shadow: 0 4px 20px rgba(96,165,250,0.15);
+    }
+    .t1-banner-name { font-size: 1.4rem; font-weight: 600; margin-bottom: 4px; }
+    .t1-banner-meta { font-size: 0.9rem; opacity: 0.9; font-weight: 500; }
+    .t1-banner-empty { font-size: 1rem; font-weight: 500; }
+
+    .t1-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .t1-card {
+      background: var(--t1-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--t1-border);
+      border-radius: 12px;
+    }
+    .t1-summary-card { padding: 16px 12px; text-align: center; }
+    .t1-card-label {
+      font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--t1-blue);
+    }
+    .t1-card-sub { font-size: 0.68rem; color: rgba(255,255,255,0.5); margin-bottom: 8px; }
+    .t1-card-value { font-size: 1.5rem; font-weight: 600; color: #fff; line-height: 1.1; }
+    .t1-card-value.t1-muted { color: var(--t1-muted); }
+    .t1-card-trend { font-size: 0.7rem; margin-top: 6px; font-weight: 500; }
+    .t1-up { color: var(--t1-up); }
+    .t1-down { color: var(--t1-down); }
+    .t1-neutral { color: rgba(255,255,255,0.4); }
+
+    .t1-chart-card { padding: 20px; margin-bottom: 20px; }
+    .t1-chart-title {
+      font-size: 0.82rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 1px; color: var(--t1-purple); margin-bottom: 16px;
+    }
+    .t1-chart-wrap { position: relative; height: 220px; }
+    .t1-chart-card .t1-chart-wrap { height: 280px; }
+
+    .t1-trends-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 28px;
+    }
+    .t1-trends-grid .t1-chart-card { margin-bottom: 0; padding: 16px; }
+    .t1-trends-grid .t1-chart-wrap { height: 180px; }
+
+    .t1-empty {
+      color: rgba(255,255,255,0.4); text-align: center; padding: 32px 16px;
+      font-size: 0.88rem;
+    }
+
+    .t1-table-wrap { max-height: 420px; overflow-y: auto; }
+    .t1-supp-table {
+      width: 100%; border-collapse: collapse; font-size: 0.88rem;
+    }
+    .t1-supp-table th {
+      text-align: left; color: var(--t1-blue); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px; font-size: 0.7rem;
+      padding: 10px 12px; border-bottom: 1px solid var(--t1-border);
+      position: sticky; top: 0;
+      background: rgba(6,6,11,0.95); backdrop-filter: blur(10px);
+    }
+    .t1-supp-table td {
+      padding: 10px 12px; border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.85); vertical-align: top;
+    }
+    .t1-supp-table tr:last-child td { border-bottom: none; }
+
+    .t1-phase-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+    }
+    .t1-phase-card {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--t1-border); border-radius: 12px;
+      padding: 18px;
+    }
+    .t1-phase-active { border-color: var(--t1-purple); box-shadow: 0 0 0 1px rgba(167,139,250,0.3); }
+    .t1-phase-card-name {
+      font-size: 1.05rem; font-weight: 600; color: #fff; margin-bottom: 4px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .t1-active-pill {
+      background: var(--t1-purple); color: #06060b;
+      font-size: 0.62rem; padding: 2px 8px; border-radius: 10px;
+      font-weight: 700; letter-spacing: 1px;
+    }
+    .t1-phase-card-dates {
+      font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-bottom: 12px;
+    }
+    .t1-metric-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.85rem;
+    }
+    .t1-metric-row:last-child { border-bottom: none; }
+    .t1-metric-name { color: rgba(255,255,255,0.7); }
+    .t1-metric-val { color: #fff; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .t1-diff-badge {
+      display: inline-block; padding: 2px 8px; border-radius: 10px;
+      font-size: 0.7rem; font-weight: 600;
+    }
+    .t1-diff-up { background: rgba(52,211,153,0.15); color: var(--t1-up); }
+    .t1-diff-down { background: rgba(248,113,113,0.15); color: var(--t1-down); }
+
+    @media (max-width: 900px) {
+      .t1-summary-grid { grid-template-columns: repeat(3, 1fr); }
+      .t1-trends-grid { grid-template-columns: 1fr; }
+      .t1-phase-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 500px) {
+      .t1-summary-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .t1-phase-banner { padding: 18px 20px; }
+      .t1-banner-name { font-size: 1.15rem; }
+      .t1-chart-card { padding: 16px; }
+    }
+  </style>
+
+  <!-- Section 1: Active Phase Banner -->
+  <div id="t1PhaseBanner" class="t1-phase-banner">
+    <div class="t1-banner-empty">Loading active phase&hellip;</div>
   </div>
 
-  <!-- Summary Cards -->
-  <div class="summary-grid">
-    <div class="card summary-card">
-      <div class="label">N-Back Level</div>
-      <div class="value" id="valNback"><span class="loading-shimmer value-placeholder">&nbsp;</span></div>
-      <div class="trend neutral" id="trendNback">&mdash;</div>
-    </div>
-    <div class="card summary-card">
-      <div class="label">Avg Reaction Time</div>
-      <div class="value" id="valRT"><span class="loading-shimmer value-placeholder">&nbsp;</span></div>
-      <div class="trend neutral" id="trendRT">&mdash;</div>
-    </div>
-    <div class="card summary-card">
-      <div class="label">DSST Score</div>
-      <div class="value" id="valDSST"><span class="loading-shimmer value-placeholder">&nbsp;</span></div>
-      <div class="trend neutral" id="trendDSST">&mdash;</div>
-    </div>
-    <div class="card summary-card">
-      <div class="label">Chess ELO</div>
-      <div class="value" id="valChess"><span class="loading-shimmer value-placeholder">&nbsp;</span></div>
-      <div class="trend neutral" id="trendChess">&mdash;</div>
-    </div>
+  <!-- Section 2: Summary Score Cards -->
+  <div id="t1SummaryGrid" class="t1-summary-grid"></div>
+
+  <!-- Section 3: Chess ELO Chart -->
+  <div class="t1-card t1-chart-card">
+    <h3 class="t1-chart-title">Chess ELO &mdash; Last 30 Points</h3>
+    <div class="t1-chart-wrap"><canvas id="t1ChessChart"></canvas></div>
   </div>
 
-  <!-- Chess ELO Detail Cards -->
-  <div id="chessDetailSection" style="display:none;">
-    <h2 class="section-title">Chess.com Ratings</h2>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:28px;">
-      <div class="card summary-card">
-        <div class="label">Blitz</div>
-        <div class="value" id="chessBlitz" style="color:#d4a853;">--</div>
-        <div class="trend neutral" id="chessBlitzTrend">&mdash;</div>
-        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;" id="chessBlitz7d"></div>
-      </div>
-      <div class="card summary-card">
-        <div class="label">Rapid</div>
-        <div class="value" id="chessRapid" style="color:#2dd4bf;">--</div>
-        <div class="trend neutral" id="chessRapidTrend">&mdash;</div>
-        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;" id="chessRapid7d"></div>
-      </div>
-      <div class="card summary-card">
-        <div class="label">Bullet</div>
-        <div class="value" id="chessBullet" style="color:rgba(255,255,255,0.5);">--</div>
-        <div class="trend neutral" id="chessBulletTrend">&mdash;</div>
-        <div style="font-size:0.72rem;color:var(--text-dim);margin-top:4px;" id="chessBullet7d"></div>
-      </div>
-    </div>
-    <div style="margin-bottom:28px;"><button class="btn-gold" id="btnSyncChess" onclick="syncChess()" style="font-size:0.82rem;padding:8px 18px;">Sync Chess.com</button> <span id="chessSyncStatus" style="font-size:0.82rem;color:var(--text-dim);margin-left:8px;"></span></div>
+  <!-- Section 4: Per-Test Trend Charts -->
+  <div id="t1TrendsGrid" class="t1-trends-grid"></div>
+
+  <!-- Section 5: Supplement Log -->
+  <div class="t1-card t1-chart-card">
+    <h3 class="t1-chart-title">Supplement Log</h3>
+    <div id="t1SuppContainer"><div class="t1-empty">Loading&hellip;</div></div>
+  </div>
+
+  <!-- Section 6: Phase Comparison -->
+  <div class="t1-card t1-chart-card">
+    <h3 class="t1-chart-title">Phase Comparison &mdash; Active vs Prior</h3>
+    <div id="t1CompareContainer"><div class="t1-empty">Loading&hellip;</div></div>
   </div>
 
   </section>
@@ -1057,7 +1164,7 @@ function trendHTML(current, previous, lowerIsBetter = false) {
 }
 
 // ── Set today's date ──
-$('#todayDate').textContent = formatDate(today);
+{ const _td = $('#todayDate'); if (_td) _td.textContent = formatDate(today); }
 
 // ── Slider live values ──
 $('#energy').addEventListener('input', e => { $('#energyVal').textContent = e.target.value; });
@@ -1304,6 +1411,7 @@ async function init() {
   function updateCard(valId, trendId, arr, unit = '', lowerBetter = false) {
     const el = $(valId);
     const tEl = $(trendId);
+    if (!el || !tEl) return; // old v1 card was replaced by v2 dashboard
     if (arr.length === 0) {
       el.textContent = '--';
       return;
@@ -1340,49 +1448,57 @@ async function init() {
     return { arrow: '\u2198', cls: 'down' };
   }
 
-  if (chessCurrent) {
-    // Show blitz in main summary
-    const mainElo = chessCurrent.blitz || chessCurrent.rapid || chessCurrent.bullet;
-    if (mainElo) $('#valChess').textContent = Math.round(mainElo);
-    else $('#valChess').textContent = '--';
+  // v1 chess summary/detail UI was replaced by v2 dashboard — only run if v1 cards still exist
+  if ($('#valChess')) {
+    if (chessCurrent) {
+      // Show blitz in main summary
+      const mainElo = chessCurrent.blitz || chessCurrent.rapid || chessCurrent.bullet;
+      if (mainElo) $('#valChess').textContent = Math.round(mainElo);
+      else $('#valChess').textContent = '--';
 
-    // Trend for main summary card
-    if (sortedChess.length > 0) {
-      const prevElo = sortedChess[sortedChess.length - 1].blitz_rating || sortedChess[sortedChess.length - 1].rapid_rating || 0;
-      const t = trendHTML(mainElo, prevElo);
-      $('#trendChess').innerHTML = t.html;
-      $('#trendChess').className = 'trend ' + t.cls;
-    }
-
-    // Populate detail cards
-    $('#chessDetailSection').style.display = '';
-    const ratingTypes = [
-      { key: 'blitz', field: 'blitz_rating', el: 'chessBlitz', trendEl: 'chessBlitzTrend', maEl: 'chessBlitz7d' },
-      { key: 'rapid', field: 'rapid_rating', el: 'chessRapid', trendEl: 'chessRapidTrend', maEl: 'chessRapid7d' },
-      { key: 'bullet', field: 'bullet_rating', el: 'chessBullet', trendEl: 'chessBulletTrend', maEl: 'chessBullet7d' },
-    ];
-
-    ratingTypes.forEach(rt => {
-      const val = chessCurrent[rt.key];
-      if (val) {
-        document.getElementById(rt.el).textContent = Math.round(val);
-        const ma = chess7DayMA(sortedChess, rt.field);
-        if (ma) document.getElementById(rt.maEl).textContent = '7d avg: ' + ma;
-        const sevenAgo = sortedChess.length >= 7 ? sortedChess[sortedChess.length - 7][rt.field] : (sortedChess[0] ? sortedChess[0][rt.field] : null);
-        const trend = chessTrendArrow(val, sevenAgo);
-        document.getElementById(rt.trendEl).textContent = trend.arrow;
-        document.getElementById(rt.trendEl).className = 'trend ' + trend.cls;
+      // Trend for main summary card
+      if (sortedChess.length > 0 && $('#trendChess')) {
+        const prevElo = sortedChess[sortedChess.length - 1].blitz_rating || sortedChess[sortedChess.length - 1].rapid_rating || 0;
+        const t = trendHTML(mainElo, prevElo);
+        $('#trendChess').innerHTML = t.html;
+        $('#trendChess').className = 'trend ' + t.cls;
       }
-    });
-  } else if (sortedChess.length > 0) {
-    const latest = sortedChess[sortedChess.length - 1];
-    const elo = latest.blitz_rating || latest.rapid_rating || 0;
-    $('#valChess').textContent = Math.round(elo);
-  } else {
-    $('#valChess').textContent = '--';
+
+      // Populate detail cards
+      if ($('#chessDetailSection')) $('#chessDetailSection').style.display = '';
+      const ratingTypes = [
+        { key: 'blitz', field: 'blitz_rating', el: 'chessBlitz', trendEl: 'chessBlitzTrend', maEl: 'chessBlitz7d' },
+        { key: 'rapid', field: 'rapid_rating', el: 'chessRapid', trendEl: 'chessRapidTrend', maEl: 'chessRapid7d' },
+        { key: 'bullet', field: 'bullet_rating', el: 'chessBullet', trendEl: 'chessBulletTrend', maEl: 'chessBullet7d' },
+      ];
+
+      ratingTypes.forEach(rt => {
+        const val = chessCurrent[rt.key];
+        const elEl = document.getElementById(rt.el);
+        const maEl = document.getElementById(rt.maEl);
+        const trEl = document.getElementById(rt.trendEl);
+        if (val && elEl) {
+          elEl.textContent = Math.round(val);
+          const ma = chess7DayMA(sortedChess, rt.field);
+          if (ma && maEl) maEl.textContent = '7d avg: ' + ma;
+          const sevenAgo = sortedChess.length >= 7 ? sortedChess[sortedChess.length - 7][rt.field] : (sortedChess[0] ? sortedChess[0][rt.field] : null);
+          const trend = chessTrendArrow(val, sevenAgo);
+          if (trEl) {
+            trEl.textContent = trend.arrow;
+            trEl.className = 'trend ' + trend.cls;
+          }
+        }
+      });
+    } else if (sortedChess.length > 0) {
+      const latest = sortedChess[sortedChess.length - 1];
+      const elo = latest.blitz_rating || latest.rapid_rating || 0;
+      $('#valChess').textContent = Math.round(elo);
+    } else {
+      $('#valChess').textContent = '--';
+    }
   }
 
-  // ── Update test status ──
+  // ── Update test status ── (only if v1 status banner still present)
   const doneCount = [todayTests.nback, todayTests.pvt, todayTests.dsst].filter(Boolean).length;
   const statusEl = $('#testStatus');
   const batteryBtn = $('#startBattery');
@@ -1393,29 +1509,33 @@ async function init() {
     return `<span style="font-size:0.7rem;opacity:0.6;margin-left:4px">${am} ${pm}</span>`;
   }
 
-  if (doneCount === 3) {
-    statusEl.innerHTML = '<span class="done">All 3 tests completed today</span>';
-    batteryBtn.textContent = 'All Done';
-    batteryBtn.classList.add('completed');
-  } else {
-    const parts = [];
-    parts.push(todayTests.nback ? `<span class="done">N-Back &#10003;${sessionIcons('nback')}</span>` : '<span class="pending">N-Back</span>');
-    parts.push(todayTests.pvt ? `<span class="done">PVT &#10003;${sessionIcons('pvt')}</span>` : '<span class="pending">PVT</span>');
-    parts.push(todayTests.dsst ? `<span class="done">DSST &#10003;${sessionIcons('dsst')}</span>` : '<span class="pending">DSST</span>');
-    statusEl.innerHTML = `${doneCount}/3 completed: ${parts.join(' &middot; ')}`;
+  if (statusEl && batteryBtn) {
+    if (doneCount === 3) {
+      statusEl.innerHTML = '<span class="done">All 3 tests completed today</span>';
+      batteryBtn.textContent = 'All Done';
+      batteryBtn.classList.add('completed');
+    } else {
+      const parts = [];
+      parts.push(todayTests.nback ? `<span class="done">N-Back &#10003;${sessionIcons('nback')}</span>` : '<span class="pending">N-Back</span>');
+      parts.push(todayTests.pvt ? `<span class="done">PVT &#10003;${sessionIcons('pvt')}</span>` : '<span class="pending">PVT</span>');
+      parts.push(todayTests.dsst ? `<span class="done">DSST &#10003;${sessionIcons('dsst')}</span>` : '<span class="pending">DSST</span>');
+      statusEl.innerHTML = `${doneCount}/3 completed: ${parts.join(' &middot; ')}`;
 
-    // Link to first uncompleted test
-    if (!todayTests.nback) batteryBtn.href = '/cognitive/dual-n-back.html';
-    else if (!todayTests.pvt) batteryBtn.href = '/cognitive/pvt.html';
-    else batteryBtn.href = '/cognitive/dsst.html';
+      // Link to first uncompleted test
+      if (!todayTests.nback) batteryBtn.href = '/cognitive/dual-n-back.html';
+      else if (!todayTests.pvt) batteryBtn.href = '/cognitive/pvt.html';
+      else batteryBtn.href = '/cognitive/dsst.html';
+    }
   }
 
   // Fetch streak data
   try {
     const analyticsData = await apiFetch('/api/cognitive/analytics');
     if (analyticsData && analyticsData.current_streak > 0) {
-      document.getElementById('streakBadge').style.display = '';
-      document.getElementById('streakCount').textContent = analyticsData.current_streak;
+      const streakBadge = document.getElementById('streakBadge');
+      const streakCount = document.getElementById('streakCount');
+      if (streakBadge) streakBadge.style.display = '';
+      if (streakCount) streakCount.textContent = analyticsData.current_streak;
     }
   } catch(e) {}
 
@@ -1878,6 +1998,372 @@ async function initPhases() { await loadPhases(); }
 initHealthTabs();
 init();
 initPhases();
+
+// ────────────────────────────────────────────────────────────────
+// Task-1 Cognitive Dashboard v2 (blue/purple, strict)
+// Self-contained IIFE. Only runs if the v2 banner element exists.
+// ────────────────────────────────────────────────────────────────
+(function t1Dashboard() {
+  if (!document.getElementById('t1PhaseBanner')) return;
+
+  const T1 = {
+    charts: {},
+    esc(s) {
+      return String(s == null ? '' : s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    },
+    parseScores(r) {
+      try { return typeof r.scores_json === 'string' ? JSON.parse(r.scores_json) : (r.scores_json || {}); }
+      catch { return {}; }
+    },
+    async fetch(url) {
+      try {
+        const r = await fetch(url, { credentials: 'same-origin' });
+        if (!r.ok) return null;
+        return await r.json();
+      } catch { return null; }
+    },
+    fmtDate(iso) {
+      if (!iso) return '';
+      const d = new Date(iso);
+      if (isNaN(d.getTime())) return iso;
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+  };
+
+  // Test definitions
+  const TESTS = [
+    { id: 'pvt',    name: 'PVT',    field: 'median_rt',             unit: 'ms', fmt: v => Math.round(v),        lower: true,  label: 'Reaction Time' },
+    { id: 'dsst',   name: 'DSST',   field: 'correct',               unit: '',   fmt: v => Math.round(v),        lower: false, label: 'Score' },
+    { id: 'nback',  name: 'N-Back', field: 'max_n',                 unit: '',   fmt: v => Number(v).toFixed(1), lower: false, label: 'Level Reached' },
+    { id: 'stroop', name: 'Stroop', field: 'interference_score',    unit: 'ms', fmt: v => Math.round(v),        lower: true,  label: 'Interference' },
+    { id: 'avlt',   name: 'AVLT',   field: 'total_learning_score',  unit: '',   fmt: v => Math.round(v),        lower: false, label: 'Words Recalled' },
+    { id: 'tmtb',   name: 'TMT-B',  field: 'completion_time_ms',    unit: 's',  fmt: v => (v/1000).toFixed(1),  lower: true,  label: 'Completion Time' },
+  ];
+
+  // Shared dark Chart.js options
+  const T1_CHART_OPTS = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { labels: { color: '#fff', font: { size: 11 } } },
+      tooltip: {
+        backgroundColor: 'rgba(6,6,11,0.92)',
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 1,
+        titleColor: '#fff',
+        bodyColor: '#fff',
+        padding: 10,
+        cornerRadius: 6
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: 'rgba(255,255,255,0.1)', drawBorder: false },
+        ticks: { color: '#fff', maxTicksLimit: 8, font: { size: 10 } }
+      },
+      y: {
+        grid: { color: 'rgba(255,255,255,0.1)', drawBorder: false },
+        ticks: { color: '#fff', maxTicksLimit: 6, font: { size: 10 } }
+      }
+    }
+  };
+
+  // ── Section 1: Active Phase Banner ──
+  function renderBanner(phase) {
+    const el = document.getElementById('t1PhaseBanner');
+    if (!phase) {
+      el.innerHTML = '<div class="t1-banner-empty">No active phase &mdash; start one below</div>';
+      return;
+    }
+    const start = new Date(phase.start_date);
+    const today = new Date();
+    const days = Math.max(1, Math.floor((today - start) / 86400000) + 1);
+    el.innerHTML = `
+      <div class="t1-banner-name">${T1.esc(phase.name)}</div>
+      <div class="t1-banner-meta">Day ${days} &middot; Started ${T1.fmtDate(phase.start_date)}</div>
+    `;
+  }
+
+  // ── Section 2: Summary Score Cards ──
+  function renderSummary(results) {
+    const grid = document.getElementById('t1SummaryGrid');
+    const byType = {};
+    results.forEach(r => { (byType[r.test_type] ||= []).push(r); });
+
+    const weekAgo = Date.now() - 7 * 86400000;
+
+    grid.innerHTML = TESTS.map(t => {
+      const rows = (byType[t.id] || [])
+        .map(r => ({ r, s: T1.parseScores(r) }))
+        .filter(x => x.s[t.field] != null);
+
+      if (rows.length === 0) {
+        return `<div class="t1-card t1-summary-card">
+          <div class="t1-card-label">${t.name}</div>
+          <div class="t1-card-sub">${t.label}</div>
+          <div class="t1-card-value t1-muted">&mdash;</div>
+          <div class="t1-card-trend t1-neutral">No data</div>
+        </div>`;
+      }
+
+      // API returns newest first; sort by date+time DESC to be safe
+      const sorted = [...rows].sort((a, b) =>
+        (b.r.date + (b.r.time || '')).localeCompare(a.r.date + (a.r.time || ''))
+      );
+      const latestVal = sorted[0].s[t.field];
+      const last7Rows = sorted.filter(x => new Date(x.r.date).getTime() >= weekAgo);
+
+      let trendCls = 'neutral', trendText = 'Not enough data';
+      if (last7Rows.length >= 2) {
+        const avg7 = last7Rows.reduce((sum, x) => sum + x.s[t.field], 0) / last7Rows.length;
+        const diff = latestVal - avg7;
+        if (avg7 === 0 || Math.abs(diff / avg7) < 0.02) {
+          trendCls = 'neutral';
+          trendText = '\u2192 on par with 7d avg';
+        } else {
+          const improving = t.lower ? diff < 0 : diff > 0;
+          trendCls = improving ? 'up' : 'down';
+          const arrow = improving ? '\u2191' : '\u2193';
+          const abs = Math.abs(diff);
+          const formatted = abs >= 10 ? Math.round(abs) : abs.toFixed(1);
+          const unit = t.unit === 's' ? '' : t.unit;
+          const shown = t.unit === 's' ? (abs/1000).toFixed(1) + 's' : formatted + (unit ? ' ' + unit : '');
+          trendText = `${arrow} ${shown} vs 7d avg`;
+        }
+      }
+
+      const displayUnit = t.unit ? ' ' + t.unit : '';
+      return `<div class="t1-card t1-summary-card">
+        <div class="t1-card-label">${t.name}</div>
+        <div class="t1-card-sub">${t.label}</div>
+        <div class="t1-card-value">${t.fmt(latestVal)}${displayUnit}</div>
+        <div class="t1-card-trend t1-${trendCls}">${trendText}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Section 3: Chess ELO Chart ──
+  function renderChessChart(history) {
+    const canvas = document.getElementById('t1ChessChart');
+    if (!canvas) return;
+    const sorted = [...history].sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+    const last30 = sorted.slice(-30);
+
+    if (last30.length === 0) {
+      canvas.parentElement.innerHTML = '<div class="t1-empty">No chess data yet</div>';
+      return;
+    }
+
+    const labels = last30.map(r => {
+      const d = new Date(r.date);
+      return isNaN(d.getTime()) ? r.date : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    });
+
+    if (T1.charts.chess) T1.charts.chess.destroy();
+    T1.charts.chess = new Chart(canvas, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [
+          { label: 'Blitz',  data: last30.map(r => r.blitz_rating),  borderColor: '#60a5fa', backgroundColor: 'rgba(96,165,250,0.08)',  tension: 0.3, spanGaps: true, pointRadius: 2, pointHoverRadius: 4, borderWidth: 2 },
+          { label: 'Rapid',  data: last30.map(r => r.rapid_rating),  borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.08)', tension: 0.3, spanGaps: true, pointRadius: 2, pointHoverRadius: 4, borderWidth: 2 },
+          { label: 'Bullet', data: last30.map(r => r.bullet_rating), borderColor: '#f472b6', backgroundColor: 'rgba(244,114,182,0.08)', tension: 0.3, spanGaps: true, pointRadius: 2, pointHoverRadius: 4, borderWidth: 2 }
+        ]
+      },
+      options: T1_CHART_OPTS
+    });
+  }
+
+  // ── Section 4: Per-Test Trend Charts ──
+  function renderTrendCharts(results) {
+    const grid = document.getElementById('t1TrendsGrid');
+    const byType = {};
+    results.forEach(r => { (byType[r.test_type] ||= []).push(r); });
+
+    grid.innerHTML = TESTS.map(t => `
+      <div class="t1-card t1-chart-card">
+        <h4 class="t1-chart-title">${t.name} &mdash; Last 14 Sessions</h4>
+        <div class="t1-chart-wrap"><canvas id="t1Chart_${t.id}"></canvas></div>
+      </div>
+    `).join('');
+
+    TESTS.forEach((t, idx) => {
+      const canvas = document.getElementById('t1Chart_' + t.id);
+      if (!canvas) return;
+
+      const rows = (byType[t.id] || [])
+        .map(r => ({ r, s: T1.parseScores(r) }))
+        .filter(x => x.s[t.field] != null);
+
+      const sorted = [...rows].sort((a, b) =>
+        (a.r.date + (a.r.time || '')).localeCompare(b.r.date + (b.r.time || ''))
+      );
+      const last14 = sorted.slice(-14);
+
+      if (last14.length === 0) {
+        canvas.parentElement.innerHTML = '<div class="t1-empty">No data</div>';
+        return;
+      }
+
+      const color = idx % 2 === 0 ? '#60a5fa' : '#a78bfa';
+      const scale = t.unit === 's' ? (v => v / 1000) : (v => v);
+      const labels = last14.map(x => x.r.date.slice(5)); // "MM-DD"
+      const data = last14.map(x => scale(x.s[t.field]));
+
+      if (T1.charts['t_' + t.id]) T1.charts['t_' + t.id].destroy();
+      T1.charts['t_' + t.id] = new Chart(canvas, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: t.label,
+            data,
+            borderColor: color,
+            backgroundColor: color + '22',
+            tension: 0.3,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            borderWidth: 2,
+            fill: true
+          }]
+        },
+        options: {
+          ...T1_CHART_OPTS,
+          plugins: { ...T1_CHART_OPTS.plugins, legend: { display: false } }
+        }
+      });
+    });
+  }
+
+  // ── Section 5: Supplement Log ──
+  function renderSuppTable(supplements) {
+    const container = document.getElementById('t1SuppContainer');
+    const sorted = [...supplements]
+      .sort((a, b) => (b.start_date || '').localeCompare(a.start_date || ''))
+      .slice(0, 30);
+
+    if (sorted.length === 0) {
+      container.innerHTML = '<div class="t1-empty">No supplements logged yet</div>';
+      return;
+    }
+
+    // Show Dose column only if at least one entry has a non-empty dose
+    const hasDose = sorted.some(s => s.dose != null && String(s.dose).trim() !== '');
+
+    const head = hasDose
+      ? '<tr><th>Date</th><th>Supplement</th><th>Dose</th><th>Notes</th></tr>'
+      : '<tr><th>Date</th><th>Supplement</th><th>Notes</th></tr>';
+
+    const body = sorted.map(s => {
+      const date = T1.fmtDate(s.start_date);
+      const name = T1.esc(s.compound_name || s.name || '');
+      const notes = T1.esc(s.notes || '');
+      if (hasDose) {
+        return `<tr><td>${T1.esc(date)}</td><td>${name}</td><td>${T1.esc(s.dose || '')}</td><td>${notes}</td></tr>`;
+      }
+      return `<tr><td>${T1.esc(date)}</td><td>${name}</td><td>${notes}</td></tr>`;
+    }).join('');
+
+    container.innerHTML = `<div class="t1-table-wrap"><table class="t1-supp-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>`;
+  }
+
+  // ── Section 6: Phase Comparison (Active vs Prior) ──
+  async function renderCompare(phases) {
+    const el = document.getElementById('t1CompareContainer');
+    if (!phases || phases.length < 2) {
+      el.innerHTML = '<div class="t1-empty">Complete at least 2 phases to compare</div>';
+      return;
+    }
+
+    // phases ordered by start_date DESC from /api/cognitive/phases
+    const active = phases.find(p => !p.end_date);
+    const prior = phases.find(p => p.end_date);
+
+    if (!active || !prior) {
+      el.innerHTML = '<div class="t1-empty">Need an active phase and a completed prior phase to compare</div>';
+      return;
+    }
+
+    // compare(a=prior, b=active) — cohens_d sign reflects B-A direction
+    const cmp = await T1.fetch(`/api/cognitive/phases/compare?a=${prior.id}&b=${active.id}`);
+    if (!cmp) {
+      el.innerHTML = '<div class="t1-empty">Comparison unavailable</div>';
+      return;
+    }
+
+    // Compare endpoint only returns nback/pvt/dsst stats
+    const metrics = [
+      { key: 'pvt',   name: 'PVT (ms)',     unit: 'ms', lower: true },
+      { key: 'dsst',  name: 'DSST Score',   unit: '',   lower: false },
+      { key: 'nback', name: 'N-Back Level', unit: '',   lower: false }
+    ];
+
+    function metricVal(val, unit) {
+      if (val == null) return '&mdash;';
+      return `${val}${unit ? ' ' + unit : ''}`;
+    }
+
+    function buildCard(phase, isActive, key) {
+      const rows = metrics.map(m => {
+        const stat = cmp[m.key] || {};
+        const val = stat[key === 'a' ? 'mean_a' : 'mean_b'];
+        const n = stat[key === 'a' ? 'n_a' : 'n_b'];
+        // Badge only on active card; use cohens_d flipped to "change from prior"
+        let badge = '';
+        if (isActive && stat.cohens_d != null && Math.abs(stat.cohens_d) > 1) {
+          const improved = stat.cohens_d > 0;
+          badge = `<span class="t1-diff-badge t1-diff-${improved ? 'up' : 'down'}">d=${stat.cohens_d.toFixed(2)}</span>`;
+        }
+        return `<div class="t1-metric-row">
+          <span class="t1-metric-name">${m.name}${n != null ? ` (n=${n})` : ''}</span>
+          <span class="t1-metric-val">${metricVal(val, m.unit)} ${badge}</span>
+        </div>`;
+      }).join('');
+
+      const endLabel = isActive ? 'ongoing' : T1.fmtDate(phase.end_date);
+      const pill = isActive ? '<span class="t1-active-pill">ACTIVE</span>' : '';
+      return `<div class="t1-phase-card${isActive ? ' t1-phase-active' : ''}">
+        <div class="t1-phase-card-name">${T1.esc(phase.name)} ${pill}</div>
+        <div class="t1-phase-card-dates">${T1.fmtDate(phase.start_date)} &mdash; ${endLabel}</div>
+        <div class="t1-phase-card-metrics">${rows}</div>
+      </div>`;
+    }
+
+    el.innerHTML = `<div class="t1-phase-grid">${buildCard(prior, false, 'a')}${buildCard(active, true, 'b')}</div>`;
+  }
+
+  // ── Orchestrator ──
+  async function t1Init() {
+    const settled = await Promise.allSettled([
+      T1.fetch('/api/cognitive/results?days=60'),
+      T1.fetch('/api/cognitive/chess'),
+      T1.fetch('/api/cognitive/supplements'),
+      T1.fetch('/api/cognitive/phases'),
+      T1.fetch('/api/cognitive/phases/active')
+    ]);
+    const [resultsRes, chessRes, suppRes, phasesRes, activeRes] = settled;
+
+    const results = (resultsRes.status === 'fulfilled' && resultsRes.value && resultsRes.value.results) || [];
+    const chess = (chessRes.status === 'fulfilled' && chessRes.value) || {};
+    const supplements = (suppRes.status === 'fulfilled' && suppRes.value && suppRes.value.supplements) || [];
+    const phases = (phasesRes.status === 'fulfilled' && phasesRes.value && phasesRes.value.phases) || [];
+    const activePhase = (activeRes.status === 'fulfilled' && activeRes.value && activeRes.value.phase) || null;
+
+    try { renderBanner(activePhase); } catch (e) { console.error('[t1] banner:', e); }
+    try { renderSummary(results); } catch (e) { console.error('[t1] summary:', e); }
+    try { renderChessChart(chess.history || []); } catch (e) { console.error('[t1] chess:', e); }
+    try { renderTrendCharts(results); } catch (e) { console.error('[t1] trends:', e); }
+    try { renderSuppTable(supplements); } catch (e) { console.error('[t1] supp:', e); }
+    try { await renderCompare(phases); } catch (e) { console.error('[t1] compare:', e); }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', t1Init);
+  } else {
+    t1Init();
+  }
+})();
 </script>
 <script src="/shared/site-shell.js"></script>
 </body>
