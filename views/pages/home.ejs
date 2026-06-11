@@ -1,3 +1,4 @@
+<% const subscriberCount = locals.subscriberCount || '1,000+'; %>
 <!-- Hero -->
 <section class="hero">
   <canvas id="hero-canvas" class="hero-visual" aria-hidden="true"></canvas>
@@ -17,7 +18,7 @@
     <span class="topic-pill">Robotics</span>
   </div>
   <div class="social-proof">
-    <div class="proof-stat"><div class="proof-val">1,000+</div><div class="proof-label">Subscribers</div></div>
+    <div class="proof-stat"><div class="proof-val"><%= subscriberCount %></div><div class="proof-label">Subscribers</div></div>
     <div class="proof-divider"></div>
     <div class="proof-stat"><div class="proof-val">Weekly</div><div class="proof-label">Deep dives</div></div>
     <div class="proof-divider"></div>
@@ -31,6 +32,13 @@
   <h2 class="section-title">Recent deep dives</h2>
   <div class="article-grid" id="article-grid" aria-busy="true">
     <div class="article-skeleton">Loading latest posts…</div>
+    <noscript>
+      <style>.article-skeleton { display: none; }</style>
+      <a class="article-card article-card-fallback" href="https://blog.neuralnexus.press" target="_blank" rel="noopener noreferrer">
+        <div class="article-meta"><div class="article-date">Neural NeXus</div><h3>Read the latest issues on Substack →</h3>
+        <p class="desc">Weekly deep dives on AI, biotech, longevity, and the science reshaping civilization.</p></div>
+      </a>
+    </noscript>
   </div>
   <div class="archive-link">
     <a href="/archive">Explore the on-site archive →</a>
@@ -139,15 +147,15 @@
 <section class="subscribe" id="subscribe">
   <div class="section-label">Newsletter</div>
   <h2 class="section-title">Don't miss the next breakthrough</h2>
-  <p class="sub-desc">Join 1,000+ scientists, engineers, and investors who read Neural NeXus every week. Free forever.</p>
+  <p class="sub-desc">Join <%= subscriberCount %> scientists, engineers, and investors who read Neural NeXus every week. Free forever.</p>
   <div class="subscribe-form">
-    <input type="email" class="subscribe-input" placeholder="you@email.com" id="email-input" autocomplete="email">
+    <input type="email" class="subscribe-input" placeholder="you@email.com" id="email-input" autocomplete="email" aria-label="Email address">
     <button class="subscribe-btn" id="subscribe-btn">Subscribe →</button>
   </div>
   <div class="subscribe-status" id="subscribe-status" role="status" aria-live="polite"></div>
   <div class="sub-stats">
     <div class="sub-stat">
-      <div class="sub-stat-num" style="color:var(--accent);">1,000+</div>
+      <div class="sub-stat-num" style="color:var(--accent);"><%= subscriberCount %></div>
       <div class="sub-stat-label">Subscribers</div>
     </div>
     <div class="sub-stat">
@@ -173,8 +181,8 @@
     var url = email
       ? 'https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=home-subscribe&email=' + encodeURIComponent(email)
       : 'https://blog.neuralnexus.press/subscribe?utm_source=neuralnexus&utm_medium=cta&utm_campaign=home-subscribe';
+    window.open(url, '_blank', 'noopener');
     if (status) { status.textContent = 'Redirecting to Substack…'; status.classList.add('visible'); }
-    setTimeout(function() { window.open(url, '_blank', 'noopener'); }, 350);
   }
   btn.addEventListener('click', go);
   input.addEventListener('keydown', function(e) { if (e.key === 'Enter') go(); });
@@ -186,7 +194,9 @@
   if (!grid) return;
   function fmt(d) {
     try {
-      return new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      var dt = new Date(d + 'T12:00:00Z');
+      if (isNaN(dt.getTime())) return d || '';
+      return dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     } catch (_) { return d || ''; }
   }
   function escape(s) {

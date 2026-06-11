@@ -550,7 +550,7 @@
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
   }
-  .leaderboard h3 {
+  .leaderboard h2 {
     font-size: 0.75rem;
     font-weight: 800;
     color: var(--text-dim);
@@ -1150,7 +1150,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <header>
   <div class="logo">
     <span class="logo-bee">🐝</span>
-    <span class="logo-text">Spelling Bee</span>
+    <h1 class="logo-text">Spelling Bee</h1>
   </div>
 </header>
 
@@ -1181,7 +1181,7 @@ document.addEventListener('DOMContentLoaded', function() {
 <div class="word-bar">
   <div id="current-word"></div>
 </div>
-<div id="message">&nbsp;</div>
+<div id="message" aria-live="polite">&nbsp;</div>
 
 <div class="honeycomb-wrap">
   <div class="honeycomb" id="honeycomb"></div>
@@ -1202,7 +1202,7 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 <div class="leaderboard" id="leaderboard-section">
-  <h3>🏆 Leaderboard</h3>
+  <h2>🏆 Leaderboard</h2>
   <table class="lb-table">
     <thead><tr><th>#</th><th>Player</th><th>Score</th><th>Words</th></tr></thead>
     <tbody id="lb-body"><tr><td colspan="4" style="text-align:center;color:rgba(255,255,255,0.15)">Loading...</td></tr></tbody>
@@ -1225,7 +1225,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="final-score" id="final-score">0</div>
     <div class="final-rank" id="final-rank">Beginner</div>
     <div class="overlay-stats" id="final-stats"></div>
-    <input class="overlay-input" id="nickname-input" placeholder="Your nickname" maxlength="20" autocomplete="off">
+    <input class="overlay-input" id="nickname-input" placeholder="Your nickname" aria-label="Nickname" maxlength="20" autocomplete="off">
     <button class="overlay-submit" id="btn-submit-score">Submit Score</button>
     <div class="modal-lb" id="modal-lb-section" style="display:none;margin-top:18px;text-align:left;">
       <div style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;text-align:center;">&#x1F3C6; Today's Leaderboard</div>

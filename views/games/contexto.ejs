@@ -821,7 +821,7 @@ init();
   </div>
 
   <form class="guess-form" id="guess-form" autocomplete="off">
-    <input class="guess-input" id="guess-input" type="text" placeholder="Type a word..." maxlength="30" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+    <input class="guess-input" id="guess-input" type="text" placeholder="Type a word..." aria-label="Your guess" maxlength="30" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     <button class="btn-submit" id="submit-btn" type="submit">Guess</button>
   </form>
 
@@ -856,7 +856,7 @@ init();
   </p>
 </div>
 
-<div id="toast"></div>
+<div id="toast" aria-live="polite"></div>
 
 <div class="modal-overlay" id="modal">
   <div class="modal">
@@ -870,7 +870,7 @@ init();
     </div>
 
     <div class="nickname-section" id="nickname-section">
-      <input class="nickname-input" id="nickname-input" placeholder="Your nickname" maxlength="20" autocomplete="off">
+      <input class="nickname-input" id="nickname-input" placeholder="Your nickname" aria-label="Nickname" maxlength="20" autocomplete="off">
       <button class="btn-submit-lb" id="submit-lb-btn">Submit &rarr;</button>
     </div>
 

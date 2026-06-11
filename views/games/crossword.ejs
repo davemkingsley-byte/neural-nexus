@@ -215,7 +215,7 @@ main {
   background: var(--card-bg); border: 1px solid var(--card-border);
   border-radius: 12px; padding: 12px; backdrop-filter: blur(8px);
 }
-.clue-section h3 {
+.clue-section h2 {
   font-family: 'Instrument Serif', serif; font-size: 0.95rem;
   margin-bottom: 6px; color: var(--accent);
 }
@@ -1262,15 +1262,15 @@ async function fetchPuzzle() {
   <div class="game-area">
     <div class="grid-container">
       <div class="grid" id="grid"></div>
-      <input type="text" id="hiddenInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <input type="text" id="hiddenInput" aria-label="Crossword letter entry" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
     <div class="clues-container">
       <div class="clue-section">
-        <h3>Across</h3>
+        <h2>Across</h2>
         <div id="acrossClues"></div>
       </div>
       <div class="clue-section">
-        <h3>Down</h3>
+        <h2>Down</h2>
         <div id="downClues"></div>
       </div>
     </div>
@@ -1284,7 +1284,7 @@ async function fetchPuzzle() {
   </p>
 </div>
 
-<div id="toast"></div>
+<div id="toast" aria-live="polite"></div>
 
 <div class="overlay" id="overlay">
   <div class="overlay-card">
@@ -1297,7 +1297,7 @@ async function fetchPuzzle() {
     </div>
     <button class="share-btn" id="shareBtn">Share &#x1F4CB;</button>
     <div class="nickname-row" id="nicknameRow">
-      <input class="nickname-in" id="nicknameInput" placeholder="Your nickname" maxlength="20" autocomplete="off">
+      <input class="nickname-in" id="nicknameInput" placeholder="Your nickname" aria-label="Nickname" maxlength="20" autocomplete="off">
       <button class="submit-lb-btn" id="submitLbBtn">Submit &rarr;</button>
     </div>
     <div class="cw-lb-section" id="cwLbSection" style="display:none">

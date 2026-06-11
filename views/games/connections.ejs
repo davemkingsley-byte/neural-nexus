@@ -158,6 +158,9 @@ main {
   word-break: break-word; line-height: 1.15;
   backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   position: relative; overflow: hidden;
+  /* button reset (tiles are <button> for keyboard access) */
+  font-family: inherit; color: inherit;
+  appearance: none; -webkit-appearance: none;
 }
 .word-tile::before {
   content: '';
@@ -445,13 +448,18 @@ function updateSelectionDots() {
 }
 
 function renderGrid() {
+  const focusedWord = (document.activeElement && document.activeElement.classList &&
+    document.activeElement.classList.contains('word-tile')) ? document.activeElement.textContent : null;
   grid.innerHTML = '';
   words.forEach(w => {
-    const tile = document.createElement('div');
+    const tile = document.createElement('button');
+    tile.type = 'button';
     tile.className = 'word-tile' + (selected.has(w) ? ' selected' : '');
+    tile.setAttribute('aria-pressed', selected.has(w) ? 'true' : 'false');
     tile.textContent = w;
     tile.addEventListener('click', () => toggleWord(w));
     grid.appendChild(tile);
+    if (focusedWord === w) tile.focus();
   });
   updateButtons();
   updateSelectionDots();
@@ -794,7 +802,7 @@ init();
     <p class="game-subtitle">4 groups &middot; 4 words each &middot; new puzzle daily</p>
   </div>
 
-  <div id="solved-groups" class="solved-groups"></div>
+  <div id="solved-groups" class="solved-groups" aria-live="polite"></div>
   <div id="grid"></div>
 
   <div class="selection-counter">
@@ -828,7 +836,7 @@ init();
   </p>
 </div>
 
-<div id="toast"></div>
+<div id="toast" role="status" aria-live="polite"></div>
 
 <div class="modal-overlay" id="modal">
   <div class="modal">

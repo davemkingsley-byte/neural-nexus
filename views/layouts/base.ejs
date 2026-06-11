@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= title === 'Neural NeXus' ? title : `${title} — Neural NeXus` %></title>
+  <title><%= title === 'Neural NeXus' ? 'Neural NeXus — AI, Biotech & the Science of What Comes Next' : `${title} — Neural NeXus` %></title>
   <meta name="description" content="<%= description %>">
   <% if (locals.noindex) { %><meta name="robots" content="noindex, nofollow"><% } %>
   <link rel="canonical" href="<%= canonical %>">
@@ -49,11 +49,12 @@
   <% if (locals.hideSiteChrome) { %>
     <%- body %>
   <% } else { %>
+    <a class="skip-link" href="#main-content">Skip to content</a>
     <div class="ambient"></div>
     <div class="grid-bg"></div>
     <div class="main-shell">
       <%- include('../partials/header') %>
-      <main><%- body %></main>
+      <main id="main-content"><%- body %></main>
       <% if (!locals.hideSubscribeCta) { %><%- include('../partials/subscribe-cta') %><% } %>
       <%- include('../partials/footer') %>
     </div>
