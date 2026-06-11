@@ -93,26 +93,40 @@ try {
   }
 } catch(e) { console.error('Dict load error:', e.message); }
 
-function getTodayWord() {
-  const today = new Date().toLocaleString('en-CA', { timeZone: 'America/New_York' }).split(',')[0];
-  let hash = 0;
-  for (let i = 0; i < today.length; i++) {
-    hash = ((hash << 5) - hash) + today.charCodeAt(i);
-    hash |= 0;
-  }
-  const idx = Math.abs(hash) % ANSWERS.length;
-  return { word: ANSWERS[idx], date: today };
-}
+// Dates before the cutover keep the original hash mapping so the archive still
+// shows the word that actually ran. The hash of consecutive YYYY-MM-DD strings
+// barely changes, so answers marched almost alphabetically through the list;
+// from the cutover on, a coprime stride walks the whole list in scrambled
+// order — every word exactly once per 766-day cycle, no repeats.
+const ROTATION_CUTOVER = '2026-06-12';
 
-function getWordForDate(dateStr) {
-  // dateStr in YYYY-MM-DD format (same as en-CA locale output)
+function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+function strideFor(n) {
+  let s = Math.floor(n * 0.618) | 1; // odd, near the golden ratio for good dispersion
+  while (gcd(s, n) > 1) s += 2;
+  return s;
+}
+const STRIDE = strideFor(ANSWERS.length);
+
+function legacyWordForDate(dateStr) {
   let hash = 0;
   for (let i = 0; i < dateStr.length; i++) {
     hash = ((hash << 5) - hash) + dateStr.charCodeAt(i);
     hash |= 0;
   }
-  const idx = Math.abs(hash) % ANSWERS.length;
-  return ANSWERS[idx];
+  return ANSWERS[Math.abs(hash) % ANSWERS.length];
+}
+
+function getTodayWord() {
+  const today = new Date().toLocaleString('en-CA', { timeZone: 'America/New_York' }).split(',')[0];
+  return { word: getWordForDate(today), date: today };
+}
+
+function getWordForDate(dateStr) {
+  // dateStr in YYYY-MM-DD format (same as en-CA locale output)
+  if (dateStr < ROTATION_CUTOVER) return legacyWordForDate(dateStr);
+  const days = Math.floor(Date.parse(`${dateStr}T12:00:00Z`) / 86400000);
+  return ANSWERS[(days * STRIDE) % ANSWERS.length];
 }
 
 function isValidGuess(word) {

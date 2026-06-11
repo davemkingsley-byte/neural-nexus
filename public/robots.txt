@@ -10,5 +10,7 @@ Disallow: /treat-preview/
 Disallow: /app/
 Disallow: /pm
 Disallow: /pm-charters/
+Disallow: /reports/
+Disallow: /seo-report
 
 Sitemap: https://www.neuralnexus.press/sitemap.xml
