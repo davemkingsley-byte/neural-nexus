@@ -144,6 +144,97 @@
   line-height: 1.8;
 }
 
+.topic-subsection {
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+}
+
+.topic-subsection-title {
+  font-family: 'Instrument Serif', Georgia, serif;
+  font-size: clamp(1.4rem, 3vw, 1.9rem);
+  font-weight: 400;
+  line-height: 1.2;
+  margin-bottom: 18px;
+}
+
+.topic-terms {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+
+.topic-term {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border-left: 3px solid var(--accent);
+  border-radius: 0 12px 12px 0;
+  background: rgba(255,255,255,0.03);
+}
+
+.topic-term dt {
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--text);
+}
+
+.topic-term dd {
+  margin: 0;
+  color: var(--text-mid);
+  line-height: 1.65;
+  font-size: 0.92rem;
+}
+
+.topic-faq {
+  display: grid;
+  gap: 10px;
+}
+
+.topic-faq-item {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: rgba(255,255,255,0.03);
+  overflow: hidden;
+}
+
+.topic-faq-item summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 16px 18px;
+  font-weight: 700;
+  font-size: 0.98rem;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.topic-faq-item summary::-webkit-details-marker {
+  display: none;
+}
+
+.topic-faq-item summary::after {
+  content: '+';
+  font-size: 1.3rem;
+  line-height: 1;
+  color: var(--accent);
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.topic-faq-item[open] summary::after {
+  transform: rotate(45deg);
+}
+
+.topic-faq-item p {
+  margin: 0;
+  padding: 0 18px 18px;
+  color: var(--text-mid);
+  line-height: 1.75;
+}
+
 .topic-callout {
   margin-top: 24px;
   padding: 18px 20px;

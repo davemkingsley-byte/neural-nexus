@@ -31,18 +31,51 @@
       <article class="topic-main-card">
         <div class="section-label">Overview</div>
         <h2 class="topic-section-title">Why <%= topic.name %> matters</h2>
-        <p>
-          Neural NeXus tracks <strong><%= topic.name %></strong> through the lens of science, technology, and first-order consequences.
-          This page is the home base for coverage, key ideas, and the breakthroughs worth watching.
-        </p>
-        <p>
-          Every article below is pulled from the shared editorial index and tagged into this topic hub automatically.
-          That means the archive, topic pages, and feed now point at the same source of truth.
-        </p>
+        <% if (Array.isArray(topic.overview) && topic.overview.length) { %>
+          <% topic.overview.forEach((para) => { %>
+            <p><%= para %></p>
+          <% }) %>
+        <% } else { %>
+          <p>
+            Neural NeXus tracks <strong><%= topic.name %></strong> through the lens of science, technology, and first-order consequences.
+            This page is the home base for coverage, key ideas, and the breakthroughs worth watching.
+          </p>
+          <p>
+            Every article below is pulled from the shared editorial index and tagged into this topic hub automatically.
+            That means the archive, topic pages, and feed now point at the same source of truth.
+          </p>
+          <div class="topic-callout">
+            <p><strong>Coverage lens:</strong> explainers, market context, frontier research, and practical analysis on <%= topic.name.toLowerCase() %>.</p>
+          </div>
+        <% } %>
 
-        <div class="topic-callout">
-          <p><strong>Coverage lens:</strong> explainers, market context, frontier research, and practical analysis on <%= topic.name.toLowerCase() %>.</p>
-        </div>
+        <% if (Array.isArray(topic.keyTerms) && topic.keyTerms.length) { %>
+          <div class="topic-subsection">
+            <h3 class="topic-subsection-title">Key terms</h3>
+            <dl class="topic-terms">
+              <% topic.keyTerms.forEach((entry) => { %>
+                <div class="topic-term">
+                  <dt><%= entry.term %></dt>
+                  <dd><%= entry.definition %></dd>
+                </div>
+              <% }) %>
+            </dl>
+          </div>
+        <% } %>
+
+        <% if (Array.isArray(topic.faq) && topic.faq.length) { %>
+          <div class="topic-subsection">
+            <h3 class="topic-subsection-title">Frequently asked questions</h3>
+            <div class="topic-faq">
+              <% topic.faq.forEach((entry) => { %>
+                <details class="topic-faq-item">
+                  <summary><%= entry.q %></summary>
+                  <p><%= entry.a %></p>
+                </details>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
       </article>
 
       <aside class="topic-side-card">

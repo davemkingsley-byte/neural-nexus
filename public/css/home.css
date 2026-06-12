@@ -313,3 +313,53 @@ body.home-page .about-bio {
   /* Hero kicker can get pinched by its gradient lines at 375px — tighten. */
   body.home-page .hero-kicker { letter-spacing: 2px; }
 }
+
+/* ============ /games hub page ============ */
+body.games-page .games-prose p {
+  color: var(--text-mid);
+  font-size: 0.98rem;
+  line-height: 1.78;
+  margin: 0 auto 18px;
+  max-width: 660px;
+  text-align: left;
+}
+body.games-page .games-prose a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(96,165,250,0.3);
+}
+body.games-page .games-prose a:hover { border-bottom-color: var(--accent); }
+body.games-page .games-faq {
+  max-width: 660px;
+  margin: 0 auto;
+  text-align: left;
+}
+body.games-page .games-faq details {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.03);
+  padding: 16px 20px;
+  margin-bottom: 12px;
+}
+body.games-page .games-faq summary {
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.98rem;
+  color: var(--text);
+  list-style: none;
+}
+body.games-page .games-faq summary::-webkit-details-marker { display: none; }
+body.games-page .games-faq summary::after {
+  content: '+';
+  float: right;
+  color: var(--text-dim);
+  font-weight: 400;
+  transition: transform 0.2s;
+}
+body.games-page .games-faq details[open] summary::after { content: '−'; }
+body.games-page .games-faq details p {
+  color: var(--text-mid);
+  font-size: 0.92rem;
+  line-height: 1.7;
+  margin: 12px 0 2px;
+}

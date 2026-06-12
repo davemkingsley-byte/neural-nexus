@@ -75,6 +75,13 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 function renderPage(res, view, options) {
+  // Let Cloudflare edge-cache rendered HTML briefly. Browsers always revalidate
+  // (max-age=0); the edge holds it 5 min, serving stale while refreshing.
+  // Auth-gated pages bypass renderPage entirely (sendFile/inline), so this only
+  // ever applies to public pages.
+  if (!res.get('Cache-Control')) {
+    res.set('Cache-Control', 'public, max-age=0, s-maxage=300, stale-while-revalidate=600');
+  }
   res.render(view, options, (err, html) => {
     if (err) {
       console.error(`Render error for ${view}:`, err);
@@ -110,9 +117,14 @@ function syncArticlesAndReload() {
     try {
       const fresh = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'articles.json'), 'utf8'));
       if (Array.isArray(fresh) && fresh.length) {
+        const newestBefore = articles[0]?.id;
         articles.length = 0;
         articles.push(...fresh);
         console.log(`Article sync OK — ${articles.length} articles, newest ${articles[0]?.date}`);
+        if (articles[0]?.id && articles[0].id !== newestBefore) {
+          pingIndexNow();
+          pingWebSubHub();
+        }
       }
     } catch (e) {
       console.error('Article reload failed:', e.message);
@@ -121,6 +133,72 @@ function syncArticlesAndReload() {
 }
 setTimeout(syncArticlesAndReload, 30 * 1000).unref(); // shortly after boot
 setInterval(syncArticlesAndReload, ARTICLE_SYNC_INTERVAL_MS).unref();
+
+// Tell IndexNow-capable engines (Bing, Yandex, Seznam, Naver) about fresh
+// content. The key file is already deployed at /{key}.txt; nothing pinged it.
+const INDEXNOW_KEY = 'ec9a7a443c244ce213b953f352d8c412';
+function pingIndexNow(urls) {
+  const list = urls || [
+    'https://www.neuralnexus.press/',
+    'https://www.neuralnexus.press/archive',
+    'https://www.neuralnexus.press/feed.xml',
+  ];
+  const body = JSON.stringify({
+    host: 'www.neuralnexus.press',
+    key: INDEXNOW_KEY,
+    keyLocation: `https://www.neuralnexus.press/${INDEXNOW_KEY}.txt`,
+    urlList: list,
+  });
+  const reqOpts = {
+    hostname: 'api.indexnow.org',
+    path: '/indexnow',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': Buffer.byteLength(body) },
+  };
+  const req = httpsModule.request(reqOpts, (res) => {
+    res.resume();
+    console.log(`IndexNow ping: ${res.statusCode} for ${list.length} URLs`);
+  });
+  req.on('error', (e) => console.error('IndexNow ping failed:', e.message));
+  req.setTimeout(10000, () => req.destroy(new Error('timeout')));
+  req.write(body);
+  req.end();
+}
+
+// Notify Google's open WebSub hub that feed.xml changed (Feedly, Flipboard,
+// Inoreader and friends subscribe through it).
+function pingWebSubHub() {
+  const body = `hub.mode=publish&hub.url=${encodeURIComponent('https://www.neuralnexus.press/feed.xml')}`;
+  const req = httpsModule.request({
+    hostname: 'pubsubhubbub.appspot.com',
+    path: '/',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(body) },
+  }, (res) => { res.resume(); console.log(`WebSub ping: ${res.statusCode}`); });
+  req.on('error', (e) => console.error('WebSub ping failed:', e.message));
+  req.setTimeout(10000, () => req.destroy(new Error('timeout')));
+  req.write(body);
+  req.end();
+}
+
+// The daily games legitimately change every midnight ET — tell IndexNow once
+// per rollover so Bing & friends re-crawl them.
+let lastIndexNowDay = null;
+setInterval(() => {
+  const today = new Date().toLocaleString('en-CA', { timeZone: 'America/New_York' }).split(',')[0];
+  if (lastIndexNowDay === null) { lastIndexNowDay = today; return; }
+  if (today !== lastIndexNowDay) {
+    lastIndexNowDay = today;
+    pingIndexNow([
+      'https://www.neuralnexus.press/games',
+      'https://www.neuralnexus.press/play',
+      'https://www.neuralnexus.press/wordle',
+      'https://www.neuralnexus.press/crossword',
+      'https://www.neuralnexus.press/connections',
+      'https://www.neuralnexus.press/contexto',
+    ]);
+  }
+}, 10 * 60 * 1000).unref();
 
 // --- Substack RSS fetch (cached, 1h TTL) ---
 // Feeds the homepage's featured articles. Falls back to static articles.json on any failure.
@@ -342,6 +420,7 @@ function buildSitemapEntries() {
     { loc: `${SITE_URL}/topics`, priority: '0.8', changefreq: 'weekly', lastmod: topicEntries.map((entry) => entry.lastmod).find(Boolean) || null },
     ...topicEntries,
     { loc: `${SITE_URL}/archive`, priority: '0.7', changefreq: 'weekly', lastmod: articles[0]?.date || null },
+    { loc: `${SITE_URL}/games`, priority: '0.8', changefreq: 'daily', lastmod: getTodayStr() },
     { loc: `${SITE_URL}/play`, priority: '0.6', changefreq: 'daily', lastmod: getTodayStr() },
     { loc: `${SITE_URL}/wordle`, priority: '0.6', changefreq: 'daily', lastmod: getTodayStr() },
     { loc: `${SITE_URL}/crossword`, priority: '0.6', changefreq: 'daily', lastmod: getTodayStr() },
@@ -547,6 +626,21 @@ app.get('/', (req, res) => {
         '@type': 'Person',
         name: 'David Kingsley, PhD'
       }
+    }, {
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      '@id': 'https://www.neuralnexus.press/#david-kingsley',
+      name: 'David Kingsley, PhD',
+      url: 'https://www.neuralnexus.press/#about',
+      image: 'https://www.neuralnexus.press/img/david.jpg',
+      jobTitle: 'Scientist',
+      worksFor: { '@type': 'Organization', name: 'Colossal Biosciences' },
+      description: 'PhD scientist at Colossal Biosciences working on de-extinction and artificial womb technology. Writes Neural NeXus, a weekly newsletter on AI, biotech, and the science reshaping civilization.',
+      sameAs: [
+        'https://davidkingsley.substack.com',
+        'https://blog.neuralnexus.press',
+        'https://instagram.com/Davidkingsley.phd'
+      ]
     }],
     activePage: 'home',
     pageType: 'home',
@@ -602,13 +696,21 @@ app.get('/privacy', (req, res) => {
 
 app.get(['/brain-check', '/brain-check/'], (req, res) => {
   renderPage(res, 'pages/brain-check', {
-    title: 'Brain Check',
-    description: 'Take the free Brain Check on Neural NeXus to benchmark reaction time, memory, focus, and cognitive sharpness in minutes.',
+    title: 'Daily Brain Test — Free Cognitive Check',
+    description: 'Take a free 3-minute daily brain test — benchmark reaction time, memory, focus, and processing speed. No signup, instant results.',
     canonical: 'https://www.neuralnexus.press/brain-check',
     activePage: 'brain-check',
     pageType: 'brain-check',
     pageCSS: 'brain-check.css',
-    bodyClass: 'brain-check-page'
+    bodyClass: 'brain-check-page',
+    structuredData: [
+      buildBreadcrumbJsonLd([
+        { label: 'Home', href: '/' },
+        { label: 'Games', href: '/games' },
+        { label: 'Brain Check', href: '/brain-check' }
+      ]),
+      buildGameJsonLd({ name: 'Neural NeXus Brain Check', description: 'Free 3-minute cognitive test measuring reaction time, memory, and processing speed.', url: 'https://www.neuralnexus.press/brain-check' })
+    ]
   });
 });
 
@@ -749,7 +851,8 @@ app.get('/feed.xml', (req, res) => {
       <title>${xmlEscape(article.title)}</title>
       <link>${xmlEscape(article.url)}</link>
       <guid>${xmlEscape(article.url)}</guid>
-      <description>${xmlEscape(article.description || '')}</description>
+      <description>${xmlEscape(article.description || '')}</description>${article.thumbnail ? `
+      <enclosure url="${xmlEscape(article.thumbnail)}" type="image/jpeg" length="0"/>` : ''}
       <pubDate>${new Date(`${article.date || '1970-01-01'}T12:00:00Z`).toUTCString()}</pubDate>
     </item>`).join('');
 
@@ -760,6 +863,7 @@ app.get('/feed.xml', (req, res) => {
     <title>Neural NeXus</title>
     <link>${siteUrl}</link>
     <atom:link href="${siteUrl}/feed.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="https://pubsubhubbub.appspot.com/" rel="hub"/>
     <description>Weekly deep dives on AI, biotech, and the science of what comes next.</description>
     <language>en-us</language>
     <lastBuildDate>${lastBuildDate}</lastBuildDate>${itemsXml}
@@ -1082,18 +1186,63 @@ app.post('/api/charters', dashboardAuth, (req, res) => {
   res.json({ ok: true, message: 'New charters are created via git push in production' });
 });
 
+// Games hub — the canonical landing page for the daily-games portfolio.
+const GAMES_HUB_LIST = [
+  { name: 'Spelling Bee', url: 'https://www.neuralnexus.press/play', description: 'Seven letters, one center letter, five minutes. Find every word you can.' },
+  { name: 'Wordie', url: 'https://www.neuralnexus.press/wordle', description: 'A free daily Wordle-style game — guess the 5-letter word in six tries.' },
+  { name: 'Mini Crossword', url: 'https://www.neuralnexus.press/crossword', description: 'A free 5×5 daily mini crossword with no paywall — solve it over coffee.' },
+  { name: 'Connections', url: 'https://www.neuralnexus.press/connections', description: 'Sort 16 words into 4 hidden groups, from easy to devious.' },
+  { name: 'Contexto', url: 'https://www.neuralnexus.press/contexto', description: 'Guess the secret word by meaning — every guess shows how close you are.' },
+  { name: 'Brain Check', url: 'https://www.neuralnexus.press/brain-check', description: 'A free 3-minute cognitive test: reaction time, memory, and focus.' },
+];
+app.get('/games', (req, res) => {
+  renderPage(res, 'pages/games', {
+    title: 'Free Daily Word Games & Brain Puzzles',
+    description: 'Six free daily games, no login and no paywall: Spelling Bee, a Wordle-style daily, a 5×5 mini crossword, Connections-style grouping, Contexto, and a brain test.',
+    canonical: 'https://www.neuralnexus.press/games',
+    activePage: 'games',
+    pageType: 'games',
+    pageCSS: 'home.css',
+    bodyClass: 'games-page',
+    pageCampaign: 'games-hub',
+    games: GAMES_HUB_LIST,
+    structuredData: [
+      buildBreadcrumbJsonLd([
+        { label: 'Home', href: '/' },
+        { label: 'Games', href: '/games' }
+      ]),
+      buildCollectionPageJsonLd({
+        name: 'Free Daily Word Games & Brain Puzzles',
+        description: 'Free daily games from Neural NeXus — word games and brain training with no login, no paywall, and a new puzzle every day.',
+        url: 'https://www.neuralnexus.press/games'
+      }),
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        itemListElement: GAMES_HUB_LIST.map((game, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          url: game.url,
+          name: game.name,
+          description: game.description
+        }))
+      }
+    ]
+  });
+});
+
 // Serve game pages
 app.get('/play', (req, res) => {
   renderPage(res, 'games/spelling-bee', {
-    title: 'Spelling Bee',
-    description: 'Free daily Spelling Bee word game — seven letters, one center, five minutes. New puzzle and leaderboard every day on Neural NeXus.',
+    title: 'Free Spelling Bee Game Online',
+    description: 'Play a free Spelling Bee word game online — no login, no subscription. Seven letters, one center, five minutes. New puzzle and leaderboard every day.',
     canonical: 'https://www.neuralnexus.press/play',
     activePage: 'games',
     pageType: 'game',
     structuredData: [
       buildBreadcrumbJsonLd([
         { label: 'Home', href: '/' },
-        { label: 'Games', href: '/#games' },
+        { label: 'Games', href: '/games' },
         { label: 'Spelling Bee', href: '/play' }
       ]),
       buildGameJsonLd({ name: 'Neural NeXus Spelling Bee', description: 'Daily Spelling Bee word puzzle. Seven letters, one center — find every word in 5 minutes. New puzzle every day with leaderboard.', url: 'https://www.neuralnexus.press/play' })
@@ -1103,15 +1252,15 @@ app.get('/play', (req, res) => {
 });
 app.get('/wordle', (req, res) => {
   renderPage(res, 'games/wordle', {
-    title: 'Wordie',
-    description: 'Free daily 5-letter word guessing game — six tries, color clues, new word at midnight. Play Wordie and join the leaderboard on Neural NeXus.',
+    title: 'Wordie — Free Daily Wordle Alternative',
+    description: 'A free daily Wordle alternative with a playable archive — six tries, color clues, new 5-letter word at midnight. No login, no paywall, no app.',
     canonical: 'https://www.neuralnexus.press/wordle',
     activePage: 'games',
     pageType: 'game',
     structuredData: [
       buildBreadcrumbJsonLd([
         { label: 'Home', href: '/' },
-        { label: 'Games', href: '/#games' },
+        { label: 'Games', href: '/games' },
         { label: 'Wordie', href: '/wordle' }
       ]),
       buildGameJsonLd({ name: 'Wordie — Neural NeXus', description: 'Free daily 5-letter word puzzle. Guess the word in 6 tries. New word every day at midnight.', url: 'https://www.neuralnexus.press/wordle' })
@@ -1121,15 +1270,15 @@ app.get('/wordle', (req, res) => {
 });
 app.get('/crossword', (req, res) => {
   renderPage(res, 'games/crossword', {
-    title: 'Mini Crossword',
-    description: 'Free daily 5×5 mini crossword — quick, clever clues you can solve over coffee. New puzzle and timer leaderboard every day on Neural NeXus.',
+    title: 'Free Daily Mini Crossword — No Paywall',
+    description: 'Play a free 5×5 daily mini crossword online — no paywall, no login. A free NYT Mini alternative with clever science-flavored clues and a daily timer leaderboard.',
     canonical: 'https://www.neuralnexus.press/crossword',
     activePage: 'games',
     pageType: 'game',
     structuredData: [
       buildBreadcrumbJsonLd([
         { label: 'Home', href: '/' },
-        { label: 'Games', href: '/#games' },
+        { label: 'Games', href: '/games' },
         { label: 'Mini Crossword', href: '/crossword' }
       ]),
       buildGameJsonLd({ name: 'Neural NeXus Mini Crossword', description: 'Free daily 5×5 mini crossword puzzle. Quick, fun, and new every day from Neural NeXus.', url: 'https://www.neuralnexus.press/crossword' })
@@ -1139,15 +1288,15 @@ app.get('/crossword', (req, res) => {
 });
 app.get('/connections', (req, res) => {
   renderPage(res, 'games/connections', {
-    title: 'Connections',
-    description: 'Free daily Connections word game — sort 16 words into 4 hidden groups. New puzzle every day on Neural NeXus.',
+    title: 'Free Daily Connections-Style Word Game',
+    description: 'Play a free Connections-style word grouping game — sort 16 words into 4 hidden groups. New daily puzzle, playable archive, no login or paywall.',
     canonical: 'https://www.neuralnexus.press/connections',
     activePage: 'games',
     pageType: 'game',
     structuredData: [
       buildBreadcrumbJsonLd([
         { label: 'Home', href: '/' },
-        { label: 'Games', href: '/#games' },
+        { label: 'Games', href: '/games' },
         { label: 'Connections', href: '/connections' }
       ]),
       buildGameJsonLd({ name: 'Connections — Neural NeXus', description: 'Free daily word grouping puzzle. Find 4 groups of 4 words. New puzzle every day.', url: 'https://www.neuralnexus.press/connections' })
@@ -1157,15 +1306,15 @@ app.get('/connections', (req, res) => {
 });
 app.get('/contexto', (req, res) => {
   renderPage(res, 'games/contexto', {
-    title: 'Contexto',
-    description: 'Play the daily Neural NeXus Contexto puzzle — guess the word by semantic similarity.',
+    title: 'Contexto Game — Guess the Word by Meaning',
+    description: 'Play a free daily Contexto-style game — guess the secret word by meaning and watch your rank drop as you get warmer. New word every day, free forever.',
     canonical: 'https://www.neuralnexus.press/contexto',
     activePage: 'games',
     pageType: 'game',
     structuredData: [
       buildBreadcrumbJsonLd([
         { label: 'Home', href: '/' },
-        { label: 'Games', href: '/#games' },
+        { label: 'Games', href: '/games' },
         { label: 'Contexto', href: '/contexto' }
       ]),
       buildGameJsonLd({ name: 'Contexto — Neural NeXus', description: 'Free daily word puzzle. Guess the target word using semantic similarity hints. New word every day.', url: 'https://www.neuralnexus.press/contexto' })
@@ -1321,7 +1470,18 @@ app.get('/topics/:slug', (req, res) => {
         }),
         about: { '@type': 'Thing', name: topic.name },
         author: { '@type': 'Person', name: 'David Kingsley, PhD' }
-      }
+      },
+      ...(Array.isArray(topic.faq) && topic.faq.length
+        ? [{
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: topic.faq.map((f) => ({
+              '@type': 'Question',
+              name: f.q,
+              acceptedAnswer: { '@type': 'Answer', text: f.a }
+            }))
+          }]
+        : [])
     ]
   });
 });

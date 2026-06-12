@@ -304,6 +304,23 @@ main {
   border-color: rgba(34,197,94,0.35); color: var(--green);
 }
 .btn-share:hover { box-shadow: 0 4px 16px rgba(34,197,94,0.2); }
+/* Next-puzzle countdown + cross-game promo */
+.nn-countdown {
+  margin: 12px 0 4px; padding: 12px;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px;
+}
+.nn-countdown-lbl {
+  font-size: 0.5rem; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.8px;
+}
+.nn-countdown-clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.4rem; font-weight: 700; line-height: 1.2; margin-top: 3px; color: var(--text);
+}
+.nn-promo { margin-top: 8px; font-size: 0.7rem; color: var(--text-dim); }
+.nn-promo a { color: var(--text-mid); text-decoration: none; font-weight: 600; }
+.nn-promo a:hover { color: var(--text); text-decoration: underline; }
 
 /* Subscribe CTA */
 .game-subscribe-cta {
@@ -588,6 +605,7 @@ async function showWinModal(target) {
   document.getElementById('stat-time').textContent = formatTime(secondsElapsed);
   document.getElementById('stat-effective').textContent = effective;
   modal.classList.add('show');
+  startCountdown();
 
   // Submit score unless already submitted today
   const submittedKey = 'nn-contexto-submitted-' + todayDate;
@@ -680,9 +698,14 @@ async function submitScore() {
   }
 }
 
+const PUZZLE_EPOCH = Date.parse('2026-04-01T00:00:00Z');
+function getPuzzleNo(dateStr) {
+  return Math.floor((Date.parse(dateStr + 'T00:00:00Z') - PUZZLE_EPOCH) / 86400000) + 1;
+}
+const SHARE_URL = 'https://www.neuralnexus.press/contexto?utm_source=share&utm_medium=social&utm_campaign=contexto';
 function buildShareText() {
   const effective = guessCount + HINT_PENALTY * hintsUsed;
-  let text = `Contexto \u2014 Neural NeXus\n${todayDate}\n\n`;
+  let text = `Contexto #${getPuzzleNo(todayDate)} \u2014 ${guessCount} guesses\n\n`;
   text += `\u{1F3AF} Solved in ${guessCount} guesses`;
   if (hintsUsed) text += ` (\u{1F4A1} ${hintsUsed} hint${hintsUsed > 1 ? 's' : ''}, +${HINT_PENALTY * hintsUsed})`;
   text += `\n\u23F1\uFE0F  ${formatTime(secondsElapsed)}\n`;
@@ -695,8 +718,31 @@ function buildShareText() {
     if (g.rank < best) { best = g.rank; progression.push(best); }
   }
   text += progression.slice(0, 5).join(' \u2192 ');
-  text += `\n\nhttps://www.neuralnexus.press/contexto`;
+  text += `\n\n${SHARE_URL}`;
   return text;
+}
+
+let countdownTimer = null;
+function startCountdown() {
+  const el = document.getElementById('nn-countdown');
+  if (!el) return;
+  const tick = () => {
+    // Seconds remaining until next America/New_York midnight.
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York', hour12: false,
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }).formatToParts(new Date()).reduce((a, p) => (a[p.type] = p.value, a), {});
+    let h = parseInt(parts.hour, 10) % 24, m = parseInt(parts.minute, 10), s = parseInt(parts.second, 10);
+    let rem = 86400 - (h * 3600 + m * 60 + s);
+    if (rem < 0) rem = 0;
+    const hh = String(Math.floor(rem / 3600)).padStart(2, '0');
+    const mm = String(Math.floor((rem % 3600) / 60)).padStart(2, '0');
+    const ss = String(rem % 60).padStart(2, '0');
+    el.textContent = `${hh}:${mm}:${ss}`;
+  };
+  tick();
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(tick, 1000);
 }
 
 function saveState() {
@@ -774,12 +820,15 @@ document.getElementById('nickname-input').addEventListener('keydown', e => {
 });
 document.getElementById('btn-share').addEventListener('click', () => {
   const text = buildShareText();
-  if (navigator.clipboard) {
+  if (navigator.share) {
+    navigator.share({ title: 'Contexto — Neural NeXus', text, url: SHARE_URL })
+      .catch(() => { if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!')); });
+  } else if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
   }
 });
 document.getElementById('modal').addEventListener('click', e => {
-  if (e.target.id === 'modal') e.currentTarget.classList.remove('show');
+  if (e.target.id === 'modal') { e.currentTarget.classList.remove('show'); clearInterval(countdownTimer); }
 });
 
 init();
@@ -856,6 +905,141 @@ init();
   </p>
 </div>
 
+<style>
+  .seo-content {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 36px auto 64px;
+    padding: 0 20px;
+    color: var(--text-mid);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    text-align: left;
+  }
+  .seo-content h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 36px 0 14px;
+    letter-spacing: 0.2px;
+  }
+  .seo-content h2:first-child { margin-top: 0; }
+  .seo-content p { margin: 0 0 14px; }
+  .seo-content a { color: var(--accent); text-decoration: none; }
+  .seo-content a:hover { text-decoration: underline; }
+  .seo-content ol, .seo-content ul { margin: 0 0 14px; padding-left: 22px; }
+  .seo-content li { margin-bottom: 8px; }
+  .seo-content details {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .seo-content summary {
+    cursor: pointer;
+    padding: 14px 44px 14px 16px;
+    font-weight: 700;
+    color: var(--text);
+    list-style: none;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .seo-content summary::-webkit-details-marker { display: none; }
+  .seo-content summary::after {
+    content: '+';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--accent);
+    transition: transform 0.2s;
+  }
+  .seo-content details[open] summary::after { content: '\2212'; }
+  .seo-content details p { padding: 0 16px 14px; margin: 0; color: var(--text-mid); }
+  .seo-content .more-games {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 8px 0 18px;
+  }
+  .seo-content .more-games a {
+    padding: 8px 14px;
+    border-radius: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .seo-content .more-games a:hover { background: var(--surface-2); text-decoration: none; }
+  .seo-content .seo-footer { font-size: 0.88rem; color: var(--text-dim); margin-top: 8px; }
+</style>
+
+<section class="seo-content">
+  <h2>How to play Contexto</h2>
+  <ol>
+    <li>There is one secret word each day, and your job is to guess it by meaning rather than by spelling.</li>
+    <li>Type any word and submit it; the game ranks how semantically close your guess is to the answer.</li>
+    <li>A lower rank means you are warmer &mdash; rank 1 is the secret word itself and wins the game.</li>
+    <li>The color and the bar on each guess show how close you are getting, so chase the words that rank lowest.</li>
+    <li>Stuck? Spend a hint to reveal a related word, though hints add a small penalty to your score.</li>
+    <li>Keep refining your guesses until you land on rank 1 and crack the word.</li>
+  </ol>
+
+  <h2>Tips &amp; strategy</h2>
+  <p>
+    Think in themes, not letters. Because Contexto measures meaning, your guesses should explore concepts:
+    if "ocean" ranks well, try "sea," "wave," "tide," and "coast" to triangulate the topic. The ranking is
+    your compass &mdash; a sharp drop in rank tells you that you are heading in the right semantic direction.
+  </p>
+  <p>
+    Start broad with everyday nouns to find the general area, then zoom in once a guess ranks in the low
+    hundreds. Pay attention to the part of speech that seems to be working, and lean into synonyms and close
+    associations of your best word so far. If you truly stall, a hint can nudge you toward the cluster of
+    meaning, but try to solve it on your own first to keep your score sharp.
+  </p>
+
+  <h2>Frequently asked questions</h2>
+  <details>
+    <summary>Is Contexto free?</summary>
+    <p>Yes. It is completely free, with no account, no app, and no paywall. Open the page and start guessing the word by meaning.</p>
+  </details>
+  <details>
+    <summary>When does the daily word reset?</summary>
+    <p>A new secret word goes live once a day. Come back tomorrow for a fresh puzzle and a clean leaderboard.</p>
+  </details>
+  <details>
+    <summary>How is this different from contexto.me?</summary>
+    <p>It works on the same delightful idea &mdash; guess the hidden word by semantic closeness, with a rank for every guess &mdash; but this version is built by the Neural NeXus science team. It is free, runs in any browser, adds a timer and hints, and keeps daily leaderboards for fewest guesses and fastest solves.</p>
+  </details>
+  <details>
+    <summary>Why was my word "not in vocabulary"?</summary>
+    <p>The game only ranks words that exist in its vocabulary list. If a guess is rejected, try a more common base form of the word &mdash; for example a singular noun or the plain form of a verb.</p>
+  </details>
+  <details>
+    <summary>Do I need an account?</summary>
+    <p>No sign-up is required. Your progress and streak are saved in your browser, and you only enter a nickname if you want to appear on the daily leaderboard.</p>
+  </details>
+  <details>
+    <summary>What do the hints do?</summary>
+    <p>A hint reveals a word that ranks closer to the answer than your best guess so far, helping you home in on the right meaning. Each hint adds a small penalty to your score, so use them sparingly.</p>
+  </details>
+
+  <h2>More free daily games</h2>
+  <div class="more-games">
+    <a href="/games">All games</a>
+    <a href="/play">Spelling Bee</a>
+    <a href="/wordle">Wordie</a>
+    <a href="/crossword">Mini Crossword</a>
+    <a href="/connections">Connections</a>
+    <a href="/brain-check">Brain Check</a>
+  </div>
+  <p class="seo-footer">A free daily puzzle from <a href="/">Neural NeXus</a>, the science newsletter by David Kingsley, PhD. <a href="https://blog.neuralnexus.press/subscribe">Subscribe for free</a>.</p>
+</section>
+
 <div id="toast" aria-live="polite"></div>
 
 <div class="modal-overlay" id="modal">
@@ -879,6 +1063,12 @@ init();
       <button class="lb-tab" data-tab="speed" type="button">Fastest</button>
     </div>
     <div class="lb-list" id="lb-list"></div>
+
+    <div class="nn-countdown">
+      <div class="nn-countdown-lbl">Next puzzle in</div>
+      <div class="nn-countdown-clock" id="nn-countdown">--:--:--</div>
+      <div class="nn-promo">While you wait: <a href="/wordle">Wordie</a> · <a href="/connections">Connections</a> · <a href="/crossword">Mini Crossword</a></div>
+    </div>
 
     <div class="modal-actions">
       <button class="btn-modal btn-share" id="btn-share">Share &#x1F4CB;</button>

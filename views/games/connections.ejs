@@ -327,6 +327,24 @@ main {
 }
 .btn-share:hover { box-shadow: 0 4px 20px rgba(96,165,250,0.3); }
 
+/* Next-puzzle countdown + cross-game promo */
+.nn-countdown {
+  margin: 4px 0 16px; padding: 12px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+}
+.nn-countdown-lbl {
+  font-size: 0.5rem; color: var(--text-dim);
+  text-transform: uppercase; letter-spacing: 0.8px;
+}
+.nn-countdown-clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.4rem; font-weight: 700; line-height: 1.2; margin-top: 3px;
+}
+.nn-promo { margin-top: 8px; font-size: 0.7rem; color: var(--text-dim); }
+.nn-promo a { color: var(--text); text-decoration: none; font-weight: 600; }
+.nn-promo a:hover { text-decoration: underline; }
+
 /* ── Confetti ── */
 .confetti-piece {
   position: fixed; top: -10px; z-index: 400; pointer-events: none; border-radius: 2px;
@@ -674,8 +692,9 @@ function showModal(won) {
   nickInput.addEventListener('keydown', e => { if (e.key === 'Enter') btnSubmitLb.click(); });
   loadLeaderboard();
   modal.classList.add('show');
+  startCountdown();
   modal.addEventListener('click', e => {
-    if (e.target === modal) modal.classList.remove('show');
+    if (e.target === modal) { modal.classList.remove('show'); clearInterval(countdownTimer); }
   });
 }
 
@@ -699,16 +718,44 @@ async function loadLeaderboard() {
   } catch (e) {}
 }
 
+const PUZZLE_EPOCH = Date.parse('2026-04-01T00:00:00Z');
+function getPuzzleNo(dateStr) {
+  return Math.floor((Date.parse(dateStr + 'T00:00:00Z') - PUZZLE_EPOCH) / 86400000) + 1;
+}
+const SHARE_URL = 'https://www.neuralnexus.press/connections?utm_source=share&utm_medium=social&utm_campaign=connections';
 function buildShareText() {
   const allGroups = puzzleData.groups.slice().sort((a, b) => a.difficulty - b.difficulty);
   const colorEmojis = ['\u{1F7E8}', '\u{1F7E9}', '\u{1F7E6}', '\u{1F7EA}'];
-  let text = `Connections \u2014 Neural NeXus\n${todayDate}\n\n`;
+  let text = `Connections #${getPuzzleNo(todayDate)}\n\n`;
   allGroups.forEach(g => {
     text += g.words.map(() => colorEmojis[g.difficulty]).join('') + '\n';
   });
   text += `\nMistakes: ${mistakes}/4`;
-  text += '\nhttps://www.neuralnexus.press/connections';
+  text += '\n' + SHARE_URL;
   return text;
+}
+
+let countdownTimer = null;
+function startCountdown() {
+  const el = document.getElementById('nn-countdown');
+  if (!el) return;
+  const tick = () => {
+    // Seconds remaining until next America/New_York midnight.
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York', hour12: false,
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }).formatToParts(new Date()).reduce((a, p) => (a[p.type] = p.value, a), {});
+    let h = parseInt(parts.hour, 10) % 24, m = parseInt(parts.minute, 10), s = parseInt(parts.second, 10);
+    let rem = 86400 - (h * 3600 + m * 60 + s);
+    if (rem < 0) rem = 0;
+    const hh = String(Math.floor(rem / 3600)).padStart(2, '0');
+    const mm = String(Math.floor((rem % 3600) / 60)).padStart(2, '0');
+    const ss = String(rem % 60).padStart(2, '0');
+    el.textContent = `${hh}:${mm}:${ss}`;
+  };
+  tick();
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(tick, 1000);
 }
 
 function saveState() {
@@ -771,7 +818,10 @@ btnShuffle.addEventListener('click', shuffleWords);
 
 document.getElementById('btn-share').addEventListener('click', () => {
   const text = buildShareText();
-  if (navigator.clipboard) {
+  if (navigator.share) {
+    navigator.share({ title: 'Connections — Neural NeXus', text, url: SHARE_URL })
+      .catch(() => { if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!')); });
+  } else if (navigator.clipboard) {
     navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!'));
   }
 });
@@ -836,6 +886,142 @@ init();
   </p>
 </div>
 
+<style>
+  .seo-content {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 36px auto 64px;
+    padding: 0 20px;
+    color: var(--text-mid);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    text-align: left;
+  }
+  .seo-content h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 36px 0 14px;
+    letter-spacing: 0.2px;
+  }
+  .seo-content h2:first-child { margin-top: 0; }
+  .seo-content p { margin: 0 0 14px; }
+  .seo-content a { color: var(--accent); text-decoration: none; }
+  .seo-content a:hover { text-decoration: underline; }
+  .seo-content ol, .seo-content ul { margin: 0 0 14px; padding-left: 22px; }
+  .seo-content li { margin-bottom: 8px; }
+  .seo-content details {
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .seo-content summary {
+    cursor: pointer;
+    padding: 14px 44px 14px 16px;
+    font-weight: 700;
+    color: var(--text);
+    list-style: none;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .seo-content summary::-webkit-details-marker { display: none; }
+  .seo-content summary::after {
+    content: '+';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--accent);
+    transition: transform 0.2s;
+  }
+  .seo-content details[open] summary::after { content: '\2212'; }
+  .seo-content details p { padding: 0 16px 14px; margin: 0; color: var(--text-mid); }
+  .seo-content .more-games {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 8px 0 18px;
+  }
+  .seo-content .more-games a {
+    padding: 8px 14px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .seo-content .more-games a:hover { background: rgba(255,255,255,0.08); text-decoration: none; }
+  .seo-content .seo-footer { font-size: 0.88rem; color: var(--text-dim); margin-top: 8px; }
+</style>
+
+<section class="seo-content">
+  <h2>How to play Connections</h2>
+  <ol>
+    <li>You are shown a grid of sixteen words that secretly belong to four hidden groups of four.</li>
+    <li>Tap four words you think share a connection, then press Submit to test your group.</li>
+    <li>Guess correctly and the group locks in, color-coded by difficulty from yellow (easiest) to purple (trickiest).</li>
+    <li>Guess wrong and you lose one of your four attempts &mdash; the game tells you when you are just "one away."</li>
+    <li>Use Shuffle to rearrange the tiles for a fresh look, and Deselect to clear your current pick.</li>
+    <li>Solve all four groups before you run out of mistakes to win the day.</li>
+  </ol>
+
+  <h2>Tips &amp; strategy</h2>
+  <p>
+    Resist the urge to submit your very first idea. The puzzle is built on overlap: several words will
+    look like they belong to more than one category, and the trap groups are placed there on purpose.
+    Start with the connection you are most certain about, but double-check that none of those four words
+    fits an even tighter group elsewhere.
+  </p>
+  <p>
+    A good habit is to mentally sort all sixteen words before you tap anything, then solve the groups you
+    are surest of first &mdash; usually the straightforward yellow and green sets. That clears away decoys and
+    makes the harder blue and purple connections fall into place. If you are "one away," swap out the single
+    word you are least confident about rather than rebuilding the whole group from scratch.
+  </p>
+
+  <h2>Frequently asked questions</h2>
+  <details>
+    <summary>Is Connections free?</summary>
+    <p>Yes. It is a free daily Connections-style word game with no account, no app, and no paywall. Just open the page and start grouping.</p>
+  </details>
+  <details>
+    <summary>When does the daily puzzle reset?</summary>
+    <p>A new set of sixteen words goes live once a day. Come back tomorrow for the next grid, or play earlier puzzles in the <a href="/connections/archive">archive</a>.</p>
+  </details>
+  <details>
+    <summary>How is this different from NYT Connections?</summary>
+    <p>It is the same grouping concept &mdash; sixteen words, four hidden categories, four mistakes allowed &mdash; but ours is free, runs in any browser, and keeps a daily leaderboard. It is made by the team behind a science newsletter and is not affiliated with the New York Times, so it is a free Connections alternative.</p>
+  </details>
+  <details>
+    <summary>Can I play past puzzles?</summary>
+    <p>Yes. The <a href="/connections/archive">Connections archive</a> lets you go back and solve grids from previous days any time.</p>
+  </details>
+  <details>
+    <summary>Do I need an account?</summary>
+    <p>No sign-up required. Your progress saves in your browser, and you only type a nickname if you want to land on the daily leaderboard.</p>
+  </details>
+  <details>
+    <summary>How many mistakes do I get?</summary>
+    <p>You are allowed four mistakes. Use them all before solving every group and the puzzle reveals the answers, so guess thoughtfully and lock in your safest groups first.</p>
+  </details>
+
+  <h2>More free daily games</h2>
+  <div class="more-games">
+    <a href="/games">All games</a>
+    <a href="/play">Spelling Bee</a>
+    <a href="/wordle">Wordie</a>
+    <a href="/crossword">Mini Crossword</a>
+    <a href="/contexto">Contexto</a>
+    <a href="/brain-check">Brain Check</a>
+  </div>
+  <p class="seo-footer">A free daily puzzle from <a href="/">Neural NeXus</a>, the science newsletter by David Kingsley, PhD. <a href="https://blog.neuralnexus.press/subscribe">Subscribe for free</a>.</p>
+</section>
+
 <div id="toast" role="status" aria-live="polite"></div>
 
 <div class="modal-overlay" id="modal">
@@ -850,6 +1036,11 @@ init();
     <div class="lb-section" id="lb-section" style="display:none">
       <div class="lb-title">&#x1F3C6; Today's Leaderboard</div>
       <div class="lb-list" id="lb-list"></div>
+    </div>
+    <div class="nn-countdown">
+      <div class="nn-countdown-lbl">Next puzzle in</div>
+      <div class="nn-countdown-clock" id="nn-countdown">--:--:--</div>
+      <div class="nn-promo">While you wait: <a href="/wordle">Wordie</a> · <a href="/contexto">Contexto</a> · <a href="/crossword">Mini Crossword</a></div>
     </div>
     <div class="modal-actions">
       <button class="btn-modal btn-share" id="btn-share">Share &#x1F4CB;</button>

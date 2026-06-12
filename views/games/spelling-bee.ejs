@@ -706,6 +706,40 @@
     text-transform: uppercase;
   }
   .overlay-restart:hover { border-color: var(--border-2); color: var(--text-mid); }
+  .overlay-share {
+    margin-top: 8px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(240,192,64,0.35);
+    background: rgba(240,192,64,0.1);
+    color: var(--gold);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: all 0.2s;
+  }
+  .overlay-share:hover { background: rgba(240,192,64,0.18); }
+  /* Next-puzzle countdown + cross-game promo */
+  .nn-countdown {
+    margin: 18px 0 4px; padding: 12px;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+    border-radius: 14px;
+  }
+  .nn-countdown-lbl {
+    font-size: 0.6rem; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: 2px;
+  }
+  .nn-countdown-clock {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.4rem; font-weight: 700; line-height: 1.2; margin-top: 4px; color: var(--text);
+  }
+  .nn-promo { margin-top: 8px; font-size: 0.72rem; color: var(--text-dim); }
+  .nn-promo a { color: var(--text-mid); text-decoration: none; font-weight: 600; }
+  .nn-promo a:hover { color: var(--text); text-decoration: underline; }
 
   /* Rank toast */
   .rank-up-toast {
@@ -847,6 +881,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const $finalStats = $('final-stats');
   const $nicknameInput = $('nickname-input');
   const $btnSubmit = $('btn-submit-score');
+  const $btnShare = $('btn-share');
   const $lbBody = $('lb-body');
 
   const RANKS = ['Beginner','Good','Great','Amazing','Genius'];
@@ -1047,6 +1082,45 @@ document.addEventListener('DOMContentLoaded', function() {
     $nicknameInput.focus();
     if (rank === 'Genius') spawnConfetti();
     loadLeaderboard();
+    startCountdown();
+  }
+
+  const PUZZLE_EPOCH = Date.parse('2026-04-01T00:00:00Z');
+  function getPuzzleNo(dateStr) {
+    return Math.floor((Date.parse(dateStr + 'T00:00:00Z') - PUZZLE_EPOCH) / 86400000) + 1;
+  }
+  const SHARE_URL = 'https://www.neuralnexus.press/play?utm_source=share&utm_medium=social&utm_campaign=spelling-bee';
+  function buildShareText() {
+    const dateStr = (puzzle && puzzle.date) || '';
+    const pct = maxScore > 0 ? Math.round(score / maxScore * 100) : 0;
+    let text = `Spelling Bee #${getPuzzleNo(dateStr)} — ${foundWords.length} words\n\n`;
+    text += `🐝 ${score} pts · ${currentRank}\n`;
+    text += `${foundWords.length}/${totalWords} words · ${pct}% of max\n\n`;
+    text += SHARE_URL;
+    return text;
+  }
+
+  let countdownTimer = null;
+  function startCountdown() {
+    const el = document.getElementById('nn-countdown');
+    if (!el) return;
+    const tick = () => {
+      // Seconds remaining until next America/New_York midnight.
+      const parts = new Intl.DateTimeFormat('en-US', {
+        timeZone: 'America/New_York', hour12: false,
+        hour: '2-digit', minute: '2-digit', second: '2-digit'
+      }).formatToParts(new Date()).reduce((a, p) => (a[p.type] = p.value, a), {});
+      let h = parseInt(parts.hour, 10) % 24, m = parseInt(parts.minute, 10), s = parseInt(parts.second, 10);
+      let rem = 86400 - (h * 3600 + m * 60 + s);
+      if (rem < 0) rem = 0;
+      const hh = String(Math.floor(rem / 3600)).padStart(2, '0');
+      const mm = String(Math.floor((rem % 3600) / 60)).padStart(2, '0');
+      const ss = String(rem % 60).padStart(2, '0');
+      el.textContent = `${hh}:${mm}:${ss}`;
+    };
+    tick();
+    clearInterval(countdownTimer);
+    countdownTimer = setInterval(tick, 1000);
   }
 
   async function submitScore() {
@@ -1127,7 +1201,16 @@ document.addEventListener('DOMContentLoaded', function() {
   $('btn-shuffle').addEventListener('click', shuffle);
   $btnSubmit.addEventListener('click', submitScore);
   $nicknameInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitScore(); });
-  $('btn-play-again').addEventListener('click', () => $gameOver.classList.remove('active'));
+  if ($btnShare) $btnShare.addEventListener('click', () => {
+    const text = buildShareText();
+    if (navigator.share) {
+      navigator.share({ title: 'Spelling Bee — Neural NeXus', text, url: SHARE_URL })
+        .catch(() => { if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => { $btnShare.textContent = 'Copied!'; setTimeout(() => $btnShare.innerHTML = 'Share \u{1F4CB}', 2000); }); });
+    } else if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => { $btnShare.textContent = 'Copied!'; setTimeout(() => $btnShare.innerHTML = 'Share \u{1F4CB}', 2000); });
+    }
+  });
+  $('btn-play-again').addEventListener('click', () => { $gameOver.classList.remove('active'); clearInterval(countdownTimer); });
 
   init();
 });
@@ -1218,6 +1301,141 @@ document.addEventListener('DOMContentLoaded', function() {
   </p>
 </div>
 
+<style>
+  .seo-content {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 40px auto 64px;
+    padding: 0 20px;
+    color: var(--text-mid);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    text-align: left;
+  }
+  .seo-content h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 36px 0 14px;
+    letter-spacing: 0.2px;
+  }
+  .seo-content h2:first-child { margin-top: 0; }
+  .seo-content p { margin: 0 0 14px; }
+  .seo-content a { color: var(--gold); text-decoration: none; }
+  .seo-content a:hover { text-decoration: underline; }
+  .seo-content ol, .seo-content ul { margin: 0 0 14px; padding-left: 22px; }
+  .seo-content li { margin-bottom: 8px; }
+  .seo-content details {
+    border: 1px solid var(--border-2);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .seo-content summary {
+    cursor: pointer;
+    padding: 14px 44px 14px 16px;
+    font-weight: 700;
+    color: var(--text);
+    list-style: none;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .seo-content summary::-webkit-details-marker { display: none; }
+  .seo-content summary::after {
+    content: '+';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--gold);
+    transition: transform 0.2s;
+  }
+  .seo-content details[open] summary::after { content: '\2212'; }
+  .seo-content details p { padding: 0 16px 14px; margin: 0; color: var(--text-mid); }
+  .seo-content .more-games {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 8px 0 18px;
+  }
+  .seo-content .more-games a {
+    padding: 8px 14px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--border);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .seo-content .more-games a:hover { background: rgba(255,255,255,0.08); text-decoration: none; }
+  .seo-content .seo-footer { font-size: 0.88rem; color: var(--text-dim); margin-top: 8px; }
+</style>
+
+<section class="seo-content">
+  <h2>How to play Spelling Bee</h2>
+  <ol>
+    <li>You get seven letters arranged in a honeycomb, with one highlighted center letter in the middle.</li>
+    <li>Build words of four letters or more using only those seven letters &mdash; every word you make must include the center letter.</li>
+    <li>Type on your keyboard or tap the hexagons, then press Enter to submit each word.</li>
+    <li>Letters can be reused as often as you like within a single word, so long words are fair game.</li>
+    <li>Longer words score more, and a <strong>pangram</strong> &mdash; a word that uses all seven letters &mdash; earns a big bonus.</li>
+    <li>Rack up points before the timer runs out to climb from Beginner all the way to Genius.</li>
+  </ol>
+
+  <h2>Tips &amp; strategy</h2>
+  <p>
+    Start by scanning for common prefixes and suffixes you can attach to the center letter &mdash;
+    endings like -ing, -ier, -ged, and -ous tend to unlock several words at once. If you feel stuck,
+    tap Shuffle to rearrange the outer letters; a fresh arrangement often jolts a word loose.
+  </p>
+  <p>
+    Hunt for the pangram early. Because it uses all seven letters and carries a bonus, finding it is
+    usually the single biggest jump on your way to Genius. Look for letter combinations that suggest
+    a longer root word, then add the leftover letters around it. And don't ignore the short, ordinary
+    four-letter words &mdash; they add up quickly and keep your momentum going while the clock ticks.
+  </p>
+
+  <h2>Frequently asked questions</h2>
+  <details>
+    <summary>Is Spelling Bee free?</summary>
+    <p>Yes. It is completely free, with no account, no app download, and no paywall &mdash; just open the page and start spelling.</p>
+  </details>
+  <details>
+    <summary>When does the daily puzzle reset?</summary>
+    <p>A new letter set goes live once a day. Come back tomorrow for a brand-new honeycomb, or dip into the <a href="/play/archive">archive</a> to play earlier puzzles right now.</p>
+  </details>
+  <details>
+    <summary>How is this different from the NYT Spelling Bee?</summary>
+    <p>It is the same kind of seven-letter word hunt, but ours is free, runs in any browser, and adds a timer plus a live leaderboard. It is made by the team behind a science newsletter rather than a newsroom, so it is a friendly free alternative if you have hit the New York Times paywall.</p>
+  </details>
+  <details>
+    <summary>Can I play past puzzles?</summary>
+    <p>Yes. Visit the <a href="/play/archive">Spelling Bee archive</a> to replay puzzles from previous days any time you like.</p>
+  </details>
+  <details>
+    <summary>Do I need an account?</summary>
+    <p>No. You can play instantly with no sign-up. If you want your score to appear on the daily leaderboard, you simply type a nickname when the round ends.</p>
+  </details>
+  <details>
+    <summary>What counts as a valid word?</summary>
+    <p>Words must be at least four letters long, use only the seven available letters, and include the center letter. Proper nouns and obscure abbreviations are not accepted.</p>
+  </details>
+
+  <h2>More free daily games</h2>
+  <div class="more-games">
+    <a href="/games">All games</a>
+    <a href="/wordle">Wordie</a>
+    <a href="/crossword">Mini Crossword</a>
+    <a href="/connections">Connections</a>
+    <a href="/contexto">Contexto</a>
+    <a href="/brain-check">Brain Check</a>
+  </div>
+  <p class="seo-footer">A free daily puzzle from <a href="/">Neural NeXus</a>, the science newsletter by David Kingsley, PhD. <a href="https://blog.neuralnexus.press/subscribe">Subscribe for free</a>.</p>
+</section>
+
 <!-- Game Over -->
 <div class="overlay" id="game-over">
   <div class="overlay-card">
@@ -1230,6 +1448,12 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="modal-lb" id="modal-lb-section" style="display:none;margin-top:18px;text-align:left;">
       <div style="font-size:0.62rem;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:8px;text-align:center;">&#x1F3C6; Today's Leaderboard</div>
       <div id="modal-lb-list" style="display:flex;flex-direction:column;gap:4px;max-height:220px;overflow-y:auto;"></div>
+    </div>
+    <button class="overlay-share" id="btn-share">Share &#x1F4CB;</button>
+    <div class="nn-countdown">
+      <div class="nn-countdown-lbl">Next puzzle in</div>
+      <div class="nn-countdown-clock" id="nn-countdown">--:--:--</div>
+      <div class="nn-promo">While you wait: <a href="/wordle">Wordie</a> &middot; <a href="/connections">Connections</a> &middot; <a href="/crossword">Mini Crossword</a></div>
     </div>
     <button class="overlay-restart" id="btn-play-again">View Leaderboard</button>
   </div>
