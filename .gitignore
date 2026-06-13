@@ -10,3 +10,16 @@ npm-debug.log*
 # Contexto embeddings — regenerable via scripts/contexto-build-vocab.js
 data/contexto/_vocab-embeddings.bin
 scripts/.cache-*.txt
+
+# Fitness tracker — private local data (photos + SQLite)
+data/fitness-photos/
+data/fitness.db*
+
+# USDA bulk downloads (the trimmed foods-usda.json IS committed; raw zips aren't)
+data/seed/.tmp-usda/
+
+# Personal health seed data — kept LOCAL, never published (this repo is public).
+# The importer reads these from disk; they just aren't tracked in git.
+data/seed/fitness-lifts-jan-mar.txt
+data/seed/fitness-weight-sleep.txt
+data/seed/fitness-workouts-raw.txt

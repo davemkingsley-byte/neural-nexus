@@ -19,6 +19,31 @@ try {
   console.error('Failed to load cognitive DB:', err.message);
 }
 
+// Fitness tracker DB (separate from cognitive.db)
+let fitnessDB;
+let fitnessAI;          // active vision provider (anthropic | ollama)
+let fitnessAIAnthropic; // kept separately for optional runtime switching
+let fitnessAIOllama;
+let fitnessExt;
+let fitnessDBReady = false;
+try {
+  fitnessDB = require('./src/fitness-db');
+  fitnessDB.initDB();
+  fitnessAIAnthropic = require('./src/fitness-ai');
+  fitnessAIOllama = require('./src/fitness-ai-local');
+  // Provider selection: Claude (anthropic) is the default vision provider. Set
+  // FITNESS_VISION_PROVIDER=ollama to use a local model instead. Claude requires
+  // ANTHROPIC_API_KEY to be set (else analyze calls return a "not configured" error).
+  const provider = (process.env.FITNESS_VISION_PROVIDER || 'anthropic').toLowerCase();
+  fitnessAI = (provider === 'ollama') ? fitnessAIOllama : fitnessAIAnthropic;
+  fitnessExt = require('./src/fitness-external-foods');
+  fitnessDBReady = true;
+  const keyNote = (provider === 'anthropic' && !fitnessAIAnthropic.isApiKeyConfigured()) ? ' — WARNING: ANTHROPIC_API_KEY not set, photo analysis will fail until it is' : '';
+  console.log(`Fitness DB loaded successfully (vision provider: ${provider})${keyNote}`);
+} catch (err) {
+  console.error('Failed to load fitness DB:', err.message);
+}
+
 try {
   spellDB = require('./src/database');
   const pg = require('./src/puzzle-generator');
@@ -2064,6 +2089,790 @@ app.get('/api/cognitive/phases/:id/stats', dashboardAuth, (req, res) => {
   } catch (err) {
     res.status(500).json({ error: 'Failed to get phase stats' });
   }
+});
+
+// ── Fitness Tracker ──
+function checkFitnessDB(res) {
+  if (fitnessDBReady) return true;
+  res.status(503).json({ error: 'fitness db not available' });
+  return false;
+}
+
+const multer = require('multer');
+const fitnessUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 15 * 1024 * 1024 }, // 15 MB per file
+  fileFilter: (req, file, cb) => {
+    const ok = /^image\/(jpeg|jpg|png|webp|heic|heif)$/i.test(file.mimetype || '');
+    cb(ok ? null : new Error('unsupported file type'), ok);
+  }
+});
+
+function todayDateStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+function validDate(s) { return typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s); }
+
+// Password-gated page render (same pattern as /dashboard)
+app.get('/fitness', dashboardLoginPage, (req, res) => {
+  renderPage(res, 'pages/fitness', {
+    title: 'Fitness Tracker',
+    description: 'Private fitness tracker — workouts, bodyweight, diet, and progress photos.',
+    canonical: 'https://www.neuralnexus.press/fitness',
+    activePage: 'fitness',
+    pageType: 'fitness',
+    bodyClass: 'fitness-page',
+    noindex: true,
+    hideSiteChrome: true
+  });
+});
+
+// ---- Weight log ----
+app.get('/api/fitness/weight', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const rows = fitnessDB.getDB().prepare('SELECT id, date, weight_lbs, notes FROM weight_log ORDER BY date ASC, id ASC').all();
+    res.json(rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.post('/api/fitness/weight', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  const { date, weight_lbs, notes } = req.body || {};
+  if (!validDate(date)) return res.status(400).json({ error: 'invalid date (YYYY-MM-DD)' });
+  const w = Number(weight_lbs);
+  if (!Number.isFinite(w) || w <= 0 || w > 1000) return res.status(400).json({ error: 'invalid weight' });
+  try {
+    const info = fitnessDB.getDB().prepare('INSERT INTO weight_log (date, weight_lbs, notes) VALUES (?, ?, ?)')
+      .run(date, w, notes || null);
+    res.json({ id: info.lastInsertRowid });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.delete('/api/fitness/weight/:id', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const info = fitnessDB.getDB().prepare('DELETE FROM weight_log WHERE id = ?').run(parseInt(req.params.id));
+    res.json({ deleted: info.changes });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ---- Workouts ----
+app.get('/api/fitness/workouts', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const rows = fitnessDB.getDB().prepare(`
+      SELECT s.id, s.date, s.name, s.notes, s.duration_min, s.seed_origin,
+             (SELECT COUNT(*) FROM workout_sets WHERE session_id = s.id) AS set_count
+      FROM workout_sessions s
+      ORDER BY s.date DESC, s.id DESC
+    `).all();
+    res.json(rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.get('/api/fitness/workouts/:id', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const id = parseInt(req.params.id);
+    const session = fitnessDB.getDB().prepare('SELECT * FROM workout_sessions WHERE id = ?').get(id);
+    if (!session) return res.status(404).json({ error: 'not found' });
+    const sets = fitnessDB.getDB().prepare('SELECT * FROM workout_sets WHERE session_id = ? ORDER BY id ASC').all(id);
+    res.json({ session, sets });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.post('/api/fitness/workouts', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  const { date, name, notes, duration_min } = req.body || {};
+  if (!validDate(date)) return res.status(400).json({ error: 'invalid date' });
+  try {
+    const info = fitnessDB.getDB().prepare('INSERT INTO workout_sessions (date, name, notes, duration_min) VALUES (?, ?, ?, ?)')
+      .run(date, name || 'Workout', notes || null, Number.isFinite(Number(duration_min)) ? Number(duration_min) : null);
+    res.json({ id: info.lastInsertRowid });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.post('/api/fitness/workouts/:id/sets', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  const { exercise, set_number, weight_lbs, reps, rpe, notes } = req.body || {};
+  if (!exercise || typeof exercise !== 'string') return res.status(400).json({ error: 'exercise required' });
+  try {
+    const info = fitnessDB.getDB().prepare(`
+      INSERT INTO workout_sets (session_id, exercise, set_number, weight_lbs, reps, rpe, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      parseInt(req.params.id),
+      exercise.trim(),
+      Number.isFinite(Number(set_number)) ? Number(set_number) : null,
+      Number.isFinite(Number(weight_lbs)) ? Number(weight_lbs) : null,
+      Number.isFinite(Number(reps)) ? Number(reps) : null,
+      Number.isFinite(Number(rpe)) ? Number(rpe) : null,
+      notes || null
+    );
+    res.json({ id: info.lastInsertRowid });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.delete('/api/fitness/workouts/:id', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const info = fitnessDB.getDB().prepare('DELETE FROM workout_sessions WHERE id = ?').run(parseInt(req.params.id));
+    res.json({ deleted: info.changes });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.get('/api/fitness/exercises', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const rows = fitnessDB.getDB().prepare('SELECT DISTINCT exercise FROM workout_sets ORDER BY exercise').all();
+    res.json(rows.map(r => r.exercise));
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.get('/api/fitness/exercises/:name', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const rows = fitnessDB.getDB().prepare(`
+      SELECT ws.id, ws.exercise, ws.set_number, ws.weight_lbs, ws.reps, ws.rpe, ws.notes,
+             s.date, s.name as session_name
+      FROM workout_sets ws
+      JOIN workout_sessions s ON s.id = ws.session_id
+      WHERE ws.exercise = ?
+      ORDER BY s.date ASC, ws.id ASC
+    `).all(req.params.name);
+    res.json(rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ---- Diet ----
+app.get('/api/fitness/diet', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const q = req.query.date;
+    const stmt = q && validDate(q)
+      ? fitnessDB.getDB().prepare('SELECT * FROM diet_log WHERE date = ? ORDER BY id ASC')
+      : fitnessDB.getDB().prepare('SELECT * FROM diet_log ORDER BY date DESC, id ASC LIMIT 500');
+    res.json(q && validDate(q) ? stmt.all(q) : stmt.all());
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.post('/api/fitness/diet', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  const { date, meal, food, calories, protein_g, carbs_g, fat_g, notes, food_id, servings } = req.body || {};
+  if (!validDate(date)) return res.status(400).json({ error: 'invalid date' });
+  if (!food || typeof food !== 'string') return res.status(400).json({ error: 'food required' });
+  try {
+    const info = fitnessDB.getDB().prepare(`
+      INSERT INTO diet_log (date, meal, food, calories, protein_g, carbs_g, fat_g, notes, food_id, servings)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      date, meal || null, food.trim(),
+      Number.isFinite(Number(calories)) ? Math.round(Number(calories)) : null,
+      Number.isFinite(Number(protein_g)) ? Number(protein_g) : null,
+      Number.isFinite(Number(carbs_g)) ? Number(carbs_g) : null,
+      Number.isFinite(Number(fat_g)) ? Number(fat_g) : null,
+      notes || null,
+      Number.isFinite(Number(food_id)) ? Number(food_id) : null,
+      Number.isFinite(Number(servings)) ? Number(servings) : 1
+    );
+    res.json({ id: info.lastInsertRowid });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+app.delete('/api/fitness/diet/:id', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const info = fitnessDB.getDB().prepare('DELETE FROM diet_log WHERE id = ?').run(parseInt(req.params.id));
+    res.json({ deleted: info.changes });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ---- Food database ----
+app.get('/api/fitness/foods', dashboardAuth, async (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const q = (req.query.q || '').trim();
+    const limit = Math.min(Math.max(parseInt(req.query.limit, 10) || 25, 1), 100);
+    const wantExternal = req.query.external !== '0';  // opt out with ?external=0
+    if (!q) {
+      // Recent foods from log history. Pick the latest row per food name
+      // deterministically (max id ≈ latest insert) rather than an arbitrary row
+      // from a GROUP BY, so the macros shown are stable.
+      const recentRows = fitnessDB.getDB().prepare(`
+        SELECT dl.food_id, dl.food, dl.calories, dl.protein_g, dl.carbs_g, dl.fat_g, dl.servings, dl.date AS last_used,
+               (SELECT COUNT(*) FROM diet_log d2 WHERE LOWER(TRIM(d2.food)) = LOWER(TRIM(dl.food))) AS times_used
+        FROM diet_log dl
+        WHERE dl.id IN (
+          SELECT MAX(id) FROM diet_log WHERE food IS NOT NULL AND TRIM(food) != '' GROUP BY LOWER(TRIM(food))
+        )
+        ORDER BY dl.date DESC, dl.id DESC
+        LIMIT ?
+      `).all(limit);
+      // diet_log stores the *scaled* totals + the servings used. Return per-serving
+      // base values (and a clean name without the "N× " prefix) so re-selecting a
+      // recent food and logging it doesn't multiply by servings a second time.
+      const stripMult = (s) => (s || '').replace(/^\d+(?:\.\d+)?×\s*/, '');
+      const recent = recentRows.map(r => {
+        const sv = (r.servings && r.servings > 0) ? r.servings : 1;
+        const per = (v) => (v == null ? null : Math.round((v / sv) * 10) / 10);
+        return {
+          id: r.food_id || null,           // negative/absent → frontend treats as unlinked
+          name: stripMult(r.food),
+          category: 'recent',
+          source: r.food_id ? 'recent' : 'custom',
+          serving_description: null,
+          serving_size_g: null,
+          calories: r.calories == null ? null : Math.round(r.calories / sv),
+          protein_g: per(r.protein_g),
+          carbs_g: per(r.carbs_g),
+          fat_g: per(r.fat_g),
+          times_used: r.times_used
+        };
+      });
+      return res.json({ results: recent, recent: true, nutritionix_configured: fitnessExt.isNutritionixConfigured() });
+    }
+    // Normalize + expand query: strip punctuation/apostrophes, generate singular/plural
+    // variants per token, then OR the variants within each position (AND across positions).
+    // "dave's bagel" → ((dave* OR daves*) (bagel* OR bagels*))
+    const normalized = q.toLowerCase().replace(/['’]/g, '').replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    const tokens = normalized.split(' ').filter(Boolean);
+    // Build the singular/plural prefix group for one token, e.g. ("bagel"* OR "bagels"*).
+    // Used by BOTH the AND-across-tokens primary query and the OR-across-tokens
+    // recall fallback so the fallback keeps the same variant coverage.
+    const tokenVariantGroup = (t) => {
+      const variants = new Set([t]);
+      if (t.length >= 3) {
+        if (t.endsWith('s')) variants.add(t.slice(0, -1));
+        else variants.add(t + 's');
+      }
+      const quoted = [...variants].map(v => `"${v}"*`);
+      return quoted.length > 1 ? `(${quoted.join(' OR ')})` : quoted[0];
+    };
+    const ftsQuery = tokens.map(tokenVariantGroup).join(' ');
+
+    let rows = [];
+    try {
+      rows = fitnessDB.getDB().prepare(`
+        SELECT f.id, f.name, f.category, f.serving_description, f.serving_size_g,
+               f.calories_per_100g, f.protein_per_100g, f.carbs_per_100g, f.fat_per_100g,
+               f.source, f.external_id
+        FROM foods_fts
+        JOIN foods f ON f.id = foods_fts.rowid
+        WHERE foods_fts MATCH ?
+        ORDER BY rank
+        LIMIT ?
+      `).all(ftsQuery, limit);
+    } catch (e) {
+      // If FTS5 parse fails (unusual characters), fall through to empty local results
+      rows = [];
+    }
+    // If local AND query returns few results, try OR mode for more recall (still prefix matching)
+    if (rows.length < 5 && tokens.length > 1) {
+      const orQuery = tokens.map(tokenVariantGroup).join(' OR ');
+      try {
+        const orRows = fitnessDB.getDB().prepare(`
+          SELECT f.id, f.name, f.category, f.serving_description, f.serving_size_g,
+                 f.calories_per_100g, f.protein_per_100g, f.carbs_per_100g, f.fat_per_100g,
+                 f.source, f.external_id
+          FROM foods_fts
+          JOIN foods f ON f.id = foods_fts.rowid
+          WHERE foods_fts MATCH ?
+          ORDER BY rank
+          LIMIT ?
+        `).all(orQuery, limit);
+        // Merge without duplicates
+        const seen = new Set(rows.map(r => r.id));
+        for (const r of orRows) { if (!seen.has(r.id)) { rows.push(r); seen.add(r.id); } }
+      } catch (e) {}
+    }
+    // Normalize — expose calories/protein/carbs/fat at the default serving size
+    const mapRow = (r, sourceOverride) => {
+      let cals100 = r.calories_per_100g;
+      if (cals100 == null && (r.protein_per_100g != null || r.carbs_per_100g != null || r.fat_per_100g != null)) {
+        cals100 = Math.round(((r.protein_per_100g || 0) * 4 + (r.carbs_per_100g || 0) * 4 + (r.fat_per_100g || 0) * 9) * 10) / 10;
+      }
+      return {
+        id: r.id,
+        name: r.name,
+        category: r.category,
+        source: sourceOverride || r.source,
+        external_id: r.external_id,
+        serving_description: r.serving_description,
+        serving_size_g: r.serving_size_g,
+        calories: perServing(cals100, r.serving_size_g),
+        protein_g: perServing(r.protein_per_100g, r.serving_size_g),
+        carbs_g: perServing(r.carbs_per_100g, r.serving_size_g),
+        fat_g: perServing(r.fat_per_100g, r.serving_size_g),
+        per100g: { calories: cals100, protein_g: r.protein_per_100g, carbs_g: r.carbs_per_100g, fat_g: r.fat_per_100g }
+      };
+    };
+    const results = rows.map(r => mapRow(r));
+
+    // If opt-in, also query external sources in parallel (OFF always; Nutritionix if key set)
+    let externalResults = [];
+    if (wantExternal) {
+      const external = await Promise.all([
+        fitnessExt.searchOpenFoodFacts(q, 8).catch(() => []),
+        fitnessExt.searchNutritionix(q, 8).catch(() => [])
+      ]);
+      // Map each external result (not yet saved — id=null signals "import-before-use").
+      // Suppress any that already exist locally; look up only the candidate ids
+      // rather than scanning the whole foods table.
+      const flat = external.flat().filter(r => r.external_id);
+      const candidateIds = [...new Set(flat.map(r => r.external_id))];
+      const knownExternalIds = new Set();
+      if (candidateIds.length) {
+        const placeholders = candidateIds.map(() => '?').join(',');
+        for (const row of fitnessDB.getDB().prepare(`SELECT external_id FROM foods WHERE external_id IN (${placeholders})`).all(...candidateIds)) {
+          knownExternalIds.add(row.external_id);
+        }
+      }
+      externalResults = flat
+        .filter(r => !knownExternalIds.has(r.external_id))
+        .map(r => mapRow({ ...r, id: null }, r.source));
+    }
+
+    res.json({ results: [...results, ...externalResults], recent: false, nutritionix_configured: fitnessExt.isNutritionixConfigured() });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Import an external food into the local `foods` table (persist on first use)
+app.post('/api/fitness/foods/import', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  const { name, category, source, external_id, serving_description, serving_size_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g } = req.body || {};
+  if (!name || !source || !external_id) return res.status(400).json({ error: 'name, source, external_id required' });
+  try {
+    // If already present, return existing id
+    const existing = fitnessDB.getDB().prepare('SELECT id FROM foods WHERE external_id = ?').get(external_id);
+    if (existing) return res.json({ id: existing.id, imported: false });
+
+    const info = fitnessDB.getDB().prepare(`
+      INSERT INTO foods (name, category, source, external_id, serving_description, serving_size_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      name.trim(),
+      category || null,
+      source,
+      external_id,
+      serving_description || null,
+      Number(serving_size_g) || 100,
+      Number.isFinite(Number(calories_per_100g)) ? Number(calories_per_100g) : null,
+      Number.isFinite(Number(protein_per_100g)) ? Number(protein_per_100g) : null,
+      Number.isFinite(Number(carbs_per_100g)) ? Number(carbs_per_100g) : null,
+      Number.isFinite(Number(fat_per_100g)) ? Number(fat_per_100g) : null
+    );
+    res.json({ id: info.lastInsertRowid, imported: true });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+function perServing(per100g, sizeG) {
+  if (per100g == null || !sizeG) return null;
+  return Math.round((per100g * sizeG / 100) * 10) / 10;
+}
+
+app.post('/api/fitness/foods/custom', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  const { name, serving_description, serving_size_g, calories, protein_g, carbs_g, fat_g, category } = req.body || {};
+  if (!name || typeof name !== 'string') return res.status(400).json({ error: 'name required' });
+  const size = Number(serving_size_g) || 100;
+  try {
+    const toPer100 = v => Number.isFinite(Number(v)) ? Math.round((Number(v) * 100 / size) * 10) / 10 : null;
+    const info = fitnessDB.getDB().prepare(`
+      INSERT INTO foods (name, category, source, serving_description, serving_size_g, calories_per_100g, protein_per_100g, carbs_per_100g, fat_per_100g)
+      VALUES (?, ?, 'custom', ?, ?, ?, ?, ?, ?)
+    `).run(
+      name.trim(),
+      category || null,
+      serving_description || `${size} g`,
+      size,
+      toPer100(calories),
+      toPer100(protein_g),
+      toPer100(carbs_g),
+      toPer100(fat_g)
+    );
+    res.json({ id: info.lastInsertRowid });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ---- Go-to meals ----
+app.get('/api/fitness/goto-meals', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const meals = fitnessDB.getDB().prepare('SELECT * FROM go_to_meals ORDER BY name ASC').all();
+    const items = fitnessDB.getDB().prepare('SELECT * FROM go_to_meal_items').all();
+    const byMeal = {};
+    for (const it of items) { (byMeal[it.meal_id] ||= []).push(it); }
+    const out = meals.map(m => {
+      const mealItems = byMeal[m.id] || [];
+      const totals = mealItems.reduce((a, i) => ({
+        calories: a.calories + (i.calories || 0) * (i.servings || 1),
+        protein_g: a.protein_g + (i.protein_g || 0) * (i.servings || 1),
+        carbs_g: a.carbs_g + (i.carbs_g || 0) * (i.servings || 1),
+        fat_g: a.fat_g + (i.fat_g || 0) * (i.servings || 1)
+      }), { calories: 0, protein_g: 0, carbs_g: 0, fat_g: 0 });
+      return { ...m, items: mealItems, totals: {
+        calories: Math.round(totals.calories),
+        protein_g: Math.round(totals.protein_g * 10) / 10,
+        carbs_g: Math.round(totals.carbs_g * 10) / 10,
+        fat_g: Math.round(totals.fat_g * 10) / 10
+      }};
+    });
+    res.json(out);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/fitness/goto-meals', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  const { name, meal, notes, items } = req.body || {};
+  if (!name || typeof name !== 'string' || !Array.isArray(items) || !items.length) return res.status(400).json({ error: 'name and items[] required' });
+  try {
+    const db = fitnessDB.getDB();
+    const txn = db.transaction(() => {
+      const info = db.prepare('INSERT INTO go_to_meals (name, meal, notes) VALUES (?, ?, ?)').run(name.trim(), meal || null, notes || null);
+      const mealId = info.lastInsertRowid;
+      const insertItem = db.prepare(`
+        INSERT INTO go_to_meal_items (meal_id, food_id, food_name, servings, calories, protein_g, carbs_g, fat_g)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      for (const it of items) {
+        if (!it.food_name) continue;
+        insertItem.run(
+          mealId,
+          it.food_id || null,
+          it.food_name,
+          Number(it.servings) || 1,
+          Number.isFinite(Number(it.calories)) ? Number(it.calories) : null,
+          Number.isFinite(Number(it.protein_g)) ? Number(it.protein_g) : null,
+          Number.isFinite(Number(it.carbs_g)) ? Number(it.carbs_g) : null,
+          Number.isFinite(Number(it.fat_g)) ? Number(it.fat_g) : null
+        );
+      }
+      return mealId;
+    });
+    const id = txn();
+    res.json({ id });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/fitness/goto-meals/:id', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const info = fitnessDB.getDB().prepare('DELETE FROM go_to_meals WHERE id = ?').run(parseInt(req.params.id));
+    res.json({ deleted: info.changes });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Log a go-to meal to a date — inserts one diet_log entry per item
+app.post('/api/fitness/goto-meals/:id/log', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  const { date, meal } = req.body || {};
+  if (!validDate(date)) return res.status(400).json({ error: 'invalid date' });
+  try {
+    const db = fitnessDB.getDB();
+    const gm = db.prepare('SELECT * FROM go_to_meals WHERE id = ?').get(parseInt(req.params.id));
+    if (!gm) return res.status(404).json({ error: 'meal not found' });
+    const items = db.prepare('SELECT * FROM go_to_meal_items WHERE meal_id = ?').all(gm.id);
+    if (!items.length) return res.status(400).json({ error: 'meal has no items' });
+    const mealSlot = meal || gm.meal || 'Other';
+    const insert = db.prepare(`
+      INSERT INTO diet_log (date, meal, food, calories, protein_g, carbs_g, fat_g, food_id, servings, notes)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `);
+    const txn = db.transaction(() => {
+      const ids = [];
+      for (const it of items) {
+        const s = it.servings || 1;
+        const info = insert.run(
+          date, mealSlot, it.food_name,
+          it.calories != null ? Math.round(it.calories * s) : null,
+          it.protein_g != null ? Math.round(it.protein_g * s * 10) / 10 : null,
+          it.carbs_g != null ? Math.round(it.carbs_g * s * 10) / 10 : null,
+          it.fat_g != null ? Math.round(it.fat_g * s * 10) / 10 : null,
+          it.food_id,
+          s,
+          `from go-to: ${gm.name}`
+        );
+        ids.push(info.lastInsertRowid);
+      }
+      return ids;
+    });
+    const ids = txn();
+    res.json({ logged: ids.length, ids });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Copy a whole day of diet log to a new date
+app.post('/api/fitness/diet/copy-day', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  const { from_date, to_date } = req.body || {};
+  if (!validDate(from_date) || !validDate(to_date)) return res.status(400).json({ error: 'invalid dates' });
+  try {
+    const db = fitnessDB.getDB();
+    const rows = db.prepare('SELECT meal, food, calories, protein_g, carbs_g, fat_g, food_id, servings, notes FROM diet_log WHERE date = ?').all(from_date);
+    if (!rows.length) return res.json({ copied: 0 });
+    const insert = db.prepare('INSERT INTO diet_log (date, meal, food, calories, protein_g, carbs_g, fat_g, food_id, servings, notes) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    const txn = db.transaction(() => {
+      for (const r of rows) insert.run(to_date, r.meal, r.food, r.calories, r.protein_g, r.carbs_g, r.fat_g, r.food_id, r.servings, r.notes);
+    });
+    txn();
+    res.json({ copied: rows.length });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// ---- Progress Photos ----
+
+// Sniff image type from magic bytes — multer's fileFilter trusts the client MIME,
+// so verify the actual bytes before we persist/serve the file. Returns a type or null.
+function sniffImageType(buf) {
+  if (!buf || buf.length < 12) return null;
+  if (buf[0] === 0xFF && buf[1] === 0xD8 && buf[2] === 0xFF) return 'jpeg';
+  if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4E && buf[3] === 0x47) return 'png';
+  if (buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') return 'webp';
+  if (buf.toString('ascii', 4, 8) === 'ftyp') { // HEIC/HEIF family
+    const brand = buf.toString('ascii', 8, 12);
+    if (/heic|heix|hevc|heim|heis|mif1|msf1/.test(brand)) return 'heic';
+  }
+  return null;
+}
+
+// Recompute LBM + FFMI authoritatively from BF% and bodyweight. Vision models
+// (especially small local ones) often get the arithmetic wrong; we trust the
+// qualitative BF% but do the math ourselves so every stored row reconciles and the
+// trend lines stay consistent regardless of which analyze path produced them.
+function reconcileBodyComp(a, weightLbs) {
+  if (!a || typeof a !== 'object') return a;
+  for (const k of ['bf_pct', 'lbm_lbs', 'ffmi']) {
+    const n = Number(a[k]);
+    a[k] = Number.isFinite(n) ? n : null;
+  }
+  const bw = Number(weightLbs) || 185; // fallback bodyweight if none known
+  if (a.bf_pct != null && a.bf_pct > 0 && a.bf_pct < 60) {
+    const lbmLbs = Math.round(bw * (1 - a.bf_pct / 100) * 10) / 10;
+    const lbmKg = lbmLbs * 0.453592;
+    a.lbm_lbs = lbmLbs;
+    a.ffmi = Math.round((lbmKg / (1.8034 * 1.8034)) * 10) / 10;
+    a._bodyweight_used = bw;
+  }
+  return a;
+}
+
+// Persist an analysis object onto a single photo row.
+function saveAnalysisToPhoto(photoId, a) {
+  fitnessDB.getDB().prepare(`
+    UPDATE progress_photos
+    SET bf_estimate_pct = ?, lbm_estimate_lbs = ?, ffmi_estimate = ?, ai_analysis = ?
+    WHERE id = ?
+  `).run(
+    Number.isFinite(a.bf_pct) ? a.bf_pct : null,
+    Number.isFinite(a.lbm_lbs) ? a.lbm_lbs : null,
+    Number.isFinite(a.ffmi) ? a.ffmi : null,
+    JSON.stringify(a),
+    photoId
+  );
+}
+
+// Fire-and-forget analysis used by the upload route so the HTTP response never
+// blocks on the (possibly multi-minute) vision call.
+function analyzePhotoInBackground(photoId, photos, weightLbs) {
+  Promise.resolve()
+    .then(() => fitnessAI.analyzePhysique(photos, { weightLbs }))
+    .then(r => {
+      if (r && r.ok && r.analysis) saveAnalysisToPhoto(photoId, reconcileBodyComp(r.analysis, weightLbs));
+      else if (r && r.error) console.warn('Background physique analysis returned no result:', r.error);
+    })
+    .catch(err => console.error('Background physique analysis failed:', err && err.message));
+}
+
+app.get('/api/fitness/photos', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const rows = fitnessDB.getDB().prepare(`
+      SELECT id, date, photo_path, angle, weight_lbs, bf_estimate_pct, lbm_estimate_lbs,
+             ffmi_estimate, (ai_analysis IS NOT NULL) AS has_analysis, seed_origin
+      FROM progress_photos ORDER BY date ASC, id ASC
+    `).all();
+    res.json(rows);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/fitness/photos', dashboardAuth, fitnessUpload.single('photo'), async (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    if (!req.file) return res.status(400).json({ error: 'no photo' });
+    // multer's fileFilter trusts the client-declared MIME; verify the real bytes.
+    if (!sniffImageType(req.file.buffer)) return res.status(400).json({ error: 'file is not a recognized image (jpeg/png/webp/heic)' });
+    const date = validDate(req.body.date) ? req.body.date : todayDateStr();
+    const angle = (req.body.angle || 'front').toLowerCase();
+    const weight = Number.isFinite(Number(req.body.weight_lbs)) ? Number(req.body.weight_lbs) : null;
+
+    // Sanitize filename
+    const origName = (req.file.originalname || 'photo').replace(/[^a-zA-Z0-9.\-_]/g, '_');
+    const stamp = Date.now();
+    const storedName = `${date}_${angle}_${stamp}_${origName}`.slice(0, 180);
+    const destPath = path.join(fitnessDB.getPhotosDir(), storedName);
+
+    // Insert the row first, then write the file; if the write fails, roll the row
+    // back so we never leave an orphaned DB row pointing at a missing file (or a
+    // file on disk with no row).
+    const info = fitnessDB.getDB().prepare(
+      'INSERT INTO progress_photos (date, photo_path, angle, weight_lbs) VALUES (?, ?, ?, ?)'
+    ).run(date, storedName, angle, weight);
+    const photoId = info.lastInsertRowid;
+    try {
+      fs.writeFileSync(destPath, req.file.buffer);
+    } catch (writeErr) {
+      fitnessDB.getDB().prepare('DELETE FROM progress_photos WHERE id = ?').run(photoId);
+      throw writeErr;
+    }
+
+    // AI analysis is supplemental and can take many seconds (up to ~3 min on the
+    // local Ollama provider). The photo is already saved, so respond immediately
+    // and analyze in the background rather than holding the upload connection open.
+    if (fitnessAI && fitnessAI.isApiKeyConfigured()) {
+      res.json({ id: photoId, analyzing: true });
+      analyzePhotoInBackground(photoId, [{ absPath: destPath, angle }], weight);
+      return;
+    }
+    res.json({ id: photoId, warning: 'AI analysis unavailable (vision provider not configured)' });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// Report which vision provider is active (shown in the UI)
+app.get('/api/fitness/vision-provider', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    if (fitnessAI && typeof fitnessAI.getProviderInfo === 'function') {
+      return res.json({ ...fitnessAI.getProviderInfo(), configured: fitnessAI.isApiKeyConfigured() });
+    }
+    res.json({ provider: 'anthropic', model: (fitnessAIAnthropic && fitnessAIAnthropic.ANTHROPIC_MODEL) || 'claude-sonnet-4-6', configured: fitnessAI?.isApiKeyConfigured() || false });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Analyze an entire session (all angles for a date) in one vision call.
+// The composite result is stored on the 'front' angle row; other angles get
+// ai_analysis=NULL so the UI knows which is canonical.
+app.post('/api/fitness/photos/session/:date/analyze', dashboardAuth, async (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  if (!fitnessAI || !fitnessAI.isApiKeyConfigured()) {
+    return res.status(400).json({ error: 'Vision provider not configured. Set ANTHROPIC_API_KEY or ensure Ollama is running.' });
+  }
+  const date = req.params.date;
+  if (!validDate(date)) return res.status(400).json({ error: 'invalid date' });
+  try {
+    const all = fitnessDB.getDB().prepare('SELECT * FROM progress_photos WHERE date = ? ORDER BY angle').all(date);
+    if (!all.length) return res.status(404).json({ error: 'no photos for this date' });
+
+    const photos = all
+      .map(p => ({ absPath: path.join(fitnessDB.getPhotosDir(), p.photo_path), angle: p.angle }))
+      .filter(p => fs.existsSync(p.absPath));
+    if (!photos.length) return res.status(404).json({ error: 'no readable photos' });
+
+    // Use the earliest available weight logged on that date as the prior
+    const weightRow = fitnessDB.getDB().prepare('SELECT weight_lbs FROM weight_log WHERE date = ? LIMIT 1').get(date);
+    const photoWeight = all.find(p => p.weight_lbs)?.weight_lbs;
+    const weight = photoWeight || weightRow?.weight_lbs || null;
+
+    const r = await fitnessAI.analyzePhysique(photos, { weightLbs: weight });
+    if (!r.ok) return res.status(500).json({ error: r.error });
+
+    const a = reconcileBodyComp(r.analysis, weight);
+    // Store the composite analysis on the 'front' angle (or first row if no front)…
+    const canonical = all.find(p => p.angle === 'front') || all[0];
+    // …and clear any per-angle analysis on the other rows for this date so /sessions
+    // has exactly one canonical estimate (sibling rows can carry stale analysis from
+    // the upload auto-analyze or a prior per-photo analyze).
+    fitnessDB.getDB().prepare(
+      'UPDATE progress_photos SET bf_estimate_pct = NULL, lbm_estimate_lbs = NULL, ffmi_estimate = NULL, ai_analysis = NULL WHERE date = ? AND id != ?'
+    ).run(date, canonical.id);
+    saveAnalysisToPhoto(canonical.id, a);
+    res.json({ date, canonical_id: canonical.id, analysis: a, angles_used: photos.map(p => p.angle) });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Session summary endpoint — returns all sessions (one per date) with analysis
+app.get('/api/fitness/sessions', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const photos = fitnessDB.getDB().prepare(`
+      SELECT id, date, photo_path, angle, weight_lbs, bf_estimate_pct, lbm_estimate_lbs,
+             ffmi_estimate, ai_analysis
+      FROM progress_photos
+      ORDER BY date ASC, angle ASC
+    `).all();
+    // Group by date
+    const byDate = {};
+    for (const p of photos) {
+      byDate[p.date] ||= { date: p.date, photos: [], weight_lbs: null, bf_estimate_pct: null, lbm_estimate_lbs: null, ffmi_estimate: null, ai_analysis: null };
+      byDate[p.date].photos.push({ id: p.id, angle: p.angle, photo_path: p.photo_path });
+      if (p.weight_lbs && !byDate[p.date].weight_lbs) byDate[p.date].weight_lbs = p.weight_lbs;
+      // Canonical analysis = the row with ai_analysis populated. If more than one
+      // angle carries analysis, prefer the 'front' row so the pick is deterministic
+      // regardless of row/angle ordering.
+      if (p.ai_analysis && (byDate[p.date].ai_analysis == null || p.angle === 'front')) {
+        byDate[p.date].bf_estimate_pct = p.bf_estimate_pct;
+        byDate[p.date].lbm_estimate_lbs = p.lbm_estimate_lbs;
+        byDate[p.date].ffmi_estimate = p.ffmi_estimate;
+        byDate[p.date].ai_analysis = p.ai_analysis;
+        byDate[p.date].canonical_photo_id = p.id;
+      }
+    }
+    const sessions = Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+    res.json(sessions);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+// Analyze an existing photo by id (used to backfill seeded photos after the API key is added)
+app.post('/api/fitness/photos/:id/analyze', dashboardAuth, async (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  if (!fitnessAI || !fitnessAI.isApiKeyConfigured()) {
+    return res.status(400).json({ error: 'Vision provider not configured. Set ANTHROPIC_API_KEY or ensure Ollama is running.' });
+  }
+  try {
+    const id = parseInt(req.params.id);
+    const photo = fitnessDB.getDB().prepare('SELECT * FROM progress_photos WHERE id = ?').get(id);
+    if (!photo) return res.status(404).json({ error: 'not found' });
+
+    // Gather all angles for this date to give the model more info
+    const allAngles = fitnessDB.getDB().prepare('SELECT * FROM progress_photos WHERE date = ? ORDER BY angle ASC').all(photo.date);
+    const photos = allAngles
+      .map(p => ({ absPath: path.join(fitnessDB.getPhotosDir(), p.photo_path), angle: p.angle }))
+      .filter(p => fs.existsSync(p.absPath));
+
+    // Bodyweight prior: the photo's own weight, else any weight logged that date.
+    const weightRow = fitnessDB.getDB().prepare('SELECT weight_lbs FROM weight_log WHERE date = ? LIMIT 1').get(photo.date);
+    const weight = photo.weight_lbs || weightRow?.weight_lbs || null;
+
+    const r = await fitnessAI.analyzePhysique(photos, { weightLbs: weight });
+    if (!r.ok) return res.status(500).json({ error: r.error });
+
+    const a = reconcileBodyComp(r.analysis, weight);
+    saveAnalysisToPhoto(id, a);
+    res.json({ analysis: a });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.get('/api/fitness/photos/:id/image', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const photo = fitnessDB.getDB().prepare('SELECT photo_path FROM progress_photos WHERE id = ?').get(parseInt(req.params.id));
+    if (!photo) return res.status(404).end();
+    // Guard against path traversal — photo_path must be a simple filename
+    if (photo.photo_path.includes('..') || photo.photo_path.includes('/')) return res.status(400).end();
+    const abs = path.join(fitnessDB.getPhotosDir(), photo.photo_path);
+    if (!fs.existsSync(abs)) return res.status(404).end();
+    res.sendFile(abs);
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/fitness/photos/:id', dashboardAuth, (req, res) => {
+  if (!checkFitnessDB(res)) return;
+  try {
+    const id = parseInt(req.params.id);
+    const photo = fitnessDB.getDB().prepare('SELECT photo_path FROM progress_photos WHERE id = ?').get(id);
+    if (photo && photo.photo_path) {
+      const abs = path.join(fitnessDB.getPhotosDir(), photo.photo_path);
+      if (fs.existsSync(abs)) {
+        try { fs.unlinkSync(abs); } catch (_) {}
+      }
+    }
+    const info = fitnessDB.getDB().prepare('DELETE FROM progress_photos WHERE id = ?').run(id);
+    res.json({ deleted: info.changes });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── Public Brain Check Leaderboard (no auth) ──

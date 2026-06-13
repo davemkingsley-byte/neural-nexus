@@ -1,0 +1,1482 @@
+<style>
+body.fitness-page { background:#06060b; color:#f0f0f5; font-family: system-ui, -apple-system, sans-serif; -webkit-font-smoothing: antialiased; min-height: 100vh; margin:0; padding:0; }
+body.fitness-page * { box-sizing:border-box; }
+body.fitness-page .ambient { position:fixed; inset:0; pointer-events:none; z-index:0; }
+body.fitness-page .ambient::before, body.fitness-page .ambient::after { content:''; position:absolute; pointer-events:none; }
+body.fitness-page .ambient::before { top:-15%; left:5%; width:500px; height:500px; background:radial-gradient(circle, rgba(96,165,250,0.06) 0%, transparent 70%); }
+body.fitness-page .ambient::after { bottom:-10%; right:5%; width:400px; height:400px; background:radial-gradient(circle, rgba(167,139,250,0.05) 0%, transparent 70%); }
+
+.fitness-app { --bg:#06060b; --surface:rgba(255,255,255,0.03); --surface-2:rgba(255,255,255,0.06); --surface-3:rgba(255,255,255,0.09); --border:rgba(255,255,255,0.08); --border-2:rgba(255,255,255,0.15); --text:#f0f0f5; --text-dim:rgba(255,255,255,0.4); --text-mid:rgba(255,255,255,0.65); --accent:#60a5fa; --accent-2:#a78bfa; --green:#34d399; --red:#f87171; --yellow:#fbbf24; --gold:#f0c040; position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 16px; color: var(--text); }
+
+.fitness-app .f-hero { display:flex !important; flex-direction:row !important; align-items:center !important; justify-content:space-between !important; gap:12px; padding:8px 4px 16px !important; border-bottom:1px solid var(--border); margin:0 0 16px !important; max-width:none !important; min-height:0 !important; text-align:left !important; flex-wrap:wrap; }
+.fitness-app .f-hero h1 { font-family: system-ui, -apple-system, sans-serif !important; font-size: clamp(1.2rem, 4vw, 1.6rem) !important; font-weight:700 !important; letter-spacing:-0.02em; margin:0 !important; line-height:1.2 !important; }
+.fitness-app .f-hero .f-logo { background:linear-gradient(135deg, var(--accent), var(--accent-2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.fitness-app .f-hero .back-link { font-size: 0.85rem; color: var(--text-dim); text-decoration:none; padding:8px 12px; border:1px solid var(--border); border-radius:8px; }
+.fitness-app .f-hero .back-link:hover { color: var(--text); border-color: var(--border-2); }
+
+.fitness-app .tabs { position: sticky; top: 0; z-index:10; background:rgba(6,6,11,0.92); backdrop-filter: blur(20px); border-bottom:1px solid var(--border); margin:0 -16px 20px; padding: 4px 16px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.fitness-app .tabs ul { list-style:none; display:flex; gap:4px; min-width: max-content; margin:0; padding:0; }
+.fitness-app .tab-btn { background:none; border:none; color: var(--text-dim); padding:12px 16px; font-size:0.9rem; cursor:pointer; border-bottom: 2px solid transparent; min-height:48px; white-space:nowrap; font-family:inherit; }
+.fitness-app .tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
+.fitness-app .tab-btn:hover { color: var(--text); }
+
+.fitness-app .panel { display:none; }
+.fitness-app .panel.active { display:block; animation: f-fadeIn 0.2s; }
+@keyframes f-fadeIn { from { opacity:0; transform: translateY(4px); } to { opacity:1; transform: translateY(0); } }
+
+.fitness-app .f-card { background: var(--surface); border:1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.fitness-app .f-card h2 { font-family: system-ui, -apple-system, sans-serif; font-size:1rem; font-weight:600; margin:0 0 12px; display:flex; align-items:center; gap:8px; color: var(--text); }
+.fitness-app .f-card h3 { font-family: system-ui, -apple-system, sans-serif; font-size:0.9rem; font-weight:600; margin:0 0 8px; color: var(--text-mid); }
+
+.fitness-app .grid-2 { display:grid; grid-template-columns: 1fr; gap:16px; }
+@media (min-width: 700px) { .fitness-app .grid-2 { grid-template-columns: 1fr 1fr; } }
+
+.fitness-app .status-row { display:flex; gap:8px; flex-wrap:wrap; }
+.fitness-app .status-chip { flex:1 1 100px; min-width:100px; padding:10px 12px; border-radius:10px; border:1px solid var(--border); background: var(--surface-2); }
+.fitness-app .status-chip .lbl { font-size:0.7rem; color: var(--text-dim); text-transform:uppercase; letter-spacing:0.05em; }
+.fitness-app .status-chip .val { font-size:1.1rem; font-weight:600; margin-top:4px; }
+.fitness-app .status-chip.ok { border-color: rgba(52,211,153,0.3); }
+.fitness-app .status-chip.ok .val { color: var(--green); }
+.fitness-app .status-chip.no { border-color: rgba(248,113,113,0.2); }
+.fitness-app .status-chip.no .val { color: var(--red); }
+
+.fitness-app .form-row { display:flex; gap:8px; flex-wrap:wrap; align-items:flex-end; margin-bottom:10px; }
+.fitness-app .form-field { display:flex; flex-direction:column; gap:4px; flex:1; min-width: 100px; }
+.fitness-app .form-field label { font-size:0.75rem; color: var(--text-dim); text-transform:uppercase; letter-spacing:0.04em; }
+.fitness-app input[type=text], .fitness-app input[type=number], .fitness-app input[type=date], .fitness-app input[type=file], .fitness-app select, .fitness-app textarea {
+  background: var(--surface-2); border:1px solid var(--border); color: var(--text); border-radius: 8px; padding: 10px 12px; font-size: 1rem; font-family: inherit; min-height: 44px;
+}
+.fitness-app input:focus, .fitness-app select:focus, .fitness-app textarea:focus { outline:none; border-color: var(--accent); background: var(--surface-3); }
+.fitness-app textarea { resize: vertical; min-height: 60px; }
+
+.fitness-app button.f-btn { background: var(--accent); color: #06060b; border:none; border-radius:8px; padding: 10px 16px; font-size: 0.95rem; font-weight:600; cursor:pointer; min-height:44px; font-family: inherit; }
+.fitness-app button.f-btn:hover { background: #7cb8ff; }
+.fitness-app button.f-btn.secondary { background: var(--surface-2); color: var(--text); border:1px solid var(--border); }
+.fitness-app button.f-btn.secondary:hover { background: var(--surface-3); border-color: var(--border-2); }
+.fitness-app button.f-btn.danger { background: rgba(248,113,113,0.15); color: var(--red); border:1px solid rgba(248,113,113,0.3); }
+.fitness-app button.f-btn.small { padding:6px 10px; font-size: 0.8rem; min-height: 32px; }
+
+.fitness-app .chart-wrap { position: relative; height: 240px; }
+.fitness-app canvas { max-width:100%; }
+
+.fitness-app table { width:100%; border-collapse: collapse; font-size: 0.9rem; }
+.fitness-app th, .fitness-app td { text-align:left; padding: 8px 6px; border-bottom: 1px solid var(--border); }
+.fitness-app th { color: var(--text-dim); font-weight:500; font-size:0.75rem; text-transform:uppercase; letter-spacing:0.04em; }
+.fitness-app tbody tr:hover { background: var(--surface-2); }
+.fitness-app .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.fitness-app .table-wrap table { min-width: 420px; }
+
+.fitness-app .history-list { display:flex; flex-direction:column; gap:8px; }
+.fitness-app .hist-item { background: var(--surface-2); border:1px solid var(--border); border-radius:10px; padding:12px; cursor:pointer; }
+.fitness-app .hist-item:hover { border-color: var(--border-2); }
+.fitness-app .hist-head { display:flex; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+.fitness-app .hist-date { font-weight:600; font-size:0.95rem; }
+.fitness-app .hist-meta { color: var(--text-dim); font-size:0.8rem; }
+.fitness-app .hist-sets { display:none; margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
+.fitness-app .hist-item.expanded .hist-sets { display:block; }
+.fitness-app .pr-badge { color: var(--gold); font-size: 0.8em; }
+
+.fitness-app .session-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 12px; }
+.fitness-app .session-card .head { display:flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.fitness-app .session-card .session-date { font-weight: 600; font-size: 1rem; }
+.fitness-app .session-card .session-stats { display:flex; gap: 12px; font-family: ui-monospace, monospace; font-size: 0.8rem; color: var(--text-mid); flex-wrap: wrap; }
+.fitness-app .session-card .session-stats span { padding: 2px 8px; background: var(--surface-3); border-radius: 4px; }
+.fitness-app .session-angles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.fitness-app .session-angle { position: relative; aspect-ratio: 3/4; border-radius: 6px; overflow: hidden; cursor: pointer; border: 1px solid var(--border); }
+.fitness-app .session-angle img { width: 100%; height: 100%; object-fit: cover; }
+.fitness-app .session-angle .label { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color: white; text-align: center; padding: 8px 4px 3px; font-size: 0.65rem; text-transform: uppercase; }
+.fitness-app .session-assessment { margin-top: 10px; padding: 10px; background: var(--surface-3); border-radius: 8px; font-size: 0.85rem; color: var(--text-mid); line-height: 1.5; }
+.fitness-app .photo-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap:10px; }
+.fitness-app .photo-card { position:relative; aspect-ratio: 3/4; border-radius:10px; overflow:hidden; border:1px solid var(--border); background: var(--surface-2); cursor:pointer; }
+.fitness-app .photo-card img { width:100%; height:100%; object-fit: cover; }
+.fitness-app .photo-date { position:absolute; bottom:0; left:0; right:0; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); color:white; padding: 14px 8px 6px; font-size:0.75rem; font-weight:600; }
+.fitness-app .photo-card.compare-pick { outline: 3px solid var(--accent); }
+.fitness-app .session-angle.compare-pick { outline: 3px solid var(--accent); outline-offset: -1px; }
+.fitness-app .ai-badge { position:absolute; top:6px; right:6px; background: rgba(52,211,153,0.2); color: var(--green); border:1px solid var(--green); font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; }
+
+.f-modal { position:fixed; inset:0; background:rgba(0,0,0,0.8); display:flex; align-items:center; justify-content:center; z-index:100; padding:16px; }
+.f-modal-content { background: #06060b; border:1px solid rgba(255,255,255,0.15); border-radius:12px; max-width:900px; width:100%; max-height: 90vh; overflow:auto; padding:20px; color:#f0f0f5; }
+.f-modal-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.f-modal-close { background:none; border:none; color: rgba(255,255,255,0.4); font-size: 1.5rem; cursor:pointer; }
+
+.fitness-app .set-row { display:grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap:6px; align-items:end; margin-bottom:8px; }
+@media (max-width: 560px) { .fitness-app .set-row { grid-template-columns: 1fr 1fr 1fr; } .fitness-app .set-row .exer-field { grid-column: 1 / -1; } .fitness-app .set-row .rm-set { grid-column: 3 / 4; justify-self:end; } }
+
+.fitness-app .macro-grid { display:grid; grid-template-columns: repeat(2, 1fr); gap:10px; }
+@media (min-width: 560px) { .fitness-app .macro-grid { grid-template-columns: repeat(4, 1fr); } }
+.fitness-app .macro-ring { text-align:center; padding:10px; background: var(--surface-2); border:1px solid var(--border); border-radius:10px; }
+.fitness-app .macro-ring canvas { max-width: 90px; margin: 0 auto; display:block; }
+.fitness-app .macro-ring .lbl { font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; margin-top: 4px; }
+.fitness-app .macro-ring .val { font-size: 0.85rem; font-weight:600; margin-top:2px; }
+
+.fitness-app .quick-foods { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.fitness-app .quick-food { background: var(--surface-2); border: 1px solid var(--border); color: var(--text-mid); padding: 6px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; font-family: inherit; }
+.fitness-app .quick-food:hover { border-color: var(--accent); color: var(--text); }
+
+.fitness-app .food-results { position:absolute; top: 100%; left: 0; right: 0; background: #0a0a14; border: 1px solid var(--border-2); border-radius: 8px; margin-top: 4px; max-height: 420px; overflow-y: auto; z-index: 20; display: none; }
+.fitness-app .food-results.open { display: block; }
+.fitness-app .food-result { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border); }
+.fitness-app .food-result:hover, .fitness-app .food-result.active { background: var(--surface-3); }
+.fitness-app .food-result .title { font-size: 0.9rem; color: var(--text); display: flex; gap: 6px; align-items: center; }
+.fitness-app .food-result .sub { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
+.fitness-app .food-result .macros { font-size: 0.7rem; color: var(--text-mid); margin-top: 3px; }
+.fitness-app .source-badge { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+.fitness-app .source-badge.usda { background: rgba(96,165,250,0.15); color: var(--accent); }
+.fitness-app .source-badge.openfoodfacts { background: rgba(52,211,153,0.15); color: var(--green); }
+.fitness-app .source-badge.nutritionix, .fitness-app .source-badge.restaurant { background: rgba(251,191,36,0.15); color: var(--yellow); }
+.fitness-app .source-badge.custom { background: rgba(167,139,250,0.15); color: var(--accent-2); }
+.fitness-app .food-section-header { padding: 6px 12px; font-size: 0.65rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.05em; background: var(--surface-2); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+
+.fitness-app .food-selected { margin-top: 10px; padding: 10px; background: var(--surface-2); border: 1px solid var(--border-2); border-radius: 8px; }
+
+.fitness-app .goto-meals { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-bottom: 10px; }
+.fitness-app .goto-meal { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 10px; position: relative; }
+.fitness-app .goto-meal h3 { margin: 0 0 4px; font-size: 0.95rem; font-weight: 600; }
+.fitness-app .goto-meal .items { font-size: 0.75rem; color: var(--text-mid); line-height: 1.4; max-height: 60px; overflow: hidden; text-overflow: ellipsis; margin: 4px 0 8px; }
+.fitness-app .goto-meal .macro-line { font-size: 0.75rem; color: var(--text-mid); margin-bottom: 8px; font-family: ui-monospace, monospace; }
+.fitness-app .goto-meal .goto-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.fitness-app .goto-meal-empty { color: var(--text-dim); font-size: 0.85rem; padding: 8px 0; grid-column: 1 / -1; }
+
+.fitness-app .builder-items { display:flex; flex-direction:column; gap:6px; margin: 10px 0; }
+.fitness-app .builder-item { display:flex; gap:8px; align-items:center; background: var(--surface-2); padding: 8px 10px; border-radius: 8px; font-size: 0.85rem; }
+.fitness-app .builder-item .rm { background: none; border: none; color: var(--red); cursor: pointer; font-size: 1.1rem; }
+
+.fitness-app .muted { color: var(--text-dim); font-size: 0.85rem; }
+.fitness-app .disclaimer { font-size: 0.75rem; color: var(--text-dim); font-style: italic; padding: 8px 10px; background: rgba(251,191,36,0.05); border: 1px solid rgba(251,191,36,0.2); border-radius: 6px; margin-top: 8px; }
+.fitness-app .loading { display:inline-block; width:14px; height:14px; border:2px solid var(--text-dim); border-top-color: var(--accent); border-radius:50%; animation: f-spin 0.8s linear infinite; vertical-align: middle; margin-right: 6px; }
+@keyframes f-spin { to { transform: rotate(360deg); } }
+
+.fitness-app .tag { display: inline-block; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; background: var(--surface-3); color: var(--text-mid); }
+.fitness-app .tag.seed { background: rgba(96,165,250,0.15); color: var(--accent); }
+</style>
+
+<div class="ambient"></div>
+
+<div class="fitness-app">
+  <div class="f-hero">
+    <h1><span class="f-logo">Fitness</span> Tracker</h1>
+    <a href="/dashboard" class="back-link">← Dashboard</a>
+  </div>
+
+  <nav class="tabs">
+    <ul role="tablist" aria-label="Fitness sections">
+      <li role="presentation"><button class="tab-btn active" data-tab="dashboard" role="tab" aria-selected="true" aria-controls="panel-dashboard">Dashboard</button></li>
+      <li role="presentation"><button class="tab-btn" data-tab="workouts" role="tab" aria-selected="false" aria-controls="panel-workouts">Workouts</button></li>
+      <li role="presentation"><button class="tab-btn" data-tab="diet" role="tab" aria-selected="false" aria-controls="panel-diet">Diet</button></li>
+      <li role="presentation"><button class="tab-btn" data-tab="photos" role="tab" aria-selected="false" aria-controls="panel-photos">Photos</button></li>
+      <li role="presentation"><button class="tab-btn" data-tab="weight" role="tab" aria-selected="false" aria-controls="panel-weight">Bodyweight</button></li>
+    </ul>
+  </nav>
+  <div id="f-error-banner" role="alert" style="display:none; background:rgba(248,113,113,0.12); border:1px solid rgba(248,113,113,0.4); color:#fca5a5; padding:10px 14px; border-radius:8px; margin:0 0 12px; font-size:0.9rem;"></div>
+
+  <!-- ============ DASHBOARD ============ -->
+  <section class="panel active" id="panel-dashboard">
+    <div class="f-card">
+      <h2>Today</h2>
+      <div class="status-row" id="today-status">
+        <div class="status-chip"><div class="lbl">Weight</div><div class="val" id="today-weight">—</div></div>
+        <div class="status-chip"><div class="lbl">Workout</div><div class="val" id="today-workout">—</div></div>
+        <div class="status-chip"><div class="lbl">Calories</div><div class="val" id="today-cals">—</div></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="f-card">
+        <h2>Bodyweight (last 90 days)</h2>
+        <div class="chart-wrap"><canvas id="dash-weight-chart"></canvas></div>
+      </div>
+      <div class="f-card">
+        <h2>Weekly Sets (last 8 weeks)</h2>
+        <div class="chart-wrap"><canvas id="dash-volume-chart"></canvas></div>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="f-card">
+        <h2>7-day Macros (avg)</h2>
+        <div id="dash-macros">—</div>
+      </div>
+      <div class="f-card">
+        <h2>Latest Photo</h2>
+        <div id="dash-photo">No photos yet.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WORKOUTS ============ -->
+  <section class="panel" id="panel-workouts">
+    <div class="f-card">
+      <h2>Log Workout</h2>
+      <div class="form-row">
+        <div class="form-field" style="max-width:140px;">
+          <label>Date</label>
+          <input type="date" id="wo-date">
+        </div>
+        <div class="form-field">
+          <label>Session Name</label>
+          <select id="wo-name">
+            <option>Push (Chest & Shoulders)</option>
+            <option>Pull (Back & Calves)</option>
+            <option>Legs</option>
+            <option>Arms</option>
+            <option>Upper Body</option>
+            <option>Lower Body</option>
+            <option>Full Body</option>
+            <option value="__custom__">Custom…</option>
+          </select>
+        </div>
+        <div class="form-field" style="max-width:110px;">
+          <label>Duration (min)</label>
+          <input type="number" id="wo-duration" inputmode="numeric" min="0" max="600">
+        </div>
+      </div>
+      <div id="wo-custom-wrap" style="display:none;" class="form-row">
+        <div class="form-field">
+          <label>Custom Name</label>
+          <input type="text" id="wo-custom-name">
+        </div>
+      </div>
+      <div id="wo-sets-container"></div>
+      <div class="form-row">
+        <button class="f-btn secondary small" id="wo-add-set">+ Add Set</button>
+        <button class="f-btn" id="wo-save">Save Session</button>
+      </div>
+      <div class="muted" id="wo-save-status"></div>
+    </div>
+
+    <div class="f-card">
+      <h2>History</h2>
+      <div class="history-list" id="wo-history"></div>
+    </div>
+
+    <div class="f-card">
+      <h2>Exercise Tracker</h2>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Exercise</label>
+          <input type="text" id="ex-search" list="exercises-list" placeholder="e.g. Smith Shoulder Press">
+          <datalist id="exercises-list"></datalist>
+        </div>
+        <button class="f-btn secondary" id="ex-load">Load</button>
+      </div>
+      <div class="grid-2">
+        <div class="chart-wrap"><canvas id="ex-weight-chart"></canvas></div>
+        <div class="chart-wrap"><canvas id="ex-1rm-chart"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DIET ============ -->
+  <section class="panel" id="panel-diet">
+    <div class="f-card">
+      <h2>Go-to Meals</h2>
+      <div id="goto-meals-list" class="goto-meals"></div>
+      <button class="f-btn secondary small" id="goto-new">+ Build New Go-to Meal</button>
+    </div>
+
+    <div class="f-card">
+      <h2>Log Food</h2>
+      <div class="form-row">
+        <div class="form-field" style="max-width:140px;">
+          <label>Date</label>
+          <input type="date" id="diet-date">
+        </div>
+        <div class="form-field" style="max-width:140px;">
+          <label>Meal</label>
+          <select id="diet-meal">
+            <option>Breakfast</option><option>Lunch</option><option>Dinner</option><option>Snack</option>
+          </select>
+        </div>
+        <div class="form-field" style="position:relative;">
+          <label>Search food</label>
+          <input type="text" id="food-search" placeholder="e.g. chicken breast, oats, greek yogurt" autocomplete="off">
+          <div id="food-search-results" class="food-results"></div>
+        </div>
+      </div>
+      <div id="food-selected" class="food-selected" style="display:none;">
+        <div class="form-row" style="align-items:center;">
+          <div class="form-field" style="flex:2;"><label>Selected</label><div id="food-selected-name" class="f-card" style="margin:0; padding:8px 10px;"></div></div>
+          <div class="form-field" style="max-width:100px;"><label>Servings</label><input type="number" id="food-servings" value="1" min="0.1" step="0.1" inputmode="decimal"></div>
+          <div class="form-field" style="max-width:200px;"><label>Macros (this portion)</label><div id="food-preview" class="muted" style="min-height:24px;"></div></div>
+          <button class="f-btn" id="food-log">Log</button>
+          <button class="f-btn secondary small" id="food-cancel">Cancel</button>
+        </div>
+      </div>
+      <details style="margin-top:8px;">
+        <summary class="muted" style="cursor:pointer; font-size:0.85rem;">Can't find it? Enter manually or add custom food</summary>
+        <div class="form-row" style="margin-top:8px;">
+          <div class="form-field"><label>Food name</label><input type="text" id="diet-food"></div>
+          <div class="form-field"><label>Calories</label><input type="number" id="diet-cals" inputmode="decimal"></div>
+          <div class="form-field"><label>Protein (g)</label><input type="number" id="diet-prot" inputmode="decimal"></div>
+          <div class="form-field"><label>Carbs (g)</label><input type="number" id="diet-carbs" inputmode="decimal"></div>
+          <div class="form-field"><label>Fat (g)</label><input type="number" id="diet-fat" inputmode="decimal"></div>
+          <button class="f-btn" id="diet-add">Add once</button>
+          <button class="f-btn secondary" id="diet-save-custom">Save as custom food</button>
+        </div>
+      </details>
+    </div>
+
+    <div class="f-card">
+      <h2>Today's Macros <button class="f-btn secondary small" id="diet-edit-targets" style="margin-left:8px;">✎ Targets</button></h2>
+      <div class="macro-grid" id="macro-rings"></div>
+    </div>
+
+    <div class="f-card">
+      <h2>Entries <button class="f-btn secondary small" id="diet-copy-yesterday" style="margin-left:8px;">Copy Yesterday</button></h2>
+      <div class="form-row">
+        <div class="form-field" style="max-width:150px;">
+          <label>View Date</label>
+          <input type="date" id="diet-view-date">
+        </div>
+      </div>
+      <div id="diet-entries"></div>
+    </div>
+  </section>
+
+  <!-- Go-to Meal builder modal lives in modal-root -->
+
+
+  <!-- ============ PHOTOS ============ -->
+  <section class="panel" id="panel-photos">
+    <div class="f-card">
+      <h2>Upload Photo</h2>
+      <div class="form-row">
+        <div class="form-field" style="max-width:140px;">
+          <label>Date</label>
+          <input type="date" id="photo-date">
+        </div>
+        <div class="form-field" style="max-width:120px;">
+          <label>Angle</label>
+          <select id="photo-angle">
+            <option value="front">Front</option>
+            <option value="back">Back</option>
+            <option value="left">Left</option>
+            <option value="right">Right</option>
+          </select>
+        </div>
+        <div class="form-field" style="max-width:130px;">
+          <label>Weight (lbs)</label>
+          <input type="number" id="photo-weight" inputmode="decimal">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-field">
+          <label>Photo</label>
+          <input type="file" id="photo-file" accept="image/*" capture="environment">
+        </div>
+        <button class="f-btn" id="photo-upload">Upload</button>
+      </div>
+      <div id="photo-result" class="muted"></div>
+      <div class="disclaimer">AI body composition estimates are algorithmic guesses from a photo — not a medical measurement. Treat as a relative trend indicator.</div>
+    </div>
+
+    <div class="f-card">
+      <h2>Longitudinal Body Composition</h2>
+      <div class="form-row" style="gap:16px;">
+        <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--text-mid);"><input type="checkbox" id="trend-show-bf" checked> Body Fat %</label>
+        <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--text-mid);"><input type="checkbox" id="trend-show-lbm" checked> Lean Body Mass</label>
+        <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--text-mid);"><input type="checkbox" id="trend-show-ffmi"> FFMI</label>
+        <label style="display:flex; align-items:center; gap:6px; font-size:0.85rem; color:var(--text-mid);"><input type="checkbox" id="trend-show-smooth" checked> Smoothed line</label>
+      </div>
+      <div class="chart-wrap" style="height:320px;"><canvas id="bf-trend-chart"></canvas></div>
+      <div id="trend-empty" class="muted" style="margin-top:8px; display:none;">No analyzed sessions yet. Click "Analyze" on a session card below to populate the trend.</div>
+    </div>
+
+    <div class="f-card">
+      <h2>Sessions <span class="muted" id="photo-count"></span></h2>
+      <div class="form-row" style="align-items:center;">
+        <button class="f-btn secondary small" id="photo-analyze-all" style="display:none;">Analyze All Unanalyzed</button>
+        <button class="f-btn secondary small" id="photo-compare-toggle">⇄ Compare</button>
+        <span class="muted" style="font-size:0.8rem;" id="analyze-status"></span>
+        <span class="muted" style="font-size:0.75rem; margin-left:auto;" id="vision-provider-info"></span>
+      </div>
+      <div id="sessions-list"></div>
+    </div>
+  </section>
+
+  <!-- ============ BODYWEIGHT ============ -->
+  <section class="panel" id="panel-weight">
+    <div class="f-card">
+      <h2>Log Weight</h2>
+      <div class="form-row">
+        <div class="form-field" style="max-width:140px;">
+          <label>Date</label>
+          <input type="date" id="bw-date">
+        </div>
+        <div class="form-field" style="max-width:140px;">
+          <label>Weight (lbs)</label>
+          <input type="number" id="bw-weight" inputmode="decimal" step="0.1">
+        </div>
+        <div class="form-field">
+          <label>Notes</label>
+          <input type="text" id="bw-notes" placeholder="optional">
+        </div>
+        <button class="f-btn" id="bw-add">Add</button>
+      </div>
+    </div>
+
+    <div class="f-card">
+      <h2>All-time Trend</h2>
+      <div class="chart-wrap"><canvas id="bw-trend-chart"></canvas></div>
+    </div>
+
+    <div class="f-card">
+      <h2>History</h2>
+      <div class="table-wrap"><table><thead><tr><th>Date</th><th>Weight</th><th>Notes</th><th></th></tr></thead><tbody id="bw-table"></tbody></table></div>
+    </div>
+  </section>
+</div>
+
+<!-- Modal root -->
+<div id="modal-root"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ================== Utilities ==================
+// Normalize a fetch Response. get() throws on failure (callers/tab-render catch it);
+// post/postForm/del resolve to a {error} object so the existing `if (r.error)`
+// branches fire instead of crashing on a JSON parse of a non-JSON error page.
+async function readJsonSafe(r) { try { return await r.json(); } catch (_) { return null; } }
+const api = {
+  async get(path) { const r = await fetch(path, { credentials:'same-origin' }); if (!r.ok) { const d = await readJsonSafe(r); throw new Error((d && d.error) || ('HTTP ' + r.status)); } return r.json(); },
+  async post(path, body) { const r = await fetch(path, { method:'POST', credentials:'same-origin', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)}); const d = await readJsonSafe(r); if (!r.ok) return { error: (d && d.error) || ('HTTP ' + r.status) }; return d || {}; },
+  async postForm(path, formData) { const r = await fetch(path, { method:'POST', credentials:'same-origin', body: formData }); const d = await readJsonSafe(r); if (!r.ok) return { error: (d && d.error) || ('HTTP ' + r.status) }; return d || {}; },
+  async del(path) { const r = await fetch(path, { method:'DELETE', credentials:'same-origin' }); const d = await readJsonSafe(r); if (!r.ok) return { error: (d && d.error) || ('HTTP ' + r.status) }; return d || {}; }
+};
+const today = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const addDays = (isoDate, n) => { const d = new Date(isoDate + 'T00:00:00'); d.setDate(d.getDate() + n); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
+const fmtDate = (iso) => { if (!iso || typeof iso !== 'string') return '—'; const [y,m,d] = iso.split('-'); if (!y || !m || !d) return iso; return `${m}/${d}/${y.slice(2)}`; };
+
+// Global error banner — surfaces failed loads instead of leaving a blank tab.
+function showGlobalError(msg) {
+  const el = document.getElementById('f-error-banner');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function clearGlobalError() {
+  const el = document.getElementById('f-error-banner');
+  if (el) el.style.display = 'none';
+}
+
+// Tab switching
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => { b.classList.remove('active'); b.setAttribute('aria-selected', 'false'); });
+    btn.classList.add('active');
+    btn.setAttribute('aria-selected', 'true');
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(`panel-${tab}`).classList.add('active');
+    onTabActivate(tab);
+  });
+});
+
+function onTabActivate(tab) {
+  const fn = { dashboard: renderDashboard, workouts: renderWorkouts, diet: renderDiet, photos: renderPhotos, weight: renderWeightTab }[tab];
+  if (!fn) return;
+  clearGlobalError();
+  Promise.resolve().then(fn).catch(err => {
+    console.error('Failed to load tab:', tab, err);
+    showGlobalError(`Couldn't load ${tab}: ${err && err.message ? err.message : err}`);
+  });
+}
+
+// ================== Chart defaults ==================
+Chart.defaults.color = 'rgba(255,255,255,0.65)';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.08)';
+Chart.defaults.font.family = 'system-ui, -apple-system, sans-serif';
+const chartRegistry = {};
+function destroyChart(key) { if (chartRegistry[key]) { chartRegistry[key].destroy(); delete chartRegistry[key]; } }
+
+// ================== Dashboard ==================
+async function renderDashboard() {
+  const t = today();
+  // Fetch today's diet date-scoped: the un-dated endpoint is capped at 500 rows
+  // DESC, so with a long history today's entries could fall off the Today stat.
+  const [weights, workouts, dietAll, todayDiet] = await Promise.all([
+    api.get('/api/fitness/weight'),
+    api.get('/api/fitness/workouts'),
+    api.get('/api/fitness/diet'),
+    api.get('/api/fitness/diet?date=' + t)
+  ]);
+  const todayWeight = weights.find(w => w.date === t);
+  const todayWorkouts = workouts.filter(w => w.date === t);
+  const todayCals = todayDiet.reduce((s, d) => s + (d.calories || 0), 0);
+
+  document.getElementById('today-weight').textContent = todayWeight ? `${todayWeight.weight_lbs} lbs` : '—';
+  document.getElementById('today-weight').parentElement.className = 'status-chip ' + (todayWeight ? 'ok' : 'no');
+  document.getElementById('today-workout').textContent = todayWorkouts.length ? `${todayWorkouts.length} session${todayWorkouts.length > 1 ? 's' : ''}` : '—';
+  document.getElementById('today-workout').parentElement.className = 'status-chip ' + (todayWorkouts.length ? 'ok' : 'no');
+  document.getElementById('today-cals').textContent = todayCals ? `${todayCals} kcal` : '—';
+  document.getElementById('today-cals').parentElement.className = 'status-chip ' + (todayCals ? 'ok' : 'no');
+
+  // 90-day weight chart
+  const cutoff = addDays(t, -90);
+  const recent = weights.filter(w => w.date >= cutoff).sort((a,b) => a.date.localeCompare(b.date));
+  destroyChart('dash-weight');
+  chartRegistry['dash-weight'] = new Chart(document.getElementById('dash-weight-chart'), {
+    type: 'line',
+    data: { labels: recent.map(r => r.date), datasets: [{ label:'Weight (lbs)', data: recent.map(r => r.weight_lbs), borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,0.15)', tension:0.3, pointRadius: 3, fill:true }]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }}, scales:{ x:{ ticks:{ maxRotation:0, autoSkip:true, maxTicksLimit:6 }}}}
+  });
+
+  // 8-week volume chart
+  const weeks = [];
+  for (let i = 7; i >= 0; i--) weeks.push(addDays(t, -i * 7));
+  const counts = weeks.map((w, i) => {
+    const end = i === weeks.length - 1 ? t : addDays(weeks[i + 1], -1);
+    const range = workouts.filter(s => s.date >= w && s.date <= end);
+    return range.reduce((s, x) => s + (x.set_count || 0), 0);
+  });
+  destroyChart('dash-vol');
+  chartRegistry['dash-vol'] = new Chart(document.getElementById('dash-volume-chart'), {
+    type: 'bar',
+    data: { labels: weeks.map(w => fmtDate(w)), datasets: [{ label:'Sets', data: counts, backgroundColor:'rgba(167,139,250,0.5)', borderColor:'#a78bfa', borderWidth:1 }]},
+    options: { responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }}}
+  });
+
+  // 7-day macros
+  const wkAgo = addDays(t, -7);
+  const wkDiet = dietAll.filter(d => d.date >= wkAgo && d.date <= t);
+  const avg = (key) => wkDiet.length ? Math.round((wkDiet.reduce((s, d) => s + (d[key] || 0), 0) / 7) * 10) / 10 : 0;
+  const macrosEl = document.getElementById('dash-macros');
+  if (!wkDiet.length) macrosEl.textContent = 'No diet entries in last 7 days.';
+  else macrosEl.innerHTML = `
+    <div class="status-row">
+      <div class="status-chip"><div class="lbl">Cals/day</div><div class="val">${Math.round(wkDiet.reduce((s,d)=>s+(d.calories||0),0)/7)}</div></div>
+      <div class="status-chip"><div class="lbl">Protein</div><div class="val">${avg('protein_g')}g</div></div>
+      <div class="status-chip"><div class="lbl">Carbs</div><div class="val">${avg('carbs_g')}g</div></div>
+      <div class="status-chip"><div class="lbl">Fat</div><div class="val">${avg('fat_g')}g</div></div>
+    </div>`;
+
+  // Latest photo
+  const photos = await api.get('/api/fitness/photos');
+  const photoEl = document.getElementById('dash-photo');
+  if (!photos.length) { photoEl.textContent = 'No photos yet.'; return; }
+  const fronts = photos.filter(p => p.angle === 'front');
+  const latest = (fronts.length ? fronts : photos).reduce((a, b) => a.date > b.date ? a : b);
+  photoEl.innerHTML = `
+    <div style="display:flex; gap:12px; align-items:flex-start;">
+      <img src="/api/fitness/photos/${latest.id}/image" style="width:100px; height:140px; object-fit:cover; border-radius:8px;" alt="Latest progress photo, ${fmtDate(latest.date)}">
+      <div>
+        <div style="font-weight:600; margin-bottom:4px;">${fmtDate(latest.date)}</div>
+        <div class="muted">${escapeHtml(latest.angle) || '—'}${latest.weight_lbs ? ' • ' + latest.weight_lbs + ' lbs' : ''}</div>
+        ${latest.bf_estimate_pct ? `<div class="muted">BF ~${latest.bf_estimate_pct}%</div>` : '<div class="muted">No AI analysis yet</div>'}
+      </div>
+    </div>`;
+}
+
+// ================== Workouts ==================
+let allExercises = [];
+function buildSetRow() {
+  const div = document.createElement('div');
+  div.className = 'set-row';
+  div.innerHTML = `
+    <div class="form-field exer-field"><label>Exercise</label><input type="text" list="exercises-list" class="set-exer"></div>
+    <div class="form-field"><label>Weight</label><input type="number" inputmode="decimal" class="set-weight" step="0.5"></div>
+    <div class="form-field"><label>Reps</label><input type="number" inputmode="numeric" class="set-reps"></div>
+    <div class="form-field"><label>RPE</label><input type="number" inputmode="decimal" class="set-rpe" min="1" max="10" step="0.5"></div>
+    <button class="f-btn secondary small rm-set" type="button">×</button>
+  `;
+  div.querySelector('.rm-set').addEventListener('click', () => div.remove());
+  return div;
+}
+
+async function renderWorkouts() {
+  if (!document.getElementById('wo-date').value) document.getElementById('wo-date').value = today();
+  const container = document.getElementById('wo-sets-container');
+  if (!container.children.length) { container.appendChild(buildSetRow()); container.appendChild(buildSetRow()); }
+
+  allExercises = await api.get('/api/fitness/exercises');
+  const dl = document.getElementById('exercises-list');
+  dl.innerHTML = allExercises.map(e => `<option value="${escapeHtml(e)}">`).join('');
+
+  const workouts = await api.get('/api/fitness/workouts');
+  const list = document.getElementById('wo-history');
+  list.innerHTML = workouts.slice(0, 100).map(w => `
+    <div class="hist-item" data-id="${w.id}">
+      <div class="hist-head">
+        <div>
+          <div class="hist-date">${fmtDate(w.date)} <span class="tag ${w.seed_origin ? 'seed' : ''}">${w.seed_origin ? 'imported' : 'logged'}</span></div>
+          <div class="hist-meta">${w.name || 'Workout'} • ${w.set_count} sets${w.duration_min ? ' • ' + w.duration_min + ' min' : ''}</div>
+        </div>
+        <button class="f-btn danger small" data-del="${w.id}">Delete</button>
+      </div>
+      <div class="hist-sets" id="sets-${w.id}"></div>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.hist-item').forEach(item => {
+    item.addEventListener('click', async (e) => {
+      if (e.target.closest('[data-del]')) return;
+      const id = item.dataset.id;
+      if (item.classList.contains('expanded')) { item.classList.remove('expanded'); return; }
+      const target = document.getElementById('sets-' + id);
+      if (!target.innerHTML) {
+        const data = await api.get('/api/fitness/workouts/' + id);
+        target.innerHTML = renderSetsTable(data.sets);
+      }
+      item.classList.add('expanded');
+    });
+  });
+  list.querySelectorAll('[data-del]').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (!confirm('Delete this workout session and all its sets?')) return;
+      await api.del('/api/fitness/workouts/' + btn.dataset.del);
+      renderWorkouts();
+    });
+  });
+}
+
+function renderSetsTable(sets) {
+  if (!sets || !sets.length) return '<div class="muted">No sets.</div>';
+  // Compute PRs per exercise (highest weight × reps)
+  const exBest = {};
+  sets.forEach(s => {
+    if (s.weight_lbs == null || s.reps == null) return;
+    const prod = s.weight_lbs * s.reps;
+    if (!exBest[s.exercise] || prod > exBest[s.exercise].prod) exBest[s.exercise] = { prod, id: s.id };
+  });
+  return `<div class="table-wrap"><table><thead><tr><th>Exercise</th><th>Set</th><th>Weight</th><th>Reps</th><th>RPE</th><th>Notes</th></tr></thead><tbody>${
+    sets.map(s => `<tr>
+      <td>${escapeHtml(s.exercise)}${exBest[s.exercise] && exBest[s.exercise].id === s.id ? ' <span class="pr-badge">🏆</span>' : ''}</td>
+      <td>${s.set_number ?? ''}</td>
+      <td>${s.weight_lbs ?? ''}</td>
+      <td>${s.reps ?? ''}</td>
+      <td>${s.rpe ?? ''}</td>
+      <td class="muted">${escapeHtml(s.notes || '')}</td>
+    </tr>`).join('')
+  }</tbody></table></div>`;
+}
+
+document.getElementById('wo-name').addEventListener('change', (e) => {
+  document.getElementById('wo-custom-wrap').style.display = e.target.value === '__custom__' ? 'flex' : 'none';
+});
+document.getElementById('wo-add-set').addEventListener('click', (e) => {
+  e.preventDefault();
+  document.getElementById('wo-sets-container').appendChild(buildSetRow());
+});
+document.getElementById('wo-save').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const btn = e.currentTarget;
+  if (btn.disabled) return;            // guard against double-submit
+  const status = document.getElementById('wo-save-status');
+  btn.disabled = true;
+  status.innerHTML = '<span class="loading"></span>Saving…';
+  try {
+    const date = document.getElementById('wo-date').value;
+    const nameVal = document.getElementById('wo-name').value;
+    const name = nameVal === '__custom__' ? document.getElementById('wo-custom-name').value || 'Custom' : nameVal;
+    const duration_min = parseInt(document.getElementById('wo-duration').value, 10) || null;
+    const { id: sessionId, error } = await api.post('/api/fitness/workouts', { date, name, duration_min });
+    if (error) { status.textContent = 'Error: ' + error; return; }
+    const rows = [...document.querySelectorAll('#wo-sets-container .set-row')];
+    let setCounter = {};
+    for (const row of rows) {
+      const exercise = row.querySelector('.set-exer').value.trim();
+      const weight_lbs = parseFloat(row.querySelector('.set-weight').value);
+      const reps = parseInt(row.querySelector('.set-reps').value, 10);
+      const rpe = parseFloat(row.querySelector('.set-rpe').value);
+      if (!exercise) continue;
+      setCounter[exercise] = (setCounter[exercise] || 0) + 1;
+      const sr = await api.post(`/api/fitness/workouts/${sessionId}/sets`, { exercise, set_number: setCounter[exercise], weight_lbs: isNaN(weight_lbs)?null:weight_lbs, reps: isNaN(reps)?null:reps, rpe: isNaN(rpe)?null:rpe });
+      if (sr.error) { status.textContent = 'Error saving set: ' + sr.error; return; }
+    }
+    status.textContent = 'Saved ✓';
+    document.getElementById('wo-sets-container').innerHTML = '';
+    document.getElementById('wo-sets-container').appendChild(buildSetRow());
+    document.getElementById('wo-sets-container').appendChild(buildSetRow());
+    setTimeout(() => status.textContent = '', 2500);
+    await renderWorkouts();
+  } catch (err) {
+    status.textContent = 'Error: ' + (err && err.message ? err.message : err);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+document.getElementById('ex-load').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('ex-search').value.trim();
+  if (!name) return;
+  let rows;
+  try {
+    rows = await api.get('/api/fitness/exercises/' + encodeURIComponent(name));
+  } catch (err) { alert('Failed to load exercise: ' + (err && err.message ? err.message : err)); return; }
+  if (!rows.length) { alert('No data for that exercise.'); return; }
+  // Aggregate by date — take top set per date
+  const byDate = {};
+  rows.forEach(r => {
+    if (r.weight_lbs == null || r.reps == null) return;
+    if (!byDate[r.date] || r.weight_lbs > byDate[r.date].weight) byDate[r.date] = { weight: r.weight_lbs, reps: r.reps };
+  });
+  const dates = Object.keys(byDate).sort();
+  const weights = dates.map(d => byDate[d].weight);
+  const oneRM = dates.map(d => { const s = byDate[d]; return +(s.weight * (1 + s.reps / 30)).toFixed(1); });
+  destroyChart('ex-w'); destroyChart('ex-rm');
+  chartRegistry['ex-w'] = new Chart(document.getElementById('ex-weight-chart'), {
+    type:'line', data:{ labels: dates, datasets:[{ label:'Top weight (lbs)', data: weights, borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,0.15)', tension:0.3, fill:true }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, title:{ display:true, text:'Top weight per session' }}, scales:{ x:{ ticks:{ maxTicksLimit:6 }}}}
+  });
+  chartRegistry['ex-rm'] = new Chart(document.getElementById('ex-1rm-chart'), {
+    type:'line', data:{ labels: dates, datasets:[{ label:'Estimated 1RM', data: oneRM, borderColor:'#34d399', backgroundColor:'rgba(52,211,153,0.15)', tension:0.3, fill:true }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }, title:{ display:true, text:'Estimated 1RM (Epley)' }}, scales:{ x:{ ticks:{ maxTicksLimit:6 }}}}
+  });
+});
+
+// ================== Diet ==================
+// Default targets tuned for "maintain muscle while trimming fat, protein surplus"
+// ~1g/lb bodyweight protein at ~170 lbs → 200P, moderate cut: 2500 kcal
+const DEFAULT_TARGETS = { calories: 2500, protein_g: 200, carbs_g: 260, fat_g: 75 };
+function getDietTargets() {
+  try {
+    const v = JSON.parse(localStorage.getItem('fitness.diet.targets'));
+    return (v && typeof v === 'object' && !Array.isArray(v)) ? { ...DEFAULT_TARGETS, ...v } : { ...DEFAULT_TARGETS };
+  } catch { return { ...DEFAULT_TARGETS }; }
+}
+function setDietTargets(t) { localStorage.setItem('fitness.diet.targets', JSON.stringify(t)); }
+
+function renderMacroRing(canvas, value, target, label, color) {
+  const pct = target > 0 ? Math.max(0, Math.min(120, (value / target) * 100)) : 0;
+  const ctx = canvas.getContext('2d');
+  canvas.width = 80; canvas.height = 80;
+  ctx.clearRect(0,0,80,80);
+  ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 8;
+  ctx.beginPath(); ctx.arc(40,40,32,0,Math.PI*2); ctx.stroke();
+  ctx.strokeStyle = color; ctx.lineWidth = 8; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.arc(40,40,32, -Math.PI/2, -Math.PI/2 + (Math.min(pct,100)/100)*Math.PI*2); ctx.stroke();
+  ctx.fillStyle = '#f0f0f5'; ctx.font = 'bold 13px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText(Math.round(pct) + '%', 40, 40);
+}
+
+// ---- Food search state ----
+let selectedFood = null;        // { id, name, per_serving_base: {calories,p,c,f}, serving_size_g, serving_description }
+let searchTimer = null;
+let searchSeq = 0;              // request sequencer — drop stale (out-of-order) responses
+
+async function renderDiet() {
+  if (!document.getElementById('diet-date').value) document.getElementById('diet-date').value = today();
+  if (!document.getElementById('diet-view-date').value) document.getElementById('diet-view-date').value = today();
+  await renderGoToMeals();
+  await refreshDietView();
+}
+
+async function renderGoToMeals() {
+  const list = document.getElementById('goto-meals-list');
+  const meals = await api.get('/api/fitness/goto-meals');
+  if (!meals.length) {
+    list.innerHTML = '<div class="goto-meal-empty">No go-to meals yet. Build one below, or log a meal below and save it.</div>';
+    return;
+  }
+  list.innerHTML = meals.map(m => `
+    <div class="goto-meal" data-id="${m.id}">
+      <h3>${escapeHtml(m.name)}</h3>
+      <div class="items">${m.items.map(i => `${i.servings}× ${escapeHtml(i.food_name)}`).join(' · ')}</div>
+      <div class="macro-line">${m.totals.calories} kcal · ${m.totals.protein_g}P / ${m.totals.carbs_g}C / ${m.totals.fat_g}F</div>
+      <div class="goto-actions">
+        <button class="f-btn small" data-goto-log="${m.id}">+ Log to today</button>
+        <button class="f-btn danger small" data-goto-del="${m.id}">×</button>
+      </div>
+    </div>
+  `).join('');
+  list.querySelectorAll('[data-goto-log]').forEach(b => b.addEventListener('click', async () => {
+    const date = document.getElementById('diet-date').value || today();
+    const meal = document.getElementById('diet-meal').value;
+    await api.post(`/api/fitness/goto-meals/${b.dataset.gotoLog}/log`, { date, meal });
+    refreshDietView();
+  }));
+  list.querySelectorAll('[data-goto-del]').forEach(b => b.addEventListener('click', async () => {
+    if (!confirm('Delete this go-to meal?')) return;
+    await api.del('/api/fitness/goto-meals/' + b.dataset.gotoDel);
+    renderGoToMeals();
+  }));
+}
+
+// ---- Food search ----
+document.getElementById('food-search').addEventListener('input', (e) => {
+  clearTimeout(searchTimer);
+  const q = e.target.value.trim();
+  searchTimer = setTimeout(() => runFoodSearch(q), 180);
+});
+document.getElementById('food-search').addEventListener('focus', () => {
+  const q = document.getElementById('food-search').value.trim();
+  runFoodSearch(q);
+});
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#food-search') && !e.target.closest('#food-search-results')) {
+    document.getElementById('food-search-results').classList.remove('open');
+  }
+});
+
+function sourceBadge(source, category) {
+  const lbl = source === 'openfoodfacts' ? 'Grocery' : source === 'nutritionix' ? (category === 'restaurant' ? 'Restaurant' : 'Branded') : source === 'custom' ? 'Custom' : 'USDA';
+  const cls = source === 'openfoodfacts' ? 'openfoodfacts' : source === 'nutritionix' ? (category === 'restaurant' ? 'restaurant' : 'nutritionix') : source === 'custom' ? 'custom' : 'usda';
+  return `<span class="source-badge ${cls}">${lbl}</span>`;
+}
+
+async function runFoodSearch(q) {
+  const resultsEl = document.getElementById('food-search-results');
+  const myReq = ++searchSeq;
+  try {
+    const { results, nutritionix_configured } = await api.get('/api/fitness/foods?q=' + encodeURIComponent(q));
+    if (myReq !== searchSeq) return; // a newer search superseded this one
+    if (!results.length) {
+      resultsEl.innerHTML = `<div class="food-result muted">No matches. ${nutritionix_configured ? '' : 'Configure NUTRITIONIX_APP_ID + NUTRITIONIX_APP_KEY in .env for restaurant coverage. '}Or use manual entry below.</div>`;
+      resultsEl.classList.add('open');
+      return;
+    }
+    // Group: local first, then online sources
+    const local = results.filter(r => r.source !== 'openfoodfacts' && r.source !== 'nutritionix');
+    const off = results.filter(r => r.source === 'openfoodfacts');
+    const nix = results.filter(r => r.source === 'nutritionix');
+
+    const renderItem = (r, i) => `
+      <div class="food-result" data-idx="${i}">
+        <div class="title">${escapeHtml(r.name)} ${sourceBadge(r.source, r.category)}</div>
+        <div class="sub">${r.category && r.category !== 'restaurant' && r.category !== 'branded' ? escapeHtml(r.category) + ' · ' : ''}${r.serving_description ? escapeHtml(r.serving_description) : 'per serving'}</div>
+        <div class="macros">${r.calories ?? '?'} kcal · P ${r.protein_g ?? '?'}g · C ${r.carbs_g ?? '?'}g · F ${r.fat_g ?? '?'}g</div>
+      </div>
+    `;
+
+    let html = '';
+    let i = 0;
+    if (local.length) { html += local.map(r => renderItem(r, i++)).join(''); }
+    if (off.length) { html += `<div class="food-section-header">📦 Branded groceries (Open Food Facts)</div>` + off.map(r => renderItem(r, i++)).join(''); }
+    if (nix.length) {
+      const hasRestaurant = nix.some(r => r.category === 'restaurant');
+      html += `<div class="food-section-header">${hasRestaurant ? '🍽️ Restaurants & branded' : '🏷️ Branded'} (Nutritionix)</div>` + nix.map(r => renderItem(r, i++)).join('');
+    }
+    if (!nutritionix_configured && !nix.length) {
+      html += `<div class="food-section-header muted" style="font-style:italic;">🍽️ Restaurant data: set NUTRITIONIX_APP_ID + NUTRITIONIX_APP_KEY in .env to enable</div>`;
+    }
+
+    // Flatten ordered results to match indices
+    const ordered = [...local, ...off, ...nix];
+    resultsEl.innerHTML = html;
+    resultsEl.classList.add('open');
+    resultsEl.querySelectorAll('.food-result').forEach(el => el.addEventListener('click', async () => {
+      const r = ordered[+el.dataset.idx];
+      await selectFoodFromResult(r);
+    }));
+  } catch (err) {
+    if (myReq !== searchSeq) return;
+    resultsEl.innerHTML = `<div class="food-result muted">Search failed: ${escapeHtml(err.message || err)}</div>`;
+    resultsEl.classList.add('open');
+  }
+}
+
+// Intercept external-source results: import into local DB first so we get a real id
+async function selectFoodFromResult(r) {
+  if (r.source === 'openfoodfacts' || r.source === 'nutritionix') {
+    const imported = await api.post('/api/fitness/foods/import', {
+      name: r.name,
+      category: r.category,
+      source: r.source,
+      external_id: r.external_id,
+      serving_description: r.serving_description,
+      serving_size_g: r.serving_size_g,
+      calories_per_100g: r.per100g?.calories,
+      protein_per_100g: r.per100g?.protein_g,
+      carbs_per_100g: r.per100g?.carbs_g,
+      fat_per_100g: r.per100g?.fat_g
+    });
+    if (imported.error) { alert('Import failed: ' + imported.error); return; }
+    r.id = imported.id;
+  }
+  selectFood(r);
+}
+
+function selectFood(food) {
+  // Normalize: recent-foods entries don't have per100g but do have flat calories/P/C/F
+  selectedFood = {
+    id: food.id > 0 ? food.id : null,
+    name: food.name,
+    serving_description: food.serving_description || null,
+    serving_size_g: food.serving_size_g || null,
+    base: {
+      calories: food.calories ?? 0,
+      protein_g: food.protein_g ?? 0,
+      carbs_g: food.carbs_g ?? 0,
+      fat_g: food.fat_g ?? 0
+    }
+  };
+  document.getElementById('food-search-results').classList.remove('open');
+  document.getElementById('food-search').value = '';
+  document.getElementById('food-selected').style.display = 'block';
+  document.getElementById('food-selected-name').textContent = `${food.name}${food.serving_description ? ' — ' + food.serving_description : ''}`;
+  document.getElementById('food-servings').value = 1;
+  updateFoodPreview();
+}
+
+function updateFoodPreview() {
+  if (!selectedFood) return;
+  const s = parseFloat(document.getElementById('food-servings').value) || 1;
+  const b = selectedFood.base;
+  document.getElementById('food-preview').textContent =
+    `${Math.round(b.calories * s)} kcal · P ${Math.round(b.protein_g * s * 10)/10}g · C ${Math.round(b.carbs_g * s * 10)/10}g · F ${Math.round(b.fat_g * s * 10)/10}g`;
+}
+
+document.getElementById('food-servings').addEventListener('input', updateFoodPreview);
+document.getElementById('food-cancel').addEventListener('click', () => {
+  selectedFood = null;
+  document.getElementById('food-selected').style.display = 'none';
+});
+document.getElementById('food-log').addEventListener('click', async (e) => {
+  if (!selectedFood) return;
+  const btn = e.currentTarget;
+  if (btn.disabled) return;
+  btn.disabled = true;
+  try {
+    const date = document.getElementById('diet-date').value || today();
+    const meal = document.getElementById('diet-meal').value;
+    const s = parseFloat(document.getElementById('food-servings').value) || 1;
+    const b = selectedFood.base;
+    const foodName = s === 1 ? selectedFood.name : `${s}× ${selectedFood.name}`;
+    const r = await api.post('/api/fitness/diet', {
+      date, meal, food: foodName,
+      calories: Math.round(b.calories * s),
+      protein_g: Math.round(b.protein_g * s * 10) / 10,
+      carbs_g: Math.round(b.carbs_g * s * 10) / 10,
+      fat_g: Math.round(b.fat_g * s * 10) / 10,
+      food_id: selectedFood.id,
+      servings: s
+    });
+    if (r.error) { alert('Failed to log: ' + r.error); return; }
+    selectedFood = null;
+    document.getElementById('food-selected').style.display = 'none';
+    await refreshDietView();
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+async function refreshDietView() {
+  const viewDate = document.getElementById('diet-view-date').value;
+  const entries = await api.get('/api/fitness/diet?date=' + viewDate);
+  const totals = entries.reduce((a,e) => ({ calories:a.calories+(e.calories||0), protein_g:a.protein_g+(e.protein_g||0), carbs_g:a.carbs_g+(e.carbs_g||0), fat_g:a.fat_g+(e.fat_g||0) }), { calories:0, protein_g:0, carbs_g:0, fat_g:0 });
+  const targets = getDietTargets();
+  const rings = document.getElementById('macro-rings');
+  rings.innerHTML = `
+    <div class="macro-ring"><canvas id="ring-c"></canvas><div class="lbl">Calories</div><div class="val">${Math.round(totals.calories)}/${targets.calories}</div></div>
+    <div class="macro-ring"><canvas id="ring-p"></canvas><div class="lbl">Protein</div><div class="val">${Math.round(totals.protein_g)}/${targets.protein_g}g</div></div>
+    <div class="macro-ring"><canvas id="ring-k"></canvas><div class="lbl">Carbs</div><div class="val">${Math.round(totals.carbs_g)}/${targets.carbs_g}g</div></div>
+    <div class="macro-ring"><canvas id="ring-f"></canvas><div class="lbl">Fat</div><div class="val">${Math.round(totals.fat_g)}/${targets.fat_g}g</div></div>
+  `;
+  renderMacroRing(document.getElementById('ring-c'), totals.calories, targets.calories, '', '#60a5fa');
+  renderMacroRing(document.getElementById('ring-p'), totals.protein_g, targets.protein_g, '', '#34d399');
+  renderMacroRing(document.getElementById('ring-k'), totals.carbs_g, targets.carbs_g, '', '#fbbf24');
+  renderMacroRing(document.getElementById('ring-f'), totals.fat_g, targets.fat_g, '', '#f87171');
+
+  const ent = document.getElementById('diet-entries');
+  if (!entries.length) { ent.innerHTML = '<div class="muted">No entries for this date.</div>'; return; }
+  const byMeal = {};
+  entries.forEach(e => { (byMeal[e.meal || 'Other'] ||= []).push(e); });
+  ent.innerHTML = Object.entries(byMeal).map(([meal, list]) => {
+    const mTotals = list.reduce((a,e) => ({ c: a.c + (e.calories||0), p: a.p + (e.protein_g||0), k: a.k + (e.carbs_g||0), f: a.f + (e.fat_g||0) }), { c:0, p:0, k:0, f:0 });
+    return `
+    <h3>${escapeHtml(meal)} <span class="muted" style="font-weight:400;">— ${Math.round(mTotals.c)} kcal / ${Math.round(mTotals.p)}P / ${Math.round(mTotals.k)}C / ${Math.round(mTotals.f)}F</span>
+      <button class="f-btn secondary small" data-save-goto="${encodeURIComponent(meal)}" style="margin-left:6px;">★ Save as go-to</button>
+    </h3>
+    <div class="table-wrap"><table><thead><tr><th>Food</th><th>Cal</th><th>P</th><th>C</th><th>F</th><th></th></tr></thead>
+    <tbody>${list.map(e => `
+      <tr data-entry-id="${e.id}"><td>${escapeHtml(e.food)}</td><td>${e.calories ?? ''}</td><td>${e.protein_g ?? ''}</td><td>${e.carbs_g ?? ''}</td><td>${e.fat_g ?? ''}</td>
+      <td><button class="f-btn danger small" data-del-diet="${e.id}">×</button></td></tr>`).join('')}</tbody></table></div>
+  `;}).join('');
+  ent.querySelectorAll('[data-del-diet]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      await api.del('/api/fitness/diet/' + btn.dataset.delDiet);
+      refreshDietView();
+    });
+  });
+  ent.querySelectorAll('[data-save-goto]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const meal = decodeURIComponent(btn.dataset.saveGoto);
+      const list = byMeal[meal];
+      const defaultName = `${meal} — ${viewDate}`;
+      const name = prompt('Save this meal as a go-to. Name:', defaultName);
+      if (!name) return;
+      const items = list.map(e => ({
+        food_id: e.food_id || null,
+        food_name: e.food.replace(/^\d+(\.\d+)?×\s*/, ''), // strip leading "2× " if present
+        servings: e.servings || 1,
+        calories: (e.calories || 0) / (e.servings || 1),
+        protein_g: (e.protein_g || 0) / (e.servings || 1),
+        carbs_g: (e.carbs_g || 0) / (e.servings || 1),
+        fat_g: (e.fat_g || 0) / (e.servings || 1)
+      }));
+      await api.post('/api/fitness/goto-meals', { name, meal, items });
+      renderGoToMeals();
+    });
+  });
+}
+
+document.getElementById('diet-view-date').addEventListener('change', refreshDietView);
+document.getElementById('diet-add').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const date = document.getElementById('diet-date').value || today();
+  const food = document.getElementById('diet-food').value.trim();
+  if (!food) return;
+  const body = {
+    date, food,
+    meal: document.getElementById('diet-meal').value,
+    calories: parseFloat(document.getElementById('diet-cals').value) || null,
+    protein_g: parseFloat(document.getElementById('diet-prot').value) || null,
+    carbs_g: parseFloat(document.getElementById('diet-carbs').value) || null,
+    fat_g: parseFloat(document.getElementById('diet-fat').value) || null
+  };
+  await api.post('/api/fitness/diet', body);
+  ['diet-food','diet-cals','diet-prot','diet-carbs','diet-fat'].forEach(id => document.getElementById(id).value = '');
+  refreshDietView();
+});
+
+document.getElementById('diet-save-custom').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const name = document.getElementById('diet-food').value.trim();
+  if (!name) { alert('Enter a name first.'); return; }
+  const cals = parseFloat(document.getElementById('diet-cals').value);
+  const prot = parseFloat(document.getElementById('diet-prot').value);
+  const carbs = parseFloat(document.getElementById('diet-carbs').value);
+  const fat = parseFloat(document.getElementById('diet-fat').value);
+  const r = await api.post('/api/fitness/foods/custom', { name, serving_description: 'per entry', serving_size_g: 100, calories: cals, protein_g: prot, carbs_g: carbs, fat_g: fat });
+  alert(r.error ? 'Error: ' + r.error : 'Saved as custom food.');
+});
+
+document.getElementById('diet-copy-yesterday').addEventListener('click', async () => {
+  const to_date = document.getElementById('diet-view-date').value || today();
+  const from_date = addDays(to_date, -1);
+  if (!confirm(`Copy all ${from_date} entries to ${to_date}?`)) return;
+  const r = await api.post('/api/fitness/diet/copy-day', { from_date, to_date });
+  if (r.error) alert('Error: ' + r.error);
+  else refreshDietView();
+});
+
+document.getElementById('goto-new').addEventListener('click', () => {
+  // Simple builder: free-text name + manual items (user can also save from the Entries table)
+  const name = prompt('Name for this go-to meal:');
+  if (!name) return;
+  alert('Tip: log the foods you want in this meal (under any meal slot), then click "★ Save as go-to" on that meal row. That\'s the easiest way to build complex go-to meals.');
+});
+
+document.getElementById('diet-edit-targets').addEventListener('click', () => {
+  const t = getDietTargets();
+  const cals = prompt('Daily calorie target:', t.calories);
+  if (cals == null) return;
+  const prot = prompt('Daily protein (g):', t.protein_g);
+  const carbs = prompt('Daily carbs (g):', t.carbs_g);
+  const fat = prompt('Daily fat (g):', t.fat_g);
+  setDietTargets({ calories: +cals || t.calories, protein_g: +prot || t.protein_g, carbs_g: +carbs || t.carbs_g, fat_g: +fat || t.fat_g });
+  refreshDietView();
+});
+
+// ================== Photos ==================
+let lastSessions = [];        // cache so trend toggles don't re-fetch
+let compareMode = false;      // photo-compare selection mode
+let comparePicks = [];
+async function renderPhotos() {
+  if (!document.getElementById('photo-date').value) document.getElementById('photo-date').value = today();
+  // Show active vision provider (anthropic / ollama + model)
+  try {
+    const info = await api.get('/api/fitness/vision-provider');
+    const el = document.getElementById('vision-provider-info');
+    if (el) {
+      const label = info.provider === 'ollama'
+        ? `🖥️ Local vision: <code style="background:var(--surface-3); padding:1px 6px; border-radius:3px;">${escapeHtml(info.model || 'ollama')}</code>`
+        : `☁️ Cloud vision: <code style="background:var(--surface-3); padding:1px 6px; border-radius:3px;">${escapeHtml(info.model || 'anthropic')}</code>`;
+      el.innerHTML = label + (info.configured ? '' : ' <span style="color:var(--red);">(not configured)</span>');
+    }
+  } catch (_) {}
+  const sessions = await api.get('/api/fitness/sessions');
+  lastSessions = sessions;
+  const totalPhotos = sessions.reduce((a, s) => a + s.photos.length, 0);
+  document.getElementById('photo-count').textContent = `— ${sessions.length} sessions, ${totalPhotos} photos`;
+
+  // Render session cards (newest first)
+  const listEl = document.getElementById('sessions-list');
+  listEl.innerHTML = [...sessions].reverse().map(s => {
+    let assessment = '';
+    if (s.ai_analysis) {
+      try {
+        const a = JSON.parse(s.ai_analysis);
+        if (a.assessment) assessment = `<div class="session-assessment">${escapeHtml(a.assessment)}</div>`;
+      } catch (_) {}
+    }
+    const stats = [];
+    if (s.weight_lbs) stats.push(`<span>⚖️ ${s.weight_lbs} lbs</span>`);
+    if (s.bf_estimate_pct != null) stats.push(`<span>BF ${s.bf_estimate_pct}%</span>`);
+    if (s.lbm_estimate_lbs != null) stats.push(`<span>LBM ${s.lbm_estimate_lbs}</span>`);
+    if (s.ffmi_estimate != null) stats.push(`<span>FFMI ${s.ffmi_estimate}</span>`);
+    const sortedAngles = [...s.photos].sort((a, b) => {
+      const order = { front: 0, back: 1, left: 2, right: 3 };
+      return (order[a.angle] ?? 99) - (order[b.angle] ?? 99);
+    });
+    return `
+      <div class="session-card" data-date="${s.date}">
+        <div class="head">
+          <div>
+            <div class="session-date">${fmtDate(s.date)}</div>
+            <div class="session-stats">${stats.join('') || '<span class="muted">no analysis yet</span>'}</div>
+          </div>
+          <div style="display:flex; gap:6px;">
+            <button class="f-btn secondary small" data-session-analyze="${s.date}">${s.ai_analysis ? '↻ Re-analyze' : '🔬 Analyze'}</button>
+            <button class="f-btn danger small" data-session-del="${s.date}">×</button>
+          </div>
+        </div>
+        <div class="session-angles">
+          ${sortedAngles.map(p => `
+            <div class="session-angle" data-photo-id="${p.id}">
+              <img src="/api/fitness/photos/${p.id}/image" loading="lazy" alt="${escapeHtml(p.angle || 'progress')} photo, ${fmtDate(s.date)}">
+              <div class="label">${escapeHtml(p.angle || '')}</div>
+            </div>
+          `).join('')}
+        </div>
+        ${assessment}
+      </div>
+    `;
+  }).join('');
+
+  // Wire card interactions
+  listEl.querySelectorAll('[data-session-analyze]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const date = btn.dataset.sessionAnalyze;
+      btn.disabled = true;
+      const prev = btn.textContent;
+      btn.innerHTML = '<span class="loading"></span>Analyzing…';
+      const r = await api.post(`/api/fitness/photos/session/${date}/analyze`, {});
+      btn.disabled = false;
+      btn.textContent = prev;
+      if (r.error) { alert(r.error); return; }
+      renderPhotos();
+    });
+  });
+  listEl.querySelectorAll('[data-session-del]').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      if (!confirm(`Delete all ${btn.dataset.sessionDel} photos?`)) return;
+      const date = btn.dataset.sessionDel;
+      const session = sessions.find(s => s.date === date);
+      if (!session) return;
+      for (const p of session.photos) await api.del('/api/fitness/photos/' + p.id);
+      renderPhotos();
+    });
+  });
+  listEl.querySelectorAll('.session-angle').forEach(el => {
+    el.addEventListener('click', () => {
+      const id = +el.dataset.photoId;
+      if (compareMode) toggleComparePick(id, el);
+      else showPhotoModal(id);
+    });
+  });
+
+  renderBodyCompTrend(sessions);
+
+  // Show "analyze all unanalyzed" if any sessions lack analysis
+  const unanalyzed = sessions.filter(s => !s.ai_analysis);
+  const btn = document.getElementById('photo-analyze-all');
+  btn.style.display = unanalyzed.length ? 'inline-block' : 'none';
+  btn.textContent = `Analyze All ${unanalyzed.length} Unanalyzed Sessions`;
+}
+
+// Smoothed rolling average. window = 3 sessions (configurable).
+function rollingAverage(values, windowSize) {
+  const out = [];
+  for (let i = 0; i < values.length; i++) {
+    const slice = values.slice(Math.max(0, i - windowSize + 1), i + 1).filter(v => v != null);
+    out.push(slice.length ? slice.reduce((a, b) => a + b, 0) / slice.length : null);
+  }
+  return out;
+}
+
+function renderBodyCompTrend(sessions) {
+  destroyChart('bf');
+  const withData = sessions.filter(s => s.bf_estimate_pct != null || s.lbm_estimate_lbs != null || s.ffmi_estimate != null);
+  const emptyEl = document.getElementById('trend-empty');
+  if (!withData.length) {
+    if (emptyEl) emptyEl.style.display = 'block';
+    return;
+  }
+  if (emptyEl) emptyEl.style.display = 'none';
+
+  const labels = withData.map(s => s.date);
+  const bf = withData.map(s => s.bf_estimate_pct);
+  const lbm = withData.map(s => s.lbm_estimate_lbs);
+  const ffmi = withData.map(s => s.ffmi_estimate);
+
+  const showBF = document.getElementById('trend-show-bf').checked;
+  const showLBM = document.getElementById('trend-show-lbm').checked;
+  const showFFMI = document.getElementById('trend-show-ffmi').checked;
+  const showSmooth = document.getElementById('trend-show-smooth').checked;
+
+  const datasets = [];
+  if (showBF) {
+    datasets.push({ label: 'BF % (raw)', yAxisID: 'yPct', data: bf, borderColor: '#a78bfa', backgroundColor: '#a78bfa', showLine: false, pointRadius: 4, pointStyle: 'circle' });
+    if (showSmooth) {
+      datasets.push({ label: 'BF % (smoothed)', yAxisID: 'yPct', data: rollingAverage(bf, 3), borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.1)', borderWidth: 2, tension: 0.35, fill: false, pointRadius: 0 });
+    }
+  }
+  if (showLBM) {
+    datasets.push({ label: 'LBM (lbs, raw)', yAxisID: 'yLbs', data: lbm, borderColor: '#34d399', backgroundColor: '#34d399', showLine: false, pointRadius: 4, pointStyle: 'triangle' });
+    if (showSmooth) {
+      datasets.push({ label: 'LBM (smoothed)', yAxisID: 'yLbs', data: rollingAverage(lbm, 3), borderColor: '#34d399', backgroundColor: 'rgba(52,211,153,0.1)', borderWidth: 2, tension: 0.35, fill: false, pointRadius: 0, borderDash: [4, 4] });
+    }
+  }
+  if (showFFMI) {
+    datasets.push({ label: 'FFMI (raw)', yAxisID: 'yFFMI', data: ffmi, borderColor: '#fbbf24', backgroundColor: '#fbbf24', showLine: false, pointRadius: 4, pointStyle: 'rect' });
+    if (showSmooth) {
+      datasets.push({ label: 'FFMI (smoothed)', yAxisID: 'yFFMI', data: rollingAverage(ffmi, 3), borderColor: '#fbbf24', backgroundColor: 'rgba(251,191,36,0.1)', borderWidth: 2, tension: 0.35, fill: false, pointRadius: 0, borderDash: [2, 6] });
+    }
+  }
+
+  const scales = {
+    x: { ticks: { maxTicksLimit: 8 }, grid: { color: 'rgba(255,255,255,0.04)' } }
+  };
+  if (showBF) scales.yPct = { position: 'left', title: { display: true, text: 'BF %' }, grid: { color: 'rgba(255,255,255,0.04)' } };
+  if (showLBM) scales.yLbs = { position: showBF ? 'right' : 'left', title: { display: true, text: 'LBM (lbs)' }, grid: { drawOnChartArea: false } };
+  if (showFFMI) scales.yFFMI = { position: 'right', title: { display: true, text: 'FFMI' }, grid: { drawOnChartArea: false } };
+
+  chartRegistry['bf'] = new Chart(document.getElementById('bf-trend-chart'), {
+    type: 'line',
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10 } } },
+      scales
+    }
+  });
+}
+
+['trend-show-bf','trend-show-lbm','trend-show-ffmi','trend-show-smooth'].forEach(id => {
+  document.getElementById(id).addEventListener('change', () => {
+    // Reuse the already-loaded sessions — a checkbox toggle is a pure re-render.
+    renderBodyCompTrend(lastSessions);
+  });
+});
+
+document.getElementById('photo-upload').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const btn = e.currentTarget;
+  if (btn.disabled) return;
+  const file = document.getElementById('photo-file').files[0];
+  if (!file) { alert('Choose a photo.'); return; }
+  const form = new FormData();
+  form.append('photo', file);
+  const date = document.getElementById('photo-date').value || today();
+  form.append('date', date);
+  form.append('angle', document.getElementById('photo-angle').value);
+  const w = document.getElementById('photo-weight').value;
+  if (w) form.append('weight_lbs', w);
+  const result = document.getElementById('photo-result');
+  btn.disabled = true;
+  result.innerHTML = '<span class="loading"></span>Uploading…';
+  try {
+    const r = await api.postForm('/api/fitness/photos', form);
+    if (r.error) { result.textContent = 'Error: ' + r.error; return; }
+    document.getElementById('photo-file').value = '';
+    if (r.analyzing) {
+      // Analysis runs server-side in the background so the upload didn't block.
+      result.innerHTML = 'Uploaded ✓ — running AI analysis in the background. The session card updates when it\'s ready.';
+      await renderPhotos();
+      pollSessionAnalysis(date);
+    } else if (r.analysis) {
+      result.innerHTML = `<strong>Done.</strong> BF ~${r.analysis.bf_pct}%, LBM ${r.analysis.lbm_lbs} lbs, FFMI ${r.analysis.ffmi}. <div class="muted" style="margin-top:6px;">${escapeHtml(r.analysis.assessment || '')}</div>`;
+      await renderPhotos();
+    } else {
+      result.innerHTML = `Uploaded. <span class="muted">${escapeHtml(r.warning || '')}</span>`;
+      await renderPhotos();
+    }
+  } catch (err) {
+    result.textContent = 'Error: ' + (err && err.message ? err.message : err);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Best-effort poll for background analysis to land, then refresh the session cards.
+function pollSessionAnalysis(date, tries = 0) {
+  if (tries >= 12) return; // ~60s; slow local models finish later — user can refresh
+  setTimeout(async () => {
+    try {
+      const sessions = await api.get('/api/fitness/sessions');
+      const s = sessions.find(x => x.date === date);
+      if (s && s.ai_analysis) { await renderPhotos(); return; }
+    } catch (_) {}
+    pollSessionAnalysis(date, tries + 1);
+  }, 5000);
+}
+
+document.getElementById('photo-analyze-all').addEventListener('click', async () => {
+  const btn = document.getElementById('photo-analyze-all');
+  const statusEl = document.getElementById('analyze-status');
+  const sessions = await api.get('/api/fitness/sessions');
+  const todo = sessions.filter(s => !s.ai_analysis);
+  btn.disabled = true;
+  for (let i = 0; i < todo.length; i++) {
+    btn.textContent = `Analyzing ${i+1}/${todo.length}…`;
+    statusEl.textContent = `Session ${todo[i].date} (${i+1}/${todo.length})`;
+    const r = await api.post(`/api/fitness/photos/session/${todo[i].date}/analyze`, {});
+    if (r.error) { alert('Stopped at ' + todo[i].date + ': ' + r.error); break; }
+  }
+  btn.disabled = false;
+  statusEl.textContent = '';
+  renderPhotos();
+});
+
+async function showPhotoModal(id) {
+  const [photos, sessions] = await Promise.all([
+    api.get('/api/fitness/photos'),
+    api.get('/api/fitness/sessions')
+  ]);
+  const p = photos.find(x => x.id === id);
+  if (!p) return;
+  const same = photos.filter(x => x.date === p.date);
+  // Pull the canonical analysis (incl. the assessment text) from the session row
+  // for this date — /api/fitness/photos doesn't carry the ai_analysis JSON.
+  const session = sessions.find(s => s.date === p.date);
+  const hasAnalysis = !!(session && session.ai_analysis);
+  let analysisHtml = '';
+  if (hasAnalysis) {
+    let assessment = '';
+    try { const a = JSON.parse(session.ai_analysis); if (a.assessment) assessment = `<div class="muted" style="margin-top:6px;">${escapeHtml(a.assessment)}</div>`; } catch (_) {}
+    const bits = [];
+    if (session.bf_estimate_pct != null) bits.push(`BF ~${session.bf_estimate_pct}%`);
+    if (session.lbm_estimate_lbs != null) bits.push(`LBM ${session.lbm_estimate_lbs} lbs`);
+    if (session.ffmi_estimate != null) bits.push(`FFMI ${session.ffmi_estimate}`);
+    analysisHtml = `<div class="f-card"><h3>AI Analysis</h3><div>${bits.join(' • ') || '—'}</div>${assessment}</div>`;
+  }
+  const body = `
+    <div class="f-modal-head">
+      <h2>${fmtDate(p.date)}${p.weight_lbs ? ' • ' + p.weight_lbs + ' lbs' : ''}</h2>
+      <button class="f-modal-close">×</button>
+    </div>
+    <div class="photo-grid" style="grid-template-columns: repeat(${same.length}, 1fr);">
+      ${same.map(x => `<div><img src="/api/fitness/photos/${x.id}/image" style="width:100%; border-radius:8px;" alt="${escapeHtml(x.angle || 'progress')} photo, ${fmtDate(x.date)}"><div class="muted" style="text-align:center; margin-top:4px;">${escapeHtml(x.angle || '')}</div></div>`).join('')}
+    </div>
+    ${analysisHtml}
+    <div style="margin-top:12px; display:flex; gap:8px; flex-wrap:wrap;">
+      ${!hasAnalysis ? '<button class="f-btn secondary" id="modal-analyze">Run AI Analysis</button>' : ''}
+      <button class="f-btn danger" id="modal-delete">Delete This Photo</button>
+    </div>
+  `;
+  openModal(body);
+  document.getElementById('modal-delete').addEventListener('click', async () => {
+    if (!confirm('Delete this photo?')) return;
+    await api.del('/api/fitness/photos/' + id);
+    closeModal();
+    renderPhotos();
+  });
+  const aBtn = document.getElementById('modal-analyze');
+  if (aBtn) aBtn.addEventListener('click', async () => {
+    aBtn.innerHTML = '<span class="loading"></span>Analyzing…';
+    const r = await api.post(`/api/fitness/photos/${id}/analyze`, {});
+    if (r.error) { alert(r.error); aBtn.textContent = 'Run AI Analysis'; return; }
+    closeModal(); renderPhotos();
+  });
+}
+
+// ---- Photo compare ----
+function setCompareMode(on) {
+  compareMode = on;
+  comparePicks = [];
+  document.querySelectorAll('.session-angle.compare-pick').forEach(el => el.classList.remove('compare-pick'));
+  const btn = document.getElementById('photo-compare-toggle');
+  if (btn) btn.textContent = on ? '✕ Cancel compare' : '⇄ Compare';
+  const status = document.getElementById('analyze-status');
+  if (status) status.textContent = on ? 'Pick two photos to compare.' : '';
+}
+function toggleComparePick(id, el) {
+  const idx = comparePicks.indexOf(id);
+  if (idx >= 0) { comparePicks.splice(idx, 1); el.classList.remove('compare-pick'); }
+  else {
+    if (comparePicks.length >= 2) return;
+    comparePicks.push(id); el.classList.add('compare-pick');
+  }
+  if (comparePicks.length === 2) {
+    const ids = [...comparePicks];
+    setCompareMode(false);
+    showCompareModal(ids);
+  }
+}
+document.getElementById('photo-compare-toggle').addEventListener('click', () => setCompareMode(!compareMode));
+
+async function showCompareModal(ids) {
+  const photos = await api.get('/api/fitness/photos');
+  const a = photos.find(p => p.id === ids[0]);
+  const b = photos.find(p => p.id === ids[1]);
+  if (!a || !b) return;
+  openModal(`
+    <div class="f-modal-head"><h2>Compare</h2><button class="f-modal-close">×</button></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+      <div><img src="/api/fitness/photos/${a.id}/image" style="width:100%; border-radius:8px;" alt="Progress photo, ${fmtDate(a.date)}"><div style="text-align:center; margin-top:6px;"><strong>${fmtDate(a.date)}</strong><br>${a.weight_lbs ? a.weight_lbs + ' lbs' : ''} ${a.bf_estimate_pct ? ' • BF ' + a.bf_estimate_pct + '%' : ''}</div></div>
+      <div><img src="/api/fitness/photos/${b.id}/image" style="width:100%; border-radius:8px;" alt="Progress photo, ${fmtDate(b.date)}"><div style="text-align:center; margin-top:6px;"><strong>${fmtDate(b.date)}</strong><br>${b.weight_lbs ? b.weight_lbs + ' lbs' : ''} ${b.bf_estimate_pct ? ' • BF ' + b.bf_estimate_pct + '%' : ''}</div></div>
+    </div>
+  `);
+}
+
+let _modalKeyHandler = null;
+let _modalPrevFocus = null;
+function openModal(html) {
+  const root = document.getElementById('modal-root');
+  _modalPrevFocus = document.activeElement;
+  root.innerHTML = `<div class="f-modal" id="modal-el"><div class="f-modal-content" role="dialog" aria-modal="true">${html}</div></div>`;
+  const closeBtn = root.querySelector('.f-modal-close');
+  if (closeBtn) { closeBtn.setAttribute('aria-label', 'Close'); closeBtn.addEventListener('click', closeModal); closeBtn.focus(); }
+  root.querySelector('.f-modal').addEventListener('click', (e) => { if (e.target.id === 'modal-el') closeModal(); });
+  _modalKeyHandler = (e) => { if (e.key === 'Escape') closeModal(); };
+  document.addEventListener('keydown', _modalKeyHandler);
+}
+function closeModal() {
+  document.getElementById('modal-root').innerHTML = '';
+  if (_modalKeyHandler) { document.removeEventListener('keydown', _modalKeyHandler); _modalKeyHandler = null; }
+  if (_modalPrevFocus && _modalPrevFocus.focus) { try { _modalPrevFocus.focus(); } catch (_) {} _modalPrevFocus = null; }
+}
+
+// ================== Bodyweight ==================
+async function renderWeightTab() {
+  if (!document.getElementById('bw-date').value) document.getElementById('bw-date').value = today();
+  const rows = await api.get('/api/fitness/weight');
+  destroyChart('bw');
+  if (rows.length) {
+    const sorted = [...rows].sort((a,b) => a.date.localeCompare(b.date));
+    chartRegistry['bw'] = new Chart(document.getElementById('bw-trend-chart'), {
+      type:'line', data:{ labels: sorted.map(r => r.date), datasets:[{ label:'Weight (lbs)', data: sorted.map(r => r.weight_lbs), borderColor:'#60a5fa', backgroundColor:'rgba(96,165,250,0.15)', tension:0.3, fill:true, pointRadius: 2 }]},
+      options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{ display:false }}, scales:{ x:{ ticks:{ maxTicksLimit:8 }}}}
+    });
+  }
+  const tbody = document.getElementById('bw-table');
+  const sortedDesc = [...rows].sort((a,b) => b.date.localeCompare(a.date));
+  tbody.innerHTML = sortedDesc.map(r => `
+    <tr><td>${fmtDate(r.date)}</td><td>${r.weight_lbs} lbs</td><td class="muted">${escapeHtml(r.notes || '')}</td><td><button class="f-btn danger small" data-bw-del="${r.id}">×</button></td></tr>
+  `).join('');
+  tbody.querySelectorAll('[data-bw-del]').forEach(b => b.addEventListener('click', async () => {
+    if (!confirm('Delete this entry?')) return;
+    await api.del('/api/fitness/weight/' + b.dataset.bwDel);
+    renderWeightTab();
+  }));
+}
+
+document.getElementById('bw-add').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const btn = e.currentTarget;
+  if (btn.disabled) return;
+  const date = document.getElementById('bw-date').value || today();
+  const weight_lbs = parseFloat(document.getElementById('bw-weight').value);
+  if (isNaN(weight_lbs)) { alert('Enter a weight.'); return; }
+  const notes = document.getElementById('bw-notes').value.trim() || null;
+  btn.disabled = true;
+  try {
+    const r = await api.post('/api/fitness/weight', { date, weight_lbs, notes });
+    if (r.error) { alert(r.error); return; }
+    document.getElementById('bw-weight').value = '';
+    document.getElementById('bw-notes').value = '';
+    await renderWeightTab();
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// ================== Utilities ==================
+function escapeHtml(s) { if (s == null) return ''; return String(s).replace(/[&<>"']/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])); }
+
+// Initial load (routed through onTabActivate so failures surface in the banner)
+onTabActivate('dashboard');
+</script>

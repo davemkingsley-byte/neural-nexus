@@ -1,0 +1,112 @@
+[
+  {
+    "name": "Egg, whole, raw, small",
+    "category": "Dairy and Egg Products",
+    "serving_description": "1 small (38 g)",
+    "serving_size_g": 38,
+    "calories_per_100g": 143,
+    "protein_per_100g": 12.6,
+    "carbs_per_100g": 0.7,
+    "fat_per_100g": 9.5,
+    "external_id": "custom:egg-small-raw"
+  },
+  {
+    "name": "Egg, whole, raw, medium",
+    "category": "Dairy and Egg Products",
+    "serving_description": "1 medium (44 g)",
+    "serving_size_g": 44,
+    "calories_per_100g": 143,
+    "protein_per_100g": 12.6,
+    "carbs_per_100g": 0.7,
+    "fat_per_100g": 9.5,
+    "external_id": "custom:egg-medium-raw"
+  },
+  {
+    "name": "Egg, whole, raw, large",
+    "category": "Dairy and Egg Products",
+    "serving_description": "1 large (50 g)",
+    "serving_size_g": 50,
+    "calories_per_100g": 143,
+    "protein_per_100g": 12.6,
+    "carbs_per_100g": 0.7,
+    "fat_per_100g": 9.5,
+    "external_id": "custom:egg-large-raw"
+  },
+  {
+    "name": "Egg, whole, raw, extra large",
+    "category": "Dairy and Egg Products",
+    "serving_description": "1 extra large (56 g)",
+    "serving_size_g": 56,
+    "calories_per_100g": 143,
+    "protein_per_100g": 12.6,
+    "carbs_per_100g": 0.7,
+    "fat_per_100g": 9.5,
+    "external_id": "custom:egg-xl-raw"
+  },
+  {
+    "name": "Egg, whole, raw, jumbo",
+    "category": "Dairy and Egg Products",
+    "serving_description": "1 jumbo (63 g)",
+    "serving_size_g": 63,
+    "calories_per_100g": 143,
+    "protein_per_100g": 12.6,
+    "carbs_per_100g": 0.7,
+    "fat_per_100g": 9.5,
+    "external_id": "custom:egg-jumbo-raw"
+  },
+  {
+    "name": "Egg whites, raw, large",
+    "category": "Dairy and Egg Products",
+    "serving_description": "1 large white (33 g)",
+    "serving_size_g": 33,
+    "calories_per_100g": 52,
+    "protein_per_100g": 10.9,
+    "carbs_per_100g": 0.7,
+    "fat_per_100g": 0.2,
+    "external_id": "custom:egg-white-large"
+  },
+  {
+    "name": "Whey protein isolate (standard scoop)",
+    "category": "Supplements",
+    "serving_description": "1 scoop (30 g)",
+    "serving_size_g": 30,
+    "calories_per_100g": 400,
+    "protein_per_100g": 83,
+    "carbs_per_100g": 4,
+    "fat_per_100g": 3,
+    "external_id": "custom:whey-isolate-scoop"
+  },
+  {
+    "name": "Whey protein concentrate (standard scoop)",
+    "category": "Supplements",
+    "serving_description": "1 scoop (32 g)",
+    "serving_size_g": 32,
+    "calories_per_100g": 375,
+    "protein_per_100g": 78,
+    "carbs_per_100g": 10,
+    "fat_per_100g": 5,
+    "external_id": "custom:whey-concentrate-scoop"
+  },
+  {
+    "name": "Casein protein (standard scoop)",
+    "category": "Supplements",
+    "serving_description": "1 scoop (33 g)",
+    "serving_size_g": 33,
+    "calories_per_100g": 360,
+    "protein_per_100g": 73,
+    "carbs_per_100g": 9,
+    "fat_per_100g": 3,
+    "external_id": "custom:casein-scoop"
+  },
+  {
+    "name": "Creatine monohydrate",
+    "category": "Supplements",
+    "serving_description": "1 scoop (5 g)",
+    "serving_size_g": 5,
+    "calories_per_100g": 0,
+    "protein_per_100g": 0,
+    "carbs_per_100g": 0,
+    "fat_per_100g": 0,
+    "external_id": "custom:creatine"
+  }
+]
