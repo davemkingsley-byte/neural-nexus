@@ -2649,23 +2649,43 @@ function sniffImageType(buf) {
   return null;
 }
 
+// Nearest logged bodyweight to a date (exact match preferred, else closest within
+// maxDays). Returns { weight, exact, days } or { weight: null } if nothing close.
+// Used as the prior for body-comp math so we never invent a bodyweight.
+function nearestWeightForDate(dateStr, maxDays = 45) {
+  const db = fitnessDB.getDB();
+  const exact = db.prepare('SELECT weight_lbs FROM weight_log WHERE date = ? ORDER BY id LIMIT 1').get(dateStr);
+  if (exact && exact.weight_lbs != null) return { weight: exact.weight_lbs, exact: true, days: 0 };
+  const row = db.prepare(`
+    SELECT weight_lbs, ABS(julianday(date) - julianday(?)) AS dd
+    FROM weight_log WHERE weight_lbs IS NOT NULL ORDER BY dd ASC LIMIT 1
+  `).get(dateStr);
+  if (row && row.dd <= maxDays) return { weight: row.weight_lbs, exact: false, days: Math.round(row.dd) };
+  return { weight: null, exact: false, days: null };
+}
+
 // Recompute LBM + FFMI authoritatively from BF% and bodyweight. Vision models
 // (especially small local ones) often get the arithmetic wrong; we trust the
-// qualitative BF% but do the math ourselves so every stored row reconciles and the
-// trend lines stay consistent regardless of which analyze path produced them.
+// qualitative BF% but do the math ourselves so every stored row reconciles. If we
+// have NO real bodyweight near the date we leave LBM/FFMI null rather than fabricate
+// (a made-up bodyweight produces a made-up LBM/FFMI — worse than showing nothing).
 function reconcileBodyComp(a, weightLbs) {
   if (!a || typeof a !== 'object') return a;
   for (const k of ['bf_pct', 'lbm_lbs', 'ffmi']) {
     const n = Number(a[k]);
     a[k] = Number.isFinite(n) ? n : null;
   }
-  const bw = Number(weightLbs) || 185; // fallback bodyweight if none known
-  if (a.bf_pct != null && a.bf_pct > 0 && a.bf_pct < 60) {
+  const bw = Number(weightLbs);
+  if (Number.isFinite(bw) && bw > 0 && a.bf_pct != null && a.bf_pct > 0 && a.bf_pct < 60) {
     const lbmLbs = Math.round(bw * (1 - a.bf_pct / 100) * 10) / 10;
     const lbmKg = lbmLbs * 0.453592;
     a.lbm_lbs = lbmLbs;
     a.ffmi = Math.round((lbmKg / (1.8034 * 1.8034)) * 10) / 10;
     a._bodyweight_used = bw;
+  } else {
+    a.lbm_lbs = null;
+    a.ffmi = null;
+    delete a._bodyweight_used;
   }
   return a;
 }
@@ -2744,7 +2764,8 @@ app.post('/api/fitness/photos', dashboardAuth, fitnessUpload.single('photo'), as
     // and analyze in the background rather than holding the upload connection open.
     if (fitnessAI && fitnessAI.isApiKeyConfigured()) {
       res.json({ id: photoId, analyzing: true });
-      analyzePhotoInBackground(photoId, [{ absPath: destPath, angle }], weight);
+      const bgWeight = weight != null ? weight : nearestWeightForDate(date).weight;
+      analyzePhotoInBackground(photoId, [{ absPath: destPath, angle }], bgWeight);
       return;
     }
     res.json({ id: photoId, warning: 'AI analysis unavailable (vision provider not configured)' });
@@ -2783,10 +2804,10 @@ app.post('/api/fitness/photos/session/:date/analyze', dashboardAuth, async (req,
       .filter(p => fs.existsSync(p.absPath));
     if (!photos.length) return res.status(404).json({ error: 'no readable photos' });
 
-    // Use the earliest available weight logged on that date as the prior
-    const weightRow = fitnessDB.getDB().prepare('SELECT weight_lbs FROM weight_log WHERE date = ? LIMIT 1').get(date);
+    // Bodyweight prior: a weight attached to a photo for this date, else the nearest
+    // logged bodyweight (never a fabricated constant).
     const photoWeight = all.find(p => p.weight_lbs)?.weight_lbs;
-    const weight = photoWeight || weightRow?.weight_lbs || null;
+    const weight = photoWeight || nearestWeightForDate(date).weight;
 
     const r = await fitnessAI.analyzePhysique(photos, { weightLbs: weight });
     if (!r.ok) return res.status(500).json({ error: r.error });
@@ -2854,9 +2875,8 @@ app.post('/api/fitness/photos/:id/analyze', dashboardAuth, async (req, res) => {
       .map(p => ({ absPath: path.join(fitnessDB.getPhotosDir(), p.photo_path), angle: p.angle }))
       .filter(p => fs.existsSync(p.absPath));
 
-    // Bodyweight prior: the photo's own weight, else any weight logged that date.
-    const weightRow = fitnessDB.getDB().prepare('SELECT weight_lbs FROM weight_log WHERE date = ? LIMIT 1').get(photo.date);
-    const weight = photo.weight_lbs || weightRow?.weight_lbs || null;
+    // Bodyweight prior: the photo's own weight, else the nearest logged bodyweight.
+    const weight = photo.weight_lbs || nearestWeightForDate(photo.date).weight;
 
     const r = await fitnessAI.analyzePhysique(photos, { weightLbs: weight });
     if (!r.ok) return res.status(500).json({ error: r.error });
