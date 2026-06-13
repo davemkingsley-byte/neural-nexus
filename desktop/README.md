@@ -18,12 +18,12 @@ npm install
 # 2. pywebview for the desktop shell
 python3 -m pip install --user pywebview     # or: pip install -r desktop/requirements.txt
 
-# 3. (optional) enable Claude photo analysis
-echo 'ANTHROPIC_API_KEY=sk-ant-...' >> .env
-
-# 4. build the app into ~/Applications
+# 3. build the app into ~/Applications
 bash desktop/build_app.sh
 ```
+
+Photo analysis works out of the box — it uses your logged-in `claude` CLI (your
+Claude subscription), so **no API key is required**.
 
 Then open **Fitness Tracker** from `~/Applications` (or `open ~/Applications/"Fitness Tracker.app"`).
 
@@ -32,9 +32,13 @@ Then open **Fitness Tracker** from `~/Applications` (or `open ~/Applications/"Fi
 - **Run it without building:** `python3 desktop/fitness_app.py`
 - The `.app` stores an absolute path to this repo. If you move the repo, re-run
   `bash desktop/build_app.sh`.
-- Vision provider defaults to **Claude** (`claude-sonnet-4-6`). Override the model
-  with `FITNESS_ANTHROPIC_MODEL=claude-opus-4-8`, or use a local model with
-  `FITNESS_VISION_PROVIDER=ollama`. Put any of these in `.env`.
+- **Vision provider** auto-selects in this order: your logged-in `claude` CLI
+  (`cli`, no API key — the default on your machine) → `ANTHROPIC_API_KEY` direct
+  API (`anthropic`) → local Ollama (`ollama`). Force one with
+  `FITNESS_VISION_PROVIDER=cli|anthropic|ollama`. Models: `FITNESS_CLI_MODEL`
+  (default `sonnet`, e.g. `opus`) for the CLI; `FITNESS_ANTHROPIC_MODEL` for the API.
+  `build_app.sh` bakes the `node` and `claude` paths into the bundle so the
+  Finder-launched app finds them despite the bare GUI `PATH`.
 - Auto-login works because the launcher sets `FITNESS_DESKTOP_AUTH=1` and connects
   from localhost; the server only honors that flag for `127.0.0.1`/`::1`, and it is
   never set in production.
@@ -46,4 +50,6 @@ Then open **Fitness Tracker** from `~/Applications` (or `open ~/Applications/"Fi
 |----------|---------|---------|
 | `FITNESS_REPO` | repo root | where `server.js` lives |
 | `FITNESS_NODE_BIN` | auto-detected | path to the `node` binary |
+| `FITNESS_CLAUDE_BIN` | auto-detected | path to the `claude` CLI (vision provider) |
+| `FITNESS_CLI_MODEL` | `sonnet` | model for CLI vision (e.g. `opus`) |
 | `FITNESS_DESKTOP_PORT` | `4199` | preferred local port (falls back to a free one) |

@@ -58,6 +58,17 @@ if [ -n "$NODE_BIN" ]; then echo "Node:        $NODE_BIN"; else
   echo "WARNING: node not found at build time; the app will probe for it at runtime."
 fi
 
+# --- detect the claude CLI (default vision provider; reuses your Claude login) ---
+CLAUDE_BIN="$(command -v claude 2>/dev/null || true)"
+if [ -z "$CLAUDE_BIN" ]; then
+  for c in "$HOME/.npm-global/bin/claude" /opt/homebrew/bin/claude /usr/local/bin/claude "$HOME/.local/bin/claude"; do
+    [ -x "$c" ] && { CLAUDE_BIN="$c"; break; }
+  done
+fi
+if [ -n "$CLAUDE_BIN" ]; then echo "Claude CLI:  $CLAUDE_BIN"; else
+  echo "NOTE: claude CLI not found at build time; the app will probe at runtime or fall back to ANTHROPIC_API_KEY."
+fi
+
 # --- (re)create the bundle --------------------------------------------------
 mkdir -p "$APP_DEST"
 rm -rf "$APP"
@@ -86,6 +97,7 @@ cat > "$APP/Contents/MacOS/FitnessTracker" <<LAUNCH
 #!/bin/bash
 export FITNESS_REPO="$REPO_DIR"
 export FITNESS_NODE_BIN="$NODE_BIN"
+export FITNESS_CLAUDE_BIN="$CLAUDE_BIN"
 exec "$PYTHON" "$REPO_DIR/desktop/fitness_app.py" "\$@"
 LAUNCH
 chmod +x "$APP/Contents/MacOS/FitnessTracker"

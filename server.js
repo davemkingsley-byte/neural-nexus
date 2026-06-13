@@ -21,9 +21,10 @@ try {
 
 // Fitness tracker DB (separate from cognitive.db)
 let fitnessDB;
-let fitnessAI;          // active vision provider (anthropic | ollama)
+let fitnessAI;          // active vision provider (cli | anthropic | ollama)
 let fitnessAIAnthropic; // kept separately for optional runtime switching
 let fitnessAIOllama;
+let fitnessAICli;
 let fitnessExt;
 let fitnessDBReady = false;
 try {
@@ -31,15 +32,25 @@ try {
   fitnessDB.initDB();
   fitnessAIAnthropic = require('./src/fitness-ai');
   fitnessAIOllama = require('./src/fitness-ai-local');
-  // Provider selection: Claude (anthropic) is the default vision provider. Set
-  // FITNESS_VISION_PROVIDER=ollama to use a local model instead. Claude requires
-  // ANTHROPIC_API_KEY to be set (else analyze calls return a "not configured" error).
-  const provider = (process.env.FITNESS_VISION_PROVIDER || 'anthropic').toLowerCase();
-  fitnessAI = (provider === 'ollama') ? fitnessAIOllama : fitnessAIAnthropic;
+  fitnessAICli = require('./src/fitness-ai-cli');
+  // Provider selection, default order favors zero-config local use:
+  //   1) explicit FITNESS_VISION_PROVIDER (cli | anthropic | ollama)
+  //   2) the logged-in `claude` CLI if present — reuses your Claude subscription, NO API key
+  //   3) ANTHROPIC_API_KEY -> direct Anthropic API
+  //   4) ollama (local model)
+  const explicit = (process.env.FITNESS_VISION_PROVIDER || '').toLowerCase();
+  const provider = explicit
+    || (fitnessAICli.isAvailable() ? 'cli'
+      : (process.env.ANTHROPIC_API_KEY ? 'anthropic' : 'ollama'));
+  fitnessAI = provider === 'ollama' ? fitnessAIOllama
+    : provider === 'anthropic' ? fitnessAIAnthropic
+    : fitnessAICli;
   fitnessExt = require('./src/fitness-external-foods');
   fitnessDBReady = true;
-  const keyNote = (provider === 'anthropic' && !fitnessAIAnthropic.isApiKeyConfigured()) ? ' — WARNING: ANTHROPIC_API_KEY not set, photo analysis will fail until it is' : '';
-  console.log(`Fitness DB loaded successfully (vision provider: ${provider})${keyNote}`);
+  const note = (provider === 'anthropic' && !fitnessAIAnthropic.isApiKeyConfigured())
+    ? ' — WARNING: ANTHROPIC_API_KEY not set, photo analysis will fail until it is'
+    : (provider === 'cli' ? ' (using your logged-in claude CLI — no API key needed)' : '');
+  console.log(`Fitness DB loaded successfully (vision provider: ${provider})${note}`);
 } catch (err) {
   console.error('Failed to load fitness DB:', err.message);
 }
