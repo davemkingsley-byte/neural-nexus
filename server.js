@@ -474,7 +474,16 @@ app.use((req, res, next) => {
 
 // Protect dashboard data from public access
 const DASHBOARD_PASS = process.env.DASHBOARD_PASS || 'nexus2026';
+// The local desktop app (pywebview wrapper) sets FITNESS_DESKTOP_AUTH=1 and connects
+// from localhost — auto-authenticate so it skips the password page. OFF by default and
+// never set in production; the localhost check is belt-and-suspenders.
+function isDesktopLocal(req) {
+  if (process.env.FITNESS_DESKTOP_AUTH !== '1') return false;
+  const ip = (req.socket && req.socket.remoteAddress) || req.ip || '';
+  return ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1';
+}
 function hasDashboardAuth(req) {
+  if (isDesktopLocal(req)) return true;
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
   return Boolean(match && match[1] === 'authenticated');
@@ -1063,6 +1072,7 @@ app.get('/contexto', (req, res) => {
 
 // Dashboard (password-protected)
 function dashboardLoginPage(req, res, next) {
+  if (isDesktopLocal(req)) return next();
   const cookies = req.headers.cookie || '';
   const match = cookies.match(/dash_auth=([^;]+)/);
   if (match && match[1] === 'authenticated') return next();
