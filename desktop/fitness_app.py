@@ -35,6 +35,7 @@ except ImportError:
 
 REPO = pathlib.Path(os.environ.get("FITNESS_REPO", pathlib.Path(__file__).resolve().parent.parent))
 PREFERRED_PORT = int(os.environ.get("FITNESS_DESKTOP_PORT", "4199"))
+LOG_FILE = pathlib.Path(os.path.expanduser("~/Library/Logs/FitnessTracker.log"))
 
 
 def pick_port(preferred):
@@ -54,12 +55,19 @@ def pick_port(preferred):
 
 
 def find_node():
+    # A Finder-launched .app gets a minimal PATH (no Homebrew), so shutil.which()
+    # usually fails — build_app.sh bakes FITNESS_NODE_BIN, and we also probe common
+    # install locations incl. version-pinned Homebrew kegs (e.g. node@22).
+    import glob
     candidates = [
         os.environ.get("FITNESS_NODE_BIN"),
         shutil.which("node"),
         "/opt/homebrew/bin/node",
         "/usr/local/bin/node",
+        "/opt/homebrew/opt/node/bin/node",
     ]
+    candidates += sorted(glob.glob("/opt/homebrew/opt/node@*/bin/node"), reverse=True)
+    candidates += sorted(glob.glob("/usr/local/opt/node@*/bin/node"), reverse=True)
     for c in candidates:
         if c and os.path.exists(c):
             return c
@@ -109,12 +117,20 @@ def main():
     env["FITNESS_DESKTOP_AUTH"] = "1"          # localhost auto-auth for the desktop app
     env.setdefault("NODE_ENV", "production")
 
+    # Log node's output to a file so failures are diagnosable (not /dev/null).
+    try:
+        LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
+        logf = open(LOG_FILE, "a", buffering=1)
+        logf.write(f"\n--- Fitness Tracker start: node={node} port={port} repo={REPO} ---\n")
+    except Exception:
+        logf = subprocess.DEVNULL
+
     proc = subprocess.Popen(
         [node, "server.js"],
         cwd=str(REPO),
         env=env,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+        stdout=logf,
+        stderr=subprocess.STDOUT,
     )
 
     if not wait_for_server(f"http://127.0.0.1:{port}/", proc, timeout=40):
@@ -122,7 +138,7 @@ def main():
             proc.terminate()
         except Exception:
             pass
-        error_window("The local server didn't come up in time. Check that dependencies are installed (npm install).")
+        error_window(f"The local server didn't come up in time. Check {LOG_FILE} and that dependencies are installed (npm install).")
         return
 
     webview.create_window(

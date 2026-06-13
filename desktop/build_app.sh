@@ -47,6 +47,17 @@ if ! "$PYTHON" -c "import webview" >/dev/null 2>&1; then
 fi
 echo "Python:      $PYTHON"
 
+# --- detect node now (GUI-launched .app won't have the shell PATH) ----------
+NODE_BIN="$(command -v node 2>/dev/null || true)"
+if [ -z "$NODE_BIN" ]; then
+  for n in /opt/homebrew/bin/node /usr/local/bin/node /opt/homebrew/opt/node@*/bin/node /usr/local/opt/node@*/bin/node; do
+    [ -x "$n" ] && { NODE_BIN="$n"; break; }
+  done
+fi
+if [ -n "$NODE_BIN" ]; then echo "Node:        $NODE_BIN"; else
+  echo "WARNING: node not found at build time; the app will probe for it at runtime."
+fi
+
 # --- (re)create the bundle --------------------------------------------------
 mkdir -p "$APP_DEST"
 rm -rf "$APP"
@@ -74,6 +85,7 @@ PLIST
 cat > "$APP/Contents/MacOS/FitnessTracker" <<LAUNCH
 #!/bin/bash
 export FITNESS_REPO="$REPO_DIR"
+export FITNESS_NODE_BIN="$NODE_BIN"
 exec "$PYTHON" "$REPO_DIR/desktop/fitness_app.py" "\$@"
 LAUNCH
 chmod +x "$APP/Contents/MacOS/FitnessTracker"
