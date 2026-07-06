@@ -2709,12 +2709,86 @@ function saveAnalysisToPhoto(photoId, a) {
 // blocks on the (possibly multi-minute) vision call.
 function analyzePhotoInBackground(photoId, photos, weightLbs) {
   Promise.resolve()
-    .then(() => fitnessAI.analyzePhysique(photos, { weightLbs }))
+    .then(() => analyzePhysiqueRobust(photos, { weightLbs }))
     .then(r => {
       if (r && r.ok && r.analysis) saveAnalysisToPhoto(photoId, reconcileBodyComp(r.analysis, weightLbs));
       else if (r && r.error) console.warn('Background physique analysis returned no result:', r.error);
     })
     .catch(err => console.error('Background physique analysis failed:', err && err.message));
+}
+
+// A single vision BF% read is noisy (±2-3% run-to-run). Take several samples and
+// use the MEDIAN, keeping the spread as a confidence band. Samples run in parallel;
+// partial failures are tolerated (we use whatever succeeded). Default 3, capped 1-5.
+const VISION_SAMPLES = Math.max(1, Math.min(5, parseInt(process.env.FITNESS_VISION_SAMPLES, 10) || 3));
+function median(nums) {
+  const s = [...nums].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+// Run thunks with bounded concurrency (each cli sample spawns a `claude` subprocess,
+// so we don't want N of them at once).
+async function runLimited(thunks, limit) {
+  const results = [];
+  let i = 0;
+  const workers = Array.from({ length: Math.min(limit, thunks.length) }, async () => {
+    while (i < thunks.length) { const idx = i++; results[idx] = await thunks[idx](); }
+  });
+  await Promise.all(workers);
+  return results;
+}
+const VISION_CONCURRENCY = Math.max(1, Math.min(3, parseInt(process.env.FITNESS_VISION_CONCURRENCY, 10) || 2));
+async function analyzePhysiqueRobust(photos, opts = {}, samples = VISION_SAMPLES) {
+  const runs = await runLimited(
+    Array.from({ length: samples }, () => () =>
+      fitnessAI.analyzePhysique(photos, opts).catch(err => ({ ok: false, error: err && err.message }))),
+    VISION_CONCURRENCY
+  );
+  const good = runs.filter(r => r && r.ok && r.analysis && Number.isFinite(Number(r.analysis.bf_pct)));
+  if (!good.length) {
+    const firstErr = runs.find(r => r && r.error);
+    return { ok: false, error: (firstErr && firstErr.error) || 'all vision samples failed' };
+  }
+  if (good.length < samples) console.warn(`Vision sampling degraded: ${good.length}/${samples} samples succeeded`);
+  const bfs = good.map(r => Math.round(Number(r.analysis.bf_pct) * 10) / 10);
+  const med = Math.round(median(bfs) * 10) / 10;
+  // Representative run = the one whose BF% is closest to the median (its assessment
+  // text + muscle ratings become the stored ones).
+  const rep = good.reduce((best, r) =>
+    Math.abs(Number(r.analysis.bf_pct) - med) < Math.abs(Number(best.analysis.bf_pct) - med) ? r : best, good[0]);
+  const a = { ...rep.analysis };
+  a.bf_pct = med;
+  a.bf_pct_samples = bfs;
+  a.bf_pct_low = Math.min(...bfs);
+  a.bf_pct_high = Math.max(...bfs);
+  a.n_samples = good.length;
+  return { ok: true, analysis: a, provider: rep.provider, model: rep.model };
+}
+
+// Downscaled JPEG thumbnails for the grid/list views (originals are 8-9MB PNGs).
+// Cached under the photos dir's .thumbs/; regenerated if the source is newer.
+// Uses macOS `sips` off the event loop; returns null (Promise) if unavailable so the
+// caller serves the original. An in-flight map de-dupes concurrent first-view misses.
+function thumbCachePath(photoPath, maxEdge) {
+  const safe = String(photoPath).replace(/[^a-zA-Z0-9._-]/g, '_');
+  return path.join(fitnessDB.getPhotosDir(), '.thumbs', `${safe}.${maxEdge}.jpg`);
+}
+const thumbInFlight = new Map();
+function getOrMakeThumb(absPath, photoPath, maxEdge) {
+  const dest = thumbCachePath(photoPath, maxEdge);
+  try {
+    if (fs.existsSync(dest) && fs.statSync(dest).mtimeMs >= fs.statSync(absPath).mtimeMs) return Promise.resolve(dest);
+  } catch (_) {}
+  if (thumbInFlight.has(dest)) return thumbInFlight.get(dest);
+  const p = new Promise((resolve) => {
+    const { execFile } = require('child_process');
+    try { fs.mkdirSync(path.dirname(dest), { recursive: true }); } catch (_) {}
+    execFile('sips', ['-Z', String(maxEdge), '-s', 'format', 'jpeg', '-s', 'formatOptions', '80', absPath, '--out', dest], { timeout: 15000 }, (err) => {
+      resolve((!err && fs.existsSync(dest)) ? dest : null);
+    });
+  }).finally(() => thumbInFlight.delete(dest));
+  thumbInFlight.set(dest, p);
+  return p;
 }
 
 app.get('/api/fitness/photos', dashboardAuth, (req, res) => {
@@ -2809,7 +2883,7 @@ app.post('/api/fitness/photos/session/:date/analyze', dashboardAuth, async (req,
     const photoWeight = all.find(p => p.weight_lbs)?.weight_lbs;
     const weight = photoWeight || nearestWeightForDate(date).weight;
 
-    const r = await fitnessAI.analyzePhysique(photos, { weightLbs: weight });
+    const r = await analyzePhysiqueRobust(photos, { weightLbs: weight });
     if (!r.ok) return res.status(500).json({ error: r.error });
 
     const a = reconcileBodyComp(r.analysis, weight);
@@ -2878,7 +2952,7 @@ app.post('/api/fitness/photos/:id/analyze', dashboardAuth, async (req, res) => {
     // Bodyweight prior: the photo's own weight, else the nearest logged bodyweight.
     const weight = photo.weight_lbs || nearestWeightForDate(photo.date).weight;
 
-    const r = await fitnessAI.analyzePhysique(photos, { weightLbs: weight });
+    const r = await analyzePhysiqueRobust(photos, { weightLbs: weight });
     if (!r.ok) return res.status(500).json({ error: r.error });
 
     const a = reconcileBodyComp(r.analysis, weight);
@@ -2887,7 +2961,7 @@ app.post('/api/fitness/photos/:id/analyze', dashboardAuth, async (req, res) => {
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
-app.get('/api/fitness/photos/:id/image', dashboardAuth, (req, res) => {
+app.get('/api/fitness/photos/:id/image', dashboardAuth, async (req, res) => {
   if (!checkFitnessDB(res)) return;
   try {
     const photo = fitnessDB.getDB().prepare('SELECT photo_path FROM progress_photos WHERE id = ?').get(parseInt(req.params.id));
@@ -2896,6 +2970,12 @@ app.get('/api/fitness/photos/:id/image', dashboardAuth, (req, res) => {
     if (photo.photo_path.includes('..') || photo.photo_path.includes('/')) return res.status(400).end();
     const abs = path.join(fitnessDB.getPhotosDir(), photo.photo_path);
     if (!fs.existsSync(abs)) return res.status(404).end();
+    // Grid/list views request ?size=thumb — serve a small cached JPEG instead of the
+    // multi-MB original so the Photos tab loads fast. Full-res in the modal (no param).
+    if (req.query.size === 'thumb') {
+      const thumb = await getOrMakeThumb(abs, photo.photo_path, 500);
+      if (thumb) { res.type('image/jpeg'); return res.sendFile(thumb); }
+    }
     res.sendFile(abs);
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -2909,6 +2989,11 @@ app.delete('/api/fitness/photos/:id', dashboardAuth, (req, res) => {
       const abs = path.join(fitnessDB.getPhotosDir(), photo.photo_path);
       if (fs.existsSync(abs)) {
         try { fs.unlinkSync(abs); } catch (_) {}
+      }
+      // Reclaim any cached thumbnail(s) for this photo.
+      for (const edge of [500]) {
+        const t = thumbCachePath(photo.photo_path, edge);
+        if (fs.existsSync(t)) { try { fs.unlinkSync(t); } catch (_) {} }
       }
     }
     const info = fitnessDB.getDB().prepare('DELETE FROM progress_photos WHERE id = ?').run(id);

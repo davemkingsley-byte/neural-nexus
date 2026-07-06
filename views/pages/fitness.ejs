@@ -556,7 +556,7 @@ async function renderDashboard() {
   const latest = (fronts.length ? fronts : photos).reduce((a, b) => a.date > b.date ? a : b);
   photoEl.innerHTML = `
     <div style="display:flex; gap:12px; align-items:flex-start;">
-      <img src="/api/fitness/photos/${latest.id}/image" style="width:100px; height:140px; object-fit:cover; border-radius:8px;" alt="Latest progress photo, ${fmtDate(latest.date)}">
+      <img src="/api/fitness/photos/${latest.id}/image?size=thumb" style="width:100px; height:140px; object-fit:cover; border-radius:8px;" alt="Latest progress photo, ${fmtDate(latest.date)}">
       <div>
         <div style="font-weight:600; margin-bottom:4px;">${fmtDate(latest.date)}</div>
         <div class="muted">${escapeHtml(latest.angle) || '—'}${latest.weight_lbs ? ' • ' + latest.weight_lbs + ' lbs' : ''}</div>
@@ -1093,16 +1093,19 @@ async function renderPhotos() {
   // Render session cards (newest first)
   const listEl = document.getElementById('sessions-list');
   listEl.innerHTML = [...sessions].reverse().map(s => {
-    let assessment = '';
-    if (s.ai_analysis) {
-      try {
-        const a = JSON.parse(s.ai_analysis);
-        if (a.assessment) assessment = `<div class="session-assessment">${escapeHtml(a.assessment)}</div>`;
-      } catch (_) {}
+    let A = {};
+    if (s.ai_analysis) { try { A = JSON.parse(s.ai_analysis) || {}; } catch (_) {} }
+    const assessment = A.assessment ? `<div class="session-assessment">${escapeHtml(A.assessment)}</div>` : '';
+    // Confidence range from median-of-N sampling (only present on newer analyses).
+    // Show the sample count even when it collapsed to 1, so a degraded run is visible.
+    let bfRange = '';
+    if (A.n_samples) {
+      const rng = (A.bf_pct_low != null && A.bf_pct_high != null && A.bf_pct_high > A.bf_pct_low) ? `${A.bf_pct_low}–${A.bf_pct_high}%, ` : '';
+      bfRange = ` <span class="muted">(${rng}n=${A.n_samples})</span>`;
     }
     const stats = [];
     if (s.weight_lbs) stats.push(`<span>⚖️ ${s.weight_lbs} lbs</span>`);
-    if (s.bf_estimate_pct != null) stats.push(`<span>BF ${s.bf_estimate_pct}%</span>`);
+    if (s.bf_estimate_pct != null) stats.push(`<span>BF ${s.bf_estimate_pct}%${bfRange}</span>`);
     if (s.lbm_estimate_lbs != null) stats.push(`<span>LBM ${s.lbm_estimate_lbs}</span>`);
     if (s.ffmi_estimate != null) stats.push(`<span>FFMI ${s.ffmi_estimate}</span>`);
     const sortedAngles = [...s.photos].sort((a, b) => {
@@ -1124,7 +1127,7 @@ async function renderPhotos() {
         <div class="session-angles">
           ${sortedAngles.map(p => `
             <div class="session-angle" data-photo-id="${p.id}">
-              <img src="/api/fitness/photos/${p.id}/image" loading="lazy" alt="${escapeHtml(p.angle || 'progress')} photo, ${fmtDate(s.date)}">
+              <img src="/api/fitness/photos/${p.id}/image?size=thumb" loading="lazy" alt="${escapeHtml(p.angle || 'progress')} photo, ${fmtDate(s.date)}">
               <div class="label">${escapeHtml(p.angle || '')}</div>
             </div>
           `).join('')}
@@ -1199,6 +1202,8 @@ function renderBodyCompTrend(sessions) {
   const bf = withData.map(s => s.bf_estimate_pct);
   const lbm = withData.map(s => s.lbm_estimate_lbs);
   const ffmi = withData.map(s => s.ffmi_estimate);
+  // BF% confidence band from median-of-N sampling (present on newer analyses).
+  const spread = withData.map(s => { try { const a = JSON.parse(s.ai_analysis || '{}'); return { low: a.bf_pct_low ?? null, high: a.bf_pct_high ?? null }; } catch (_) { return { low: null, high: null }; } });
 
   const showBF = document.getElementById('trend-show-bf').checked;
   const showLBM = document.getElementById('trend-show-lbm').checked;
@@ -1207,6 +1212,12 @@ function renderBodyCompTrend(sessions) {
 
   const datasets = [];
   if (showBF) {
+    // Shaded low–high band drawn first (behind the points/line).
+    const bfLow = spread.map(x => x.low), bfHigh = spread.map(x => x.high);
+    if (bfLow.some(v => v != null) && bfHigh.some(v => v != null)) {
+      datasets.push({ label: 'BF band', yAxisID: 'yPct', data: bfHigh, borderColor: 'rgba(167,139,250,0)', backgroundColor: 'rgba(167,139,250,0.13)', pointRadius: 0, fill: false, tension: 0.35, spanGaps: false });
+      datasets.push({ label: 'BF band', yAxisID: 'yPct', data: bfLow, borderColor: 'rgba(167,139,250,0)', backgroundColor: 'rgba(167,139,250,0.13)', pointRadius: 0, fill: '-1', tension: 0.35, spanGaps: false });
+    }
     datasets.push({ label: 'BF % (raw)', yAxisID: 'yPct', data: bf, borderColor: '#a78bfa', backgroundColor: '#a78bfa', showLine: false, pointRadius: 4, pointStyle: 'circle' });
     if (showSmooth) {
       datasets.push({ label: 'BF % (smoothed)', yAxisID: 'yPct', data: rollingAverage(bf, 3), borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.1)', borderWidth: 2, tension: 0.35, fill: false, pointRadius: 0 });
@@ -1239,7 +1250,10 @@ function renderBodyCompTrend(sessions) {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index', intersect: false },
-      plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10 } } },
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, padding: 10, filter: (it) => it.text !== 'BF band' } },
+        tooltip: { filter: (it) => it.dataset.label !== 'BF band' }
+      },
       scales
     }
   });
