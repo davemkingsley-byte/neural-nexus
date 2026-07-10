@@ -63,8 +63,11 @@
   }
 
   function normalizeRisk(r, taskIdSet) {
-    var p = clamp(Math.round(Number(r.probability) || 3), 1, 5);
-    var i = clamp(Math.round(Number(r.impact) || 3), 1, 5);
+    // Only fall back to 3 for genuinely absent/non-numeric input — an explicit
+    // 0 must clamp to 1, not be treated as "missing" and inflated to 3.
+    var np = Number(r.probability), ni = Number(r.impact);
+    var p = clamp(Math.round(isFinite(np) ? np : 3), 1, 5);
+    var i = clamp(Math.round(isFinite(ni) ? ni : 3), 1, 5);
     return {
       id: r.id,
       title: r.title != null ? String(r.title) : '',

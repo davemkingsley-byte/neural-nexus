@@ -114,9 +114,39 @@ eq(Model.riskSeverity(25), 'critical', 'score 25 critical');
 
   // errors
   var r3 = Ops.applyOps(m, [{ op: 'set-risk', risk: 99, probability: 1 }]);
-  ok(!r3.ok && /no risk with id/.test(r3.error), 'unknown risk id rejected');
+  ok(!r3.ok && /no risk/.test(r3.error), 'unknown risk ref rejected');
   var r4 = Ops.applyOps(m, [{ op: 'add-risk' }]);
   ok(!r4.ok && /title/.test(r4.error), 'add-risk without title rejected');
+})();
+
+// ---- REVIEW FIX: explicit 0 clamps to 1, not inflated to 3 ----
+(function () {
+  var m = base();
+  var id = m.addRisk({ title: 'Zero test', probability: 0, impact: 0 });
+  var r = m.riskById(id);
+  eq(r.probability, 1, 'probability 0 -> clamped to 1 (not 3)');
+  eq(r.impact, 1, 'impact 0 -> clamped to 1 (not 3)');
+  // a genuinely absent value still defaults to 3
+  var id2 = m.addRisk({ title: 'Default test' });
+  eq(m.riskById(id2).probability, 3, 'absent probability defaults to 3');
+})();
+
+// ---- REVIEW FIX: numeric title is addressable and never shadowed by an id ----
+(function () {
+  var m = base();
+  var r = Ops.applyOps(m, [
+    { op: 'add-risk', title: 'First risk' },   // id 1
+    { op: 'add-risk', title: '1' }             // id 2, title "1"
+  ]);
+  ok(r.ok, 'setup ok');
+  // ref "1" resolves to id 1 (id wins when it exists)
+  Ops.applyOps(m, [{ op: 'set-risk', risk: '1', owner: 'by-id' }]);
+  eq(m.riskById(1).owner, 'by-id', 'numeric ref hits the matching id first');
+  // delete id 1, then ref "1" falls through to the title match (risk id 2)
+  Ops.applyOps(m, [{ op: 'delete-risk', risk: 1 }]);
+  var r2 = Ops.applyOps(m, [{ op: 'set-risk', risk: '1', owner: 'by-title' }]);
+  ok(r2.ok, 'numeric title addressable after the id is gone');
+  eq(m.riskById(2).owner, 'by-title', 'ref "1" fell through to the title-"1" risk');
 })();
 
 // ---- ambiguous title refs error with candidate ids ----

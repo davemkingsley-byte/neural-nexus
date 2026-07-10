@@ -71,8 +71,9 @@
     if (ref == null) fail('missing risk reference');
     if (typeof ref === 'number' || /^\d+$/.test(String(ref))) {
       var byId = risks.filter(function (r) { return r.id === parseInt(ref, 10); })[0];
-      if (!byId) fail('no risk with id ' + ref);
-      return byId;
+      if (byId) return byId;
+      // No such id — fall through to title match so a risk *titled* with digits
+      // (e.g. "5") is still addressable and a numeric title never shadows an id.
     }
     var s = String(ref).toLowerCase();
     var matches = risks.filter(function (r) { return r.title.toLowerCase() === s; });

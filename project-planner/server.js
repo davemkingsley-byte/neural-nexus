@@ -298,9 +298,13 @@ function handleStatic(req, res, pathname) {
   if (file.indexOf(ROOT + path.sep) !== 0 && file !== ROOT) {
     return send(res, 403, { error: 'forbidden' });
   }
-  // Never serve project data through the static handler (regardless of where
-  // PROJECTS_DIR actually lives) — the API is the only door to plan documents.
-  if (/^\/projects(\/|$)/.test(pathname) || file.indexOf(PROJECTS_DIR) === 0) {
+  // Never serve project data or sensitive config through the static handler.
+  // The API is the only door to plan documents; auth.json / audit logs / lock
+  // files / dotfiles must never be downloadable even by an authenticated user.
+  var base = path.basename(file);
+  if (/^\/projects(\/|$)/.test(pathname) || file.indexOf(PROJECTS_DIR) === 0 ||
+      /^auth.*\.json$/i.test(base) || /\.audit\.jsonl$/i.test(base) ||
+      /\.lock$/i.test(base) || base.charAt(0) === '.') {
     return send(res, 403, { error: 'forbidden' });
   }
   fs.readFile(file, function (err, data) {
@@ -320,20 +324,31 @@ function createServer() {
     // Identity first: local requests are trusted (editor); anything that came
     // through the Cloudflare tunnel must present a valid Access JWT, which we
     // verify ourselves — for the API AND for static files. Fail closed.
-    Auth.identify(req, AUTH_CONFIG, function (identity) {
+    Auth.identify(req, getAuthConfig(), function (identity) {
       if (!identity.ok) return send(res, identity.status, { error: identity.error });
       try {
         if (pathname.indexOf('/api/') === 0 || pathname === '/api') return handleApi(req, res, pathname, identity);
         if (req.method !== 'GET') return send(res, 405, { error: 'method not allowed' });
         return handleStatic(req, res, pathname);
       } catch (e) {
-        return send(res, 500, { error: 'internal: ' + e.message });
+        console.error('[projectdesk] request error:', e && e.stack || e);
+        return send(res, 500, { error: 'internal error' }); // no internals to the client
       }
     });
   });
 }
 
-var AUTH_CONFIG = Auth.loadConfig(ROOT);
+// Re-read auth.json with a short TTL so grants — and especially revocations —
+// take effect within seconds without restarting the server. A test override
+// (_setAuthConfig) pins the config for deterministic tests.
+var authOverride; // undefined = use file; null/obj = pinned by test hook
+var authCache = { cfg: Auth.loadConfig(ROOT), at: Date.now() };
+function getAuthConfig() {
+  if (typeof authOverride !== 'undefined') return authOverride;
+  var now = Date.now();
+  if (now - authCache.at > 5000) authCache = { cfg: Auth.loadConfig(ROOT), at: now };
+  return authCache.cfg;
+}
 
 if (require.main === module) {
   var port = parseInt(arg('port', '4180'), 10);
@@ -341,8 +356,9 @@ if (require.main === module) {
   ensureDir();
   createServer().listen(port, host, function () {
     console.log('ProjectDesk serving http://' + host + ':' + port + '/  (projects in ' + PROJECTS_DIR + ')');
-    console.log(AUTH_CONFIG
-      ? 'Remote access: Cloudflare Access auth configured (' + AUTH_CONFIG.editors.length + ' editor(s))'
+    var cfg0 = getAuthConfig();
+    console.log(cfg0
+      ? 'Remote access: Cloudflare Access auth configured (' + cfg0.editors.length + ' editor(s))'
       : 'Remote access: NOT configured — tunnel requests will be rejected (create auth.json)');
   });
 }
@@ -350,5 +366,5 @@ if (require.main === module) {
 module.exports = {
   createServer: createServer, writeProject: writeProject, readProject: readProject,
   PROJECTS_DIR: PROJECTS_DIR,
-  _setAuthConfig: function (cfg) { AUTH_CONFIG = cfg; } // test hook
+  _setAuthConfig: function (cfg) { authOverride = cfg; } // test hook (pins config)
 };

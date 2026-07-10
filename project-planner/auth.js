@@ -64,18 +64,24 @@ function fetchJwks(teamDomain, cb) {
     return cb(null, jwksCache.keys);
   }
   var url = teamDomain + '/cdn-cgi/access/certs';
-  https.get(url, function (res) {
+  // Guard the callback so a timeout + late response/error can't invoke it twice
+  // (which would double-send an HTTP response and crash the single process).
+  var settled = false;
+  function done(err, keys) { if (settled) return; settled = true; cb(err, keys); }
+  var req = https.get(url, function (res) {
     var chunks = [];
     res.on('data', function (c) { chunks.push(c); });
     res.on('end', function () {
       try {
         var body = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-        if (!body || !Array.isArray(body.keys)) return cb(new Error('bad JWKS response'));
+        if (!body || !Array.isArray(body.keys)) return done(new Error('bad JWKS response'));
         jwksCache = { keys: body.keys, fetchedAt: Date.now(), teamDomain: teamDomain };
-        cb(null, body.keys);
-      } catch (e) { cb(e); }
+        done(null, body.keys);
+      } catch (e) { done(e); }
     });
-  }).on('error', cb).setTimeout(5000, function () { cb(new Error('JWKS fetch timeout')); });
+  });
+  req.on('error', function (e) { done(e); });
+  req.setTimeout(5000, function () { req.destroy(new Error('JWKS fetch timeout')); done(new Error('JWKS fetch timeout')); });
 }
 
 function b64urlToBuf(s) {
