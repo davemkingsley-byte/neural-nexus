@@ -29,6 +29,18 @@ launchctl kickstart -k gui/$(id -u)/com.projectdesk.server
 **Offline mode.** Double-click `index.html` — works over `file://` with
 `localStorage` persistence. **Save** / **Open** move plans to/from `.json`.
 
+**Desktop app (macOS).** A native app — its own window, Dock icon, and menu,
+no browser — that runs everything locally:
+
+```bash
+./desktop/build.sh          # builds ~/Applications/ProjectDesk.app
+open "$HOME/Applications/ProjectDesk.app"
+```
+
+The app connects to the local server (starting one itself if none is running),
+so your plans stay in local files on this machine. It needs `node` and the
+Xcode command-line tools (`swiftc`) to build.
+
 ## Driving it from the command line / an AI
 
 ```bash

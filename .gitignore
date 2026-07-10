@@ -15,3 +15,7 @@ scripts/.cache-*.txt
 project-planner/auth.json
 project-planner/projects/*.audit.jsonl
 project-planner/projects/*.lock
+
+# ProjectDesk desktop app: generated build artifacts (rebuild via desktop/build.sh)
+project-planner/desktop/Config.swift
+project-planner/desktop/icon_1024.png
