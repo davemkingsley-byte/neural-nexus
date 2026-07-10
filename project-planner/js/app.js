@@ -206,6 +206,9 @@
     });
     els.btnUndo.disabled = !model.canUndo();
     els.btnRedo.disabled = !model.canRedo();
+    els.btnBaseline.textContent = p.baseline ? ('Baseline ✓ ' + (p.baseline.savedISO || '')) : 'Set Baseline';
+    els.btnBaselineClear.hidden = !p.baseline;
+    if (els.filterSel.value !== (model.getFilter() || '')) els.filterSel.value = model.getFilter() || '';
 
     var leaves = c.rows.filter(function (r) { return !r.isSummary; });
     var totalDur = leaves.reduce(function (a, r) { return a + (r.isMilestone ? 0 : r.durationDays); }, 0);
@@ -927,6 +930,35 @@
     els.tmNewRes.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); els.tmAddRes.click(); } };
   }
 
+  // ---- Calendar dialog ----
+  var DOW_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  function openCalendarDialog() {
+    var cal = model.getProject().calendar || {};
+    var wd = cal.workingDays || [1, 2, 3, 4, 5];
+    els.calDays.innerHTML = DOW_LABELS.map(function (d, i) {
+      return '<label><input type="checkbox" value="' + i + '"' + (wd.indexOf(i) >= 0 ? ' checked' : '') + '> ' + d + '</label>';
+    }).join('');
+    els.calHolidays.value = (cal.holidays || []).join('\n');
+    els.calModal.hidden = false;
+  }
+  function applyCalendarDialog() {
+    var days = Array.from(els.calDays.querySelectorAll('input:checked')).map(function (cb) { return +cb.value; });
+    if (!days.length) { alert('At least one working day is required.'); return; }
+    var holidays = els.calHolidays.value.split(/\n+/).map(function (s) { return s.trim(); })
+      .filter(function (s) { return /^\d{4}-\d{1,2}-\d{1,2}$/.test(s); });
+    model.setWorkingDays(days);
+    model.setHolidays(holidays);
+    els.calModal.hidden = true;
+    render();
+  }
+  function wireCalendarDialog() {
+    els.btnCalendar.onclick = openCalendarDialog;
+    els.calClose.onclick = function () { els.calModal.hidden = true; };
+    els.calCancel.onclick = function () { els.calModal.hidden = true; };
+    els.calOk.onclick = applyCalendarDialog;
+    els.calModal.addEventListener('mousedown', function (e) { if (e.target === els.calModal) els.calModal.hidden = true; });
+  }
+
   // ---- Wire toolbar ----
   function wireToolbar() {
     els.btnNew.onclick = function () { if (confirm('Start a new empty project? Unsaved local changes are kept in your browser until overwritten.')) { model.newProject(); selected = {}; render(); } };
@@ -955,6 +987,14 @@
       else model.saveBaseline();
       render();
     };
+    els.btnBaselineClear.onclick = function () {
+      if (confirm('Clear the saved baseline?')) { model.clearBaseline(); render(); }
+    };
+    els.filterSel.onchange = function () {
+      model.setFilter(els.filterSel.value || null);
+      selected = {}; anchorId = null; // filtered-out rows can't stay selected
+      render();
+    };
     els.btnResources.onclick = openResources;
     els.resClose.onclick = function () { els.resModal.hidden = true; };
     els.resModal.onclick = function (e) { if (e.target === els.resModal) els.resModal.hidden = true; };
@@ -979,7 +1019,8 @@
       'resModal', 'resClose', 'resTable', 'resNewName', 'resAddBtn', 'stWarn', 'stSaved',
       'ctxMenu', 'taskModal', 'tmTitle', 'tmClose', 'tmName', 'tmDuration', 'tmPct',
       'tmConstraintType', 'tmConstraintDate', 'tmDeadline', 'tmPreds', 'tmAddPred',
-      'tmResources', 'tmNewRes', 'tmAddRes', 'tmNotes', 'tmOk', 'tmCancel'
+      'tmResources', 'tmNewRes', 'tmAddRes', 'tmNotes', 'tmOk', 'tmCancel',
+      'filterSel', 'btnBaselineClear', 'btnCalendar', 'calModal', 'calClose', 'calCancel', 'calOk', 'calDays', 'calHolidays'
     ].forEach(function (id) { els[id] = $(id); });
 
     model.setStorageKey(PROJECT_NAME);
@@ -990,6 +1031,7 @@
     wireKeyboard();
     wireContextMenu();
     wireTaskDialog();
+    wireCalendarDialog();
     bootstrapStorage(); // loads local instantly, then upgrades to server mode
   }
 

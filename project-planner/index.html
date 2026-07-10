@@ -66,7 +66,21 @@
       </div>
       <div class="sep"></div>
       <div class="tgroup">
+        <span class="tlabel">Filter</span>
+        <select id="filterSel" class="tb filter-sel" title="Filter visible tasks">
+          <option value="">All tasks</option>
+          <option value="critical">Critical path</option>
+          <option value="incomplete">Incomplete</option>
+          <option value="milestones">Milestones</option>
+          <option value="overallocated">Overallocated</option>
+          <option value="late">Late / conflicted</option>
+        </select>
+      </div>
+      <div class="sep"></div>
+      <div class="tgroup">
         <button id="btnBaseline" class="tb" title="Save baseline snapshot">Set Baseline</button>
+        <button id="btnBaselineClear" class="tb" title="Clear the saved baseline" hidden>✕</button>
+        <button id="btnCalendar" class="tb" title="Working days & holidays">📅 Calendar</button>
         <button id="btnResources" class="tb" title="Manage resources">👥 Resources</button>
       </div>
     </div>
@@ -157,6 +171,30 @@
       <div class="modal-foot">
         <button id="tmOk" class="tb primary">OK</button>
         <button id="tmCancel" class="tb">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Calendar modal -->
+  <div class="modal-backdrop" id="calModal" hidden>
+    <div class="modal">
+      <div class="modal-head">
+        <h2>Project Calendar</h2>
+        <button class="modal-close" id="calClose" title="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <fieldset class="tm-block">
+          <legend>Working days</legend>
+          <div class="cal-days" id="calDays"></div>
+        </fieldset>
+        <fieldset class="tm-block">
+          <legend>Holidays (one date per line, YYYY-MM-DD)</legend>
+          <textarea id="calHolidays" rows="5" placeholder="2026-12-25&#10;2027-01-01"></textarea>
+        </fieldset>
+      </div>
+      <div class="modal-foot">
+        <button id="calOk" class="tb primary">OK</button>
+        <button id="calCancel" class="tb">Cancel</button>
       </div>
     </div>
   </div>

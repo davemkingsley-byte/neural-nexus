@@ -413,7 +413,16 @@
 
     function getComputed() { if (!computed) recompute(); return computed; }
 
-    // Visible rows respecting collapsed summaries.
+    // Visible rows respecting collapsed summaries, then the active view filter
+    // (matching rows keep their ancestor summaries for context).
+    var FILTERS = {
+      critical: function (r) { return r.critical && !r.isSummary; },
+      incomplete: function (r) { return !r.isSummary && r.percentComplete < 100; },
+      milestones: function (r) { return r.isMilestone; },
+      overallocated: function (r) { return r.overallocatedResources && r.overallocatedResources.length > 0; },
+      late: function (r) { return r.deadlineMissed || r.constraintViolated; }
+    };
+
     function getVisibleRows() {
       var c = getComputed();
       var rows = c.rows;
@@ -428,8 +437,24 @@
         out.push(r);
         if (r.isSummary && r.task.collapsed) hideUntilLevel = r.outlineLevel;
       }
-      return out;
+      var mode = project.view && project.view.filter;
+      var pred = mode && FILTERS[mode];
+      if (!pred) return out;
+      var keep = {};
+      out.forEach(function (r) {
+        if (!pred(r)) return;
+        keep[r.index] = true;
+        for (var pi = r.parentIndex; pi >= 0; pi = rows[pi].parentIndex) keep[pi] = true;
+      });
+      return out.filter(function (r) { return keep[r.index]; });
     }
+
+    function setFilter(mode) {
+      project.view = project.view || {};
+      project.view.filter = FILTERS[mode] ? mode : null;
+      notify();
+    }
+    function getFilter() { return (project.view && project.view.filter) || null; }
 
     // ---- Mutations ---------------------------------------------------------
     function findIndexById(id) {
@@ -734,9 +759,9 @@
         savedISO: Cal.toISO(Cal.todayDayNum()),
         tasks: c.rows.map(function (r) { return { id: r.id, startDay: r.startDay, finishDay: r.finishDay }; })
       };
-      notify();
+      recompute(); notify(); // recompute so computed.baseline overlays immediately
     }
-    function clearBaseline() { pushUndo(); project.baseline = null; notify(); }
+    function clearBaseline() { pushUndo(); project.baseline = null; recompute(); notify(); }
 
     // ---- Undo/redo ---------------------------------------------------------
     function undo() { if (!undoStack.length) return; redoStack.push(clone(project)); project = undoStack.pop(); recompute(); notify(); }
@@ -844,6 +869,8 @@
       setProjectStart: setProjectStart,
       setProjectName: setProjectName,
       setZoom: setZoom,
+      setFilter: setFilter,
+      getFilter: getFilter,
       setHolidays: setHolidays,
       setWorkingDays: setWorkingDays,
       saveBaseline: saveBaseline,

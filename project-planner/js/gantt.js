@@ -188,6 +188,23 @@
       });
     });
 
+    // Baseline underbars (gray): where the plan stood when the baseline was set.
+    if (computed.baseline) {
+      rows.forEach(function (r, i) {
+        var b = computed.baseline[r.id];
+        if (!b || r.isSummary) return;
+        var bx = xOf(scale, b.startDay);
+        var bx2 = xOf(scale, b.finishDay) + scale.dayWidth;
+        var by = i * ROW_H + ROW_H / 2 + BAR_H / 2 + 1;
+        var slipDays = r.finishDay - b.finishDay;
+        var slipTxt = slipDays > 0 ? slipDays + ' day(s) later than baseline'
+          : slipDays < 0 ? (-slipDays) + ' day(s) earlier than baseline' : 'on baseline';
+        svg += '<rect class="baseline-bar' + (slipDays > 0 ? ' slipped' : '') + '" x="' + bx + '" y="' + by +
+          '" width="' + Math.max(bx2 - bx, 2) + '" height="4" rx="2">' +
+          '<title>Baseline: ' + esc(Cal.fmt(b.startDay)) + ' → ' + esc(Cal.fmt(b.finishDay)) + ' (' + esc(slipTxt) + ')</title></rect>';
+      });
+    }
+
     // Bars
     rows.forEach(function (r, i) {
       svg += renderBar(r, i, scale, model);

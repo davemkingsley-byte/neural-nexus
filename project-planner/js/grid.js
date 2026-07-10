@@ -27,7 +27,8 @@
     { key: 'resources', label: 'Resources', cls: 'c-res', w: 150, editable: true },
     { key: 'percentComplete', label: '%', cls: 'c-pct', w: 48, editable: true },
     { key: 'deadline', label: 'Deadline', cls: 'c-deadline', w: 100, editable: true },
-    { key: 'cost', label: 'Cost', cls: 'c-cost', w: 84, editable: false }
+    { key: 'cost', label: 'Cost', cls: 'c-cost', w: 84, editable: false },
+    { key: 'slack', label: 'Slack', cls: 'c-slack', w: 56, editable: false }
   ];
 
   // Raw (editable) value for a cell — the string the user edits.
@@ -56,6 +57,7 @@
       case 'percentComplete': return r.percentComplete + '%';
       case 'deadline': return r.deadlineDay != null ? PM.Calendar.fmt(r.deadlineDay) : '';
       case 'cost': return r.cost > 0 ? model.formatMoney(r.cost) : '';
+      case 'slack': return r.isSummary ? '' : (isFinite(r.slack) ? r.slack + 'd' : '');
       default: return '';
     }
   }

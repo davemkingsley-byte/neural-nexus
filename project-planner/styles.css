@@ -225,6 +225,15 @@ td.cell-cursor { outline: 2px solid var(--accent); outline-offset: -2px; }
 .link-rubber { stroke: var(--accent); stroke-width: 1.5; stroke-dasharray: 4 3; fill: none; pointer-events: none; }
 .bar-group.link-target .bar, .bar-group.link-target .milestone { stroke: var(--accent); stroke-width: 2.5; }
 
+/* ---- Baseline bars + filter + calendar dialog ---- */
+.baseline-bar { fill: #9aa1ad; }
+.baseline-bar.slipped { fill: #d97706; }
+.filter-sel { padding: 4px 6px; }
+.c-slack { text-align: right; color: var(--muted); }
+.cal-days { display: flex; gap: 12px; flex-wrap: wrap; }
+.cal-days label { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; }
+#calHolidays { width: 100%; font: inherit; font-size: 13px; border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 8px; resize: vertical; }
+
 /* ---- Toast (external-update notices) ---- */
 .toast {
   position: fixed; top: 52px; left: 50%; transform: translate(-50%, -8px);
