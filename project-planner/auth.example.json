@@ -1,0 +1,9 @@
+{
+  "_comment": "Copy to auth.json (gitignored) and fill in. teamDomain + aud come from the Cloudflare Zero Trust dashboard after creating the Access application — see HOSTING.md. Until auth.json exists, all remote (tunnel) requests are rejected.",
+  "cloudflareAccess": {
+    "teamDomain": "https://YOUR-TEAM.cloudflareaccess.com",
+    "aud": "PASTE-THE-APPLICATION-AUDIENCE-TAG-HERE"
+  },
+  "editors": ["davemkingsley@gmail.com"],
+  "viewers": "any-authenticated"
+}

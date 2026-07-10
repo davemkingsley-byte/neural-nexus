@@ -322,6 +322,12 @@
     }
 
     svg.addEventListener('mousedown', function (e) {
+      // View-only: bars are selectable but never draggable/linkable.
+      if (opts.readOnly) {
+        var g0 = e.target.closest && e.target.closest('.bar-group');
+        if (g0) opts.onSelect(parseInt(g0.getAttribute('data-bar-id'), 10), { ctrl: e.ctrlKey || e.metaKey, shift: e.shiftKey });
+        return;
+      }
       // Link-handle drag: rubber-band a new FS dependency onto another bar.
       var handle = e.target.closest && e.target.closest('.link-handle');
       if (handle) {

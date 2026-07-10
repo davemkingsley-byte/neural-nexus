@@ -10,3 +10,8 @@ npm-debug.log*
 # Contexto embeddings — regenerable via scripts/contexto-build-vocab.js
 data/contexto/_vocab-embeddings.bin
 scripts/.cache-*.txt
+
+# ProjectDesk: real auth config (emails + Access aud tag) and audit logs stay local
+project-planner/auth.json
+project-planner/projects/*.audit.jsonl
+project-planner/projects/*.lock

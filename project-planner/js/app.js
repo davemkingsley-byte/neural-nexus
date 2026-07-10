@@ -40,7 +40,8 @@
     inFlight: false,
     pending: false,  // a change landed while a PUT was in flight
     applyingRemote: false,
-    pollTimer: null
+    pollTimer: null,
+    identity: null   // {email, role} from /api/me (null in local mode)
   };
 
   function apiPath(sub) {
@@ -53,9 +54,13 @@
     var d = model.toJSON();
     delete d.view;
     delete d.rev;
+    delete d.lastEditor;   // server-owned write metadata
+    delete d.lastEditISO;
     (d.tasks || []).forEach(function (t) { delete t.collapsed; });
     return JSON.stringify(d);
   }
+
+  function isViewer() { return sync.identity && sync.identity.role === 'viewer'; }
 
   function $(id) { return document.getElementById(id); }
   function ids() { return Object.keys(selected).filter(function (k) { return selected[k]; }).map(Number); }
@@ -90,6 +95,7 @@
   function gridOpts() {
     return {
       selected: selected,
+      readOnly: isViewer(),
       cursor: anchorId != null ? { id: anchorId, key: cursorKey } : null,
       onSelect: onSelect, onEdit: onEdit, onToggleCollapse: onToggleCollapse,
       onOpenDetails: openTaskDialog
@@ -97,7 +103,7 @@
   }
   function ganttOpts() {
     return {
-      selected: selected, onSelect: onSelect,
+      selected: selected, readOnly: isViewer(), onSelect: onSelect,
       onMove: onGanttMove, onResize: onGanttResize, onLink: onGanttLink
     };
   }
@@ -272,6 +278,7 @@
   }
 
   function doSaveNow() {
+    if (isViewer()) return; // view-only accounts never write (server 403s anyway)
     if (!sync.server || !sync.ready) {
       if (!sync.server) setSyncStatus('Saved locally ✓');
       return;
@@ -392,12 +399,29 @@
   // accepts it as an unconditional save (a beacon can't carry If-Match).
   function flushBeforeNavigate() {
     if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    if (isViewer()) return;
     if (!sync.server || !sync.ready || !sync.dirty) return;
     var content = serverDocString();
     if (content === sync.lastPushed) return;
     try {
       navigator.sendBeacon(apiPath(), new Blob([content], { type: 'application/json' }));
     } catch (e) { /* best effort — localStorage still has it */ }
+  }
+
+  // ---- Viewer (read-only) mode ----
+  function setWhoami(text) {
+    var el = document.getElementById('stWhoami');
+    if (el) el.textContent = text;
+  }
+
+  function applyViewerMode(me) {
+    document.body.classList.add('viewer-mode');
+    setWhoami('👁 ' + me.email + ' — view only');
+    // Disable direct project-field editing; all other guards check isViewer().
+    els.projName.disabled = true;
+    els.projStart.disabled = true;
+    els.projDelete.hidden = true;
+    toast('Signed in as ' + me.email + ' (view-only) — you see live updates, editing is disabled');
   }
 
   // ---- Project switcher (server mode only) ----
@@ -476,6 +500,16 @@
         if (!j || j.service !== 'projectdesk') throw new Error('not projectdesk');
         sync.server = true;
         populateProjectSwitcher();
+        // Identity + role (viewer accounts get read-only chrome). Local mode
+        // has no identity endpoint semantics beyond "editor".
+        fetch('/api/me').then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (me) {
+            if (me && me.role) {
+              sync.identity = me;
+              if (me.role === 'viewer') applyViewerMode(me);
+              else if (me.remote) setWhoami('Signed in as ' + me.email);
+            }
+          }).catch(function () { /* identity is optional chrome */ });
         return fetch(apiPath()).then(function (r) {
           if (r.status === 404) {
             // First contact for this project: push the local state up.
@@ -693,6 +727,19 @@
         return;
       }
 
+      // View-only accounts: navigation and selection only.
+      if (isViewer() && !typing) {
+        var navOk = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Escape'].indexOf(e.key) >= 0;
+        if (e.key === 'Tab' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          e.preventDefault(); moveCursorCol(e.key === 'ArrowLeft' || e.shiftKey ? -1 : 1); return;
+        }
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+          e.preventDefault(); moveSelection(e.key === 'ArrowDown' ? 1 : -1); return;
+        }
+        if (!navOk && !ctrl) e.preventDefault();
+        return;
+      }
+
       if (ctrl && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) { e.preventDefault(); model.undo(); render(); return; }
       if (ctrl && ((e.key === 'y' || e.key === 'Y') || ((e.key === 'z' || e.key === 'Z') && e.shiftKey))) { e.preventDefault(); model.redo(); render(); return; }
       if (ctrl && (e.key === 's' || e.key === 'S')) { e.preventDefault(); saveFile(); return; }
@@ -762,7 +809,9 @@
     // Right-clicking a row outside the current selection selects it first.
     if (!selected[id]) { selectOnly(id); refreshSelectionUI(); }
     var multi = ids().length > 1;
-    var items = [
+    var items = isViewer() ? [
+      { label: 'Task Information…', key: 'dbl-click #', fn: function () { openTaskDialog(id); } }
+    ] : [
       { label: 'Task Information…', key: 'dbl-click #', fn: function () { openTaskDialog(id); } },
       { sep: true },
       { label: 'Insert Task Above', fn: function () { insertRelative(id, 'above'); } },
@@ -860,8 +909,19 @@
 
     renderTmPreds(t);
     renderTmResources(t);
+    // View-only: the dialog becomes a read-only inspector.
+    var ro = isViewer();
+    if (ro) {
+      [els.tmName, els.tmDuration, els.tmPct, els.tmConstraintType, els.tmConstraintDate,
+        els.tmDeadline, els.tmNotes, els.tmNewRes].forEach(function (el) { el.disabled = true; });
+    }
+    els.tmOk.hidden = ro;
+    els.tmAddPred.hidden = ro;
+    els.tmAddRes.hidden = ro;
+    els.tmPreds.querySelectorAll('select,input,button').forEach(function (el) { if (ro) el.disabled = true; });
+    els.tmResources.querySelectorAll('input').forEach(function (el) { if (ro) el.disabled = true; });
     els.taskModal.hidden = false;
-    els.tmName.focus();
+    if (!ro) els.tmName.focus();
   }
 
   function renderTmPreds(t) {

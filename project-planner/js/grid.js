@@ -162,6 +162,7 @@
     }
 
     function startEdit(td, seed) {
+      if (opts.readOnly) return; // view-only account
       if (editing) commitEdit(null);
       var tr = td.closest('tr');
       var id = parseInt(tr.getAttribute('data-id'), 10);

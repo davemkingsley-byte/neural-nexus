@@ -31,6 +31,7 @@ var path = require('path');
 
 var Model = require('./js/model.js');
 var Ops = require('./js/ops.js');
+var Auth = require('./auth.js');
 
 var ROOT = __dirname;
 var PROJECTS_DIR = process.env.PROJECTDESK_PROJECTS_DIR || path.join(ROOT, 'projects');
@@ -128,14 +129,39 @@ function modelFor(doc) {
   return m;
 }
 
-function handleApi(req, res, pathname) {
+// Append a line to the per-project audit trail (JSONL, best effort).
+function audit(name, identity, action, extra) {
+  try {
+    var line = JSON.stringify(Object.assign({
+      ts: new Date().toISOString(),
+      email: identity.email,
+      remote: !!identity.remote,
+      action: action
+    }, extra || {})) + '\n';
+    fs.appendFileSync(path.join(PROJECTS_DIR, name + '.audit.jsonl'), line);
+  } catch (e) { /* never block a write on audit failure */ }
+}
+
+function handleApi(req, res, pathname, identity) {
   var parts = pathname.split('/').filter(Boolean); // ['api', 'projects', name, sub]
 
   if (parts[1] === 'ping') {
     return send(res, 200, { ok: true, service: 'projectdesk', version: VERSION });
   }
 
+  // Who am I / what can I do — the UI adapts its chrome to this.
+  if (parts[1] === 'me') {
+    return send(res, 200, { email: identity.email, role: identity.role, remote: !!identity.remote });
+  }
+
   if (parts[1] !== 'projects') return send(res, 404, { error: 'not found' });
+
+  // Role enforcement: every mutating method needs the editor role. GETs are
+  // open to any authenticated identity (viewer or editor).
+  var mutating = req.method === 'PUT' || req.method === 'POST' || req.method === 'DELETE';
+  if (mutating && identity.role !== 'editor') {
+    return send(res, 403, { error: 'view-only account — ask the plan owner for edit access' });
+  }
 
   // GET /api/projects
   if (parts.length === 2 && req.method === 'GET') {
@@ -206,7 +232,10 @@ function handleApi(req, res, pathname) {
       var m;
       try { m = modelFor(doc); } catch (e) { return send(res, 400, { error: 'document rejected: ' + e.message }); }
       var normalized = m.toJSON();
+      normalized.lastEditor = identity.email;
+      normalized.lastEditISO = new Date().toISOString();
       var rev = writeProject(name, normalized);
+      audit(name, identity, req.method === 'POST' ? 'save-beacon' : 'save', { rev: rev });
       return send(res, 200, { ok: true, rev: rev });
     });
   }
@@ -233,7 +262,13 @@ function handleApi(req, res, pathname) {
       // a failed batch can be fixed and resubmitted whole without duplicating
       // its already-applied prefix.
       var rev = null;
-      if (outcome.ok) rev = writeProject(name, m.toJSON());
+      if (outcome.ok) {
+        var outDoc = m.toJSON();
+        outDoc.lastEditor = identity.email;
+        outDoc.lastEditISO = new Date().toISOString();
+        rev = writeProject(name, outDoc);
+        audit(name, identity, 'ops', { rev: rev, opCount: outcome.applied });
+      }
       var report = Ops.buildScheduleReport(outcome.ok ? m : modelFor(readProject(name) || doc));
       return send(res, outcome.ok ? 200 : 422, {
         ok: outcome.ok,
@@ -250,6 +285,7 @@ function handleApi(req, res, pathname) {
 
   if (req.method === 'DELETE' && !sub) {
     try { fs.unlinkSync(projectPath(name)); } catch (e) { return send(res, 404, { error: 'not found' }); }
+    audit(name, identity, 'delete-project', {});
     return send(res, 200, { ok: true });
   }
 
@@ -281,15 +317,23 @@ function createServer() {
     try {
       pathname = decodeURIComponent((req.url || '/').split('?')[0]);
     } catch (e) { return send(res, 400, { error: 'bad url' }); }
-    try {
-      if (pathname.indexOf('/api/') === 0 || pathname === '/api') return handleApi(req, res, pathname);
-      if (req.method !== 'GET') return send(res, 405, { error: 'method not allowed' });
-      return handleStatic(req, res, pathname);
-    } catch (e) {
-      return send(res, 500, { error: 'internal: ' + e.message });
-    }
+    // Identity first: local requests are trusted (editor); anything that came
+    // through the Cloudflare tunnel must present a valid Access JWT, which we
+    // verify ourselves — for the API AND for static files. Fail closed.
+    Auth.identify(req, AUTH_CONFIG, function (identity) {
+      if (!identity.ok) return send(res, identity.status, { error: identity.error });
+      try {
+        if (pathname.indexOf('/api/') === 0 || pathname === '/api') return handleApi(req, res, pathname, identity);
+        if (req.method !== 'GET') return send(res, 405, { error: 'method not allowed' });
+        return handleStatic(req, res, pathname);
+      } catch (e) {
+        return send(res, 500, { error: 'internal: ' + e.message });
+      }
+    });
   });
 }
+
+var AUTH_CONFIG = Auth.loadConfig(ROOT);
 
 if (require.main === module) {
   var port = parseInt(arg('port', '4180'), 10);
@@ -297,7 +341,14 @@ if (require.main === module) {
   ensureDir();
   createServer().listen(port, host, function () {
     console.log('ProjectDesk serving http://' + host + ':' + port + '/  (projects in ' + PROJECTS_DIR + ')');
+    console.log(AUTH_CONFIG
+      ? 'Remote access: Cloudflare Access auth configured (' + AUTH_CONFIG.editors.length + ' editor(s))'
+      : 'Remote access: NOT configured — tunnel requests will be rejected (create auth.json)');
   });
 }
 
-module.exports = { createServer: createServer, writeProject: writeProject, readProject: readProject, PROJECTS_DIR: PROJECTS_DIR };
+module.exports = {
+  createServer: createServer, writeProject: writeProject, readProject: readProject,
+  PROJECTS_DIR: PROJECTS_DIR,
+  _setAuthConfig: function (cfg) { AUTH_CONFIG = cfg; } // test hook
+};

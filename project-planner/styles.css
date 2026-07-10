@@ -234,6 +234,18 @@ td.cell-cursor { outline: 2px solid var(--accent); outline-offset: -2px; }
 .cal-days label { display: inline-flex; align-items: center; gap: 5px; font-size: 13px; }
 #calHolidays { width: 100%; font: inherit; font-size: 13px; border: 1px solid var(--line-strong); border-radius: 6px; padding: 6px 8px; resize: vertical; }
 
+/* ---- Viewer (read-only) mode ---- */
+.st-whoami { color: var(--muted); font-size: 11px; margin-right: 10px; }
+.viewer-mode #btnAdd, .viewer-mode #btnInsert, .viewer-mode #btnDelete,
+.viewer-mode #btnIndent, .viewer-mode #btnOutdent, .viewer-mode #btnUp, .viewer-mode #btnDown,
+.viewer-mode #btnLink, .viewer-mode #btnUnlink, .viewer-mode #btnUndo, .viewer-mode #btnRedo,
+.viewer-mode #btnBaseline, .viewer-mode #btnBaselineClear, .viewer-mode #btnCalendar,
+.viewer-mode #btnNew, .viewer-mode #btnOpen, .viewer-mode #btnSample,
+.viewer-mode #resAddBtn, .viewer-mode .res-del, .viewer-mode #projDelete { display: none !important; }
+.viewer-mode .link-handle, .viewer-mode .resize-handle { display: none; }
+.viewer-mode .st-whoami { color: #b45309; font-weight: 600; }
+.viewer-mode td.editable { cursor: default; }
+
 /* ---- Toast (external-update notices) ---- */
 .toast {
   position: fixed; top: 52px; left: 50%; transform: translate(-50%, -8px);
