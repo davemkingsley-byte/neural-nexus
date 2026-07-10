@@ -99,6 +99,7 @@ table.grid thead th {
 .c-pred, .c-start, .c-finish, .c-deadline, .c-cost { color: #444; font-variant-numeric: tabular-nums; }
 .c-finish { color: var(--muted); }
 td.missed { color: var(--crit-dark) !important; font-weight: 600; }
+td.behind { color: #b45309 !important; font-weight: 700; }
 td.overalloc { color: #b45309; }
 .grid-row.summary td { font-weight: 700; background: #fbfbfd; }
 .grid-row.summary .c-finish, .grid-row.summary .c-start { color: #333; }
@@ -142,6 +143,7 @@ td.is-editing { padding: 0; }
 .rowline { stroke: var(--line); stroke-width: 1; }
 .rowsel { fill: var(--sel); opacity: .6; }
 .today { stroke: #e5484d; stroke-width: 1.5; stroke-dasharray: 3 3; opacity: .8; }
+.status-line { stroke: #2f6fed; stroke-width: 2; opacity: .75; }
 
 .bar { fill: var(--bar); stroke: var(--bar-dark); stroke-width: 1; }
 .bar.crit { fill: var(--crit); stroke: var(--crit-dark); }

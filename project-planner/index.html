@@ -157,6 +157,8 @@
           </label>
           <label>Constraint date <input id="tmConstraintDate" type="date"></label>
           <label>Deadline <input id="tmDeadline" type="date"></label>
+          <label>Actual start <input id="tmActualStart" type="date" title="When work really began — pins the schedule to reality"></label>
+          <label>Actual finish <input id="tmActualFinish" type="date" title="When work really finished — sets the task to 100%"></label>
         </div>
         <fieldset class="tm-block">
           <legend>Predecessors</legend>
@@ -261,6 +263,10 @@
         <fieldset class="tm-block">
           <legend>Holidays (one date per line, YYYY-MM-DD)</legend>
           <textarea id="calHolidays" rows="5" placeholder="2026-12-25&#10;2027-01-01"></textarea>
+        </fieldset>
+        <fieldset class="tm-block">
+          <legend>Status date ("as of" — progress is measured against this)</legend>
+          <input id="calStatus" type="date" title="Clear to remove the status line and behind-schedule flags">
         </fieldset>
       </div>
       <div class="modal-foot">

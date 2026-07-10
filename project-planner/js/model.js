@@ -229,6 +229,7 @@
     function normalize(p) {
       p.calendar = p.calendar || { workingDays: [1, 2, 3, 4, 5], holidays: [] };
       p.view = p.view || { zoom: 'week' };
+      p.statusISO = p.statusISO || null;
       p.resources = (p.resources || []).map(function (r) {
         return {
           id: r.id,
@@ -255,6 +256,8 @@
           constraintType: (t.constraintType === 'MSO' || t.constraintType === 'SNET') ? t.constraintType
             : (t.constraintISO ? 'SNET' : null),
           deadlineISO: t.deadlineISO || null,
+          actualStartISO: t.actualStartISO || null,
+          actualFinishISO: t.actualFinishISO || null,
           notes: t.notes || ''
         };
         // Preserve fields this build doesn't know about — an older server must
@@ -287,18 +290,37 @@
       var anchor = cal.snapForward(Cal.parseISO(project.startISO));
       var tasks = project.tasks;
 
-      // Build scheduler input, converting constraints to indices.
+      // Build scheduler input, converting constraints to indices. Recorded
+      // actuals OUTRANK constraints and dependencies: what actually happened
+      // pins the schedule (an MSO pin at the actual start), and a recorded
+      // finish fixes the effective duration to the real span.
       var schedInput = tasks.map(function (t) {
         var constraintIndex = null;
+        var constraintType = t.constraintType || (t.constraintISO ? 'SNET' : null);
+        var duration = t.duration;
         if (t.constraintISO) {
           var cd = Cal.parseISO(t.constraintISO);
           if (cd != null) constraintIndex = cal.dayToIndex(anchor, cal.snapForward(cd));
         }
+        if (t.actualStartISO) {
+          var asd = Cal.parseISO(t.actualStartISO);
+          if (asd != null) {
+            constraintIndex = cal.dayToIndex(anchor, cal.snapForward(asd));
+            constraintType = 'MSO';
+            if (t.actualFinishISO && t.duration > 0) {
+              var afd = Cal.parseISO(t.actualFinishISO);
+              if (afd != null) {
+                var afIdx = cal.dayToIndex(anchor, cal.snapForward(afd));
+                duration = Math.max(1, afIdx - constraintIndex + 1);
+              }
+            }
+          }
+        }
         return {
-          id: t.id, duration: t.duration, outlineLevel: t.outlineLevel,
+          id: t.id, duration: duration, outlineLevel: t.outlineLevel,
           predecessors: t.predecessors, percentComplete: t.percentComplete,
           constraintIndex: constraintIndex,
-          constraintType: t.constraintType || (t.constraintISO ? 'SNET' : null)
+          constraintType: constraintType
         };
       });
 
@@ -398,7 +420,29 @@
         r.deadlineMissed = dd != null && r.finishDay > dd;
         if (r.deadlineMissed) missedDeadlines++;
       });
+      // A pin that records reality is not a planning conflict — suppress the
+      // MSO-violation flag on tasks with actuals (it happened; nothing to fix).
+      rows.forEach(function (r) { if (r.task.actualStartISO) r.constraintViolated = false; });
       var constraintConflicts = rows.filter(function (r) { return r.constraintViolated; }).length;
+
+      // ---- Status date: expected progress vs recorded progress.
+      var statusDay = project.statusISO ? Cal.parseISO(project.statusISO) : null;
+      var statusIdx = statusDay != null ? cal.dayToIndex(anchor, statusDay) : null;
+      var behindCount = 0;
+      rows.forEach(function (r) {
+        r.expectedPct = null;
+        r.behindSchedule = false;
+        if (statusIdx == null || r.isSummary) return;
+        var dur = r.durationDays;
+        if (dur <= 0) { // milestone: due strictly before the status day = late
+          r.expectedPct = r.es < statusIdx ? 100 : 0;
+        } else {
+          var elapsed = clamp(statusIdx - r.es + 1, 0, dur);
+          r.expectedPct = Math.round(elapsed / dur * 100);
+        }
+        r.behindSchedule = r.percentComplete < r.expectedPct;
+        if (r.behindSchedule) behindCount++;
+      });
 
       // ---- Resource over-allocation: a resource on two leaf tasks whose
       // working-day windows overlap is double-booked on those days.
@@ -472,7 +516,9 @@
         missedDeadlines: missedDeadlines,
         constraintConflicts: constraintConflicts,
         overallocatedCount: Object.keys(overallocatedIds).length,
-        riskSummary: riskSummary
+        riskSummary: riskSummary,
+        statusDay: statusDay,
+        behindCount: behindCount
       };
       return computed;
     }
@@ -533,7 +579,8 @@
         id: project.nextTaskId++,
         name: '', duration: 1, outlineLevel: level || 1,
         predecessors: [], percentComplete: 0, resourceIds: [],
-        collapsed: false, constraintISO: null, constraintType: null, deadlineISO: null, notes: ''
+        collapsed: false, constraintISO: null, constraintType: null, deadlineISO: null,
+        actualStartISO: null, actualFinishISO: null, notes: ''
       };
     }
 
@@ -669,6 +716,29 @@
           t.constraintISO = coerceDateISO(value);
           // Keep an existing MSO pin (just moving its date); default to SNET.
           t.constraintType = t.constraintISO ? (t.constraintType === 'MSO' ? 'MSO' : 'SNET') : null;
+          break;
+        }
+        case 'actualStart': {
+          var asISO = coerceDateISO(value);
+          if (asISO && t.actualFinishISO && Cal.parseISO(asISO) > Cal.parseISO(t.actualFinishISO)) return;
+          t.actualStartISO = asISO;
+          if (!asISO) t.actualFinishISO = null; // a finish can't exist without a start
+          break;
+        }
+        case 'actualFinish': {
+          var afISO = coerceDateISO(value);
+          if (afISO) {
+            // Recording a finish without a start adopts the scheduled start.
+            if (!t.actualStartISO) {
+              var curRow = getComputed().rows[i];
+              t.actualStartISO = Cal.toISO(curRow.startDay);
+            }
+            if (Cal.parseISO(afISO) < Cal.parseISO(t.actualStartISO)) return;
+            t.actualFinishISO = afISO;
+            t.percentComplete = 100; // finished is finished
+          } else {
+            t.actualFinishISO = null;
+          }
           break;
         }
         case 'deadline': t.deadlineISO = coerceDateISO(value); break;
@@ -867,6 +937,12 @@
       if (norm) project.startISO = norm;
       recompute(); notify();
     }
+    // Status date: "as of when" progress is measured. null clears it.
+    function setStatusDate(iso) {
+      pushUndo();
+      project.statusISO = iso ? coerceDateISO(iso) : null;
+      recompute(); notify();
+    }
     function setProjectName(name) { project.name = String(name); notify(); }
     function setZoom(z) { project.view.zoom = z; notify(); }
     function setHolidays(list) { pushUndo(); project.calendar.holidays = list.slice(); recompute(); notify(); }
@@ -898,13 +974,14 @@
       }
       var lines = [[
         'WBS', 'Task Name', 'Duration (working days)', 'Start', 'Finish',
-        'Predecessors', 'Resources', '% Complete', 'Cost', 'Deadline',
-        'Critical', 'Slack (days)'
+        'Actual Start', 'Actual Finish', 'Predecessors', 'Resources',
+        '% Complete', 'Cost', 'Deadline', 'Critical', 'Slack (days)'
       ].join(',')];
       c.rows.forEach(function (r) {
         lines.push([
           q(r.wbs), q(r.name), r.durationDays,
           Cal.toISO(r.startDay), Cal.toISO(r.finishDay),
+          r.task.actualStartISO || '', r.task.actualFinishISO || '',
           q(formatPredecessors(r.task.predecessors, project.tasks)),
           q(r.task.resourceIds.map(function (rid) {
             var res = project.resources.filter(function (x) { return x.id === rid; })[0];
@@ -994,6 +1071,7 @@
       // project
       setProjectStart: setProjectStart,
       setProjectName: setProjectName,
+      setStatusDate: setStatusDate,
       setZoom: setZoom,
       setFilter: setFilter,
       getFilter: getFilter,

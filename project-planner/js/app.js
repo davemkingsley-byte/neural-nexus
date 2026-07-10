@@ -18,7 +18,7 @@
   var selected = {};      // id -> true
   var anchorId = null;
   var cursorKey = 'name'; // spreadsheet cell-cursor column
-  var NAV_COLS = ['name', 'duration', 'start', 'predecessors', 'resources', 'percentComplete', 'deadline'];
+  var NAV_COLS = ['name', 'duration', 'start', 'predecessors', 'resources', 'percentComplete', 'actualStart', 'actualFinish', 'deadline'];
   var scrollWired = false;
   var saveTimer = null;
 
@@ -240,6 +240,7 @@
     if (c.overallocatedCount) warns.push('⚠ ' + c.overallocatedCount + ' resource' + (c.overallocatedCount === 1 ? '' : 's') + ' overallocated');
     if (c.missedDeadlines) warns.push('⚠ ' + c.missedDeadlines + ' deadline' + (c.missedDeadlines === 1 ? '' : 's') + ' missed');
     if (rs.critical) warns.push('⚠ ' + rs.critical + ' CRITICAL risk' + (rs.critical === 1 ? '' : 's') + ' open');
+    if (c.behindCount) warns.push('⚠ ' + c.behindCount + ' task' + (c.behindCount === 1 ? '' : 's') + ' behind schedule');
     els.stWarn.hidden = !warns.length;
     els.stWarn.textContent = warns.join('   ');
   }
@@ -917,6 +918,10 @@
     els.tmConstraintDate.value = t.constraintISO || '';
     els.tmConstraintDate.disabled = row.isSummary || !t.constraintType;
     els.tmDeadline.value = t.deadlineISO || '';
+    els.tmActualStart.value = t.actualStartISO || '';
+    els.tmActualStart.disabled = row.isSummary;
+    els.tmActualFinish.value = t.actualFinishISO || '';
+    els.tmActualFinish.disabled = row.isSummary;
     els.tmNotes.value = t.notes || '';
 
     renderTmPreds(t);
@@ -925,7 +930,7 @@
     var ro = isViewer();
     if (ro) {
       [els.tmName, els.tmDuration, els.tmPct, els.tmConstraintType, els.tmConstraintDate,
-        els.tmDeadline, els.tmNotes, els.tmNewRes].forEach(function (el) { el.disabled = true; });
+        els.tmDeadline, els.tmActualStart, els.tmActualFinish, els.tmNotes, els.tmNewRes].forEach(function (el) { el.disabled = true; });
     }
     els.tmOk.hidden = ro;
     els.tmAddPred.hidden = ro;
@@ -995,6 +1000,8 @@
       }
     }
     if ((els.tmDeadline.value || null) !== (t.deadlineISO || null)) model.setField(id, 'deadline', els.tmDeadline.value);
+    if (!row.isSummary && (els.tmActualStart.value || null) !== (t.actualStartISO || null)) model.setField(id, 'actualStart', els.tmActualStart.value);
+    if (!row.isSummary && (els.tmActualFinish.value || null) !== (t.actualFinishISO || null)) model.setField(id, 'actualFinish', els.tmActualFinish.value);
     if (els.tmNotes.value !== (t.notes || '')) model.setField(id, 'notes', els.tmNotes.value);
 
     // Predecessors from the editor table -> token string.
@@ -1299,6 +1306,7 @@
       return '<label><input type="checkbox" value="' + i + '"' + (wd.indexOf(i) >= 0 ? ' checked' : '') + '> ' + d + '</label>';
     }).join('');
     els.calHolidays.value = (cal.holidays || []).join('\n');
+    els.calStatus.value = model.getProject().statusISO || '';
     els.calModal.hidden = false;
   }
   function applyCalendarDialog() {
@@ -1308,6 +1316,7 @@
       .filter(function (s) { return /^\d{4}-\d{1,2}-\d{1,2}$/.test(s); });
     model.setWorkingDays(days);
     model.setHolidays(holidays);
+    model.setStatusDate(els.calStatus.value || null);
     els.calModal.hidden = true;
     render();
   }
@@ -1378,13 +1387,13 @@
       'btnLink', 'btnUnlink', 'btnCollapse', 'btnExpand', 'btnToday', 'btnBaseline', 'btnResources',
       'resModal', 'resClose', 'resTable', 'resNewName', 'resAddBtn', 'stWarn', 'stSaved',
       'ctxMenu', 'taskModal', 'tmTitle', 'tmClose', 'tmName', 'tmDuration', 'tmPct',
-      'tmConstraintType', 'tmConstraintDate', 'tmDeadline', 'tmPreds', 'tmAddPred',
+      'tmConstraintType', 'tmConstraintDate', 'tmDeadline', 'tmActualStart', 'tmActualFinish', 'tmPreds', 'tmAddPred',
       'tmResources', 'tmNewRes', 'tmAddRes', 'tmNotes', 'tmOk', 'tmCancel',
       'filterSel', 'btnBaselineClear', 'btnCalendar', 'calModal', 'calClose', 'calCancel', 'calOk', 'calDays', 'calHolidays',
       'btnRisks', 'riskModal', 'riskClose', 'riskTable', 'riskHeatmap', 'riskSummaryBox', 'riskAddBtn',
       'riskForm', 'riskFormLegend', 'rkTitle', 'rkCategory', 'rkProb', 'rkImpact', 'rkOwner', 'rkStatus',
       'rkReview', 'rkDesc', 'rkMitigation', 'rkContingency', 'rkTasks', 'rkSave', 'rkDelete', 'rkCancel',
-      'btnHistory', 'histModal', 'histClose', 'histTable'
+      'btnHistory', 'histModal', 'histClose', 'histTable', 'calStatus'
     ].forEach(function (id) { els[id] = $(id); });
 
     model.setStorageKey(PROJECT_NAME);

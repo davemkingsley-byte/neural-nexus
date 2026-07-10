@@ -25,7 +25,8 @@
  *   add --name "Task" [--duration 5d] [--after REF] [--child-of REF]
  *       [--preds "3FS+2,4"] [--res "Alice, Bob"] [--pct 50]
  *       [--deadline YYYY-MM-DD] [--start YYYY-MM-DD] [--notes "..."]
- *   set REF <field> <value>    field: name|duration|start|preds|res|pct|deadline|notes
+ *   set REF <field> <value>    field: name|duration|start|preds|res|pct|deadline|
+ *                              actualstart|actualfinish|notes
  *                              (start sets a Start-No-Earlier-Than constraint)
  *   link REF REF...            [--type SS|FF|SF] [--lag N]
  *   unlink REF REF...
@@ -36,6 +37,8 @@
  *   resource-rate <name> <rate>
  *   calendar [--working-days 1,2,3,4,5] [--holidays 2026-12-25,...]
  *   baseline set|clear
+ *   status <YYYY-MM-DD|clear>  status date for behind-schedule tracking
+ *   history / restore <rev>    version history (every save is a revision)
  *   ops-json '<json>'          apply a raw ops array (the API format, atomic)
  *
  * REF = row number (as displayed), "#id" (stable across edits — prefer in
@@ -459,6 +462,13 @@ function main() {
       if (!rest.length) die('usage: risk-delete <id|title>');
       return executeOps([{ op: 'delete-risk', risk: rest[0] }])
         .then(function (r) { reportWrite(r, function () { return 'risk deleted'; }); });
+    }
+
+    case 'status': {
+      if (!rest.length) die('usage: status <YYYY-MM-DD | clear>');
+      var statusVal = rest[0] === 'clear' ? null : rest[0];
+      return executeOps([{ op: 'set-project', status: statusVal }])
+        .then(function (r) { reportWrite(r, function () { return statusVal ? 'status date set to ' + statusVal : 'status date cleared'; }); });
     }
 
     case 'baseline': {

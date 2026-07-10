@@ -88,7 +88,9 @@
     predecessors: 'predecessors', preds: 'predecessors', pred: 'predecessors',
     resources: 'resources', res: 'resources',
     percentcomplete: 'percentComplete', pct: 'percentComplete', progress: 'percentComplete',
-    deadline: 'deadline', notes: 'notes'
+    deadline: 'deadline', notes: 'notes',
+    actualstart: 'actualStart', astart: 'actualStart',
+    actualfinish: 'actualFinish', afinish: 'actualFinish'
   };
 
   // Apply one op. Returns a small JSON-able result object.
@@ -110,7 +112,7 @@
           at = model.findIndexById(id) + 1;
         }
         var newId = model.insertTask(at, level);
-        var fields = ['name', 'duration', 'start', 'predecessors', 'resources', 'percentComplete', 'deadline', 'notes'];
+        var fields = ['name', 'duration', 'start', 'predecessors', 'resources', 'percentComplete', 'actualStart', 'actualFinish', 'deadline', 'notes'];
         fields.forEach(function (f) {
           var v = op[f] != null ? op[f] : (f === 'percentComplete' && op.pct != null ? op.pct : null);
           if (v != null) model.setField(newId, f === 'percentComplete' ? 'percentComplete' : f, v);
@@ -201,6 +203,7 @@
       case 'set-project': {
         if (op.name != null) model.setProjectName(String(op.name));
         if (op.start != null) model.setProjectStart(String(op.start));
+        if (op.status !== undefined) model.setStatusDate(op.status); // null/'' clears
         return { op: 'set-project' };
       }
 
@@ -318,7 +321,9 @@
         missedDeadlines: c.missedDeadlines || 0,
         taskCount: c.rows.length,
         baseline: p.baseline ? p.baseline.savedISO : null,
-        risks: c.riskSummary || null
+        risks: c.riskSummary || null,
+        statusISO: p.statusISO || null,
+        behindSchedule: c.behindCount || 0
       },
       risks: (p.risks || []).map(function (r) {
         var idToRow = {};
@@ -359,6 +364,10 @@
           constraintViolated: !!r.constraintViolated,
           deadlineISO: r.task.deadlineISO || null,
           deadlineMissed: !!r.deadlineMissed,
+          actualStartISO: r.task.actualStartISO || null,
+          actualFinishISO: r.task.actualFinishISO || null,
+          expectedPct: r.expectedPct,
+          behindSchedule: !!r.behindSchedule,
           overallocated: (r.overallocatedResources && r.overallocatedResources.length) ? r.overallocatedResources : [],
           riskScore: r.riskScore || 0,
           riskIds: (r.risks || []).map(function (k) { return k.id; }),

@@ -168,6 +168,11 @@
       var tx = xOf(scale, today) + scale.dayWidth / 2;
       svg += '<line class="today" x1="' + tx + '" y1="0" x2="' + tx + '" y2="' + height + '"/>';
     }
+    // Status-date line ("as of" — progress is measured against this)
+    if (computed.statusDay != null && computed.statusDay >= scale.t0 && computed.statusDay <= scale.end) {
+      var sx = xOf(scale, computed.statusDay) + scale.dayWidth;
+      svg += '<line class="status-line" x1="' + sx + '" y1="0" x2="' + sx + '" y2="' + height + '"><title>Status date: ' + esc(Cal.fmt(computed.statusDay)) + '</title></line>';
+    }
 
     // Dependency arrows (only between visible endpoints)
     rows.forEach(function (r) {

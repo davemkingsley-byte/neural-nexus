@@ -26,6 +26,8 @@
     { key: 'predecessors', label: 'Pred.', cls: 'c-pred', w: 76, editable: true },
     { key: 'resources', label: 'Resources', cls: 'c-res', w: 150, editable: true },
     { key: 'percentComplete', label: '%', cls: 'c-pct', w: 48, editable: true },
+    { key: 'actualStart', label: 'Act. Start', cls: 'c-astart', w: 100, editable: true },
+    { key: 'actualFinish', label: 'Act. Finish', cls: 'c-afinish', w: 100, editable: true },
     { key: 'deadline', label: 'Deadline', cls: 'c-deadline', w: 100, editable: true },
     { key: 'cost', label: 'Cost', cls: 'c-cost', w: 84, editable: false },
     { key: 'slack', label: 'Slack', cls: 'c-slack', w: 56, editable: false }
@@ -41,6 +43,8 @@
       case 'resources': return model.formatResources(r.task.resourceIds);
       case 'percentComplete': return String(r.percentComplete);
       case 'deadline': return r.task.deadlineISO || '';
+      case 'actualStart': return r.task.actualStartISO || '';
+      case 'actualFinish': return r.task.actualFinishISO || '';
       default: return '';
     }
   }
@@ -56,6 +60,8 @@
       case 'resources': return model.formatResources(r.task.resourceIds);
       case 'percentComplete': return r.percentComplete + '%';
       case 'deadline': return r.deadlineDay != null ? PM.Calendar.fmt(r.deadlineDay) : '';
+      case 'actualStart': return r.task.actualStartISO ? PM.Calendar.fmt(PM.Calendar.parseISO(r.task.actualStartISO)) : '';
+      case 'actualFinish': return r.task.actualFinishISO ? PM.Calendar.fmt(PM.Calendar.parseISO(r.task.actualFinishISO)) : '';
       case 'cost': return r.cost > 0 ? model.formatMoney(r.cost) : '';
       case 'slack': return (r.isSummary || r.slack == null || !isFinite(r.slack)) ? '' : r.slack + 'd';
       default: return '';
@@ -89,7 +95,7 @@
       COLUMNS.forEach(function (c) {
         // Summary duration/start/% are rolled up from children — editing them
         // would be silently discarded, so those cells are read-only on summaries.
-        var editable = c.editable && !(r.isSummary && (c.key === 'duration' || c.key === 'start' || c.key === 'percentComplete'));
+        var editable = c.editable && !(r.isSummary && (c.key === 'duration' || c.key === 'start' || c.key === 'percentComplete' || c.key === 'actualStart' || c.key === 'actualFinish'));
         var cellCls = c.cls + (editable ? ' editable' : '');
         if (opts.cursor && opts.cursor.id === r.id && opts.cursor.key === c.key) cellCls += ' cell-cursor';
         if (c.key === 'name') {
@@ -115,6 +121,10 @@
         } else {
           var extra = '', titleAttr = '', prefix = '';
           if ((c.key === 'deadline' || c.key === 'finish') && r.deadlineMissed) extra = ' missed';
+          if (c.key === 'percentComplete' && r.behindSchedule) {
+            extra = ' behind';
+            titleAttr = ' title="Behind schedule: ' + r.percentComplete + '% done, ' + r.expectedPct + '% expected by the status date"';
+          }
           if (c.key === 'start' && r.constraintViolated) {
             extra = ' missed';
             titleAttr = ' title="Must-Start-On pin conflicts with this task\'s dependencies"';
