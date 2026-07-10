@@ -65,6 +65,23 @@
     return refs.map(function (r) { return resolveRef(model, r, batchResults); });
   }
 
+  // Risk refs: a number = risk id; a string = exact title (case-insensitive).
+  function resolveRiskRef(model, ref) {
+    var risks = model.getProject().risks || [];
+    if (ref == null) fail('missing risk reference');
+    if (typeof ref === 'number' || /^\d+$/.test(String(ref))) {
+      var byId = risks.filter(function (r) { return r.id === parseInt(ref, 10); })[0];
+      if (!byId) fail('no risk with id ' + ref);
+      return byId;
+    }
+    var s = String(ref).toLowerCase();
+    var matches = risks.filter(function (r) { return r.title.toLowerCase() === s; });
+    if (!matches.length) fail('no risk titled "' + ref + '"');
+    if (matches.length > 1) fail('risk title "' + ref + '" is ambiguous — use its id (' +
+      matches.map(function (r) { return r.id; }).join(', ') + ')');
+    return matches[0];
+  }
+
   var SET_FIELDS = {
     name: 'name', duration: 'duration', dur: 'duration', start: 'start',
     predecessors: 'predecessors', preds: 'predecessors', pred: 'predecessors',
@@ -201,6 +218,53 @@
         return { op: 'set-constraint', id: id, type: ctype };
       }
 
+      case 'add-risk': {
+        if (!op.title) fail('add-risk needs a title');
+        var riskFields = {
+          title: op.title, description: op.description, category: op.category,
+          probability: op.probability, impact: op.impact, owner: op.owner,
+          status: op.status, mitigation: op.mitigation, contingency: op.contingency,
+          reviewISO: op.review || op.reviewISO || null,
+          taskIds: op.tasks != null ? resolveRefs(model, op.tasks, batchResults) : []
+        };
+        var newRiskId = model.addRisk(riskFields);
+        return { op: 'add-risk', riskId: newRiskId };
+      }
+
+      case 'set-risk': {
+        var rk = resolveRiskRef(model, op.risk != null ? op.risk : op.id);
+        var patch = {};
+        ['title', 'description', 'category', 'probability', 'impact', 'owner',
+          'status', 'mitigation', 'contingency'].forEach(function (f) {
+            if (op[f] != null) patch[f] = op[f];
+          });
+        if (op.review != null || op.reviewISO != null) patch.reviewISO = op.review || op.reviewISO;
+        if (op.tasks != null) patch.taskIds = resolveRefs(model, op.tasks, batchResults);
+        if (!Object.keys(patch).length) fail('set-risk: no fields to change');
+        model.updateRisk(rk.id, patch);
+        return { op: 'set-risk', riskId: rk.id };
+      }
+
+      case 'link-risk':
+      case 'unlink-risk': {
+        var rk2 = resolveRiskRef(model, op.risk != null ? op.risk : op.id);
+        var linkIds = resolveRefs(model, op.tasks != null ? op.tasks : op.rows, batchResults);
+        var current = rk2.taskIds.slice();
+        if (op.op === 'link-risk') {
+          linkIds.forEach(function (tid) { if (current.indexOf(tid) < 0) current.push(tid); });
+        } else {
+          current = current.filter(function (tid) { return linkIds.indexOf(tid) < 0; });
+        }
+        model.updateRisk(rk2.id, { taskIds: current });
+        return { op: op.op, riskId: rk2.id, taskIds: current };
+      }
+
+      case 'delete-risk': {
+        var rk3 = resolveRiskRef(model, op.risk != null ? op.risk : op.id);
+        model.deleteRisk(rk3.id);
+        return { op: 'delete-risk', riskId: rk3.id };
+      }
+
       case 'set-baseline': model.saveBaseline(); return { op: 'set-baseline' };
       case 'clear-baseline': model.clearBaseline(); return { op: 'clear-baseline' };
 
@@ -252,8 +316,23 @@
         overallocatedResources: c.overallocatedCount || 0,
         missedDeadlines: c.missedDeadlines || 0,
         taskCount: c.rows.length,
-        baseline: p.baseline ? p.baseline.savedISO : null
+        baseline: p.baseline ? p.baseline.savedISO : null,
+        risks: c.riskSummary || null
       },
+      risks: (p.risks || []).map(function (r) {
+        var idToRow = {};
+        c.rows.forEach(function (row, idx) { idToRow[row.id] = idx + 1; });
+        return {
+          id: r.id, title: r.title, description: r.description, category: r.category,
+          probability: r.probability, impact: r.impact,
+          score: r.probability * r.impact,
+          owner: r.owner, status: r.status,
+          mitigation: r.mitigation, contingency: r.contingency,
+          taskRows: r.taskIds.map(function (tid) { return idToRow[tid]; }).filter(Boolean),
+          taskIds: r.taskIds.slice(),
+          reviewISO: r.reviewISO, createdISO: r.createdISO, closedISO: r.closedISO
+        };
+      }),
       resources: p.resources.map(function (r) {
         return { id: r.id, name: r.name, rate: r.rate || 0 };
       }),
@@ -280,6 +359,8 @@
           deadlineISO: r.task.deadlineISO || null,
           deadlineMissed: !!r.deadlineMissed,
           overallocated: (r.overallocatedResources && r.overallocatedResources.length) ? r.overallocatedResources : [],
+          riskScore: r.riskScore || 0,
+          riskIds: (r.risks || []).map(function (k) { return k.id; }),
           notes: r.task.notes || ''
         };
       })

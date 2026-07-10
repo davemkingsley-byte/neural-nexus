@@ -82,6 +82,7 @@
         <button id="btnBaselineClear" class="tb" title="Clear the saved baseline" hidden>✕</button>
         <button id="btnCalendar" class="tb" title="Working days & holidays">📅 Calendar</button>
         <button id="btnResources" class="tb" title="Manage resources">👥 Resources</button>
+        <button id="btnRisks" class="tb" title="Risk register (probability × impact)">🛡 Risks</button>
       </div>
     </div>
 
@@ -108,6 +109,8 @@
       <span id="stCritical">0 critical</span>
       <span class="st-sep">·</span>
       <span id="stCost">$0</span>
+      <span class="st-sep">·</span>
+      <span id="stRisks">no active risks</span>
       <span id="stWarn" class="st-warn" hidden></span>
       <span class="st-spacer"></span>
       <span id="stWhoami" class="st-whoami"></span>
@@ -172,6 +175,57 @@
       <div class="modal-foot">
         <button id="tmOk" class="tb primary">OK</button>
         <button id="tmCancel" class="tb">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Risk register modal -->
+  <div class="modal-backdrop" id="riskModal" hidden>
+    <div class="modal modal-risks">
+      <div class="modal-head">
+        <h2 id="riskTitle">Risk Register</h2>
+        <button class="modal-close" id="riskClose" title="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="risk-top">
+          <div id="riskHeatmap" class="risk-heatmap" title="Probability × Impact — click a cell to filter"></div>
+          <div id="riskSummaryBox" class="risk-summary"></div>
+        </div>
+        <table class="risk-table" id="riskTable"></table>
+        <button id="riskAddBtn" class="tb primary">＋ Add risk</button>
+        <fieldset class="tm-block" id="riskForm" hidden>
+          <legend id="riskFormLegend">New risk</legend>
+          <div class="tm-grid">
+            <label class="tm-wide">Title <input id="rkTitle" type="text"></label>
+            <label>Category
+              <select id="rkCategory">
+                <option>scope</option><option>schedule</option><option>cost</option>
+                <option>technical</option><option>resource</option><option>external</option><option>other</option>
+              </select>
+            </label>
+            <label>Probability (1–5) <input id="rkProb" type="number" min="1" max="5" value="3"></label>
+            <label>Impact (1–5) <input id="rkImpact" type="number" min="1" max="5" value="3"></label>
+            <label>Owner <input id="rkOwner" type="text"></label>
+            <label>Status
+              <select id="rkStatus">
+                <option>open</option><option>mitigating</option><option>closed</option><option>realized</option>
+              </select>
+            </label>
+            <label>Review date <input id="rkReview" type="date"></label>
+          </div>
+          <label class="tm-notes">Description <textarea id="rkDesc" rows="2"></textarea></label>
+          <label class="tm-notes">Mitigation plan <textarea id="rkMitigation" rows="2"></textarea></label>
+          <label class="tm-notes">Contingency (if it happens) <textarea id="rkContingency" rows="2"></textarea></label>
+          <fieldset class="tm-block">
+            <legend>Linked tasks</legend>
+            <div id="rkTasks" class="tm-res"></div>
+          </fieldset>
+          <div class="modal-foot" style="border:none;padding:10px 0 0">
+            <button id="rkSave" class="tb primary">Save risk</button>
+            <button id="rkDelete" class="tb" hidden>Delete</button>
+            <button id="rkCancel" class="tb">Cancel</button>
+          </div>
+        </fieldset>
       </div>
     </div>
   </div>

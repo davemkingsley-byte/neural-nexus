@@ -230,11 +230,16 @@
     $('stCritical').textContent = critCount + ' critical';
     $('stCost').textContent = model.formatMoney(c.projectCost || 0);
 
+    var rs = c.riskSummary || {};
+    var stRisksEl = $('stRisks');
+    if (stRisksEl) stRisksEl.textContent = (rs.open || rs.mitigating) ? ((rs.open || 0) + (rs.mitigating || 0)) + ' active risks (exp ' + (rs.exposure || 0) + ')' : 'no active risks';
+
     var warns = [];
     if (c.hasCycle) warns.push('⚠ Circular dependency — schedule may be incomplete');
     if (c.constraintConflicts) warns.push('⚠ ' + c.constraintConflicts + ' Must-Start-On pin' + (c.constraintConflicts === 1 ? '' : 's') + ' violate' + (c.constraintConflicts === 1 ? 's' : '') + ' dependencies');
     if (c.overallocatedCount) warns.push('⚠ ' + c.overallocatedCount + ' resource' + (c.overallocatedCount === 1 ? '' : 's') + ' overallocated');
     if (c.missedDeadlines) warns.push('⚠ ' + c.missedDeadlines + ' deadline' + (c.missedDeadlines === 1 ? '' : 's') + ' missed');
+    if (rs.critical) warns.push('⚠ ' + rs.critical + ' CRITICAL risk' + (rs.critical === 1 ? '' : 's') + ' open');
     els.stWarn.hidden = !warns.length;
     els.stWarn.textContent = warns.join('   ');
   }
@@ -264,7 +269,8 @@
     return !!document.querySelector('.cell-input') ||
       (els.resModal && !els.resModal.hidden) ||
       (els.taskModal && !els.taskModal.hidden) ||
-      (els.calModal && !els.calModal.hidden);
+      (els.calModal && !els.calModal.hidden) ||
+      (els.riskModal && !els.riskModal.hidden);
   }
 
   // Every real model mutation lands here (model.subscribe). Remote applies are
@@ -716,13 +722,15 @@
       // While a dialog is open, grid shortcuts must not act on the background
       // selection (Delete/Insert/undo would corrupt what the dialog shows).
       var modalOpen = (els.taskModal && !els.taskModal.hidden) ||
-        (els.calModal && !els.calModal.hidden) || (els.resModal && !els.resModal.hidden);
+        (els.calModal && !els.calModal.hidden) || (els.resModal && !els.resModal.hidden) ||
+        (els.riskModal && !els.riskModal.hidden);
       if (modalOpen) {
         if (e.key === 'Escape') {
           e.preventDefault();
           closeTaskDialog();
           els.calModal.hidden = true;
           els.resModal.hidden = true;
+          els.riskModal.hidden = true;
         }
         return;
       }
@@ -1059,6 +1067,166 @@
     els.tmNewRes.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); els.tmAddRes.click(); } };
   }
 
+  // ---- Risk register ----
+  var riskFormId = null;    // null = closed, 0 = new, >0 = editing that risk
+  var riskCellFilter = null; // {p, i} heatmap cell filter
+
+  var SEV_LABEL = { low: 'Low', medium: 'Medium', high: 'High', critical: 'CRITICAL' };
+
+  function openRiskModal() {
+    riskCellFilter = null;
+    closeRiskForm();
+    renderRiskRegister();
+    els.riskModal.hidden = false;
+  }
+
+  function renderRiskRegister() {
+    var p = model.getProject();
+    var risks = (p.risks || []).slice().sort(function (a, b) {
+      return (b.probability * b.impact) - (a.probability * a.impact);
+    });
+    if (riskCellFilter) {
+      risks = risks.filter(function (r) {
+        return r.probability === riskCellFilter.p && r.impact === riskCellFilter.i;
+      });
+    }
+
+    // 5×5 heatmap: impact rows (5 at top), probability columns.
+    var counts = {};
+    (p.risks || []).forEach(function (r) {
+      if (r.status === 'open' || r.status === 'mitigating') {
+        var k = r.probability + ',' + r.impact;
+        counts[k] = (counts[k] || 0) + 1;
+      }
+    });
+    var hm = '<div class="hm-grid">';
+    for (var imp = 5; imp >= 1; imp--) {
+      for (var prob = 1; prob <= 5; prob++) {
+        var sev = model.riskSeverity(prob * imp);
+        var n = counts[prob + ',' + imp] || 0;
+        var active = riskCellFilter && riskCellFilter.p === prob && riskCellFilter.i === imp;
+        hm += '<div class="hm-cell sev-' + sev + (active ? ' hm-active' : '') + '" data-p="' + prob + '" data-i="' + imp +
+          '" title="P' + prob + ' × I' + imp + ' = ' + (prob * imp) + '">' + (n || '') + '</div>';
+      }
+    }
+    hm += '</div><div class="hm-axis">Probability →&nbsp;&nbsp;(Impact ↑)</div>';
+    els.riskHeatmap.innerHTML = hm;
+    els.riskHeatmap.querySelectorAll('.hm-cell').forEach(function (cell) {
+      cell.onclick = function () {
+        var pv = +cell.getAttribute('data-p'), iv = +cell.getAttribute('data-i');
+        riskCellFilter = (riskCellFilter && riskCellFilter.p === pv && riskCellFilter.i === iv) ? null : { p: pv, i: iv };
+        renderRiskRegister();
+      };
+    });
+
+    var s = model.getComputed().riskSummary || {};
+    els.riskSummaryBox.innerHTML =
+      '<div><strong>' + (s.open || 0) + '</strong> open · <strong>' + (s.mitigating || 0) + '</strong> mitigating</div>' +
+      '<div>' + (s.closed || 0) + ' closed · ' + (s.realized || 0) + ' realized</div>' +
+      '<div>Exposure <strong>' + (s.exposure || 0) + '</strong>' +
+      (s.critical ? ' · <span class="sev-critical-text">' + s.critical + ' CRITICAL</span>' : '') + '</div>' +
+      (riskCellFilter ? '<div class="hm-filter-note">Filtered to P' + riskCellFilter.p + '×I' + riskCellFilter.i + ' — click the cell again to clear</div>' : '');
+
+    var esc = PM.Grid.esc;
+    var idToRow = {};
+    model.getComputed().rows.forEach(function (r, idx) { idToRow[r.id] = idx + 1; });
+    var html = '<thead><tr><th>ID</th><th>Title</th><th>Cat</th><th>P</th><th>I</th><th>Score</th><th>Owner</th><th>Status</th><th>Tasks</th><th>Review</th></tr></thead><tbody>';
+    risks.forEach(function (r) {
+      var score = r.probability * r.impact;
+      var sev = model.riskSeverity(score);
+      var taskRows = r.taskIds.map(function (tid) { return idToRow[tid]; }).filter(Boolean).join(', ');
+      html += '<tr data-risk="' + r.id + '" class="risk-row st-' + r.status + '">' +
+        '<td>' + r.id + '</td>' +
+        '<td class="rk-title">' + esc(r.title) + '</td>' +
+        '<td>' + esc(r.category) + '</td>' +
+        '<td>' + r.probability + '</td><td>' + r.impact + '</td>' +
+        '<td><span class="score-chip sev-' + sev + '">' + score + '</span></td>' +
+        '<td>' + esc(r.owner) + '</td>' +
+        '<td>' + esc(r.status) + '</td>' +
+        '<td>' + esc(taskRows) + '</td>' +
+        '<td>' + esc(r.reviewISO || '') + '</td></tr>';
+    });
+    if (!risks.length) html += '<tr><td colspan="10" style="color:#888;padding:14px">No risks ' + (riskCellFilter ? 'in this cell' : 'recorded yet') + '.</td></tr>';
+    html += '</tbody>';
+    els.riskTable.innerHTML = html;
+    els.riskTable.querySelectorAll('tr[data-risk]').forEach(function (tr) {
+      tr.onclick = function () { openRiskForm(+tr.getAttribute('data-risk')); };
+    });
+    els.riskAddBtn.hidden = isViewer();
+  }
+
+  function openRiskForm(id) {
+    riskFormId = id || 0;
+    var r = id ? model.riskById(id) : null;
+    els.riskFormLegend.textContent = r ? ('Risk #' + r.id + ' — ' + r.title) : 'New risk';
+    els.rkTitle.value = r ? r.title : '';
+    els.rkCategory.value = r ? r.category : 'other';
+    els.rkProb.value = r ? r.probability : 3;
+    els.rkImpact.value = r ? r.impact : 3;
+    els.rkOwner.value = r ? r.owner : '';
+    els.rkStatus.value = r ? r.status : 'open';
+    els.rkReview.value = r && r.reviewISO ? r.reviewISO : '';
+    els.rkDesc.value = r ? r.description : '';
+    els.rkMitigation.value = r ? r.mitigation : '';
+    els.rkContingency.value = r ? r.contingency : '';
+    // Linked-task checkboxes (leaf tasks only — risks attach to work, not rollups)
+    var esc = PM.Grid.esc;
+    var rows = model.getComputed().rows;
+    els.rkTasks.innerHTML = rows.filter(function (row) { return !row.isSummary; }).map(function (row) {
+      var on = r && r.taskIds.indexOf(row.id) >= 0;
+      return '<label><input type="checkbox" value="' + row.id + '"' + (on ? ' checked' : '') + '> ' +
+        row.row + ' — ' + esc(row.name || '(unnamed)') + '</label>';
+    }).join('') || '<span style="color:#888">No tasks yet.</span>';
+    var ro = isViewer();
+    els.riskForm.querySelectorAll('input,select,textarea,button').forEach(function (el) {
+      if (el.id !== 'rkCancel') el.disabled = ro;
+    });
+    els.rkDelete.hidden = !r || ro;
+    els.riskForm.hidden = false;
+  }
+
+  function closeRiskForm() { riskFormId = null; els.riskForm.hidden = true; }
+
+  function saveRiskForm() {
+    if (isViewer()) return;
+    var fields = {
+      title: els.rkTitle.value.trim(),
+      category: els.rkCategory.value,
+      probability: parseInt(els.rkProb.value, 10),
+      impact: parseInt(els.rkImpact.value, 10),
+      owner: els.rkOwner.value.trim(),
+      status: els.rkStatus.value,
+      reviewISO: els.rkReview.value || null,
+      description: els.rkDesc.value,
+      mitigation: els.rkMitigation.value,
+      contingency: els.rkContingency.value,
+      taskIds: Array.from(els.rkTasks.querySelectorAll('input:checked')).map(function (cb) { return +cb.value; })
+    };
+    if (!fields.title) { alert('A risk needs a title.'); return; }
+    if (riskFormId) model.updateRisk(riskFormId, fields);
+    else model.addRisk(fields);
+    closeRiskForm();
+    renderRiskRegister();
+    render(); // task chips + status bar
+  }
+
+  function wireRiskModal() {
+    els.btnRisks.onclick = openRiskModal;
+    els.riskClose.onclick = function () { els.riskModal.hidden = true; closeRiskForm(); };
+    els.riskModal.addEventListener('mousedown', function (e) { if (e.target === els.riskModal) { els.riskModal.hidden = true; closeRiskForm(); } });
+    els.riskAddBtn.onclick = function () { openRiskForm(null); };
+    els.rkSave.onclick = saveRiskForm;
+    els.rkCancel.onclick = closeRiskForm;
+    els.rkDelete.onclick = function () {
+      if (riskFormId && confirm('Delete this risk?')) {
+        model.deleteRisk(riskFormId);
+        closeRiskForm();
+        renderRiskRegister();
+        render();
+      }
+    };
+  }
+
   // ---- Calendar dialog ----
   var DOW_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   function openCalendarDialog() {
@@ -1149,7 +1317,10 @@
       'ctxMenu', 'taskModal', 'tmTitle', 'tmClose', 'tmName', 'tmDuration', 'tmPct',
       'tmConstraintType', 'tmConstraintDate', 'tmDeadline', 'tmPreds', 'tmAddPred',
       'tmResources', 'tmNewRes', 'tmAddRes', 'tmNotes', 'tmOk', 'tmCancel',
-      'filterSel', 'btnBaselineClear', 'btnCalendar', 'calModal', 'calClose', 'calCancel', 'calOk', 'calDays', 'calHolidays'
+      'filterSel', 'btnBaselineClear', 'btnCalendar', 'calModal', 'calClose', 'calCancel', 'calOk', 'calDays', 'calHolidays',
+      'btnRisks', 'riskModal', 'riskClose', 'riskTable', 'riskHeatmap', 'riskSummaryBox', 'riskAddBtn',
+      'riskForm', 'riskFormLegend', 'rkTitle', 'rkCategory', 'rkProb', 'rkImpact', 'rkOwner', 'rkStatus',
+      'rkReview', 'rkDesc', 'rkMitigation', 'rkContingency', 'rkTasks', 'rkSave', 'rkDelete', 'rkCancel'
     ].forEach(function (id) { els[id] = $(id); });
 
     model.setStorageKey(PROJECT_NAME);
@@ -1161,6 +1332,7 @@
     wireContextMenu();
     wireTaskDialog();
     wireCalendarDialog();
+    wireRiskModal();
     bootstrapStorage(); // loads local instantly, then upgrades to server mode
   }
 

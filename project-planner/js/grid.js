@@ -100,9 +100,16 @@
           } else {
             toggle = '<span class="toggle-spacer"></span>';
           }
+          var riskChip = '';
+          if (r.risks && r.risks.length) {
+            var worst = r.risks.reduce(function (m, k) { return k.score > m.score ? k : m; }, r.risks[0]);
+            riskChip = '<span class="risk-chip sev-' + worst.severity + '" title="' +
+              esc(r.risks.map(function (k) { return '#' + k.id + ' ' + k.title + ' (' + k.score + ')'; }).join('\n')) +
+              '">R' + r.risks.length + '</span>';
+          }
           html += '<td class="' + cellCls + '" data-key="name">' +
             '<span class="name-wrap" style="padding-left:' + indent + 'px">' +
-            toggle + '<span class="name-text">' + esc(r.name || '') + '</span></span></td>';
+            toggle + '<span class="name-text">' + esc(r.name || '') + '</span>' + riskChip + '</span></td>';
         } else if (c.key === 'row') {
           html += '<td class="' + cellCls + '">' + r.row + '</td>';
         } else {

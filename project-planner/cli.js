@@ -380,6 +380,65 @@ function main() {
       return executeOps([cop]).then(function (r) { reportWrite(r, function () { return 'calendar updated'; }); });
     }
 
+    case 'risks': {
+      return fetchReport().then(function (rep) {
+        if (JSON_OUT) return out({ summary: rep.project.risks, risks: rep.risks });
+        var lines = [pad('ID', 4, true) + '  ' + pad('Title', 34) + pad('Cat', 10) + pad('P', 2, true) + pad('I', 3, true) +
+          pad('Score', 6, true) + '  ' + pad('Sev', 9) + pad('Status', 11) + pad('Owner', 14) + pad('Tasks', 10) + 'Review'];
+        lines.push(new Array(110).join('-'));
+        rep.risks.slice().sort(function (a, b) { return b.score - a.score; }).forEach(function (r) {
+          var sev = r.score >= 15 ? 'CRITICAL' : r.score >= 10 ? 'high' : r.score >= 5 ? 'medium' : 'low';
+          lines.push(pad(r.id, 4, true) + '  ' + pad(r.title, 34) + pad(r.category, 10) +
+            pad(r.probability, 2, true) + pad(r.impact, 3, true) + pad(r.score, 6, true) + '  ' +
+            pad(sev, 9) + pad(r.status, 11) + pad(r.owner, 14) +
+            pad(r.taskRows.join(','), 10) + (r.reviewISO || ''));
+        });
+        var s = rep.project.risks || {};
+        lines.push(new Array(110).join('-'));
+        lines.push((s.open || 0) + ' open · ' + (s.mitigating || 0) + ' mitigating · ' + (s.closed || 0) + ' closed · ' +
+          (s.realized || 0) + ' realized · exposure ' + (s.exposure || 0) + (s.critical ? ' · ' + s.critical + ' CRITICAL' : ''));
+        out(lines.join('\n'));
+      });
+    }
+
+    case 'risk-add': {
+      var rop = { op: 'add-risk', title: requireFlag('title') };
+      if (flags.desc != null) rop.description = flags.desc;
+      if (flags.category != null) rop.category = flags.category;
+      if (flags.p != null) rop.probability = flags.p;
+      if (flags.i != null) rop.impact = flags.i;
+      if (flags.owner != null) rop.owner = flags.owner;
+      if (flags.status != null) rop.status = flags.status;
+      if (flags.mitigation != null) rop.mitigation = flags.mitigation;
+      if (flags.contingency != null) rop.contingency = flags.contingency;
+      if (flags.review != null) rop.review = flags.review;
+      if (flags.tasks != null) rop.tasks = String(flags.tasks).split(',');
+      return executeOps([rop]).then(function (r) {
+        reportWrite(r, function (r) { return 'added risk #' + r.results[0].riskId; });
+      });
+    }
+
+    case 'risk-set': {
+      if (rest.length < 3) die('usage: risk-set <id|title> <field> <value>');
+      var sop = { op: 'set-risk', risk: rest[0] };
+      var rf = rest[1] === 'p' ? 'probability' : rest[1] === 'i' ? 'impact' : rest[1];
+      sop[rf] = rest.slice(2).join(' ');
+      return executeOps([sop]).then(function (r) { reportWrite(r, function () { return 'risk updated'; }); });
+    }
+
+    case 'risk-link':
+    case 'risk-unlink': {
+      if (rest.length < 2) die('usage: ' + command + ' <id|title> TASKREF...');
+      return executeOps([{ op: command === 'risk-link' ? 'link-risk' : 'unlink-risk', risk: rest[0], tasks: rest.slice(1) }])
+        .then(function (r) { reportWrite(r, function () { return command + 'ed'; }); });
+    }
+
+    case 'risk-delete': {
+      if (!rest.length) die('usage: risk-delete <id|title>');
+      return executeOps([{ op: 'delete-risk', risk: rest[0] }])
+        .then(function (r) { reportWrite(r, function () { return 'risk deleted'; }); });
+    }
+
     case 'baseline': {
       if (rest[0] !== 'set' && rest[0] !== 'clear') die('usage: baseline set|clear');
       return executeOps([{ op: rest[0] === 'set' ? 'set-baseline' : 'clear-baseline' }])

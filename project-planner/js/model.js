@@ -50,6 +50,41 @@
     return (neg ? '-$' : '$') + String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   }
 
+  // ---- Risk management ------------------------------------------------------
+  var RISK_CATEGORIES = ['scope', 'schedule', 'cost', 'technical', 'resource', 'external', 'other'];
+  var RISK_STATUSES = ['open', 'mitigating', 'closed', 'realized'];
+
+  // 5×5 probability × impact — standard qualitative bands.
+  function riskSeverity(score) {
+    if (score >= 15) return 'critical';
+    if (score >= 10) return 'high';
+    if (score >= 5) return 'medium';
+    return 'low';
+  }
+
+  function normalizeRisk(r, taskIdSet) {
+    var p = clamp(Math.round(Number(r.probability) || 3), 1, 5);
+    var i = clamp(Math.round(Number(r.impact) || 3), 1, 5);
+    return {
+      id: r.id,
+      title: r.title != null ? String(r.title) : '',
+      description: r.description != null ? String(r.description) : '',
+      category: RISK_CATEGORIES.indexOf(r.category) >= 0 ? r.category : 'other',
+      probability: p,
+      impact: i,
+      owner: r.owner != null ? String(r.owner) : '',
+      status: RISK_STATUSES.indexOf(r.status) >= 0 ? r.status : 'open',
+      mitigation: r.mitigation != null ? String(r.mitigation) : '',
+      contingency: r.contingency != null ? String(r.contingency) : '',
+      taskIds: (r.taskIds || []).filter(function (id, idx, a) {
+        return taskIdSet[id] && a.indexOf(id) === idx;
+      }),
+      reviewISO: r.reviewISO || null,
+      createdISO: r.createdISO || null,
+      closedISO: r.closedISO || null
+    };
+  }
+
   // ---- Predecessor token parsing/formatting --------------------------------
   // token: "<row>[TYPE][±lag]" e.g. "3", "3FS", "2SS+1", "4FF-2"
   function parsePredecessors(str, tasks, ownerId) {
@@ -226,6 +261,11 @@
         });
         return out;
       });
+      // Risks: normalize against the (already-normalized) task id space.
+      var taskIdSet = {};
+      p.tasks.forEach(function (t) { taskIdSet[t.id] = true; });
+      p.risks = (p.risks || []).map(function (r) { return normalizeRisk(r, taskIdSet); });
+      if (!p.nextRiskId) p.nextRiskId = 1 + p.risks.reduce(function (m, r) { return Math.max(m, r.id || 0); }, 0);
       // fix outline: first task must be level 1; no jumps > +1
       var prev = 0;
       p.tasks.forEach(function (t) {
@@ -384,6 +424,28 @@
         }
       });
 
+      // ---- Risks: attach open exposure to linked task rows + project summary.
+      var riskSummary = { open: 0, mitigating: 0, closed: 0, realized: 0, exposure: 0, critical: 0 };
+      var risksByTask = {};
+      (project.risks || []).forEach(function (rk) {
+        riskSummary[rk.status] = (riskSummary[rk.status] || 0) + 1;
+        var score = rk.probability * rk.impact;
+        var active = rk.status === 'open' || rk.status === 'mitigating';
+        if (active) {
+          riskSummary.exposure += score;
+          if (riskSeverity(score) === 'critical') riskSummary.critical++;
+          rk.taskIds.forEach(function (tid) {
+            (risksByTask[tid] = risksByTask[tid] || []).push({
+              id: rk.id, title: rk.title, score: score, severity: riskSeverity(score), status: rk.status
+            });
+          });
+        }
+      });
+      rows.forEach(function (r) {
+        r.risks = risksByTask[r.id] || [];
+        r.riskScore = r.risks.reduce(function (m, k) { return Math.max(m, k.score); }, 0);
+      });
+
       // Baseline overlay
       var baselineByDay = null;
       if (project.baseline && project.baseline.tasks) {
@@ -406,7 +468,8 @@
         projectCost: projectCost,
         missedDeadlines: missedDeadlines,
         constraintConflicts: constraintConflicts,
-        overallocatedCount: Object.keys(overallocatedIds).length
+        overallocatedCount: Object.keys(overallocatedIds).length,
+        riskSummary: riskSummary
       };
       return computed;
     }
@@ -488,10 +551,13 @@
       pushUndo();
       var idset = {};
       ids.forEach(function (id) { idset[id] = true; });
-      // also drop predecessor refs to deleted tasks
+      // also drop predecessor refs and risk links to deleted tasks
       project.tasks = project.tasks.filter(function (t) { return !idset[t.id]; });
       project.tasks.forEach(function (t) {
         t.predecessors = t.predecessors.filter(function (p) { return !idset[p.id]; });
+      });
+      (project.risks || []).forEach(function (r) {
+        r.taskIds = r.taskIds.filter(function (tid) { return !idset[tid]; });
       });
       fixOutline();
       recompute(); notify();
@@ -613,6 +679,57 @@
       if (undoStack.length > UNDO_LIMIT) undoStack.shift();
       redoStack.length = 0;
       recompute(); notify();
+    }
+
+    // ---- Risk mutations -----------------------------------------------------
+    function riskById(id) {
+      return (project.risks || []).filter(function (r) { return r.id === Number(id); })[0] || null;
+    }
+
+    function addRisk(fields) {
+      pushUndo();
+      project.risks = project.risks || [];
+      var taskIdSet = {};
+      project.tasks.forEach(function (t) { taskIdSet[t.id] = true; });
+      var r = normalizeRisk(Object.assign({}, fields || {}, {
+        id: project.nextRiskId++,
+        createdISO: Cal.toISO(Cal.todayDayNum())
+      }), taskIdSet);
+      project.risks.push(r);
+      recompute(); notify();
+      return r.id;
+    }
+
+    function updateRisk(id, patch) {
+      var r = riskById(id);
+      if (!r) return false;
+      var snapshot = clone(project);
+      var before = JSON.stringify(project);
+      var taskIdSet = {};
+      project.tasks.forEach(function (t) { taskIdSet[t.id] = true; });
+      var merged = normalizeRisk(Object.assign({}, r, patch || {}, { id: r.id }), taskIdSet);
+      // Stamp/clear the closed date on status transitions.
+      if ((merged.status === 'closed' || merged.status === 'realized') && r.status !== merged.status) {
+        merged.closedISO = Cal.toISO(Cal.todayDayNum());
+      } else if (merged.status === 'open' || merged.status === 'mitigating') {
+        merged.closedISO = null;
+      }
+      project.risks[project.risks.indexOf(r)] = merged;
+      if (JSON.stringify(project) === before) return true; // no-op: no undo entry
+      undoStack.push(snapshot);
+      if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+      redoStack.length = 0;
+      recompute(); notify();
+      return true;
+    }
+
+    function deleteRisk(id) {
+      var r = riskById(id);
+      if (!r) return false;
+      pushUndo();
+      project.risks = project.risks.filter(function (x) { return x.id !== r.id; });
+      recompute(); notify();
+      return true;
     }
 
     // Set/clear a scheduling constraint. type: null | 'SNET' | 'MSO'.
@@ -865,6 +982,12 @@
       addResource: addResource,
       updateResource: updateResource,
       deleteResource: deleteResource,
+      // risks
+      addRisk: addRisk,
+      updateRisk: updateRisk,
+      deleteRisk: deleteRisk,
+      riskById: riskById,
+      riskSeverity: riskSeverity,
       // project
       setProjectStart: setProjectStart,
       setProjectName: setProjectName,
@@ -900,6 +1023,7 @@
     parseDuration: parseDuration,
     formatDuration: formatDuration,
     formatMoney: formatMoney,
+    riskSeverity: riskSeverity,
     parsePredecessors: parsePredecessors,
     formatPredecessors: formatPredecessors,
     sampleProject: sampleProject,
