@@ -155,6 +155,33 @@ async function main() {
   r = await req('GET', '/projects/alpha.json');
   eq(r.status, 403, 'project files not served statically');
 
+  // REVIEW FIX: beacon-style POST to the document path saves unconditionally
+  var beaconDoc = sampleDoc();
+  beaconDoc.name = 'beacon-flushed';
+  r = await req('POST', '/api/projects/alpha', beaconDoc);
+  eq(r.status, 200, 'beacon POST accepted');
+  r = await req('GET', '/api/projects/alpha');
+  eq(r.json.name, 'beacon-flushed', 'beacon content persisted');
+
+  // REVIEW FIX: concurrent same-file writes serialize on the lockfile —
+  // N parallel CLI-style writers must produce N distinct revs (no lost update).
+  var cp = require('child_process');
+  var cliPath = path.join(__dirname, '..', 'cli.js');
+  var projFile = path.join(TMP, 'race.json');
+  cp.execFileSync('node', [cliPath, projFile, 'init'], { stdio: 'pipe' });
+  var procs = [];
+  for (var pi = 0; pi < 4; pi++) {
+    procs.push(new Promise(function (resolve) {
+      cp.execFile('node', [cliPath, projFile, 'add', '--name', 'race-task', '--local'],
+        function (err) { resolve(!err); });
+    }));
+  }
+  var oks = await Promise.all(procs);
+  ok(oks.every(Boolean), 'all 4 parallel CLI writers succeeded');
+  var raceDoc = JSON.parse(fs.readFileSync(projFile, 'utf8'));
+  eq(raceDoc.tasks.length, 4, 'no lost update: all 4 tasks present');
+  eq(raceDoc.rev, 5, 'rev advanced once per write (init + 4 adds)');
+
   // DELETE
   r = await req('DELETE', '/api/projects/beta');
   eq(r.status, 200, 'delete 200');

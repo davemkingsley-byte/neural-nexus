@@ -152,6 +152,48 @@ function freshModel() {
   ok(!m.getProject().baseline, 'baseline cleared');
 })();
 
+// ---- REVIEW FIX: $N must reference an add-task result, not a resource ----
+(function () {
+  var m = freshModel();
+  var r = Ops.applyOps(m, [
+    { op: 'add-task', name: 'A' },
+    { op: 'add-resource', name: 'Dev' },
+    { op: 'set', row: '$1', field: 'pct', value: 50 }  // $1 is the RESOURCE result
+  ]);
+  ok(!r.ok, '$N to a resource result rejected');
+  eq(r.failedIndex, 2, 'failed at the $N op');
+  ok(/add-task result/.test(r.error), 'error explains the constraint: ' + r.error);
+  eq(m.getProject().tasks[0].percentComplete, 0, 'task A untouched');
+})();
+
+// ---- REVIEW FIX: move times is clamped (no event-loop DoS) ----
+(function () {
+  var m = freshModel();
+  Ops.applyOps(m, [{ op: 'add-task', name: 'A' }, { op: 'add-task', name: 'B' }]);
+  var t0 = Date.now();
+  var r = Ops.applyOps(m, [{ op: 'move', row: 1, dir: 'down', times: 2000000000 }]);
+  ok(r.ok, 'huge times applies (clamped)');
+  ok(Date.now() - t0 < 2000, 'returns quickly, not billions of iterations');
+  eq(m.getProject().tasks[1].name, 'A', 'A ended up at the bottom');
+})();
+
+// ---- REVIEW FIX: cyclic project reports null slack, never fake numbers ----
+(function () {
+  var m = freshModel();
+  Ops.applyOps(m, [
+    { op: 'add-task', name: 'A', duration: 2 },
+    { op: 'add-task', name: 'B', duration: 3 }
+  ]);
+  m.setField(m.getProject().tasks[0].id, 'predecessors', '2');
+  m.setField(m.getProject().tasks[1].id, 'predecessors', '1');
+  var rep = Ops.buildScheduleReport(m);
+  ok(rep.project.hasCycle, 'cycle detected');
+  ok(rep.tasks.every(function (t) { return t.slackDays === null; }), 'all slackDays null under a cycle');
+  ok(rep.tasks.every(function (t) { return !t.critical; }), 'no critical flags under a cycle');
+  var csv = m.toCSV();
+  ok(csv.indexOf('null') < 0, 'CSV has no "null" slack text');
+})();
+
 // ---- unknown op ----
 (function () {
   var m = freshModel();

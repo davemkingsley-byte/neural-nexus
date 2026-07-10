@@ -66,16 +66,38 @@ function readProject(name) {
   } catch (e) { return null; }
 }
 
-// Atomic write; assigns the next rev and returns it.
+// Atomic write; assigns the next rev and returns it. The lockfile serializes
+// against out-of-process writers (a --local CLI editing the same file) — the
+// server's own writes are already serialized by the single-threaded loop.
+function sleepSync(ms) {
+  try { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms); }
+  catch (e) { var end = Date.now() + ms; while (Date.now() < end) { /* spin */ } }
+}
+
 function writeProject(name, doc) {
   ensureDir();
-  var existing = readProject(name);
-  var prevRev = existing && typeof existing.rev === 'number' ? existing.rev : 0;
-  doc.rev = prevRev + 1;
-  var tmp = projectPath(name) + '.tmp-' + process.pid;
-  fs.writeFileSync(tmp, JSON.stringify(doc, null, 2));
-  fs.renameSync(tmp, projectPath(name));
-  return doc.rev;
+  var file = projectPath(name);
+  var lock = file + '.lock';
+  var fd = null, tries = 0;
+  while (fd === null) {
+    try { fd = fs.openSync(lock, 'wx'); }
+    catch (e) {
+      if (++tries > 100) throw new Error('project file is locked (' + lock + ' — remove it if stale)');
+      sleepSync(20);
+    }
+  }
+  try {
+    var existing = readProject(name);
+    var prevRev = existing && typeof existing.rev === 'number' ? existing.rev : 0;
+    doc.rev = prevRev + 1;
+    var tmp = file + '.tmp-' + process.pid;
+    fs.writeFileSync(tmp, JSON.stringify(doc, null, 2));
+    fs.renameSync(tmp, file);
+    return doc.rev;
+  } finally {
+    try { fs.closeSync(fd); } catch (e) { /* best effort */ }
+    try { fs.unlinkSync(lock); } catch (e) { /* best effort */ }
+  }
 }
 
 function send(res, code, body, type) {
@@ -160,7 +182,9 @@ function handleApi(req, res, pathname) {
     return send(res, 404, { error: 'not found' });
   }
 
-  if (req.method === 'PUT' && !sub) {
+  // navigator.sendBeacon can only POST with no custom headers — treat a POST
+  // to the document path (no /ops) as an unconditional save (navigation flush).
+  if ((req.method === 'PUT' || req.method === 'POST') && !sub) {
     return readBody(req, function (body) {
       var doc;
       try { doc = JSON.parse(body); } catch (e) { return send(res, 400, { error: 'invalid JSON' }); }

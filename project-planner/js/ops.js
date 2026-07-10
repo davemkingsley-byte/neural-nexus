@@ -42,7 +42,11 @@
     if (/^\$\d+$/.test(s)) {
       var ri = parseInt(s.slice(1), 10);
       var res = batchResults && batchResults[ri];
-      if (!res || res.id == null) fail('"$' + ri + '" does not reference an earlier result with a task id');
+      // Only task-creating results are valid targets — a resource id would
+      // silently collide with an unrelated task id (both counters start at 1).
+      if (!res || res.op !== 'add-task' || res.id == null) {
+        fail('"$' + ri + '" must reference an earlier add-task result (got ' + (res ? res.op : 'nothing') + ')');
+      }
       if (model.findIndexById(res.id) < 0) fail('"$' + ri + '" resolves to id ' + res.id + ' which no longer exists');
       return res.id;
     }
@@ -142,7 +146,10 @@
         id = resolveRef(model, op.row != null ? op.row : op.ref, batchResults);
         var dir = op.dir === 'up' ? -1 : op.dir === 'down' ? 1 : Number(op.dir);
         if (dir !== -1 && dir !== 1) fail('move dir must be "up" or "down"');
-        var times = Math.max(1, Math.round(Number(op.times) || 1));
+        // Cap at the task count: moving further is a no-op, and an unbounded
+        // count would let one op spin the single-process server (DoS).
+        var maxTimes = model.getProject().tasks.length + 1;
+        var times = Math.max(1, Math.min(maxTimes, Math.round(Number(op.times) || 1)));
         for (i = 0; i < times; i++) model.moveBlock(id, dir);
         return { op: 'move', id: id, row: model.findIndexById(id) + 1 };
       }

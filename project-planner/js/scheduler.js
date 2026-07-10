@@ -276,6 +276,9 @@
       } else {
         slack = lsR - es[r];
       }
+      // A cyclic graph has no valid backward pass — slack would be meaningless
+      // noise (lf is just projectFinish). Report null rather than a fake number.
+      if (hasCycle) slack = null;
       results.push({
         id: tasks[r].id,
         index: r,

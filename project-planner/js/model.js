@@ -793,7 +793,7 @@
           r.percentComplete, Math.round(r.cost || 0),
           r.task.deadlineISO || '',
           r.critical && !r.isSummary ? 'yes' : '',
-          r.isSummary ? '' : r.slack
+          (r.isSummary || r.slack == null) ? '' : r.slack
         ].join(','));
       });
       return lines.join('\r\n');

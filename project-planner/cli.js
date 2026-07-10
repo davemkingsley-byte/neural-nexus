@@ -106,11 +106,32 @@ function loadModelLocal(requireExists) {
   return m;
 }
 
-// Disk-read-then-bump rev (same rule as the server) so interleaved writers can
-// never mint the same rev for different content.
-function saveModelLocal(m) {
-  var file = projectFile();
-  try { fs.mkdirSync(path.dirname(file), { recursive: true }); } catch (e) { /* exists */ }
+// Disk-read-then-bump rev under an exclusive lockfile, so concurrent writers
+// (parallel CLI invocations, or CLI alongside the server's own file writes)
+// serialize instead of interleaving read-rev -> rename and losing updates.
+function sleepSync(ms) {
+  try { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms); }
+  catch (e) { var end = Date.now() + ms; while (Date.now() < end) { /* spin */ } }
+}
+
+function withFileLock(file, fn) {
+  var lock = file + '.lock';
+  var fd = null, tries = 0;
+  while (fd === null) {
+    try { fd = fs.openSync(lock, 'wx'); }
+    catch (e) {
+      if (++tries > 100) die('project file is locked (' + lock + ' — remove it if stale)');
+      sleepSync(20);
+    }
+  }
+  try { return fn(); }
+  finally {
+    try { fs.closeSync(fd); } catch (e) { /* best effort */ }
+    try { fs.unlinkSync(lock); } catch (e) { /* best effort */ }
+  }
+}
+
+function saveUnlocked(file, m) {
   var diskRev = 0;
   try { diskRev = JSON.parse(fs.readFileSync(file, 'utf8')).rev || 0; } catch (e) { /* new file */ }
   var doc = m.toJSON();
@@ -119,6 +140,12 @@ function saveModelLocal(m) {
   fs.writeFileSync(tmp, JSON.stringify(doc, null, 2));
   fs.renameSync(tmp, file);
   return doc.rev;
+}
+
+function saveModelLocal(m) {
+  var file = projectFile();
+  try { fs.mkdirSync(path.dirname(file), { recursive: true }); } catch (e) { /* exists */ }
+  return withFileLock(file, function () { return saveUnlocked(file, m); });
 }
 
 // ---- server mode -----------------------------------------------------------
@@ -168,14 +195,21 @@ function executeOps(ops) {
           return { via: 'server', rev: r.json.rev, results: r.json.results, summary: r.json.summary };
         });
     }
-    var m = loadModelLocal(true);
-    var outcome = Ops.applyOps(m, ops);
-    if (!outcome.ok) {
-      if (JSON_OUT) { out({ ok: false, error: outcome.error, failedIndex: outcome.failedIndex, failedOp: outcome.failedOp }); process.exit(1); }
-      die(outcome.error + ' (op ' + outcome.failedIndex + ')');
-    }
-    var rev = saveModelLocal(m); // atomic: only reached when every op succeeded
-    return { via: 'file', rev: rev, results: outcome.results, summary: Ops.buildScheduleReport(m).project };
+    // File mode: the WHOLE read-modify-write runs under the lock — otherwise
+    // two parallel writers read the same base and the second silently drops
+    // the first one's edit even though the write itself is serialized.
+    var file = projectFile();
+    try { fs.mkdirSync(path.dirname(file), { recursive: true }); } catch (e) { /* exists */ }
+    return withFileLock(file, function () {
+      var m = loadModelLocal(true);
+      var outcome = Ops.applyOps(m, ops);
+      if (!outcome.ok) {
+        if (JSON_OUT) { out({ ok: false, error: outcome.error, failedIndex: outcome.failedIndex, failedOp: outcome.failedOp }); process.exit(1); }
+        die(outcome.error + ' (op ' + outcome.failedIndex + ')');
+      }
+      var rev = saveUnlocked(file, m); // atomic: only reached when every op succeeded
+      return { via: 'file', rev: rev, results: outcome.results, summary: Ops.buildScheduleReport(m).project };
+    });
   });
 }
 

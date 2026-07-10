@@ -62,7 +62,7 @@ your edit did to the schedule.
 |---|---|---|
 | `7` | row number as displayed | shifts as rows are added/moved — fine interactively |
 | `"#12"` | task id | **stable forever — use this in scripts/batches** |
-| `"$2"` | task created by result 2 (0-based) of *this* batch | within-batch only |
+| `"$2"` | task created by result 2 (0-based) of *this* batch — must be an `add-task` result (a `$N` pointing at any other op errors) | within-batch only |
 | `"Design"` | exact name (case-insensitive) | errors if ambiguous, listing candidate ids |
 
 Each op re-resolves refs against the *current* state (earlier ops in the batch
@@ -122,8 +122,11 @@ schedule health without re-deriving it.
 
 ## Concurrency model (what an AI must know)
 
-- Every persisted write bumps `rev` (server reads disk, then bumps — atomic
-  tmp+rename). Two writers can never mint the same rev for different content.
+- Every persisted write bumps `rev` (disk-read-then-bump under an exclusive
+  `<file>.lock`, atomic tmp+rename). Two writers can never mint the same rev
+  for different content — this holds across processes (server, parallel CLI
+  invocations, `--local` CLI beside a running server). If a writer crashes
+  mid-write, delete the stale `.lock` file it left behind.
 - The browser autosaves with `If-Match`; on `409` it adopts the server version
   and tells the human their last edit was discarded. **Your write is never
   silently clobbered** — worst case the human retypes one cell edit.

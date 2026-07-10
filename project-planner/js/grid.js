@@ -57,7 +57,7 @@
       case 'percentComplete': return r.percentComplete + '%';
       case 'deadline': return r.deadlineDay != null ? PM.Calendar.fmt(r.deadlineDay) : '';
       case 'cost': return r.cost > 0 ? model.formatMoney(r.cost) : '';
-      case 'slack': return r.isSummary ? '' : (isFinite(r.slack) ? r.slack + 'd' : '');
+      case 'slack': return (r.isSummary || r.slack == null || !isFinite(r.slack)) ? '' : r.slack + 'd';
       default: return '';
     }
   }

@@ -136,6 +136,7 @@
         els.gridPane._startEditCell(next.id, field);
       } else if (field === 'name' && String(value).trim()) {
         // Rapid entry: Enter on the last row's name appends the next task.
+        ensureNewTaskVisible();
         var newId = model.addTaskEnd();
         selectOnly(newId); cursorKey = 'name'; render();
         els.gridPane._startEditCell(newId, 'name');
@@ -169,11 +170,11 @@
     var fromRow = model.findIndexById(fromId) + 1;
     if (fromRow < 1) return;
     if (target.predecessors.some(function (p) { return p.id === fromId; })) return; // already linked
+    var hadCycle = model.getComputed().hasCycle; // pre-existing cycles are not this link's fault
     var existing = model.formatPredecessors(target.predecessors);
     model.setField(toId, 'predecessors', existing ? existing + ', ' + fromRow : String(fromRow));
     render();
-    var c = model.getComputed();
-    if (c.hasCycle) { // immediately undo a link that created a cycle
+    if (!hadCycle && model.getComputed().hasCycle) { // undo only a cycle THIS link introduced
       model.undo(); render();
       toast('That link would create a circular dependency — not added.');
     }
@@ -251,6 +252,15 @@
     }, 4000);
   }
 
+  // True while the user is mid-interaction: an open cell editor or any dialog.
+  // Remote reloads must never yank the DOM out from under these.
+  function uiBusy() {
+    return !!document.querySelector('.cell-input') ||
+      (els.resModal && !els.resModal.hidden) ||
+      (els.taskModal && !els.taskModal.hidden) ||
+      (els.calModal && !els.calModal.hidden);
+  }
+
   // Every real model mutation lands here (model.subscribe). Remote applies are
   // masked by sync.applyingRemote so they never write back.
   function onModelChanged() {
@@ -282,18 +292,30 @@
         sync.inFlight = false;
         sync.rev = Math.max(sync.rev, (j && j.rev) || 0);
         sync.lastPushed = content;
-        sync.dirty = false;
+        // Only clean if nothing changed mid-flight — otherwise the follow-up
+        // PUT could fail and a dirty=false would strand that edit locally.
+        sync.dirty = (serverDocString() !== content);
         setSyncStatus('Synced ✓ (rev ' + sync.rev + ')');
         if (sync.pending) { sync.pending = false; doSaveNow(); }
       })
       .catch(function (e) {
         sync.pending = false;
         if (e && e.conflict) {
-          // Keep inFlight=true through the adopt so the poll's dirty-retry
-          // can't fire a second stale PUT into the 409→adopt window.
-          adoptServerDoc('Plan changed externally — reloaded the latest version (your last edit was not saved)');
+          if (uiBusy()) {
+            // Don't destroy an open editor/dialog: our content lost the
+            // conflict, so stop re-PUTting and let the poll adopt the server
+            // version as soon as the user finishes interacting.
+            sync.inFlight = false;
+            sync.dirty = false;
+            setSyncStatus('Server version changed — will reload when you finish editing', true);
+          } else {
+            // Keep inFlight=true through the adopt so the poll's dirty-retry
+            // can't fire a second stale PUT into the 409→adopt window.
+            adoptServerDoc('Plan changed externally — reloaded the latest version (your last edit was not saved)');
+          }
         } else {
           sync.inFlight = false;
+          sync.dirty = true; // ensure the poll's offline retry re-sends
           setSyncStatus('Offline — saved locally', true); // poll retries when back
         }
       });
@@ -347,13 +369,15 @@
       if (!sync.server || !sync.ready) return;
       if (sync.dirty && !sync.inFlight) { doSaveNow(); return; } // offline retry
       if (sync.dirty || sync.inFlight) return;
-      if (document.querySelector('.cell-input')) return;       // mid-edit
-      if (els.resModal && !els.resModal.hidden) return;        // dialog open
+      if (uiBusy()) return; // never reload under an editor or open dialog
       fetch(apiPath('rev'))
         .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
         .then(function (j) {
           if (j && typeof j.rev === 'number' && j.rev > sync.rev) {
             return fetch(apiPath()).then(function (r) { return r.json(); }).then(function (doc) {
+              // Re-check: an edit or interaction may have started during the
+              // async GETs — adopting now would discard it / yank the DOM.
+              if (sync.dirty || sync.inFlight || uiBusy()) return;
               applyRemote(doc);
               toast('Plan updated externally (rev ' + (doc.rev || '?') + ') — undo history reset');
             });
@@ -361,6 +385,19 @@
         })
         .catch(function () { /* transient; next tick retries */ });
     }, 2000);
+  }
+
+  // Flush a pending debounced save before the page goes away (switcher
+  // navigation, tab close). sendBeacon survives navigation; the server
+  // accepts it as an unconditional save (a beacon can't carry If-Match).
+  function flushBeforeNavigate() {
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
+    if (!sync.server || !sync.ready || !sync.dirty) return;
+    var content = serverDocString();
+    if (content === sync.lastPushed) return;
+    try {
+      navigator.sendBeacon(apiPath(), new Blob([content], { type: 'application/json' }));
+    } catch (e) { /* best effort — localStorage still has it */ }
   }
 
   // ---- Project switcher (server mode only) ----
@@ -403,10 +440,14 @@
         if (!name) return;
         name = name.trim();
         if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(name)) { alert('Invalid name — use letters, numbers, dashes.'); return; }
+        flushBeforeNavigate();
         window.location.search = '?project=' + encodeURIComponent(name);
         return;
       }
-      if (v !== PROJECT_NAME) window.location.search = '?project=' + encodeURIComponent(v);
+      if (v !== PROJECT_NAME) {
+        flushBeforeNavigate();
+        window.location.search = '?project=' + encodeURIComponent(v);
+      }
     };
     els.projDelete.onclick = function () {
       if (!sync.server) return;
@@ -486,12 +527,22 @@
     selected = {}; anchorId = null;
     render();
   }
+  // A task added while a view filter is active would be born invisible (and
+  // its edit-start would silently no-op) — clear the filter first.
+  function ensureNewTaskVisible() {
+    if (model.getFilter()) {
+      model.setFilter(null);
+      toast('Filter cleared to show the new task');
+    }
+  }
   function doAdd() {
+    ensureNewTaskVisible();
     var id = model.addTaskEnd();
     selectOnly(id); render();
     els.gridPane._startEditFirst(id);
   }
   function doInsert() {
+    ensureNewTaskVisible();
     var s = selectedInVisibleOrder();
     var at = s.length ? model.findIndexById(s[0]) : model.getProject().tasks.length;
     var id = model.insertTask(at, null);
@@ -628,6 +679,20 @@
       var typing = tag === 'input' || tag === 'textarea' || tag === 'select';
       var ctrl = e.ctrlKey || e.metaKey;
 
+      // While a dialog is open, grid shortcuts must not act on the background
+      // selection (Delete/Insert/undo would corrupt what the dialog shows).
+      var modalOpen = (els.taskModal && !els.taskModal.hidden) ||
+        (els.calModal && !els.calModal.hidden) || (els.resModal && !els.resModal.hidden);
+      if (modalOpen) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          closeTaskDialog();
+          els.calModal.hidden = true;
+          els.resModal.hidden = true;
+        }
+        return;
+      }
+
       if (ctrl && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) { e.preventDefault(); model.undo(); render(); return; }
       if (ctrl && ((e.key === 'y' || e.key === 'Y') || ((e.key === 'z' || e.key === 'Z') && e.shiftKey))) { e.preventDefault(); model.redo(); render(); return; }
       if (ctrl && (e.key === 's' || e.key === 'S')) { e.preventDefault(); saveFile(); return; }
@@ -737,7 +802,11 @@
   function insertRelative(id, where) {
     var i = model.findIndexById(id);
     if (i < 0) return;
+    ensureNewTaskVisible();
     var t = model.getProject().tasks[i];
+    // Adding a child under a collapsed summary would create an invisible row —
+    // expand the parent first so the new task can be seen and edited.
+    if (where === 'child' && t.collapsed) model.toggleCollapse(id);
     var newId;
     if (where === 'above') newId = model.insertTask(i, t.outlineLevel);
     else if (where === 'below') newId = model.insertTask(i + 1, t.outlineLevel);
@@ -1038,6 +1107,10 @@
   // Debug/automation handle (read-mostly): lets a driving AI or the console
   // inspect sync state and the live model without reaching into the closure.
   window.__projectdesk = { sync: sync, model: model, projectName: PROJECT_NAME };
+
+  // Flush pending edits when the tab closes / navigates away.
+  window.addEventListener('pagehide', flushBeforeNavigate);
+  window.addEventListener('beforeunload', flushBeforeNavigate);
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
