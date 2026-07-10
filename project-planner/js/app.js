@@ -272,7 +272,8 @@
       (els.taskModal && !els.taskModal.hidden) ||
       (els.calModal && !els.calModal.hidden) ||
       (els.riskModal && !els.riskModal.hidden) ||
-      (els.histModal && !els.histModal.hidden);
+      (els.histModal && !els.histModal.hidden) ||
+      (els.actModal && !els.actModal.hidden);
   }
 
   // Every real model mutation lands here (model.subscribe). Remote applies are
@@ -508,6 +509,7 @@
         if (!j || j.service !== 'projectdesk') throw new Error('not projectdesk');
         sync.server = true;
         els.btnHistory.hidden = false;
+        els.btnActivity.hidden = false;
         populateProjectSwitcher();
         // Identity + role (viewer accounts get read-only chrome). Local mode
         // has no identity endpoint semantics beyond "editor".
@@ -727,7 +729,8 @@
       var modalOpen = (els.taskModal && !els.taskModal.hidden) ||
         (els.calModal && !els.calModal.hidden) || (els.resModal && !els.resModal.hidden) ||
         (els.riskModal && !els.riskModal.hidden) ||
-      (els.histModal && !els.histModal.hidden);
+      (els.histModal && !els.histModal.hidden) ||
+      (els.actModal && !els.actModal.hidden);
       if (modalOpen) {
         if (e.key === 'Escape') {
           e.preventDefault();
@@ -736,6 +739,7 @@
           els.resModal.hidden = true;
           els.riskModal.hidden = true;
           els.histModal.hidden = true;
+          els.actModal.hidden = true;
         }
         return;
       }
@@ -926,6 +930,7 @@
 
     renderTmPreds(t);
     renderTmResources(t);
+    renderTmComments(t);
     // View-only: the dialog becomes a read-only inspector.
     var ro = isViewer();
     if (ro) {
@@ -935,10 +940,36 @@
     els.tmOk.hidden = ro;
     els.tmAddPred.hidden = ro;
     els.tmAddRes.hidden = ro;
+    els.tmAddComment.hidden = ro;
+    els.tmNewComment.disabled = ro;
     els.tmPreds.querySelectorAll('select,input,button').forEach(function (el) { if (ro) el.disabled = true; });
     els.tmResources.querySelectorAll('input').forEach(function (el) { if (ro) el.disabled = true; });
     els.taskModal.hidden = false;
     if (!ro) els.tmName.focus();
+  }
+
+  function commentAuthor() { return (sync.identity && sync.identity.email) || 'local'; }
+
+  function renderTmComments(t) {
+    var esc = PM.Grid.esc;
+    var ro = isViewer();
+    var html = (t.comments || []).map(function (c) {
+      var when = c.ts ? new Date(c.ts).toLocaleString() : '';
+      return '<div class="tm-comment"><div class="tm-comment-head">' +
+        '<span class="tm-comment-author">' + esc(c.author) + '</span>' +
+        '<span class="tm-comment-when">' + esc(when) + '</span>' +
+        (ro ? '' : '<button class="tm-comment-del" data-cid="' + c.id + '" title="Delete">✕</button>') +
+        '</div><div class="tm-comment-text">' + esc(c.text) + '</div></div>';
+    }).join('');
+    els.tmComments.innerHTML = html || '<div class="tm-comment-empty">No comments yet.</div>';
+    els.tmComments.querySelectorAll('.tm-comment-del').forEach(function (b) {
+      b.onclick = function () {
+        model.deleteComment(taskDialogId, +b.getAttribute('data-cid'));
+        var i = model.findIndexById(taskDialogId);
+        if (i >= 0) renderTmComments(model.getProject().tasks[i]);
+        render();
+      };
+    });
   }
 
   function renderTmPreds(t) {
@@ -1076,6 +1107,17 @@
       // newly added resource starts unchecked; user ticks it to assign
     };
     els.tmNewRes.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); els.tmAddRes.click(); } };
+    els.tmAddComment.onclick = function () {
+      var text = els.tmNewComment.value.trim();
+      if (!text || taskDialogId == null) return;
+      model.addComment(taskDialogId, text, commentAuthor());
+      els.tmNewComment.value = '';
+      var i = model.findIndexById(taskDialogId);
+      if (i >= 0) renderTmComments(model.getProject().tasks[i]);
+      render();
+    };
+    els.tmNewComment.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); els.tmAddComment.click(); } };
+    els.tmAddComment.hidden = false;
   }
 
   // ---- Risk register ----
@@ -1238,6 +1280,33 @@
     };
   }
 
+  // ---- Activity feed ----
+  function openActivityModal() {
+    if (!sync.server) return;
+    els.actFeed.innerHTML = '<div style="color:#888;padding:10px">Loading…</div>';
+    els.actModal.hidden = false;
+    fetch(apiPath('activity'))
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (list) {
+        var esc = PM.Grid.esc;
+        if (!list.length) { els.actFeed.innerHTML = '<div style="color:#888;padding:10px">No activity yet.</div>'; return; }
+        els.actFeed.innerHTML = list.map(function (e) {
+          var when = e.ts ? new Date(e.ts).toLocaleString() : '';
+          var what = esc(e.action) + (e.ops ? ' <span class="act-ops">' + esc(e.ops.join(', ')) + '</span>' : '') +
+            (e.rev ? ' <span class="act-rev">rev ' + e.rev + '</span>' : '');
+          return '<div class="act-row"><span class="act-when">' + esc(when) + '</span>' +
+            '<span class="act-who">' + esc(e.email || '') + '</span>' +
+            '<span class="act-what">' + what + '</span></div>';
+        }).join('');
+      })
+      .catch(function () { els.actFeed.innerHTML = '<div style="color:#888;padding:10px">Could not load activity.</div>'; });
+  }
+  function wireActivityModal() {
+    els.btnActivity.onclick = openActivityModal;
+    els.actClose.onclick = function () { els.actModal.hidden = true; };
+    els.actModal.addEventListener('mousedown', function (e) { if (e.target === els.actModal) els.actModal.hidden = true; });
+  }
+
   // ---- Version history ----
   function openHistoryModal() {
     if (!sync.server) return;
@@ -1282,6 +1351,7 @@
             if (!res.ok || !res.j.ok) throw new Error((res.j && res.j.error) || 'restore failed');
             return fetch(apiPath()).then(function (r) { return r.json(); }).then(function (doc) {
               els.histModal.hidden = true;
+          els.actModal.hidden = true;
               applyRemote(doc);
               toast('Restored revision ' + rev + ' (as new revision ' + res.j.rev + ')');
             });
@@ -1393,7 +1463,9 @@
       'btnRisks', 'riskModal', 'riskClose', 'riskTable', 'riskHeatmap', 'riskSummaryBox', 'riskAddBtn',
       'riskForm', 'riskFormLegend', 'rkTitle', 'rkCategory', 'rkProb', 'rkImpact', 'rkOwner', 'rkStatus',
       'rkReview', 'rkDesc', 'rkMitigation', 'rkContingency', 'rkTasks', 'rkSave', 'rkDelete', 'rkCancel',
-      'btnHistory', 'histModal', 'histClose', 'histTable', 'calStatus'
+      'btnHistory', 'histModal', 'histClose', 'histTable', 'calStatus',
+      'btnActivity', 'actModal', 'actClose', 'actFeed',
+      'tmComments', 'tmNewComment', 'tmAddComment'
     ].forEach(function (id) { els[id] = $(id); });
 
     model.setStorageKey(PROJECT_NAME);
@@ -1407,6 +1479,7 @@
     wireCalendarDialog();
     wireRiskModal();
     wireHistoryModal();
+    wireActivityModal();
     bootstrapStorage(); // loads local instantly, then upgrades to server mode
   }
 

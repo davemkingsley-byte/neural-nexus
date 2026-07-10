@@ -84,6 +84,7 @@
         <button id="btnResources" class="tb" title="Manage resources">👥 Resources</button>
         <button id="btnRisks" class="tb" title="Risk register (probability × impact)">🛡 Risks</button>
         <button id="btnHistory" class="tb" title="Version history — every save is restorable" hidden>🕘 History</button>
+        <button id="btnActivity" class="tb" title="Recent change activity" hidden>📋 Activity</button>
       </div>
     </div>
 
@@ -174,6 +175,14 @@
           </div>
         </fieldset>
         <label class="tm-notes">Notes <textarea id="tmNotes" rows="3"></textarea></label>
+        <fieldset class="tm-block">
+          <legend>Comments</legend>
+          <div id="tmComments" class="tm-comments"></div>
+          <div class="tm-comment-add">
+            <input id="tmNewComment" type="text" placeholder="Add a comment…">
+            <button id="tmAddComment" class="tb">Comment</button>
+          </div>
+        </fieldset>
       </div>
       <div class="modal-foot">
         <button id="tmOk" class="tb primary">OK</button>
@@ -229,6 +238,19 @@
             <button id="rkCancel" class="tb">Cancel</button>
           </div>
         </fieldset>
+      </div>
+    </div>
+  </div>
+
+  <!-- Activity feed modal -->
+  <div class="modal-backdrop" id="actModal" hidden>
+    <div class="modal modal-hist">
+      <div class="modal-head">
+        <h2>Activity</h2>
+        <button class="modal-close" id="actClose" title="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div id="actFeed" class="act-feed"></div>
       </div>
     </div>
   </div>

@@ -93,10 +93,12 @@
     actualfinish: 'actualFinish', afinish: 'actualFinish'
   };
 
-  // Apply one op. Returns a small JSON-able result object.
-  function applyOp(model, op, batchResults) {
+  // Apply one op. Returns a small JSON-able result object. ctx carries the
+  // trusted author (server/CLI identity) for author-stamped ops like comments.
+  function applyOp(model, op, batchResults, ctx) {
     if (!op || typeof op !== 'object' || !op.op) fail('op must be an object with an "op" field');
     var p, id, ids, i;
+    var author = (ctx && ctx.author) || 'unknown';
     switch (String(op.op)) {
 
       case 'add-task': {
@@ -269,6 +271,22 @@
         return { op: 'delete-risk', riskId: rk3.id };
       }
 
+      case 'comment': {
+        id = resolveRef(model, op.row != null ? op.row : op.ref, batchResults);
+        if (!op.text || !String(op.text).trim()) fail('comment needs text');
+        // Author is ALWAYS the trusted ctx identity — an op-supplied author is
+        // ignored so a remote editor can't forge someone else's name.
+        var cid = model.addComment(id, op.text, author);
+        return { op: 'comment', id: id, commentId: cid };
+      }
+
+      case 'delete-comment': {
+        id = resolveRef(model, op.row != null ? op.row : op.ref, batchResults);
+        if (op.commentId == null) fail('delete-comment needs a commentId');
+        if (!model.deleteComment(id, op.commentId)) fail('no comment ' + op.commentId + ' on that task');
+        return { op: 'delete-comment', id: id, commentId: Number(op.commentId) };
+      }
+
       case 'set-baseline': model.saveBaseline(); return { op: 'set-baseline' };
       case 'clear-baseline': model.clearBaseline(); return { op: 'clear-baseline' };
 
@@ -287,12 +305,12 @@
   // ATOMIC: on ok:false they must discard the model instead of persisting the
   // applied prefix (server.js and cli.js both do). failedIndex/failedOp let an
   // AI caller fix exactly the op that broke and resubmit the whole batch.
-  function applyOps(model, ops) {
+  function applyOps(model, ops, ctx) {
     if (!Array.isArray(ops)) ops = [ops];
     var results = [];
     for (var i = 0; i < ops.length; i++) {
       try {
-        results.push(applyOp(model, ops[i], results));
+        results.push(applyOp(model, ops[i], results, ctx));
       } catch (e) {
         return {
           ok: false, applied: i, failedIndex: i, failedOp: ops[i],
@@ -368,6 +386,9 @@
           actualFinishISO: r.task.actualFinishISO || null,
           expectedPct: r.expectedPct,
           behindSchedule: !!r.behindSchedule,
+          comments: (r.task.comments || []).map(function (c) {
+            return { id: c.id, author: c.author, ts: c.ts, text: c.text };
+          }),
           overallocated: (r.overallocatedResources && r.overallocatedResources.length) ? r.overallocatedResources : [],
           riskScore: r.riskScore || 0,
           riskIds: (r.risks || []).map(function (k) { return k.id; }),

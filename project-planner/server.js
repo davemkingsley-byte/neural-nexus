@@ -179,6 +179,19 @@ function handleApi(req, res, pathname, identity) {
         return send(res, 200, modelFor(doc).toCSV(), 'text/csv; charset=utf-8');
       } catch (e) { return send(res, 500, { error: 'csv failed: ' + e.message }); }
     }
+    // Activity feed: the audit trail, newest first (capped).
+    if (sub === 'activity') {
+      var lines = [];
+      try {
+        lines = fs.readFileSync(path.join(PROJECTS_DIR, name + '.audit.jsonl'), 'utf8')
+          .split('\n').filter(Boolean);
+      } catch (e) { /* no activity yet */ }
+      var entries = [];
+      for (var li = lines.length - 1; li >= 0 && entries.length < 200; li--) {
+        try { entries.push(JSON.parse(lines[li])); } catch (e) { /* skip */ }
+      }
+      return send(res, 200, entries);
+    }
     // Version history: list, or fetch one snapshot (optionally summarized).
     if (sub === 'history') {
       var revArg = parts[4];
@@ -264,7 +277,8 @@ function handleApi(req, res, pathname, identity) {
       }
       var m;
       try { m = modelFor(doc); } catch (e) { return send(res, 400, { error: 'document rejected: ' + e.message }); }
-      var outcome = Ops.applyOps(m, ops);
+      // Comment authorship is stamped from the verified identity, not the client.
+      var outcome = Ops.applyOps(m, ops, { author: identity.email });
       // Batches are ATOMIC: nothing is persisted unless every op succeeded, so
       // a failed batch can be fixed and resubmitted whole without duplicating
       // its already-applied prefix.
@@ -274,7 +288,8 @@ function handleApi(req, res, pathname, identity) {
         outDoc.lastEditor = identity.email;
         outDoc.lastEditISO = new Date().toISOString();
         rev = writeProject(name, outDoc);
-        audit(name, identity, 'ops', { rev: rev, opCount: outcome.applied });
+        var opNames = (Array.isArray(ops) ? ops : [ops]).map(function (o) { return o && o.op; }).filter(Boolean);
+        audit(name, identity, 'ops', { rev: rev, opCount: outcome.applied, ops: opNames });
       }
       var report = Ops.buildScheduleReport(outcome.ok ? m : modelFor(readProject(name) || doc));
       return send(res, outcome.ok ? 200 : 422, {

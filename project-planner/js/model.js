@@ -258,6 +258,14 @@
           deadlineISO: t.deadlineISO || null,
           actualStartISO: t.actualStartISO || null,
           actualFinishISO: t.actualFinishISO || null,
+          comments: (t.comments || []).map(function (c) {
+            return {
+              id: c.id,
+              author: c.author != null ? String(c.author) : 'unknown',
+              ts: c.ts || null,
+              text: c.text != null ? String(c.text) : ''
+            };
+          }),
           notes: t.notes || ''
         };
         // Preserve fields this build doesn't know about — an older server must
@@ -281,6 +289,11 @@
       });
       if (!p.nextTaskId) p.nextTaskId = 1 + p.tasks.reduce(function (m, t) { return Math.max(m, t.id); }, 0);
       if (!p.nextResourceId) p.nextResourceId = 1 + p.resources.reduce(function (m, r) { return Math.max(m, r.id); }, 0);
+      if (!p.nextCommentId) {
+        p.nextCommentId = 1 + p.tasks.reduce(function (m, t) {
+          return t.comments.reduce(function (mm, c) { return Math.max(mm, c.id || 0); }, m);
+        }, 0);
+      }
       return p;
     }
 
@@ -374,7 +387,8 @@
           finishDay: finishDay,
           percentComplete: pct[i],
           childIndices: r.childIndices,
-          parentIndex: r.parentIndex
+          parentIndex: r.parentIndex,
+          commentCount: tasks[i].comments ? tasks[i].comments.length : 0
         };
       });
 
@@ -580,7 +594,7 @@
         name: '', duration: 1, outlineLevel: level || 1,
         predecessors: [], percentComplete: 0, resourceIds: [],
         collapsed: false, constraintISO: null, constraintType: null, deadlineISO: null,
-        actualStartISO: null, actualFinishISO: null, notes: ''
+        actualStartISO: null, actualFinishISO: null, comments: [], notes: ''
       };
     }
 
@@ -801,6 +815,32 @@
       if (!r) return false;
       pushUndo();
       project.risks = project.risks.filter(function (x) { return x.id !== r.id; });
+      recompute(); notify();
+      return true;
+    }
+
+    // ---- Comments -----------------------------------------------------------
+    function nowISO() { return new Date().toISOString(); }
+
+    function addComment(taskId, text, author) {
+      var i = findIndexById(taskId);
+      if (i < 0) return null;
+      text = String(text == null ? '' : text).trim();
+      if (!text) return null;
+      pushUndo();
+      var c = { id: project.nextCommentId++, author: String(author || 'unknown'), ts: nowISO(), text: text };
+      project.tasks[i].comments.push(c);
+      recompute(); notify();
+      return c.id;
+    }
+
+    function deleteComment(taskId, commentId) {
+      var i = findIndexById(taskId);
+      if (i < 0) return false;
+      var t = project.tasks[i];
+      if (!t.comments.some(function (c) { return c.id === Number(commentId); })) return false;
+      pushUndo(); // snapshot the pre-delete state
+      t.comments = t.comments.filter(function (c) { return c.id !== Number(commentId); });
       recompute(); notify();
       return true;
     }
@@ -1054,6 +1094,8 @@
       moveBlock: moveBlock,
       setField: setField,
       setConstraint: setConstraint,
+      addComment: addComment,
+      deleteComment: deleteComment,
       linkTasks: linkTasks,
       unlinkTasks: unlinkTasks,
       toggleCollapse: toggleCollapse,

@@ -113,9 +113,11 @@
               esc(r.risks.map(function (k) { return '#' + k.id + ' ' + k.title + ' (' + k.score + ')'; }).join('\n')) +
               '">R' + r.risks.length + '</span>';
           }
+          var commentChip = r.commentCount ? '<span class="comment-chip" title="' + r.commentCount +
+            ' comment' + (r.commentCount === 1 ? '' : 's') + '">💬' + r.commentCount + '</span>' : '';
           html += '<td class="' + cellCls + '" data-key="name">' +
             '<span class="name-wrap" style="padding-left:' + indent + 'px">' +
-            toggle + '<span class="name-text">' + esc(r.name || '') + '</span>' + riskChip + '</span></td>';
+            toggle + '<span class="name-text">' + esc(r.name || '') + '</span>' + riskChip + commentChip + '</span></td>';
         } else if (c.key === 'row') {
           html += '<td class="' + cellCls + '">' + r.row + '</td>';
         } else {

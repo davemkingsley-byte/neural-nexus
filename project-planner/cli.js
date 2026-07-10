@@ -39,6 +39,9 @@
  *   baseline set|clear
  *   status <YYYY-MM-DD|clear>  status date for behind-schedule tracking
  *   history / restore <rev>    version history (every save is a revision)
+ *   comment REF "text"          add a comment to a task
+ *   comments REF               list a task's comments
+ *   activity                   recent change activity (server mode)
  *   ops-json '<json>'          apply a raw ops array (the API format, atomic)
  *
  * REF = row number (as displayed), "#id" (stable across edits — prefer in
@@ -185,7 +188,7 @@ function executeOps(ops) {
     try { fs.mkdirSync(path.dirname(file), { recursive: true }); } catch (e) { /* exists */ }
     return withFileLock(file, function () {
       var m = loadModelLocal(true);
-      var outcome = Ops.applyOps(m, ops);
+      var outcome = Ops.applyOps(m, ops, { author: 'local' });
       if (!outcome.ok) {
         if (JSON_OUT) { out({ ok: false, error: outcome.error, failedIndex: outcome.failedIndex, failedOp: outcome.failedOp }); process.exit(1); }
         die(outcome.error + ' (op ' + outcome.failedIndex + ')');
@@ -462,6 +465,46 @@ function main() {
       if (!rest.length) die('usage: risk-delete <id|title>');
       return executeOps([{ op: 'delete-risk', risk: rest[0] }])
         .then(function (r) { reportWrite(r, function () { return 'risk deleted'; }); });
+    }
+
+    case 'comment': {
+      if (rest.length < 2) die('usage: comment REF "text"');
+      return executeOps([{ op: 'comment', row: rest[0], text: rest.slice(1).join(' ') }])
+        .then(function (r) { reportWrite(r, function () { return 'comment added'; }); });
+    }
+
+    case 'comments': {
+      if (!rest.length) die('usage: comments REF');
+      return fetchReport().then(function (rep) {
+        var ref = rest[0];
+        var task = rep.tasks.filter(function (t) {
+          return String(t.row) === ref || ('#' + t.id) === ref || t.name.toLowerCase() === ref.toLowerCase();
+        })[0];
+        if (!task) die('no task "' + ref + '"');
+        if (JSON_OUT) return out(task.comments || []);
+        if (!task.comments || !task.comments.length) return out('no comments on ' + task.name);
+        out('Comments on ' + task.row + ' — ' + task.name + ':');
+        task.comments.forEach(function (c) {
+          out('  #' + c.id + '  ' + (c.ts ? c.ts.slice(0, 16).replace('T', ' ') : '') + '  ' + c.author);
+          out('       ' + c.text);
+        });
+      });
+    }
+
+    case 'activity': {
+      return serverAvailable().then(function (up) {
+        if (!up) die('activity feed needs the server running');
+        return apiRequest('GET', '/api/projects/' + encodeURIComponent(projectArg) + '/activity')
+          .then(function (r) {
+            var list = r.json || [];
+            if (JSON_OUT) return out(list);
+            if (!list.length) return out('no activity recorded yet');
+            list.forEach(function (e) {
+              var what = e.action + (e.ops ? ' [' + e.ops.join(',') + ']' : '') + (e.rev ? ' -> rev ' + e.rev : '');
+              out((e.ts ? e.ts.slice(0, 16).replace('T', ' ') : '') + '  ' + pad(e.email || '', 22) + what);
+            });
+          });
+      });
     }
 
     case 'status': {
