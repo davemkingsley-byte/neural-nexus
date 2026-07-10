@@ -1,7 +1,12 @@
 /*
  * app.js — controller. Owns selection + view state, wires the toolbar, grid,
  * gantt, keyboard, splitter, scroll-sync, file open/save, resources dialog,
- * and autosave to localStorage.
+ * and storage. Storage runs in one of two modes:
+ *   server mode — when served by server.js: the project (named by ?project=,
+ *     default "current") lives on the server; autosave PUTs with If-Match so
+ *     concurrent edits 409 instead of clobbering; a 2s poll of /rev picks up
+ *     external edits (CLI / AI) live. View state (zoom, collapse) never syncs.
+ *   local mode — file:// or no server: localStorage, as before.
  */
 (function () {
   'use strict';
@@ -14,6 +19,41 @@
   var anchorId = null;
   var scrollWired = false;
   var saveTimer = null;
+
+  var PROJECT_NAME = (function () {
+    try {
+      var v = new URLSearchParams(window.location.search).get('project');
+      return (v && /^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(v)) ? v : 'current';
+    } catch (e) { return 'current'; }
+  })();
+
+  // Sync engine state — lives here, never inside the project document, so a
+  // poll reload can never desync the accounting (see HARNESS.md).
+  var sync = {
+    server: false,   // server detected via /api/ping
+    ready: false,    // initial GET/migration finished; PUTs allowed
+    rev: 0,          // last server rev whose content we hold
+    lastPushed: null,// serialized content of that rev (echo suppression)
+    dirty: false,
+    inFlight: false,
+    pending: false,  // a change landed while a PUT was in flight
+    applyingRemote: false,
+    pollTimer: null
+  };
+
+  function apiPath(sub) {
+    return '/api/projects/' + encodeURIComponent(PROJECT_NAME) + (sub ? '/' + sub : '');
+  }
+
+  // Content that syncs: everything except per-user view state and the
+  // server-owned rev. Compared as a string for echo suppression.
+  function serverDocString() {
+    var d = model.toJSON();
+    delete d.view;
+    delete d.rev;
+    (d.tasks || []).forEach(function (t) { delete t.collapsed; });
+    return JSON.stringify(d);
+  }
 
   function $(id) { return document.getElementById(id); }
   function ids() { return Object.keys(selected).filter(function (k) { return selected[k]; }).map(Number); }
@@ -98,7 +138,8 @@
 
     updateChrome();
     if (!scrollWired) wireScroll();
-    scheduleSave();
+    // NOTE: no save here — autosave is subscribe-driven (model.subscribe in
+    // init), so re-renders (incl. remote reloads) never trigger writes.
   }
 
   function updateChrome() {
@@ -134,14 +175,173 @@
     els.stWarn.textContent = warns.join('   ');
   }
 
-  function scheduleSave() {
+  // ---- Storage / sync engine ----
+  function setSyncStatus(text, isError) {
+    els.stSaved.textContent = text;
+    els.stSaved.classList.toggle('st-error', !!isError);
+  }
+
+  function toast(msg) {
+    if (window.console && console.info) console.info('[projectdesk] toast: ' + msg);
+    var t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function () { t.classList.add('show'); }, 10);
+    setTimeout(function () {
+      t.classList.remove('show');
+      setTimeout(function () { if (t.parentNode) t.parentNode.removeChild(t); }, 400);
+    }, 4000);
+  }
+
+  // Every real model mutation lands here (model.subscribe). Remote applies are
+  // masked by sync.applyingRemote so they never write back.
+  function onModelChanged() {
+    if (sync.applyingRemote) return;
+    model.saveLocal(); // offline backup in both modes
+    sync.dirty = true;
     if (saveTimer) clearTimeout(saveTimer);
-    saveTimer = setTimeout(function () {
-      if (model.saveLocal()) {
-        els.stSaved.textContent = 'Saved ✓';
-        setTimeout(function () { els.stSaved.textContent = ''; }, 1200);
-      }
-    }, 400);
+    saveTimer = setTimeout(doSaveNow, 400);
+  }
+
+  function doSaveNow() {
+    if (!sync.server || !sync.ready) {
+      if (!sync.server) setSyncStatus('Saved locally ✓');
+      return;
+    }
+    if (sync.inFlight) { sync.pending = true; return; }
+    var content = serverDocString();
+    if (content === sync.lastPushed) { sync.dirty = false; setSyncStatus('Synced ✓ (rev ' + sync.rev + ')'); return; }
+    sync.inFlight = true;
+    var headers = { 'Content-Type': 'application/json' };
+    if (sync.rev > 0) headers['If-Match'] = String(sync.rev);
+    fetch(apiPath(), { method: 'PUT', headers: headers, body: content })
+      .then(function (r) {
+        if (r.status === 409) return r.json().then(function (j) { throw { conflict: true, rev: j && j.rev }; });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
+      .then(function (j) {
+        sync.inFlight = false;
+        sync.rev = Math.max(sync.rev, (j && j.rev) || 0);
+        sync.lastPushed = content;
+        sync.dirty = false;
+        setSyncStatus('Synced ✓ (rev ' + sync.rev + ')');
+        if (sync.pending) { sync.pending = false; doSaveNow(); }
+      })
+      .catch(function (e) {
+        sync.pending = false;
+        if (e && e.conflict) {
+          // Keep inFlight=true through the adopt so the poll's dirty-retry
+          // can't fire a second stale PUT into the 409→adopt window.
+          adoptServerDoc('Plan changed externally — reloaded the latest version (your last edit was not saved)');
+        } else {
+          sync.inFlight = false;
+          setSyncStatus('Offline — saved locally', true); // poll retries when back
+        }
+      });
+  }
+
+  function adoptServerDoc(toastMsg) {
+    sync.inFlight = true;
+    fetch(apiPath())
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (doc) {
+        sync.inFlight = false;
+        applyRemote(doc);
+        if (toastMsg) toast(toastMsg);
+      })
+      .catch(function () {
+        sync.inFlight = false;
+        setSyncStatus('Offline — saved locally', true);
+      });
+  }
+
+  // Replace local content with a server document, preserving per-user view
+  // state (zoom, collapse) and the selection where task ids survive.
+  function applyRemote(doc) {
+    var prev = model.getProject();
+    var savedView = prev ? prev.view : null;
+    var savedCollapsed = {};
+    if (prev) prev.tasks.forEach(function (t) { savedCollapsed[t.id] = t.collapsed; });
+    var savedSel = ids();
+
+    sync.applyingRemote = true;
+    try { model.loadProject(doc); } finally { sync.applyingRemote = false; }
+
+    var p = model.getProject();
+    if (savedView) p.view = savedView;
+    p.tasks.forEach(function (t) { if (savedCollapsed[t.id] != null) t.collapsed = savedCollapsed[t.id]; });
+
+    sync.rev = doc.rev || 0;
+    sync.lastPushed = serverDocString();
+    sync.dirty = false;
+    model.saveLocal();
+
+    selected = {};
+    savedSel.forEach(function (id) { if (model.findIndexById(id) >= 0) selected[id] = true; });
+    render();
+    setSyncStatus('Synced ✓ (rev ' + sync.rev + ')');
+  }
+
+  function startPoll() {
+    if (sync.pollTimer) clearInterval(sync.pollTimer);
+    sync.pollTimer = setInterval(function () {
+      if (!sync.server || !sync.ready) return;
+      if (sync.dirty && !sync.inFlight) { doSaveNow(); return; } // offline retry
+      if (sync.dirty || sync.inFlight) return;
+      if (document.querySelector('.cell-input')) return;       // mid-edit
+      if (els.resModal && !els.resModal.hidden) return;        // dialog open
+      fetch(apiPath('rev'))
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (j) {
+          if (j && typeof j.rev === 'number' && j.rev > sync.rev) {
+            return fetch(apiPath()).then(function (r) { return r.json(); }).then(function (doc) {
+              applyRemote(doc);
+              toast('Plan updated externally (rev ' + (doc.rev || '?') + ') — undo history reset');
+            });
+          }
+        })
+        .catch(function () { /* transient; next tick retries */ });
+    }, 2000);
+  }
+
+  function bootstrapStorage() {
+    // Instant local render first (works on file:// with no server at all).
+    if (!model.loadLocal()) {
+      if (PROJECT_NAME === 'current') model.loadSample(); else model.newProject();
+    }
+    render();
+
+    var ctl = typeof AbortController !== 'undefined' ? new AbortController() : null;
+    var timeout = ctl ? setTimeout(function () { ctl.abort(); }, 1500) : null;
+    fetch('/api/ping', ctl ? { signal: ctl.signal } : {})
+      .then(function (r) { if (timeout) clearTimeout(timeout); if (!r.ok) throw new Error('no server'); return r.json(); })
+      .then(function (j) {
+        if (!j || j.service !== 'projectdesk') throw new Error('not projectdesk');
+        sync.server = true;
+        return fetch(apiPath()).then(function (r) {
+          if (r.status === 404) {
+            // First contact for this project: push the local state up.
+            if (PROJECT_NAME !== 'current') model.setProjectName(PROJECT_NAME);
+            sync.ready = true;
+            sync.dirty = true;
+            doSaveNow();
+            startPoll();
+            return;
+          }
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json().then(function (doc) {
+            applyRemote(doc);
+            sync.ready = true;
+            startPoll();
+          });
+        });
+      })
+      .catch(function () {
+        sync.server = false;
+        setSyncStatus('Local mode (no server) — saved in this browser');
+      });
   }
 
   // ---- Scroll sync ----
@@ -399,12 +599,17 @@
       'resModal', 'resClose', 'resTable', 'resNewName', 'resAddBtn', 'stWarn', 'stSaved'
     ].forEach(function (id) { els[id] = $(id); });
 
-    model.init();
+    model.setStorageKey(PROJECT_NAME);
+    model.subscribe(onModelChanged);
     wireToolbar();
     wireSplitter();
     wireKeyboard();
-    render();
+    bootstrapStorage(); // loads local instantly, then upgrades to server mode
   }
+
+  // Debug/automation handle (read-mostly): lets a driving AI or the console
+  // inspect sync state and the live model without reaching into the closure.
+  window.__projectdesk = { sync: sync, model: model, projectName: PROJECT_NAME };
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

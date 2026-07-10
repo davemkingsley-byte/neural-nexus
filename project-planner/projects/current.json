@@ -1,0 +1,315 @@
+{
+  "id": "sample",
+  "name": "Product Launch (sample)",
+  "startISO": "2026-07-10",
+  "calendar": {
+    "workingDays": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "holidays": []
+  },
+  "tasks": [
+    {
+      "id": 1,
+      "name": "Product Launch",
+      "duration": 0,
+      "outlineLevel": 1,
+      "predecessors": [],
+      "percentComplete": 0,
+      "resourceIds": [],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 2,
+      "name": "Planning",
+      "duration": 0,
+      "outlineLevel": 2,
+      "predecessors": [],
+      "percentComplete": 0,
+      "resourceIds": [],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 3,
+      "name": "Define requirements",
+      "duration": 5,
+      "outlineLevel": 3,
+      "predecessors": [],
+      "percentComplete": 100,
+      "resourceIds": [
+        1
+      ],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 4,
+      "name": "Market research",
+      "duration": 8,
+      "outlineLevel": 3,
+      "predecessors": [],
+      "percentComplete": 60,
+      "resourceIds": [
+        1
+      ],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 5,
+      "name": "Approve scope",
+      "duration": 0,
+      "outlineLevel": 3,
+      "predecessors": [
+        {
+          "id": 3,
+          "type": "FS",
+          "lag": 0
+        },
+        {
+          "id": 4,
+          "type": "FS",
+          "lag": 0
+        }
+      ],
+      "percentComplete": 0,
+      "resourceIds": [],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 6,
+      "name": "Design & Build",
+      "duration": 0,
+      "outlineLevel": 2,
+      "predecessors": [],
+      "percentComplete": 0,
+      "resourceIds": [],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 7,
+      "name": "UX design",
+      "duration": 10,
+      "outlineLevel": 3,
+      "predecessors": [
+        {
+          "id": 5,
+          "type": "FS",
+          "lag": 0
+        }
+      ],
+      "percentComplete": 0,
+      "resourceIds": [
+        2
+      ],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 8,
+      "name": "Frontend development",
+      "duration": 15,
+      "outlineLevel": 3,
+      "predecessors": [
+        {
+          "id": 7,
+          "type": "FS",
+          "lag": 0
+        }
+      ],
+      "percentComplete": 0,
+      "resourceIds": [
+        3
+      ],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 9,
+      "name": "Backend development",
+      "duration": 12,
+      "outlineLevel": 3,
+      "predecessors": [
+        {
+          "id": 5,
+          "type": "FS",
+          "lag": 0
+        }
+      ],
+      "percentComplete": 0,
+      "resourceIds": [
+        3
+      ],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 10,
+      "name": "Integration",
+      "duration": 5,
+      "outlineLevel": 3,
+      "predecessors": [
+        {
+          "id": 8,
+          "type": "FS",
+          "lag": 0
+        },
+        {
+          "id": 9,
+          "type": "FS",
+          "lag": 0
+        }
+      ],
+      "percentComplete": 0,
+      "resourceIds": [
+        3
+      ],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 11,
+      "name": "Launch",
+      "duration": 0,
+      "outlineLevel": 2,
+      "predecessors": [],
+      "percentComplete": 0,
+      "resourceIds": [],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 12,
+      "name": "QA & testing",
+      "duration": 8,
+      "outlineLevel": 3,
+      "predecessors": [
+        {
+          "id": 10,
+          "type": "FS",
+          "lag": 0
+        }
+      ],
+      "percentComplete": 0,
+      "resourceIds": [
+        4
+      ],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 13,
+      "name": "Marketing prep",
+      "duration": 6,
+      "outlineLevel": 3,
+      "predecessors": [
+        {
+          "id": 5,
+          "type": "FS",
+          "lag": 0
+        }
+      ],
+      "percentComplete": 0,
+      "resourceIds": [
+        1
+      ],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 14,
+      "name": "Go live",
+      "duration": 0,
+      "outlineLevel": 3,
+      "predecessors": [
+        {
+          "id": 12,
+          "type": "FS",
+          "lag": 0
+        },
+        {
+          "id": 13,
+          "type": "FS",
+          "lag": 0
+        }
+      ],
+      "percentComplete": 0,
+      "resourceIds": [],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": "2026-09-18",
+      "notes": ""
+    }
+  ],
+  "resources": [
+    {
+      "id": 1,
+      "name": "Alex (PM)",
+      "initials": "AX",
+      "color": "#2563eb",
+      "rate": 800
+    },
+    {
+      "id": 2,
+      "name": "Sam (Design)",
+      "initials": "SM",
+      "color": "#7c3aed",
+      "rate": 700
+    },
+    {
+      "id": 3,
+      "name": "Dev Team",
+      "initials": "DT",
+      "color": "#059669",
+      "rate": 2400
+    },
+    {
+      "id": 4,
+      "name": "QA Team",
+      "initials": "QA",
+      "color": "#d97706",
+      "rate": 900
+    }
+  ],
+  "nextTaskId": 16,
+  "nextResourceId": 5,
+  "baseline": null,
+  "view": {
+    "zoom": "week"
+  },
+  "rev": 4
+}

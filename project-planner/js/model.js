@@ -177,6 +177,7 @@
     var undoStack = [];
     var redoStack = [];
     var computed = null;  // last recompute result
+    var storageKey = STORAGE_KEY; // per-project localStorage key (see setStorageKey)
 
     function notify() { listeners.forEach(function (fn) { try { fn(); } catch (e) { /* isolate */ } }); }
     function subscribe(fn) { listeners.push(fn); return function () { listeners = listeners.filter(function (f) { return f !== fn; }); }; }
@@ -753,12 +754,12 @@
       loadProject(sampleProject(start));
     }
     function saveLocal() {
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(project)); return true; }
+      try { localStorage.setItem(storageKey, JSON.stringify(project)); return true; }
       catch (e) { return false; }
     }
     function loadLocal() {
       try {
-        var raw = localStorage.getItem(STORAGE_KEY);
+        var raw = localStorage.getItem(storageKey);
         if (!raw) return false;
         loadProject(JSON.parse(raw));
         return true;
@@ -813,6 +814,9 @@
       // undo
       undo: undo, redo: redo, canUndo: canUndo, canRedo: canRedo,
       // persistence
+      setStorageKey: function (name) {
+        storageKey = 'projectdesk.' + String(name || 'current').replace(/[^A-Za-z0-9_-]/g, '') + '.v1';
+      },
       toJSON: toJSON,
       loadProject: loadProject,
       newProject: newProject,

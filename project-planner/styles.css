@@ -166,6 +166,16 @@ td.is-editing { padding: 0; }
 .st-spacer { flex: 1; }
 .st-warn { color: #b3323a; font-weight: 600; }
 .st-saved { color: #2a8a52; font-size: 11px; }
+.st-saved.st-error { color: #b3323a; }
+
+/* ---- Toast (external-update notices) ---- */
+.toast {
+  position: fixed; top: 52px; left: 50%; transform: translate(-50%, -8px);
+  background: #2b3140; color: #fff; font-size: 12.5px; padding: 9px 16px;
+  border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,.3); z-index: 200;
+  opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none; max-width: 80vw;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
 
 /* ---- Modal ---- */
 .modal-backdrop { position: fixed; inset: 0; background: rgba(20,26,40,.45); display: flex; align-items: center; justify-content: center; z-index: 100; }
