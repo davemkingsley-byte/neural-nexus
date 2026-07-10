@@ -152,20 +152,7 @@
       "deadlineISO": null,
       "actualStartISO": null,
       "actualFinishISO": null,
-      "comments": [
-        {
-          "id": 1,
-          "author": "local",
-          "ts": "2026-07-10T22:42:57.037Z",
-          "text": "Vendor confirmed the design timeline — on track."
-        },
-        {
-          "id": 2,
-          "author": "local",
-          "ts": "2026-07-10T22:42:57.098Z",
-          "text": "Need a second reviewer before sign-off."
-        }
-      ],
+      "comments": [],
       "notes": ""
     },
     {
@@ -374,129 +361,15 @@
       "rate": 900
     }
   ],
-  "nextTaskId": 18,
+  "nextTaskId": 15,
   "nextResourceId": 5,
-  "baseline": {
-    "savedISO": "2026-07-10",
-    "tasks": [
-      {
-        "id": 1,
-        "startDay": 20644,
-        "finishDay": 20710
-      },
-      {
-        "id": 2,
-        "startDay": 20644,
-        "finishDay": 20656
-      },
-      {
-        "id": 3,
-        "startDay": 20644,
-        "finishDay": 20650
-      },
-      {
-        "id": 4,
-        "startDay": 20644,
-        "finishDay": 20655
-      },
-      {
-        "id": 5,
-        "startDay": 20656,
-        "finishDay": 20656
-      },
-      {
-        "id": 6,
-        "startDay": 20656,
-        "finishDay": 20697
-      },
-      {
-        "id": 7,
-        "startDay": 20656,
-        "finishDay": 20669
-      },
-      {
-        "id": 8,
-        "startDay": 20670,
-        "finishDay": 20690
-      },
-      {
-        "id": 9,
-        "startDay": 20656,
-        "finishDay": 20671
-      },
-      {
-        "id": 10,
-        "startDay": 20691,
-        "finishDay": 20697
-      },
-      {
-        "id": 11,
-        "startDay": 20656,
-        "finishDay": 20710
-      },
-      {
-        "id": 12,
-        "startDay": 20698,
-        "finishDay": 20707
-      },
-      {
-        "id": 13,
-        "startDay": 20656,
-        "finishDay": 20663
-      },
-      {
-        "id": 14,
-        "startDay": 20710,
-        "finishDay": 20710
-      }
-    ]
-  },
+  "baseline": null,
   "view": {
     "zoom": "week"
   },
-  "rev": 27,
-  "risks": [
-    {
-      "id": 1,
-      "title": "Dev Team double-booked across frontend/backend",
-      "description": "",
-      "category": "resource",
-      "probability": 4,
-      "impact": 4,
-      "owner": "Alex (PM)",
-      "status": "open",
-      "mitigation": "Stagger backend start or add a contractor",
-      "contingency": "",
-      "taskIds": [
-        8,
-        9
-      ],
-      "reviewISO": null,
-      "createdISO": "2026-07-10",
-      "closedISO": null
-    },
-    {
-      "id": 2,
-      "title": "App-store review rejects launch build",
-      "description": "",
-      "category": "external",
-      "probability": 3,
-      "impact": 5,
-      "owner": "Sam (Design)",
-      "status": "open",
-      "mitigation": "",
-      "contingency": "",
-      "taskIds": [
-        14
-      ],
-      "reviewISO": "2026-08-28",
-      "createdISO": "2026-07-10",
-      "closedISO": null
-    }
-  ],
-  "nextRiskId": 3,
-  "lastEditor": "local",
-  "lastEditISO": "2026-07-10T22:42:57.099Z",
   "statusISO": null,
-  "nextCommentId": 3
+  "risks": [],
+  "nextRiskId": 1,
+  "nextCommentId": 1,
+  "rev": 33
 }

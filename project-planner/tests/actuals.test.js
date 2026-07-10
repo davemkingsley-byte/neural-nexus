@@ -148,5 +148,28 @@ function base() {
   ok(csv.indexOf('2026-07-13') > 0, 'CSV row has the actual date');
 })();
 
+
+// ---- REVIEW FIX: rejected actualFinish leaves NO phantom actual start ----
+(function () {
+  var m = base();
+  var t = m.getProject().tasks[1].id; // B, scheduled after A
+  var before = m.getComputed().rows[1].es;
+  // actualFinish earlier than B's scheduled start -> rejected, must not pin B
+  m.setField(t, 'actualFinish', '2026-07-13');
+  eq(m.getProject().tasks[1].actualStartISO, null, 'rejected finish leaves no phantom actual start');
+  eq(m.getProject().tasks[1].actualFinishISO, null, 'no actual finish recorded');
+  eq(m.getComputed().rows[1].es, before, 'B still scheduled by its predecessor (not pinned)');
+})();
+
+// ---- REVIEW FIX: status date before project start -> no fabricated progress ----
+(function () {
+  var m = base();
+  m.setStatusDate('2026-07-01'); // before the 2026-07-13 project start
+  var c = m.getComputed();
+  eq(c.rows[0].expectedPct, null, 'no expected progress before project start');
+  eq(c.rows[0].behindSchedule, false, 'not behind before the project began');
+  eq(c.behindCount, 0, 'no behind count for a pre-start status date');
+})();
+
 console.log('\nActuals tests: ' + passed + ' passed, ' + failed + ' failed.');
 if (failed) { console.log('\nFAILURES:\n' + failures.join('\n')); process.exit(1); }

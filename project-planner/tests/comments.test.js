@@ -151,6 +151,23 @@ async function main() {
   ok(opsEntry && opsEntry.email === 'boss@x.com', 'activity records the author');
   ok(opsEntry && opsEntry.ops && opsEntry.ops.indexOf('comment') >= 0, 'activity lists op names');
 
+  // REVIEW FIX: comment author cannot be forged via the full-document PUT path.
+  // Editor 'boss@x.com' PUTs a doc with a comment authored as someone else.
+  var forged = base().toJSON();
+  forged.tasks[0].comments = [{ id: 1, author: 'ceo@x.com', ts: '2020-01-01T00:00:00Z', text: 'approved by me' }];
+  r = await req('PUT', '/api/projects/p2', forged, { 'cf-access-jwt-assertion': mint('boss@x.com'), 'If-Match': '0' });
+  eq(r.status, 200, 'PUT with a (forged-author) comment accepted');
+  r = await req('GET', '/api/projects/p2/schedule', null, { 'cf-access-jwt-assertion': mint('boss@x.com') });
+  eq(r.json.tasks[0].comments[0].author, 'boss@x.com', 'PUT restamps a new comment to the caller — no forgery');
+
+  // REVIEW FIX: a non-numeric comment id (XSS payload) is coerced away on load.
+  var xss = base().toJSON();
+  xss.tasks[0].comments = [{ id: '1"><img src=x onerror=alert(1)>', author: 'a@x.com', ts: null, text: 'hi' }];
+  r = await req('PUT', '/api/projects/p3', xss, { 'cf-access-jwt-assertion': mint('boss@x.com') });
+  eq(r.status, 200, 'PUT with a malicious comment id accepted (sanitized)');
+  r = await req('GET', '/api/projects/p3', null, { 'cf-access-jwt-assertion': mint('boss@x.com') });
+  eq(typeof r.json.tasks[0].comments[0].id, 'number', 'comment id coerced to a number (no HTML payload survives)');
+
   await new Promise(function (res) { server.close(res); });
   try { fs.rmSync(TMP, { recursive: true, force: true }); } catch (e) {}
   console.log('\nComments tests: ' + passed + ' passed, ' + failed + ' failed.');

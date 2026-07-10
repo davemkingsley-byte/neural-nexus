@@ -259,8 +259,11 @@
           actualStartISO: t.actualStartISO || null,
           actualFinishISO: t.actualFinishISO || null,
           comments: (t.comments || []).map(function (c) {
+            var n = Number(c.id);
             return {
-              id: c.id,
+              // id coerced to a positive integer (or null -> reassigned below).
+              // A non-numeric id must never survive: it reaches HTML attributes.
+              id: (isFinite(n) && n > 0) ? Math.floor(n) : null,
               author: c.author != null ? String(c.author) : 'unknown',
               ts: c.ts || null,
               text: c.text != null ? String(c.text) : ''
@@ -289,11 +292,20 @@
       });
       if (!p.nextTaskId) p.nextTaskId = 1 + p.tasks.reduce(function (m, t) { return Math.max(m, t.id); }, 0);
       if (!p.nextResourceId) p.nextResourceId = 1 + p.resources.reduce(function (m, r) { return Math.max(m, r.id); }, 0);
-      if (!p.nextCommentId) {
-        p.nextCommentId = 1 + p.tasks.reduce(function (m, t) {
-          return t.comments.reduce(function (mm, c) { return Math.max(mm, c.id || 0); }, m);
-        }, 0);
-      }
+      // Comment ids: seed the counter past all valid ids, then assign fresh
+      // ids to any that are null (invalid) or duplicate, so every comment ends
+      // up with a unique positive-integer id.
+      var maxCid = p.tasks.reduce(function (m, t) {
+        return t.comments.reduce(function (mm, c) { return c.id != null ? Math.max(mm, c.id) : mm; }, m);
+      }, 0);
+      if (!p.nextCommentId || p.nextCommentId <= maxCid) p.nextCommentId = maxCid + 1;
+      var seenCid = {};
+      p.tasks.forEach(function (t) {
+        t.comments.forEach(function (c) {
+          if (c.id == null || seenCid[c.id]) c.id = p.nextCommentId++;
+          seenCid[c.id] = true;
+        });
+      });
       return p;
     }
 
@@ -439,9 +451,11 @@
       rows.forEach(function (r) { if (r.task.actualStartISO) r.constraintViolated = false; });
       var constraintConflicts = rows.filter(function (r) { return r.constraintViolated; }).length;
 
-      // ---- Status date: expected progress vs recorded progress.
+      // ---- Status date: expected progress vs recorded progress. A status date
+      // before the project start means no work is expected yet — don't let
+      // dayToIndex's clamp-to-0 fabricate progress/behind flags on day-0 tasks.
       var statusDay = project.statusISO ? Cal.parseISO(project.statusISO) : null;
-      var statusIdx = statusDay != null ? cal.dayToIndex(anchor, statusDay) : null;
+      var statusIdx = (statusDay != null && statusDay >= anchor) ? cal.dayToIndex(anchor, statusDay) : null;
       var behindCount = 0;
       rows.forEach(function (r) {
         r.expectedPct = null;
@@ -742,12 +756,13 @@
         case 'actualFinish': {
           var afISO = coerceDateISO(value);
           if (afISO) {
-            // Recording a finish without a start adopts the scheduled start.
-            if (!t.actualStartISO) {
-              var curRow = getComputed().rows[i];
-              t.actualStartISO = Cal.toISO(curRow.startDay);
-            }
-            if (Cal.parseISO(afISO) < Cal.parseISO(t.actualStartISO)) return;
+            // Recording a finish without a start adopts the scheduled start —
+            // but compute it into a LOCAL first and only commit both fields once
+            // validation passes, so a rejected finish never leaves a phantom
+            // actual start pinned on the task.
+            var startISO = t.actualStartISO || Cal.toISO(getComputed().rows[i].startDay);
+            if (Cal.parseISO(afISO) < Cal.parseISO(startISO)) return;
+            t.actualStartISO = startISO;
             t.actualFinishISO = afISO;
             t.percentComplete = 100; // finished is finished
           } else {

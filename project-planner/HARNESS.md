@@ -84,7 +84,14 @@ have already applied).
 | `set-project` | `name?`, `start?` | |
 | `set-calendar` | `workingDays?` (0=Sun..6=Sat), `holidays?` (ISO dates) | |
 | `set-baseline` / `clear-baseline` | — | snapshot for variance tracking |
+| `set-project` | `name?`, `start?`, `status?` | `status` = status date (`null`/`""` clears) |
+| `comment` | `row`/`ref`, `text` | author is stamped from the caller's identity — an op-supplied `author` is ignored |
+| `delete-comment` | `row`/`ref`, `commentId` | |
+| `add-risk` / `set-risk` / `link-risk` / `unlink-risk` / `delete-risk` | see risk fields | 5×5 P×I risk register |
 | `toggle-collapse` | `row` | view-only |
+
+`set` fields also include `actualstart` / `actualfinish` (record what really
+happened — pins the schedule to reality and forces 100% on finish).
 
 ### Predecessor string syntax
 
@@ -118,7 +125,11 @@ schedule health without re-deriving it.
 | `GET /api/projects/:name/csv` | CSV export |
 | `PUT /api/projects/:name` | replace document; optional `If-Match: <rev>` header → `409 {rev}` on mismatch |
 | `POST /api/projects/:name/ops` | `{ops:[...], createIfMissing?}` — atomic batch |
-| `DELETE /api/projects/:name` | remove project |
+| `GET /api/projects/:name/history` | list revisions `{rev, ts, editor, taskCount}` (newest first) |
+| `GET /api/projects/:name/history/:rev` | one snapshot document (`?summary=1` → schedule summary) |
+| `POST /api/projects/:name/restore` | `{rev}` — re-save an old revision as a new rev (nothing overwritten) |
+| `GET /api/projects/:name/activity` | audit trail, newest first `{ts, email, action, ops?, rev}` |
+| `DELETE /api/projects/:name` | remove project (snapshots survive → restorable) |
 
 ## Concurrency model (what an AI must know)
 

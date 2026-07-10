@@ -67,28 +67,71 @@ function snapshot(file, doc) {
   } catch (e) { /* history is best-effort; never block the write */ }
 }
 
-function prune(dir) {
-  var files = fs.readdirSync(dir)
-    .filter(function (f) { return /^\d+\.json$/.test(f); })
-    .map(function (f) { return parseInt(f, 10); })
-    .sort(function (a, b) { return a - b; });
-  while (files.length > HISTORY_CAP) {
-    var oldest = files.shift();
-    try { fs.unlinkSync(path.join(dir, oldest + '.json')); } catch (e) { /* raced */ }
-  }
+function existingSnapshotRevs(dir) {
+  try {
+    return fs.readdirSync(dir)
+      .map(function (f) { var m = /^(\d+)\.json$/.exec(f); return m ? parseInt(m[1], 10) : null; })
+      .filter(function (n) { return n != null; })
+      .sort(function (a, b) { return a - b; });
+  } catch (e) { return []; }
 }
 
-// Write inside an already-held lock: bump rev from disk, rename atomically,
+function prune(dir) {
+  var revs = existingSnapshotRevs(dir);
+  while (revs.length > HISTORY_CAP) {
+    var oldest = revs.shift();
+    try { fs.unlinkSync(path.join(dir, oldest + '.json')); } catch (e) { /* raced */ }
+  }
+  // Compact index.jsonl to one line per still-existing snapshot, so it can't
+  // grow without bound as revisions accumulate.
+  var keep = {};
+  revs.forEach(function (r) { keep[r] = true; });
+  try {
+    var idx = path.join(dir, 'index.jsonl');
+    var byRev = {};
+    fs.readFileSync(idx, 'utf8').split('\n').forEach(function (line) {
+      if (!line.trim()) return;
+      try { var e = JSON.parse(line); if (keep[e.rev]) byRev[e.rev] = line; } catch (err) { /* skip */ }
+    });
+    var compact = revs.map(function (r) { return byRev[r]; }).filter(Boolean).join('\n');
+    fs.writeFileSync(idx, compact ? compact + '\n' : '');
+  } catch (e) { /* index optional */ }
+}
+
+// Highest rev ever recorded for this project — across the LIVE doc and the
+// retained history. Guarantees rev is monotonic even after the live file is
+// deleted (snapshots are kept for recovery), so a later write/restore can
+// never restart at 1 and overwrite an existing snapshot.
+function highestKnownRev(file) {
+  var existing = readDoc(file);
+  var live = existing && typeof existing.rev === 'number' ? existing.rev : 0;
+  var hist = existingSnapshotRevs(historyDir(file));
+  var maxHist = hist.length ? hist[hist.length - 1] : 0;
+  return Math.max(live, maxHist);
+}
+
+// Write inside an already-held lock: bump rev monotonically, rename atomically,
 // snapshot. Returns the new rev.
 function writeDocUnlocked(file, doc) {
-  var existing = readDoc(file);
-  var prevRev = existing && typeof existing.rev === 'number' ? existing.rev : 0;
-  doc.rev = prevRev + 1;
+  doc.rev = highestKnownRev(file) + 1;
   var tmp = file + '.tmp-' + process.pid;
   fs.writeFileSync(tmp, JSON.stringify(doc, null, 2));
   fs.renameSync(tmp, file);
   snapshot(file, doc);
   return doc.rev;
+}
+
+// Read the current doc + apply a mutation + write, all under one lock so the
+// read the edit is based on cannot be invalidated by a concurrent writer.
+function readModifyWrite(file, fn) {
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  return withFileLock(file, function () {
+    var doc = readDoc(file);
+    var result = fn(doc); // returns the doc to persist, or null to skip the write
+    if (result == null) return { rev: doc && doc.rev, doc: doc, wrote: false };
+    var rev = writeDocUnlocked(file, result);
+    return { rev: rev, doc: result, wrote: true };
+  });
 }
 
 // Standalone locked write (whole-document replace).
@@ -135,6 +178,7 @@ module.exports = {
   readDoc: readDoc,
   writeDoc: writeDoc,
   writeDocUnlocked: writeDocUnlocked,
+  readModifyWrite: readModifyWrite,
   listHistory: listHistory,
   readSnapshot: readSnapshot,
   historyDir: historyDir,

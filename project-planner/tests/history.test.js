@@ -118,6 +118,20 @@ async function main() {
   r = await req('POST', '/api/projects/beta/restore', { rev: 999 });
   eq(r.status, 404, 'restore of unknown rev 404');
 
+  // REVIEW FIX: rev stays monotonic after DELETE — a restore of a deleted
+  // project must NOT restart at rev 1 and overwrite existing snapshots.
+  await req('PUT', '/api/projects/gamma', doc('Gamma', ['g1']));      // rev 1
+  await req('PUT', '/api/projects/gamma', doc('Gamma', ['g1', 'g2'])); // rev 2
+  await req('PUT', '/api/projects/gamma', doc('Gamma', ['g1', 'g2', 'g3'])); // rev 3
+  var snap1Before = Store.readSnapshot(path.join(TMP, 'gamma.json'), 1);
+  eq(snap1Before.tasks.length, 1, 'gamma rev1 snapshot has 1 task');
+  await req('DELETE', '/api/projects/gamma');
+  r = await req('POST', '/api/projects/gamma/restore', { rev: 3 }); // recovery after delete
+  eq(r.status, 200, 'restore after delete works');
+  ok(r.json.rev > 3, 'restore rev is monotonic (>3), not reset to 1: ' + r.json.rev);
+  var snap1After = Store.readSnapshot(path.join(TMP, 'gamma.json'), 1);
+  eq(snap1After.tasks.length, 1, 'original rev1 snapshot NOT overwritten by the restore');
+
   // audit records the restore
   var audit = fs.readFileSync(path.join(TMP, 'beta.audit.jsonl'), 'utf8').trim().split('\n').map(JSON.parse);
   var restoreEntry = audit.filter(function (e) { return e.action === 'restore'; })[0];

@@ -94,11 +94,23 @@ Full ops reference, REST API, and concurrency guarantees: **`HARNESS.md`**.
 - **CSV export** — the CSV button downloads the full task table (WBS, dates,
   predecessors, resources, cost, slack, critical flags) for Excel/Sheets.
   Printing (`Ctrl+P`) produces a clean task-table report.
+- **Execution tracking** — record **actual start/finish** (they pin the schedule
+  to what really happened and pull successors with them); set a **status date**
+  and the plan shows expected-vs-actual progress with a status line and
+  **behind-schedule** flags.
+- **Version history & restore** — every save is a revision; the 🕘 History dialog
+  lists them (who/when/task count) and restores any one as a new revision, so a
+  bad bulk edit — or an accidental project delete — is always recoverable.
+- **Comments & activity** — comment threads per task (author + time), 💬 badges,
+  and an 📋 Activity feed of who changed what.
 - **Undo / redo**, multi-select, collapse/expand, three zoom levels (Day/Week/Month).
 - **Live multi-writer sync** — the browser autosaves with optimistic
   concurrency (rev + If-Match; conflicting writes reload rather than clobber)
   and polls for external edits, so a human and an AI can work the same plan
   simultaneously.
+- **Team hosting (optional)** — put it behind a Cloudflare Tunnel + Access with
+  editor/viewer roles; comment authorship and every write are verified and
+  audited server-side. See `HOSTING.md`.
 
 ## Keyboard shortcuts
 
@@ -161,13 +173,15 @@ Largest first — what MS Project has that ProjectDesk currently does not:
 2. **Work/effort-driven scheduling** — resource units (%), work vs. duration as
    separate quantities, effort-driven task types. ProjectDesk treats duration
    as primary and costs by day rate.
-3. **Resource leveling** — over-allocation is detected and flagged, never
+3. **Earned value** (BCWS/BCWP/ACWP, SPI/CPI) — baselines, costs, and actuals
+   now all exist, so this is the natural next analytical layer.
+4. **Resource leveling** — over-allocation is detected and flagged, never
    auto-resolved (deliberate: silent replans surprise users).
-4. **More views** — Task/Resource Usage timephased tables, Network Diagram,
+5. **More views** — Task/Resource Usage timephased tables, Network Diagram,
    Calendar view, Team Planner. ProjectDesk has grid + Gantt.
-5. **Earned value** (BCWS/BCWP/ACWP, SPI/CPI) — baselines and costs exist, so
-   the inputs are there.
 6. **More constraint types** (ALAP, FNLT, MFO...), task calendars, recurring
    tasks, split tasks, manual-vs-auto scheduling mode.
-7. **Progress lines / status date**, printing beyond the basic table report,
-   custom fields and column chooser.
+7. **Custom fields and column chooser**, printing beyond the basic table report.
+
+Delivered since the first cut: status date + actuals/progress tracking, version
+history & restore, task comments & activity feed, multi-user roles + audit.

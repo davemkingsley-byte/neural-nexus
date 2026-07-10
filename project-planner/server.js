@@ -103,17 +103,43 @@ function modelFor(doc) {
   return m;
 }
 
-// Append a line to the per-project audit trail (JSONL, best effort).
+// Append a line to the per-project audit trail (JSONL, best effort). The file
+// is bounded: when it grows past AUDIT_MAX_BYTES it is trimmed to the last
+// AUDIT_KEEP lines, so it can't grow without limit on a long-lived project.
+var AUDIT_MAX_BYTES = 512 * 1024;
+var AUDIT_KEEP = 2000;
 function audit(name, identity, action, extra) {
   try {
+    var file = path.join(PROJECTS_DIR, name + '.audit.jsonl');
     var line = JSON.stringify(Object.assign({
       ts: new Date().toISOString(),
       email: identity.email,
       remote: !!identity.remote,
       action: action
     }, extra || {})) + '\n';
-    fs.appendFileSync(path.join(PROJECTS_DIR, name + '.audit.jsonl'), line);
+    fs.appendFileSync(file, line);
+    var st = fs.statSync(file);
+    if (st.size > AUDIT_MAX_BYTES) {
+      var kept = fs.readFileSync(file, 'utf8').split('\n').filter(Boolean).slice(-AUDIT_KEEP);
+      fs.writeFileSync(file, kept.join('\n') + '\n');
+    }
   } catch (e) { /* never block a write on audit failure */ }
+}
+
+// Comment authorship is authoritative from the verified identity. On a full-doc
+// PUT, a comment is trusted only if it already exists on disk with the same
+// author; any new or author-changed comment is (re)stamped with the caller's
+// identity, so authorship can't be forged through the document-save path.
+function stampCommentAuthors(newDoc, oldDoc, email) {
+  var known = {};
+  ((oldDoc && oldDoc.tasks) || []).forEach(function (t) {
+    (t.comments || []).forEach(function (c) { if (c && c.id != null) known[c.id] = c.author; });
+  });
+  (newDoc.tasks || []).forEach(function (t) {
+    (t.comments || []).forEach(function (c) {
+      if (!(c.id in known) || known[c.id] !== c.author) c.author = email;
+    });
+  });
 }
 
 function handleApi(req, res, pathname, identity) {
@@ -237,26 +263,29 @@ function handleApi(req, res, pathname, identity) {
       if (!doc || typeof doc !== 'object' || !Array.isArray(doc.tasks)) {
         return send(res, 400, { error: 'not a project document (missing tasks array)' });
       }
-      // Conditional write: an If-Match header carries the rev the client based
-      // its edit on; a mismatch means someone else wrote in between → 409 so
-      // no edit is silently clobbered. No header = unconditional (bootstrap).
       var ifMatch = req.headers['if-match'];
-      if (ifMatch != null) {
-        var existing = readProject(name);
-        var diskRev = existing && typeof existing.rev === 'number' ? existing.rev : 0;
-        if (parseInt(ifMatch, 10) !== diskRev) {
-          return send(res, 409, { error: 'rev mismatch', rev: diskRev });
-        }
-      }
-      // Normalize through the model so a malformed doc can't poison the store.
-      var m;
-      try { m = modelFor(doc); } catch (e) { return send(res, 400, { error: 'document rejected: ' + e.message }); }
-      var normalized = m.toJSON();
-      normalized.lastEditor = identity.email;
-      normalized.lastEditISO = new Date().toISOString();
-      var rev = writeProject(name, normalized);
-      audit(name, identity, req.method === 'POST' ? 'save-beacon' : 'save', { rev: rev });
-      return send(res, 200, { ok: true, rev: rev });
+      var conflictRev = null, badDoc = null, rmw;
+      // The If-Match check and the write happen under ONE lock so a concurrent
+      // writer can't slip a rev in between them.
+      try {
+        rmw = Store.readModifyWrite(projectPath(name), function (existing) {
+          if (ifMatch != null) {
+            var diskRev = existing && typeof existing.rev === 'number' ? existing.rev : 0;
+            if (parseInt(ifMatch, 10) !== diskRev) { conflictRev = diskRev; return null; }
+          }
+          var m;
+          try { m = modelFor(doc); } catch (e) { badDoc = e.message; return null; }
+          var normalized = m.toJSON();
+          stampCommentAuthors(normalized, existing, identity.email); // no author forgery
+          normalized.lastEditor = identity.email;
+          normalized.lastEditISO = new Date().toISOString();
+          return normalized;
+        });
+      } catch (e) { return send(res, 500, { error: 'internal error' }); }
+      if (conflictRev !== null) return send(res, 409, { error: 'rev mismatch', rev: conflictRev });
+      if (badDoc) return send(res, 400, { error: 'document rejected: ' + badDoc });
+      audit(name, identity, req.method === 'POST' ? 'save-beacon' : 'save', { rev: rmw.rev });
+      return send(res, 200, { ok: true, rev: rmw.rev });
     });
   }
 
@@ -265,33 +294,34 @@ function handleApi(req, res, pathname, identity) {
       var payload;
       try { payload = JSON.parse(body); } catch (e) { return send(res, 400, { error: 'invalid JSON' }); }
       var ops = payload && (payload.ops || payload);
-      var doc = readProject(name);
-      if (!doc) {
-        if (payload && payload.createIfMissing) {
-          var startISO = new Date().toISOString().slice(0, 10);
-          doc = Model.emptyProject(startISO);
-          doc.name = name;
-        } else {
-          return send(res, 404, { error: 'project "' + name + '" not found (pass createIfMissing:true to create)' });
-        }
-      }
-      var m;
-      try { m = modelFor(doc); } catch (e) { return send(res, 400, { error: 'document rejected: ' + e.message }); }
-      // Comment authorship is stamped from the verified identity, not the client.
-      var outcome = Ops.applyOps(m, ops, { author: identity.email });
-      // Batches are ATOMIC: nothing is persisted unless every op succeeded, so
-      // a failed batch can be fixed and resubmitted whole without duplicating
-      // its already-applied prefix.
-      var rev = null;
+      var notFound = false, badDoc = null, outcome = null, report = null, rmw;
+      // Read-apply-write under ONE lock so the base the ops applied to can't be
+      // invalidated by a concurrent writer (which would silently drop an edit).
+      try {
+        rmw = Store.readModifyWrite(projectPath(name), function (doc) {
+          if (!doc) {
+            if (payload && payload.createIfMissing) {
+              doc = Model.emptyProject(new Date().toISOString().slice(0, 10));
+              doc.name = name;
+            } else { notFound = true; return null; }
+          }
+          var m;
+          try { m = modelFor(doc); } catch (e) { badDoc = e.message; return null; }
+          outcome = Ops.applyOps(m, ops, { author: identity.email });
+          if (!outcome.ok) { report = Ops.buildScheduleReport(modelFor(doc)); return null; } // atomic: no write
+          var outDoc = m.toJSON();
+          outDoc.lastEditor = identity.email;
+          outDoc.lastEditISO = new Date().toISOString();
+          report = Ops.buildScheduleReport(m);
+          return outDoc;
+        });
+      } catch (e) { return send(res, 500, { error: 'internal error' }); }
+      if (notFound) return send(res, 404, { error: 'project "' + name + '" not found (pass createIfMissing:true to create)' });
+      if (badDoc) return send(res, 400, { error: 'document rejected: ' + badDoc });
       if (outcome.ok) {
-        var outDoc = m.toJSON();
-        outDoc.lastEditor = identity.email;
-        outDoc.lastEditISO = new Date().toISOString();
-        rev = writeProject(name, outDoc);
         var opNames = (Array.isArray(ops) ? ops : [ops]).map(function (o) { return o && o.op; }).filter(Boolean);
-        audit(name, identity, 'ops', { rev: rev, opCount: outcome.applied, ops: opNames });
+        audit(name, identity, 'ops', { rev: rmw.rev, opCount: outcome.applied, ops: opNames });
       }
-      var report = Ops.buildScheduleReport(outcome.ok ? m : modelFor(readProject(name) || doc));
       return send(res, outcome.ok ? 200 : 422, {
         ok: outcome.ok,
         applied: outcome.ok ? outcome.applied : 0,
@@ -299,7 +329,7 @@ function handleApi(req, res, pathname, identity) {
         failedOp: outcome.ok ? null : outcome.failedOp,
         error: outcome.error || null,
         results: outcome.ok ? outcome.results : [],
-        rev: rev,
+        rev: outcome.ok ? rmw.rev : null,
         summary: report.project
       });
     });
