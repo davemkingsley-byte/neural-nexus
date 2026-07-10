@@ -136,6 +136,7 @@
 
     var es = new Array(n).fill(0);
     var ef = new Array(n).fill(0);
+    var predReq = new Array(n).fill(0); // dependency-demanded start (conflict detection)
 
     // --- Forward pass (longest-path relaxation; converges without cycles) ---
     var maxIter = n + 2;
@@ -145,17 +146,19 @@
       for (var a = 0; a < n; a++) {
         if (isSummary[a]) continue; // summaries are rolled up, not scheduled
         var t = tasks[a];
+        var isMSO = t.constraintType === 'MSO' && t.constraintIndex != null && isFinite(t.constraintIndex);
         var start = 0;
         if (t.constraintIndex != null && isFinite(t.constraintIndex)) {
           start = Math.max(start, Math.round(t.constraintIndex));
         }
+        var predRequired = 0; // latest start demanded by dependencies
         var preds = t.predecessors || [];
         for (var p = 0; p < preds.length; p++) {
           var pi = idToIndex[preds[p].id];
           if (pi == null || pi === a) continue;
           if (hasCycle) continue; // avoid runaway when the graph is broken
           var req = requiredStart(normType(preds[p].type), es[pi], ef[pi], normLag(preds[p].lag), dur[a]);
-          if (req > start) start = req;
+          if (req > predRequired) predRequired = req;
         }
         // Inherit predecessor constraints from ancestor summaries: a dependency
         // placed on a summary must delay that summary's whole subtree.
@@ -166,13 +169,21 @@
               var api = idToIndex[aPreds[q].id];
               if (api == null || api === a || api === anc) continue;
               var reqA = requiredStart(normType(aPreds[q].type), es[api], ef[api], normLag(aPreds[q].lag), dur[a]);
-              if (reqA > start) start = reqA;
+              if (reqA > predRequired) predRequired = reqA;
             }
           }
+        }
+        if (isMSO) {
+          // Must-Start-On pins the start exactly; dependencies do not move it.
+          // (A pred demanding a later start is a schedule conflict — flagged below.)
+          start = Math.max(0, Math.round(t.constraintIndex));
+        } else {
+          start = Math.max(start, predRequired);
         }
         if (start < 0) start = 0; // never schedule before project start
         var newEf = start + dur[a];
         if (es[a] !== start || ef[a] !== newEf) { es[a] = start; ef[a] = newEf; changed = true; }
+        predReq[a] = predRequired;
       }
 
       // Roll summaries up (children -> parent), deepest first.
@@ -276,6 +287,8 @@
         critical: !hasCycle && slack <= 0,
         isSummary: isSummary[r],
         isMilestone: !isSummary[r] && dur[r] === 0,
+        constraintViolated: !isSummary[r] && tasks[r].constraintType === 'MSO' &&
+          tasks[r].constraintIndex != null && predReq[r] > es[r],
         parentIndex: parentIndex[r],
         childIndices: childIds[r].slice(),
         outlineLevel: lvlOf(tasks[r]),

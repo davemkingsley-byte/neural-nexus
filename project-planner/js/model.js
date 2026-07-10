@@ -201,7 +201,7 @@
         };
       });
       p.tasks = (p.tasks || []).map(function (t) {
-        return {
+        var out = {
           id: t.id,
           name: t.name != null ? t.name : '',
           duration: clamp(Math.round(t.duration || 0), 0, MAX_DURATION),
@@ -214,9 +214,17 @@
           resourceIds: (t.resourceIds || []).filter(function (v, i, a) { return a.indexOf(v) === i; }),
           collapsed: !!t.collapsed,
           constraintISO: t.constraintISO || null,
+          constraintType: (t.constraintType === 'MSO' || t.constraintType === 'SNET') ? t.constraintType
+            : (t.constraintISO ? 'SNET' : null),
           deadlineISO: t.deadlineISO || null,
           notes: t.notes || ''
         };
+        // Preserve fields this build doesn't know about — an older server must
+        // never strip data written by a newer client (forward compatibility).
+        Object.keys(t).forEach(function (k) {
+          if (!(k in out)) out[k] = t[k];
+        });
+        return out;
       });
       // fix outline: first task must be level 1; no jumps > +1
       var prev = 0;
@@ -246,7 +254,8 @@
         return {
           id: t.id, duration: t.duration, outlineLevel: t.outlineLevel,
           predecessors: t.predecessors, percentComplete: t.percentComplete,
-          constraintIndex: constraintIndex
+          constraintIndex: constraintIndex,
+          constraintType: t.constraintType || (t.constraintISO ? 'SNET' : null)
         };
       });
 
@@ -291,6 +300,7 @@
           outlineLevel: r.outlineLevel,
           isSummary: r.isSummary,
           isMilestone: r.isMilestone,
+          constraintViolated: !!r.constraintViolated,
           es: r.es, ef: r.ef, ls: r.ls, lf: r.lf,
           slack: r.slack,
           critical: r.critical,
@@ -345,6 +355,7 @@
         r.deadlineMissed = dd != null && r.finishDay > dd;
         if (r.deadlineMissed) missedDeadlines++;
       });
+      var constraintConflicts = rows.filter(function (r) { return r.constraintViolated; }).length;
 
       // ---- Resource over-allocation: a resource on two leaf tasks whose
       // working-day windows overlap is double-booked on those days.
@@ -394,6 +405,7 @@
         baseline: baselineByDay,
         projectCost: projectCost,
         missedDeadlines: missedDeadlines,
+        constraintConflicts: constraintConflicts,
         overallocatedCount: Object.keys(overallocatedIds).length
       };
       return computed;
@@ -430,7 +442,7 @@
         id: project.nextTaskId++,
         name: '', duration: 1, outlineLevel: level || 1,
         predecessors: [], percentComplete: 0, resourceIds: [],
-        collapsed: false, constraintISO: null, deadlineISO: null, notes: ''
+        collapsed: false, constraintISO: null, constraintType: null, deadlineISO: null, notes: ''
       };
     }
 
@@ -559,13 +571,37 @@
         }
         case 'predecessors': t.predecessors = parsePredecessors(value, project.tasks, t.id); break;
         case 'resources': t.resourceIds = parseResources(value); break;
-        case 'start': t.constraintISO = coerceDateISO(value); break;
+        case 'start': {
+          t.constraintISO = coerceDateISO(value);
+          // Keep an existing MSO pin (just moving its date); default to SNET.
+          t.constraintType = t.constraintISO ? (t.constraintType === 'MSO' ? 'MSO' : 'SNET') : null;
+          break;
+        }
         case 'deadline': t.deadlineISO = coerceDateISO(value); break;
         case 'notes': t.notes = String(value); break;
         default: return;
       }
       // No-op edits (e.g. an auto-advanced editor blurred unchanged) must not
       // pollute the undo history or trigger a re-render.
+      if (JSON.stringify(project) === before) return;
+      undoStack.push(snapshot);
+      if (undoStack.length > UNDO_LIMIT) undoStack.shift();
+      redoStack.length = 0;
+      recompute(); notify();
+    }
+
+    // Set/clear a scheduling constraint. type: null | 'SNET' | 'MSO'.
+    function setConstraint(id, type, isoOrNull) {
+      var i = findIndexById(id);
+      if (i < 0) return;
+      var snapshot = clone(project);
+      var before = JSON.stringify(project);
+      var t = project.tasks[i];
+      if (type !== 'SNET' && type !== 'MSO') type = null;
+      var iso = type ? coerceDateISO(isoOrNull) : null;
+      if (type && !iso) return; // a typed constraint needs a valid date
+      t.constraintType = type;
+      t.constraintISO = iso;
       if (JSON.stringify(project) === before) return;
       undoStack.push(snapshot);
       if (undoStack.length > UNDO_LIMIT) undoStack.shift();
@@ -795,6 +831,7 @@
       outdent: outdent,
       moveBlock: moveBlock,
       setField: setField,
+      setConstraint: setConstraint,
       linkTasks: linkTasks,
       unlinkTasks: unlinkTasks,
       toggleCollapse: toggleCollapse,

@@ -23,6 +23,7 @@
       "resourceIds": [],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -36,6 +37,7 @@
       "resourceIds": [],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -51,6 +53,7 @@
       ],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -66,6 +69,7 @@
       ],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -90,6 +94,7 @@
       "resourceIds": [],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -103,6 +108,7 @@
       "resourceIds": [],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -124,6 +130,7 @@
       ],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -145,6 +152,7 @@
       ],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -166,6 +174,7 @@
       ],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -192,6 +201,7 @@
       ],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -205,6 +215,7 @@
       "resourceIds": [],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -226,6 +237,7 @@
       ],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -247,6 +259,7 @@
       ],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": null,
       "notes": ""
     },
@@ -271,6 +284,7 @@
       "resourceIds": [],
       "collapsed": false,
       "constraintISO": null,
+      "constraintType": null,
       "deadlineISO": "2026-09-18",
       "notes": ""
     }
@@ -305,11 +319,11 @@
       "rate": 900
     }
   ],
-  "nextTaskId": 16,
+  "nextTaskId": 18,
   "nextResourceId": 5,
   "baseline": null,
   "view": {
     "zoom": "week"
   },
-  "rev": 4
+  "rev": 16
 }

@@ -17,6 +17,8 @@
   var els = {};
   var selected = {};      // id -> true
   var anchorId = null;
+  var cursorKey = 'name'; // spreadsheet cell-cursor column
+  var NAV_COLS = ['name', 'duration', 'start', 'predecessors', 'resources', 'percentComplete', 'deadline'];
   var scrollWired = false;
   var saveTimer = null;
 
@@ -65,7 +67,8 @@
 
   // ---- Selection ----
   function selectOnly(id) { selected = {}; if (id != null) selected[id] = true; anchorId = id; }
-  function onSelect(id, mods) {
+  function onSelect(id, mods, colKey) {
+    if (colKey && NAV_COLS.indexOf(colKey) >= 0) cursorKey = colKey;
     if (mods && mods.shift && anchorId != null) {
       var rows = model.getVisibleRows();
       var ai = rows.findIndex(function (r) { return r.id === anchorId; });
@@ -84,16 +87,39 @@
     refreshSelectionUI();
   }
 
+  function gridOpts() {
+    return {
+      selected: selected,
+      cursor: anchorId != null ? { id: anchorId, key: cursorKey } : null,
+      onSelect: onSelect, onEdit: onEdit, onToggleCollapse: onToggleCollapse,
+      onOpenDetails: openTaskDialog
+    };
+  }
+  function ganttOpts() {
+    return {
+      selected: selected, onSelect: onSelect,
+      onMove: onGanttMove, onResize: onGanttResize, onLink: onGanttLink
+    };
+  }
+
   // Update selection highlight WITHOUT rebuilding the grid DOM — otherwise a
   // click (mousedown) would destroy the cell before a double-click can edit it.
   function refreshSelectionUI() {
     els.gridPane.querySelectorAll('tr.grid-row').forEach(function (tr) {
       tr.classList.toggle('selected', !!selected[+tr.getAttribute('data-id')]);
     });
+    refreshCursorUI();
     var gb = els.ganttBody, gh = els.ganttHeader;
     var gTop = gb.scrollTop, gLeft = gb.scrollLeft;
-    PM.Gantt.render(gh, gb, model, { selected: selected, onSelect: onSelect, onMove: onGanttMove, onResize: onGanttResize });
+    PM.Gantt.render(gh, gb, model, ganttOpts());
     gb.scrollTop = gTop; gb.scrollLeft = gLeft; gh.scrollLeft = gLeft;
+  }
+
+  function refreshCursorUI() {
+    els.gridPane.querySelectorAll('td.cell-cursor').forEach(function (td) { td.classList.remove('cell-cursor'); });
+    if (anchorId == null) return;
+    var td = els.gridPane.querySelector('tr[data-id="' + anchorId + '"] td[data-key="' + cursorKey + '"]');
+    if (td) td.classList.add('cell-cursor');
   }
 
   // ---- Editing ----
@@ -105,12 +131,22 @@
     if (moveTo === 'down') {
       var idx = rows.findIndex(function (r) { return r.id === id; });
       var next = rows[idx + 1];
-      if (next) { selectOnly(next.id); render(); els.gridPane._startEditCell(next.id, field); }
+      if (next) {
+        selectOnly(next.id); cursorKey = field; render();
+        els.gridPane._startEditCell(next.id, field);
+      } else if (field === 'name' && String(value).trim()) {
+        // Rapid entry: Enter on the last row's name appends the next task.
+        var newId = model.addTaskEnd();
+        selectOnly(newId); cursorKey = 'name'; render();
+        els.gridPane._startEditCell(newId, 'name');
+      }
     } else if (moveTo === 'right' || moveTo === 'left') {
-      var keys = ['name', 'duration', 'start', 'predecessors', 'resources', 'percentComplete', 'deadline'];
-      var ci = keys.indexOf(field);
+      var ci = NAV_COLS.indexOf(field);
       var nci = ci + (moveTo === 'right' ? 1 : -1);
-      if (nci >= 0 && nci < keys.length) els.gridPane._startEditCell(id, keys[nci]);
+      if (nci >= 0 && nci < NAV_COLS.length) {
+        cursorKey = NAV_COLS[nci];
+        els.gridPane._startEditCell(id, NAV_COLS[nci]);
+      }
     }
   }
 
@@ -125,14 +161,31 @@
     model.setField(id, 'duration', String(Math.max(1, Math.round(newDur))));
     render();
   }
+  // Drag-to-link: append an FS dependency on the drop target.
+  function onGanttLink(fromId, toId) {
+    if (fromId === toId) return;
+    var target = model.getProject().tasks[model.findIndexById(toId)];
+    if (!target) return;
+    var fromRow = model.findIndexById(fromId) + 1;
+    if (fromRow < 1) return;
+    if (target.predecessors.some(function (p) { return p.id === fromId; })) return; // already linked
+    var existing = model.formatPredecessors(target.predecessors);
+    model.setField(toId, 'predecessors', existing ? existing + ', ' + fromRow : String(fromRow));
+    render();
+    var c = model.getComputed();
+    if (c.hasCycle) { // immediately undo a link that created a cycle
+      model.undo(); render();
+      toast('That link would create a circular dependency — not added.');
+    }
+  }
 
   // ---- Render ----
   function render() {
     var gp = els.gridPane, gb = els.ganttBody, gh = els.ganttHeader;
     var sTop = gp.scrollTop, sLeft = gp.scrollLeft, gTop = gb.scrollTop, gLeft = gb.scrollLeft;
 
-    PM.Grid.render(gp, model, { selected: selected, onSelect: onSelect, onEdit: onEdit, onToggleCollapse: onToggleCollapse });
-    PM.Gantt.render(gh, gb, model, { selected: selected, onSelect: onSelect, onMove: onGanttMove, onResize: onGanttResize });
+    PM.Grid.render(gp, model, gridOpts());
+    PM.Gantt.render(gh, gb, model, ganttOpts());
 
     gp.scrollTop = sTop; gp.scrollLeft = sLeft; gb.scrollTop = gTop; gb.scrollLeft = gLeft; gh.scrollLeft = gLeft;
 
@@ -169,6 +222,7 @@
 
     var warns = [];
     if (c.hasCycle) warns.push('⚠ Circular dependency — schedule may be incomplete');
+    if (c.constraintConflicts) warns.push('⚠ ' + c.constraintConflicts + ' Must-Start-On pin' + (c.constraintConflicts === 1 ? '' : 's') + ' violate' + (c.constraintConflicts === 1 ? 's' : '') + ' dependencies');
     if (c.overallocatedCount) warns.push('⚠ ' + c.overallocatedCount + ' resource' + (c.overallocatedCount === 1 ? '' : 's') + ' overallocated');
     if (c.missedDeadlines) warns.push('⚠ ' + c.missedDeadlines + ' deadline' + (c.missedDeadlines === 1 ? '' : 's') + ' missed');
     els.stWarn.hidden = !warns.length;
@@ -451,8 +505,7 @@
 
   function scrollToToday() {
     var c = model.getComputed();
-    var scale = PM.Gantt.render(els.ganttHeader, els.ganttBody, model,
-      { selected: selected, onSelect: onSelect, onMove: onGanttMove, onResize: onGanttResize });
+    var scale = PM.Gantt.render(els.ganttHeader, els.ganttBody, model, ganttOpts());
     var today = Cal.todayDayNum();
     var x = (today - scale.t0) * scale.dayWidth - els.ganttBody.clientWidth / 2;
     els.ganttBody.scrollLeft = Math.max(0, x);
@@ -582,16 +635,45 @@
       if (ctrl && e.key === 'Enter') { e.preventDefault(); doAdd(); return; }
       if (e.key === 'Insert') { e.preventDefault(); doInsert(); return; }
       if (e.key === 'Delete') { e.preventDefault(); doDelete(); return; }
-      if (e.key === 'Tab') { e.preventDefault(); if (e.shiftKey) doOutdent(); else doIndent(); return; }
+      // MS Project bindings: Alt+Shift+arrows indent/outdent; Tab moves the cell cursor.
+      if (e.altKey && e.shiftKey && e.key === 'ArrowRight') { e.preventDefault(); doIndent(); return; }
+      if (e.altKey && e.shiftKey && e.key === 'ArrowLeft') { e.preventDefault(); doOutdent(); return; }
+      if (e.key === 'Tab') { e.preventDefault(); moveCursorCol(e.shiftKey ? -1 : 1); return; }
       if (e.altKey && e.key === 'ArrowUp') { e.preventDefault(); doMove(-1); return; }
       if (e.altKey && e.key === 'ArrowDown') { e.preventDefault(); doMove(1); return; }
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault(); moveCursorCol(e.key === 'ArrowRight' ? 1 : -1); return;
+      }
       if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
         e.preventDefault(); moveSelection(e.key === 'ArrowDown' ? 1 : -1); return;
       }
       if (e.key === 'F2' || e.key === 'Enter') {
-        var s = ids(); if (s.length) { e.preventDefault(); els.gridPane._startEditFirst(s[0]); }
+        var s = ids(); if (s.length) { e.preventDefault(); els.gridPane._startEditCell(s[0], cursorKey); }
+        return;
+      }
+      if (e.key === 'Escape') { hideContextMenu(); return; }
+      // Type-to-edit: any printable character starts editing the cursor cell,
+      // replacing its content (spreadsheet behavior).
+      if (e.key.length === 1 && !ctrl && !e.altKey && !e.metaKey) {
+        var sel = ids();
+        if (sel.length === 1) {
+          e.preventDefault();
+          els.gridPane._startEditCell(sel[0], cursorKey, e.key);
+        }
       }
     });
+  }
+
+  function moveCursorCol(dir) {
+    var ci = NAV_COLS.indexOf(cursorKey);
+    if (ci < 0) ci = 0;
+    var ni = Math.max(0, Math.min(NAV_COLS.length - 1, ci + dir));
+    cursorKey = NAV_COLS[ni];
+    if (anchorId == null) {
+      var rows = model.getVisibleRows();
+      if (rows.length) selectOnly(rows[0].id);
+    }
+    refreshCursorUI();
   }
   function moveSelection(dir) {
     var rows = model.getVisibleRows(); if (!rows.length) return;
@@ -603,6 +685,246 @@
     var gp = els.gridPane;
     var tr = gp.querySelector('tr[data-id="' + rows[ni].id + '"]');
     if (tr) tr.scrollIntoView({ block: 'nearest' });
+  }
+
+  // ---- Context menu ----
+  function hideContextMenu() { if (els.ctxMenu) els.ctxMenu.hidden = true; }
+
+  function showContextMenu(x, y, id) {
+    // Right-clicking a row outside the current selection selects it first.
+    if (!selected[id]) { selectOnly(id); refreshSelectionUI(); }
+    var multi = ids().length > 1;
+    var items = [
+      { label: 'Task Information…', key: 'dbl-click #', fn: function () { openTaskDialog(id); } },
+      { sep: true },
+      { label: 'Insert Task Above', fn: function () { insertRelative(id, 'above'); } },
+      { label: 'Insert Task Below', fn: function () { insertRelative(id, 'below'); } },
+      { label: 'Add Child Task', fn: function () { insertRelative(id, 'child'); } },
+      { sep: true },
+      { label: 'Indent', key: 'Alt+Shift+→', fn: doIndent },
+      { label: 'Outdent', key: 'Alt+Shift+←', fn: doOutdent },
+      { sep: true },
+      { label: 'Link Selected', key: 'Ctrl+L', disabled: !multi, fn: doLink },
+      { label: 'Unlink Selected', key: 'Ctrl+Shift+L', fn: doUnlink },
+      { sep: true },
+      { label: multi ? 'Delete Tasks' : 'Delete Task', key: 'Del', fn: doDelete }
+    ];
+    var html = '';
+    items.forEach(function (it, i) {
+      if (it.sep) { html += '<div class="cm-sep"></div>'; return; }
+      html += '<div class="cm-item' + (it.disabled ? ' disabled' : '') + '" data-i="' + i + '">' +
+        PM.Grid.esc(it.label) + (it.key ? '<span class="cm-key">' + PM.Grid.esc(it.key) + '</span>' : '') + '</div>';
+    });
+    els.ctxMenu.innerHTML = html;
+    els.ctxMenu.hidden = false;
+    // Clamp inside the viewport.
+    var mw = els.ctxMenu.offsetWidth, mh = els.ctxMenu.offsetHeight;
+    els.ctxMenu.style.left = Math.min(x, window.innerWidth - mw - 8) + 'px';
+    els.ctxMenu.style.top = Math.min(y, window.innerHeight - mh - 8) + 'px';
+    els.ctxMenu.querySelectorAll('.cm-item').forEach(function (el) {
+      el.onmousedown = function (ev) {
+        ev.preventDefault();
+        var it = items[+el.getAttribute('data-i')];
+        hideContextMenu();
+        if (it && !it.disabled) it.fn();
+      };
+    });
+  }
+
+  function insertRelative(id, where) {
+    var i = model.findIndexById(id);
+    if (i < 0) return;
+    var t = model.getProject().tasks[i];
+    var newId;
+    if (where === 'above') newId = model.insertTask(i, t.outlineLevel);
+    else if (where === 'below') newId = model.insertTask(i + 1, t.outlineLevel);
+    else newId = model.insertTask(i + 1, t.outlineLevel + 1); // child
+    selectOnly(newId); cursorKey = 'name'; render();
+    els.gridPane._startEditFirst(newId);
+  }
+
+  function wireContextMenu() {
+    els.gridPane.addEventListener('contextmenu', function (e) {
+      var tr = e.target.closest('tr.grid-row');
+      if (!tr) return;
+      e.preventDefault();
+      showContextMenu(e.clientX, e.clientY, parseInt(tr.getAttribute('data-id'), 10));
+    });
+    els.ganttBody.addEventListener('contextmenu', function (e) {
+      var grp = e.target.closest && e.target.closest('.bar-group');
+      if (!grp) return;
+      e.preventDefault();
+      showContextMenu(e.clientX, e.clientY, parseInt(grp.getAttribute('data-bar-id'), 10));
+    });
+    document.addEventListener('mousedown', function (e) {
+      if (!els.ctxMenu.hidden && !e.target.closest('.context-menu')) hideContextMenu();
+    });
+    window.addEventListener('blur', hideContextMenu);
+  }
+
+  // ---- Task Information dialog ----
+  var taskDialogId = null;
+
+  function openTaskDialog(id) {
+    var i = model.findIndexById(id);
+    if (i < 0) return;
+    var p = model.getProject();
+    var t = p.tasks[i];
+    var row = model.getComputed().rows[i];
+    taskDialogId = id;
+
+    els.tmTitle.textContent = 'Task Information — row ' + (i + 1) + (row.isSummary ? ' (summary)' : row.isMilestone ? ' (milestone)' : '');
+    els.tmName.value = t.name;
+    els.tmDuration.value = row.isSummary ? row.durationDays + ' days (from children)' : t.duration;
+    els.tmDuration.disabled = row.isSummary;
+    els.tmPct.value = row.isSummary ? row.percentComplete : t.percentComplete;
+    els.tmPct.disabled = row.isSummary;
+    els.tmConstraintType.value = t.constraintType || '';
+    els.tmConstraintType.disabled = row.isSummary;
+    els.tmConstraintDate.value = t.constraintISO || '';
+    els.tmConstraintDate.disabled = row.isSummary || !t.constraintType;
+    els.tmDeadline.value = t.deadlineISO || '';
+    els.tmNotes.value = t.notes || '';
+
+    renderTmPreds(t);
+    renderTmResources(t);
+    els.taskModal.hidden = false;
+    els.tmName.focus();
+  }
+
+  function renderTmPreds(t) {
+    var p = model.getProject();
+    var html = '';
+    (t.predecessors || []).forEach(function (pr, k) {
+      var predIdx = model.findIndexById(pr.id);
+      html += '<tr data-k="' + k + '">' +
+        '<td><select class="tm-pred-task">' + tmTaskOptions(t.id, predIdx) + '</select></td>' +
+        '<td><select class="tm-pred-type">' + ['FS', 'SS', 'FF', 'SF'].map(function (ty) {
+          return '<option' + (pr.type === ty ? ' selected' : '') + '>' + ty + '</option>';
+        }).join('') + '</select></td>' +
+        '<td><input class="tm-pred-lag" type="number" step="1" value="' + (pr.lag || 0) + '" title="Lag (working days; negative = lead)"></td>' +
+        '<td><button class="tm-pred-del" title="Remove">✕</button></td></tr>';
+    });
+    els.tmPreds.innerHTML = html || '<tr><td style="color:#888;font-size:12px">None — starts at the project start (or its constraint).</td></tr>';
+    els.tmPreds.querySelectorAll('.tm-pred-del').forEach(function (b) {
+      b.onclick = function () { b.closest('tr').remove(); };
+    });
+  }
+
+  function tmTaskOptions(selfId, selectedIdx) {
+    var rows = model.getComputed().rows;
+    return rows.map(function (r, idx) {
+      if (r.id === selfId) return '';
+      return '<option value="' + (idx + 1) + '"' + (idx === selectedIdx ? ' selected' : '') + '>' +
+        (idx + 1) + ' — ' + PM.Grid.esc(r.name || '(unnamed)') + '</option>';
+    }).join('');
+  }
+
+  function renderTmResources(t) {
+    var p = model.getProject();
+    var html = '';
+    p.resources.forEach(function (r) {
+      var on = t.resourceIds.indexOf(r.id) >= 0;
+      html += '<label><input type="checkbox" value="' + r.id + '"' + (on ? ' checked' : '') + '> ' +
+        '<span class="res-swatch" style="background:' + PM.Grid.esc(r.color) + '"></span> ' + PM.Grid.esc(r.name) + '</label>';
+    });
+    els.tmResources.innerHTML = html || '<span style="color:#888;font-size:12px">No resources defined yet.</span>';
+  }
+
+  function applyTaskDialog() {
+    var id = taskDialogId;
+    if (id == null) return;
+    var i = model.findIndexById(id);
+    if (i < 0) { closeTaskDialog(); return; }
+    var t = model.getProject().tasks[i];
+    var row = model.getComputed().rows[i];
+
+    if (els.tmName.value !== t.name) model.setField(id, 'name', els.tmName.value);
+    if (!row.isSummary && String(els.tmDuration.value) !== String(t.duration)) model.setField(id, 'duration', els.tmDuration.value);
+    if (!row.isSummary && parseInt(els.tmPct.value, 10) !== t.percentComplete) model.setField(id, 'percentComplete', els.tmPct.value);
+
+    if (!row.isSummary) {
+      var ctype = els.tmConstraintType.value || null;
+      var cdate = els.tmConstraintDate.value || null;
+      if (ctype !== (t.constraintType || null) || (cdate || null) !== (t.constraintISO || null)) {
+        model.setConstraint(id, ctype, cdate);
+      }
+    }
+    if ((els.tmDeadline.value || null) !== (t.deadlineISO || null)) model.setField(id, 'deadline', els.tmDeadline.value);
+    if (els.tmNotes.value !== (t.notes || '')) model.setField(id, 'notes', els.tmNotes.value);
+
+    // Predecessors from the editor table -> token string.
+    if (!row.isSummary || t.predecessors.length) {
+      var tokens = [];
+      els.tmPreds.querySelectorAll('tr[data-k]').forEach(function (tr) {
+        var taskSel = tr.querySelector('.tm-pred-task');
+        var typeSel = tr.querySelector('.tm-pred-type');
+        var lagInp = tr.querySelector('.tm-pred-lag');
+        if (!taskSel || !taskSel.value) return;
+        var tok = taskSel.value;
+        var ty = typeSel.value, lag = parseInt(lagInp.value, 10) || 0;
+        if (ty !== 'FS' || lag) tok += ty;
+        if (lag) tok += (lag > 0 ? '+' : '') + lag;
+        tokens.push(tok);
+      });
+      var newPreds = tokens.join(', ');
+      if (newPreds !== model.formatPredecessors(t.predecessors)) model.setField(id, 'predecessors', newPreds);
+    }
+
+    // Resources from checkboxes -> names string.
+    var p = model.getProject();
+    var names = [];
+    els.tmResources.querySelectorAll('input[type=checkbox]:checked').forEach(function (cb) {
+      var r = p.resources.filter(function (x) { return x.id === +cb.value; })[0];
+      if (r) names.push(r.name);
+    });
+    var newRes = names.join(', ');
+    if (newRes !== model.formatResources(t.resourceIds)) model.setField(id, 'resources', newRes);
+
+    closeTaskDialog();
+    render();
+  }
+
+  function closeTaskDialog() { taskDialogId = null; els.taskModal.hidden = true; }
+
+  function wireTaskDialog() {
+    els.tmClose.onclick = closeTaskDialog;
+    els.tmCancel.onclick = closeTaskDialog;
+    els.tmOk.onclick = applyTaskDialog;
+    els.taskModal.addEventListener('mousedown', function (e) { if (e.target === els.taskModal) closeTaskDialog(); });
+    els.tmConstraintType.onchange = function () {
+      els.tmConstraintDate.disabled = !els.tmConstraintType.value;
+      if (els.tmConstraintType.value && !els.tmConstraintDate.value) {
+        var i = model.findIndexById(taskDialogId);
+        if (i >= 0) els.tmConstraintDate.value = Cal.toISO(model.getComputed().rows[i].startDay);
+      }
+    };
+    els.tmAddPred.onclick = function () {
+      var i = model.findIndexById(taskDialogId);
+      if (i < 0) return;
+      var tbody = els.tmPreds;
+      // Drop the "None" placeholder row if present.
+      if (!tbody.querySelector('tr[data-k]')) tbody.innerHTML = '';
+      var k = tbody.querySelectorAll('tr[data-k]').length;
+      var tr = document.createElement('tr');
+      tr.setAttribute('data-k', String(k));
+      tr.innerHTML = '<td><select class="tm-pred-task">' + tmTaskOptions(taskDialogId, -1) + '</select></td>' +
+        '<td><select class="tm-pred-type"><option>FS</option><option>SS</option><option>FF</option><option>SF</option></select></td>' +
+        '<td><input class="tm-pred-lag" type="number" step="1" value="0"></td>' +
+        '<td><button class="tm-pred-del" title="Remove">✕</button></td>';
+      tbody.appendChild(tr);
+      tr.querySelector('.tm-pred-del').onclick = function () { tr.remove(); };
+    };
+    els.tmAddRes.onclick = function () {
+      var name = els.tmNewRes.value.trim();
+      if (!name) return;
+      model.addResource(name);
+      els.tmNewRes.value = '';
+      var i = model.findIndexById(taskDialogId);
+      if (i >= 0) renderTmResources(model.getProject().tasks[i]);
+      // newly added resource starts unchecked; user ticks it to assign
+    };
+    els.tmNewRes.onkeydown = function (e) { if (e.key === 'Enter') { e.preventDefault(); els.tmAddRes.click(); } };
   }
 
   // ---- Wire toolbar ----
@@ -654,7 +976,10 @@
       'btnNew', 'btnOpen', 'btnSave', 'btnExport', 'btnSample', 'fileInput', 'btnUndo', 'btnRedo',
       'btnAdd', 'btnInsert', 'btnDelete', 'btnIndent', 'btnOutdent', 'btnUp', 'btnDown',
       'btnLink', 'btnUnlink', 'btnCollapse', 'btnExpand', 'btnToday', 'btnBaseline', 'btnResources',
-      'resModal', 'resClose', 'resTable', 'resNewName', 'resAddBtn', 'stWarn', 'stSaved'
+      'resModal', 'resClose', 'resTable', 'resNewName', 'resAddBtn', 'stWarn', 'stSaved',
+      'ctxMenu', 'taskModal', 'tmTitle', 'tmClose', 'tmName', 'tmDuration', 'tmPct',
+      'tmConstraintType', 'tmConstraintDate', 'tmDeadline', 'tmPreds', 'tmAddPred',
+      'tmResources', 'tmNewRes', 'tmAddRes', 'tmNotes', 'tmOk', 'tmCancel'
     ].forEach(function (id) { els[id] = $(id); });
 
     model.setStorageKey(PROJECT_NAME);
@@ -663,6 +988,8 @@
     wireProjectSwitcher();
     wireSplitter();
     wireKeyboard();
+    wireContextMenu();
+    wireTaskDialog();
     bootstrapStorage(); // loads local instantly, then upgrades to server mode
   }
 

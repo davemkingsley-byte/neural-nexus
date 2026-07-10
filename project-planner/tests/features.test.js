@@ -161,6 +161,57 @@ function setupPAB() {
   eq(c.overallocatedCount, 0, 'no false self-overallocation from duplicate id');
 })();
 
+// ---- MSO (Must-Start-On) constraint ----
+(function () {
+  var m = Model.createModel();
+  m.newProject();
+  m.addTaskEnd(); m.addTaskEnd();
+  var t = m.getProject().tasks;
+  m.setField(t[0].id, 'duration', '10');
+  m.setField(t[1].id, 'duration', '3');
+  m.setField(t[1].id, 'predecessors', '1'); // would start at idx 10
+  var c0 = m.getComputed();
+  eq(c0.rows[1].es, 10, 'pre-MSO: pred pushes start to 10');
+
+  // Pin task 2 to start at index 4 (before its pred finishes) -> conflict
+  var anchorISO = Cal.toISO(c0.anchor);
+  var pinDay = Cal.toISO(c0.cal.indexToDay(c0.anchor, 4));
+  m.setConstraint(t[1].id, 'MSO', pinDay);
+  var c1 = m.getComputed();
+  eq(c1.rows[1].es, 4, 'MSO pins start at 4 despite pred');
+  ok(c1.rows[1].constraintViolated, 'conflict flagged');
+  eq(c1.constraintConflicts, 1, 'conflict counted');
+
+  // Pin AFTER the pred requirement -> no conflict
+  m.setConstraint(t[1].id, 'MSO', Cal.toISO(c0.cal.indexToDay(c0.anchor, 12)));
+  var c2 = m.getComputed();
+  eq(c2.rows[1].es, 12, 'MSO pin at 12 honored');
+  ok(!c2.rows[1].constraintViolated, 'no conflict when pin >= pred requirement');
+
+  // Clearing restores dependency scheduling
+  m.setConstraint(t[1].id, null, null);
+  eq(m.getComputed().rows[1].es, 10, 'clearing constraint restores pred scheduling');
+  ok(m.getProject().tasks[1].constraintISO === null, 'iso cleared');
+
+  // SNET still behaves as floor (not pin)
+  m.setConstraint(t[1].id, 'SNET', pinDay); // floor at 4, pred pushes to 10
+  eq(m.getComputed().rows[1].es, 10, 'SNET floor below pred requirement is inert');
+})();
+
+// ---- MSO survives save/load round-trip ----
+(function () {
+  var m = Model.createModel();
+  m.newProject();
+  m.addTaskEnd();
+  var t = m.getProject().tasks[0];
+  var c = m.getComputed();
+  m.setConstraint(t.id, 'MSO', Cal.toISO(c.cal.indexToDay(c.anchor, 5)));
+  var m2 = Model.createModel();
+  m2.loadProject(m.toJSON());
+  eq(m2.getProject().tasks[0].constraintType, 'MSO', 'constraintType round-trips');
+  eq(m2.getComputed().rows[0].es, 5, 'MSO honored after reload');
+})();
+
 // ---- Money formatting ----
 (function () {
   eq(Model.formatMoney(0), '$0', 'money 0');

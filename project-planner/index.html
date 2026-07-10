@@ -41,8 +41,8 @@
       </div>
       <div class="sep"></div>
       <div class="tgroup">
-        <button id="btnOutdent" class="tb" title="Outdent (Shift+Tab)">⇤</button>
-        <button id="btnIndent" class="tb" title="Indent (Tab)">⇥</button>
+        <button id="btnOutdent" class="tb" title="Outdent (Alt+Shift+←)">⇤</button>
+        <button id="btnIndent" class="tb" title="Indent (Alt+Shift+→)">⇥</button>
         <button id="btnUp" class="tb" title="Move up (Alt+↑)">↑</button>
         <button id="btnDown" class="tb" title="Move down (Alt+↓)">↓</button>
       </div>
@@ -117,10 +117,58 @@
     </div>
   </div>
 
+  <!-- Task Information modal -->
+  <div class="modal-backdrop" id="taskModal" hidden>
+    <div class="modal modal-task">
+      <div class="modal-head">
+        <h2 id="tmTitle">Task Information</h2>
+        <button class="modal-close" id="tmClose" title="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="tm-grid">
+          <label class="tm-wide">Name <input id="tmName" type="text"></label>
+          <label>Duration <input id="tmDuration" type="text" placeholder="5d, 2w, 0 = milestone"></label>
+          <label>% Complete <input id="tmPct" type="number" min="0" max="100" step="5"></label>
+          <label>Constraint
+            <select id="tmConstraintType">
+              <option value="">None (as scheduled)</option>
+              <option value="SNET">Start No Earlier Than</option>
+              <option value="MSO">Must Start On</option>
+            </select>
+          </label>
+          <label>Constraint date <input id="tmConstraintDate" type="date"></label>
+          <label>Deadline <input id="tmDeadline" type="date"></label>
+        </div>
+        <fieldset class="tm-block">
+          <legend>Predecessors</legend>
+          <table class="tm-preds" id="tmPreds"></table>
+          <button id="tmAddPred" class="tb">＋ Add predecessor</button>
+        </fieldset>
+        <fieldset class="tm-block">
+          <legend>Resources</legend>
+          <div id="tmResources" class="tm-res"></div>
+          <div class="tm-res-add">
+            <input id="tmNewRes" type="text" placeholder="New resource name…">
+            <button id="tmAddRes" class="tb">Add</button>
+          </div>
+        </fieldset>
+        <label class="tm-notes">Notes <textarea id="tmNotes" rows="3"></textarea></label>
+      </div>
+      <div class="modal-foot">
+        <button id="tmOk" class="tb primary">OK</button>
+        <button id="tmCancel" class="tb">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right-click context menu -->
+  <div class="context-menu" id="ctxMenu" hidden></div>
+
   <!-- Help hint -->
   <div class="hint" id="hint">
-    <strong>Tips:</strong> double-click a cell to edit · <em>Predecessors</em> like <code>3</code>, <code>3FS+2</code>, <code>2SS</code> ·
-    <em>Duration</em> like <code>5d</code>, <code>2w</code>, <code>0</code> (milestone) · drag a bar to reschedule, drag its right edge to resize.
+    <strong>Tips:</strong> type to edit · arrows/<code>Tab</code> move · <code>Enter</code> on the last row adds the next task ·
+    right-click for the menu · double-click a row number for Task Info · drag bar-end circles to link tasks ·
+    <em>Preds</em> like <code>3FS+2</code> · <em>Duration</em> like <code>2w</code>, <code>0</code> = milestone.
     <button id="hintClose" title="Dismiss">✕</button>
   </div>
 

@@ -71,6 +71,12 @@
     COLUMNS.forEach(function (c) { html += '<th class="' + c.cls + '">' + esc(c.label) + '</th>'; });
     html += '</tr></thead><tbody>';
 
+    if (!rows.length) {
+      html += '<tr class="empty-row"><td colspan="' + COLUMNS.length + '">' +
+        'No tasks yet — click <code>＋ Task</code> (or press <code>Ctrl+Enter</code>), then just type. ' +
+        'Scripts and AIs can drive this plan too: see HARNESS.md.</td></tr>';
+    }
+
     rows.forEach(function (r) {
       var cls = ['grid-row'];
       if (selected[r.id]) cls.push('selected');
@@ -83,6 +89,7 @@
         // would be silently discarded, so those cells are read-only on summaries.
         var editable = c.editable && !(r.isSummary && (c.key === 'duration' || c.key === 'start' || c.key === 'percentComplete'));
         var cellCls = c.cls + (editable ? ' editable' : '');
+        if (opts.cursor && opts.cursor.id === r.id && opts.cursor.key === c.key) cellCls += ' cell-cursor';
         if (c.key === 'name') {
           var indent = (r.outlineLevel - 1) * 16;
           var toggle = '';
@@ -99,6 +106,11 @@
         } else {
           var extra = '', titleAttr = '', prefix = '';
           if ((c.key === 'deadline' || c.key === 'finish') && r.deadlineMissed) extra = ' missed';
+          if (c.key === 'start' && r.constraintViolated) {
+            extra = ' missed';
+            titleAttr = ' title="Must-Start-On pin conflicts with this task\'s dependencies"';
+            prefix = '⚠ ';
+          }
           if (c.key === 'resources' && r.overallocatedResources && r.overallocatedResources.length) {
             extra = ' overalloc';
             titleAttr = ' title="Overallocated: ' + esc(r.overallocatedResources.join(', ')) + '"';
@@ -147,14 +159,14 @@
         '<span class="name-text">' + esc(r.name || '') + '</span></span>';
     }
 
-    function startEdit(td) {
+    function startEdit(td, seed) {
       if (editing) commitEdit(null);
       var tr = td.closest('tr');
       var id = parseInt(tr.getAttribute('data-id'), 10);
       var key = td.getAttribute('data-key');
       if (!key) return;
       var col = COLUMNS.filter(function (c) { return c.key === key; })[0];
-      if (!col || !col.editable) return;
+      if (!col || !col.editable || !td.classList.contains('editable')) return;
       var r = rowById[id];
       var val = rawValue(model, r, key);
       td.classList.add('is-editing');
@@ -162,7 +174,8 @@
       var input = td.querySelector('input');
       editing = { id: id, key: key, input: input, td: td };
       input.focus();
-      input.select();
+      if (seed != null) { input.value = seed; } // type-to-replace, cursor at end
+      else input.select();
       input.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') { e.preventDefault(); commitEdit('down'); }
         else if (e.key === 'Escape') { e.preventDefault(); cancelEdit(); }
@@ -181,11 +194,23 @@
       var tr = e.target.closest('tr');
       if (!tr) return;
       var id = parseInt(tr.getAttribute('data-id'), 10);
+      if (isNaN(id)) return; // empty-state row
       if (editing && editing.id === id) return; // clicking within active edit
-      opts.onSelect(id, { ctrl: e.ctrlKey || e.metaKey, shift: e.shiftKey });
+      var td = e.target.closest('td');
+      var colKey = td ? td.getAttribute('data-key') : null;
+      opts.onSelect(id, { ctrl: e.ctrlKey || e.metaKey, shift: e.shiftKey }, colKey);
     });
 
     container.querySelector('tbody').addEventListener('dblclick', function (e) {
+      // Double-click on the row-number cell opens Task Information.
+      var rowTd = e.target.closest('td.c-row');
+      if (rowTd && opts.onOpenDetails) {
+        var tr0 = rowTd.closest('tr');
+        if (tr0 && tr0.getAttribute('data-id')) {
+          opts.onOpenDetails(parseInt(tr0.getAttribute('data-id'), 10));
+          return;
+        }
+      }
       var td = e.target.closest('td.editable');
       if (td) startEdit(td);
     });
@@ -194,12 +219,13 @@
     container._startEditFirst = function (id) {
       container._startEditCell(id, 'name');
     };
-    container._startEditCell = function (id, key) {
+    container._startEditCell = function (id, key, seed) {
       var tr = container.querySelector('tr[data-id="' + id + '"]');
       if (!tr) return;
       var td = tr.querySelector('td[data-key="' + key + '"]');
-      if (td && td.classList.contains('editable')) startEdit(td);
+      if (td && td.classList.contains('editable')) startEdit(td, seed);
     };
+    container._isEditing = function () { return !!editing; };
   }
 
   return { render: render, ROW_H: ROW_H, COLUMNS: COLUMNS, esc: esc };

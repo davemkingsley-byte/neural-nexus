@@ -6,6 +6,10 @@
 #
 # The agent starts at login and restarts on crash (KeepAlive). Logs go to
 # /tmp/projectdesk-server.log. Check health: curl -s localhost:4180/api/ping
+#
+# IMPORTANT: after updating the code (git pull), restart the running server so
+# it picks up the new modules:  launchctl kickstart -k gui/$(id -u)/com.projectdesk.server
+# (a stale server normalizes away fields its old code doesn't know about)
 set -euo pipefail
 
 LABEL="com.projectdesk.server"

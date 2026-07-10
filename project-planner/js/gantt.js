@@ -254,7 +254,8 @@
       out += '<g class="bar-group" data-bar-id="' + r.id + '" data-kind="milestone">';
       out += '<rect class="hit" x="' + (cx - s - 2) + '" y="' + (yMid - s - 2) + '" width="' + (2 * s + 4) + '" height="' + (2 * s + 4) + '" fill="transparent"/>';
       out += '<path class="' + cls + '" d="M' + cx + ' ' + (yMid - s) + ' L' + (cx + s) + ' ' + yMid + ' L' + cx + ' ' + (yMid + s) + ' L' + (cx - s) + ' ' + yMid + ' Z"/>';
-      if (label) out += '<text class="bar-label" x="' + (cx + s + 4) + '" y="' + (yMid + 4) + '">' + esc(label) + '</text>';
+      out += '<circle class="link-handle" cx="' + (cx + s + 6) + '" cy="' + yMid + '" r="4.5" data-link-from="' + r.id + '"><title>Drag to another task to link</title></circle>';
+      if (label) out += '<text class="bar-label" x="' + (cx + s + 14) + '" y="' + (yMid + 4) + '">' + esc(label) + '</text>';
       out += '</g>';
       return out;
     }
@@ -266,7 +267,8 @@
     out += '<rect class="bar ' + fill + '" x="' + g.x + '" y="' + y + '" rx="3" ry="3" width="' + g.w + '" height="' + BAR_H + '"/>';
     if (progW > 0.5) out += '<rect class="bar-progress" x="' + g.x + '" y="' + (y + 4) + '" width="' + progW + '" height="' + (BAR_H - 8) + '"/>';
     out += '<rect class="resize-handle" x="' + (g.x + g.w - 5) + '" y="' + y + '" width="5" height="' + BAR_H + '" fill="transparent"/>';
-    if (label) out += '<text class="bar-label" x="' + (g.x + g.w + 5) + '" y="' + (yMid + 4) + '">' + esc(label) + '</text>';
+    out += '<circle class="link-handle" cx="' + (g.x + g.w + 8) + '" cy="' + yMid + '" r="4.5" data-link-from="' + r.id + '"><title>Drag to another task to link</title></circle>';
+    if (label) out += '<text class="bar-label" x="' + (g.x + g.w + 16) + '" y="' + (yMid + 4) + '">' + esc(label) + '</text>';
     out += '</g>';
     return out;
   }
@@ -297,7 +299,22 @@
       return t;
     }
 
+    function svgPoint(e) {
+      var rect = svg.getBoundingClientRect();
+      return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+    }
+
     svg.addEventListener('mousedown', function (e) {
+      // Link-handle drag: rubber-band a new FS dependency onto another bar.
+      var handle = e.target.closest && e.target.closest('.link-handle');
+      if (handle) {
+        var fromId = parseInt(handle.getAttribute('data-link-from'), 10);
+        var pt = svgPoint(e);
+        drag = { mode: 'link', fromId: fromId, fromX: pt.x, fromY: pt.y, targetId: null, tip: makeTip() };
+        drag.tip.textContent = 'Link to…';
+        e.preventDefault();
+        return;
+      }
       var grp = e.target.closest('.bar-group');
       if (!grp) return;
       var id = parseInt(grp.getAttribute('data-bar-id'), 10);
@@ -327,6 +344,28 @@
 
     function onMove(e) {
       if (!drag || drag.selectOnly) return;
+      if (drag.mode === 'link') {
+        var pt = svgPoint(e);
+        var ghostLayer = svg.querySelector('.ghost-layer');
+        ghostLayer.innerHTML = '<line class="link-rubber" x1="' + drag.fromX + '" y1="' + drag.fromY +
+          '" x2="' + pt.x + '" y2="' + pt.y + '"/>';
+        // Highlight the bar under the cursor as the drop target.
+        var grp = e.target && e.target.closest ? e.target.closest('.bar-group') : null;
+        var tid = grp ? parseInt(grp.getAttribute('data-bar-id'), 10) : null;
+        if (tid === drag.fromId) tid = null;
+        if (tid !== drag.targetId) {
+          svg.querySelectorAll('.bar-group.link-target').forEach(function (g) { g.classList.remove('link-target'); });
+          if (tid != null && grp.getAttribute('data-kind') !== 'summary') grp.classList.add('link-target');
+          else tid = null;
+          drag.targetId = tid;
+        }
+        var rTo = drag.targetId != null ? rowById[drag.targetId] : null;
+        drag.tip.textContent = rTo ? ('Link: → ' + (rTo.name || 'task ' + rTo.row)) : 'Link to…';
+        drag.tip.style.left = (pt.x + 8) + 'px';
+        drag.tip.style.top = (pt.y - 10) + 'px';
+        drag.tip.style.display = 'block';
+        return;
+      }
       var dd = Math.round((e.clientX - drag.startX) / scale.dayWidth);
       if (dd !== drag.deltaDays) { drag.deltaDays = dd; if (dd !== 0) drag.moved = true; paint(); }
     }
@@ -364,6 +403,13 @@
       if (!drag) return;
       var d = drag; drag = null;
       if (d.tip && d.tip.parentNode) d.tip.parentNode.removeChild(d.tip);
+      if (d.mode === 'link') {
+        var gl = svg.querySelector('.ghost-layer');
+        if (gl) gl.innerHTML = '';
+        svg.querySelectorAll('.bar-group.link-target').forEach(function (g) { g.classList.remove('link-target'); });
+        if (d.targetId != null && opts.onLink) opts.onLink(d.fromId, d.targetId);
+        return;
+      }
       if (!d.moved || d.deltaDays === 0) { opts.onSelect(d.id, d.mods); return; } // click = select
       if (d.mode === 'move') opts.onMove(d.id, snapWorking(d.origStart + d.deltaDays, d.deltaDays < 0 ? -1 : 1));
       else opts.onResize(d.id, Math.max(1, d.origDur + d.deltaDays));

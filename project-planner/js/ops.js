@@ -185,6 +185,15 @@
         return { op: 'set-calendar' };
       }
 
+      case 'set-constraint': {
+        id = resolveRef(model, op.row != null ? op.row : op.ref, batchResults);
+        var ctype = op.type == null || op.type === 'none' ? null : String(op.type).toUpperCase();
+        if (ctype !== null && ctype !== 'SNET' && ctype !== 'MSO') fail('constraint type must be SNET, MSO, or none');
+        if (ctype && !op.date) fail('a ' + ctype + ' constraint needs a date');
+        model.setConstraint(id, ctype, op.date || null);
+        return { op: 'set-constraint', id: id, type: ctype };
+      }
+
       case 'set-baseline': model.saveBaseline(); return { op: 'set-baseline' };
       case 'clear-baseline': model.clearBaseline(); return { op: 'clear-baseline' };
 
@@ -259,6 +268,8 @@
           slackDays: r.isSummary ? null : r.slack,
           critical: !!r.critical,
           constraintISO: r.task.constraintISO || null,
+          constraintType: r.task.constraintType || null,
+          constraintViolated: !!r.constraintViolated,
           deadlineISO: r.task.deadlineISO || null,
           deadlineMissed: !!r.deadlineMissed,
           overallocated: (r.overallocatedResources && r.overallocatedResources.length) ? r.overallocatedResources : [],
