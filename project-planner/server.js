@@ -32,6 +32,7 @@ var path = require('path');
 var Model = require('./js/model.js');
 var Ops = require('./js/ops.js');
 var Auth = require('./auth.js');
+var Store = require('./store.js');
 
 var ROOT = __dirname;
 var PROJECTS_DIR = process.env.PROJECTDESK_PROJECTS_DIR || path.join(ROOT, 'projects');
@@ -67,38 +68,11 @@ function readProject(name) {
   } catch (e) { return null; }
 }
 
-// Atomic write; assigns the next rev and returns it. The lockfile serializes
-// against out-of-process writers (a --local CLI editing the same file) — the
-// server's own writes are already serialized by the single-threaded loop.
-function sleepSync(ms) {
-  try { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms); }
-  catch (e) { var end = Date.now() + ms; while (Date.now() < end) { /* spin */ } }
-}
-
+// Atomic locked write with rev bump + history snapshot — shared with the CLI
+// via store.js so all writers behave identically.
 function writeProject(name, doc) {
   ensureDir();
-  var file = projectPath(name);
-  var lock = file + '.lock';
-  var fd = null, tries = 0;
-  while (fd === null) {
-    try { fd = fs.openSync(lock, 'wx'); }
-    catch (e) {
-      if (++tries > 100) throw new Error('project file is locked (' + lock + ' — remove it if stale)');
-      sleepSync(20);
-    }
-  }
-  try {
-    var existing = readProject(name);
-    var prevRev = existing && typeof existing.rev === 'number' ? existing.rev : 0;
-    doc.rev = prevRev + 1;
-    var tmp = file + '.tmp-' + process.pid;
-    fs.writeFileSync(tmp, JSON.stringify(doc, null, 2));
-    fs.renameSync(tmp, file);
-    return doc.rev;
-  } finally {
-    try { fs.closeSync(fd); } catch (e) { /* best effort */ }
-    try { fs.unlinkSync(lock); } catch (e) { /* best effort */ }
-  }
+  return Store.writeDoc(projectPath(name), doc);
 }
 
 function send(res, code, body, type) {
@@ -205,7 +179,40 @@ function handleApi(req, res, pathname, identity) {
         return send(res, 200, modelFor(doc).toCSV(), 'text/csv; charset=utf-8');
       } catch (e) { return send(res, 500, { error: 'csv failed: ' + e.message }); }
     }
+    // Version history: list, or fetch one snapshot (optionally summarized).
+    if (sub === 'history') {
+      var revArg = parts[4];
+      if (!revArg) return send(res, 200, Store.listHistory(projectPath(name)));
+      var snap = Store.readSnapshot(projectPath(name), revArg);
+      if (!snap) return send(res, 404, { error: 'no snapshot for rev ' + revArg });
+      var q = (req.url || '').split('?')[1] || '';
+      if (/(^|&)summary=1/.test(q)) {
+        try { return send(res, 200, Ops.buildScheduleReport(modelFor(snap)).project); }
+        catch (e) { return send(res, 500, { error: 'summary failed' }); }
+      }
+      return send(res, 200, snap);
+    }
     return send(res, 404, { error: 'not found' });
+  }
+
+  // Restore a historical revision as a NEW revision (nothing is rewritten;
+  // the restore itself is versioned and audited like any other write).
+  if (req.method === 'POST' && sub === 'restore') {
+    return readBody(req, function (body) {
+      var payload;
+      try { payload = JSON.parse(body || '{}'); } catch (e) { return send(res, 400, { error: 'invalid JSON' }); }
+      var fromRev = payload && payload.rev;
+      var snap = Store.readSnapshot(projectPath(name), fromRev);
+      if (!snap) return send(res, 404, { error: 'no snapshot for rev ' + fromRev });
+      var m;
+      try { m = modelFor(snap); } catch (e) { return send(res, 400, { error: 'snapshot rejected: ' + e.message }); }
+      var outDoc = m.toJSON();
+      outDoc.lastEditor = identity.email;
+      outDoc.lastEditISO = new Date().toISOString();
+      var rev = writeProject(name, outDoc);
+      audit(name, identity, 'restore', { rev: rev, fromRev: parseInt(fromRev, 10) });
+      return send(res, 200, { ok: true, rev: rev, restoredFrom: parseInt(fromRev, 10) });
+    });
   }
 
   // navigator.sendBeacon can only POST with no custom headers — treat a POST

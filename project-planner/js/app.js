@@ -270,7 +270,8 @@
       (els.resModal && !els.resModal.hidden) ||
       (els.taskModal && !els.taskModal.hidden) ||
       (els.calModal && !els.calModal.hidden) ||
-      (els.riskModal && !els.riskModal.hidden);
+      (els.riskModal && !els.riskModal.hidden) ||
+      (els.histModal && !els.histModal.hidden);
   }
 
   // Every real model mutation lands here (model.subscribe). Remote applies are
@@ -505,6 +506,7 @@
       .then(function (j) {
         if (!j || j.service !== 'projectdesk') throw new Error('not projectdesk');
         sync.server = true;
+        els.btnHistory.hidden = false;
         populateProjectSwitcher();
         // Identity + role (viewer accounts get read-only chrome). Local mode
         // has no identity endpoint semantics beyond "editor".
@@ -723,7 +725,8 @@
       // selection (Delete/Insert/undo would corrupt what the dialog shows).
       var modalOpen = (els.taskModal && !els.taskModal.hidden) ||
         (els.calModal && !els.calModal.hidden) || (els.resModal && !els.resModal.hidden) ||
-        (els.riskModal && !els.riskModal.hidden);
+        (els.riskModal && !els.riskModal.hidden) ||
+      (els.histModal && !els.histModal.hidden);
       if (modalOpen) {
         if (e.key === 'Escape') {
           e.preventDefault();
@@ -731,6 +734,7 @@
           els.calModal.hidden = true;
           els.resModal.hidden = true;
           els.riskModal.hidden = true;
+          els.histModal.hidden = true;
         }
         return;
       }
@@ -1227,6 +1231,65 @@
     };
   }
 
+  // ---- Version history ----
+  function openHistoryModal() {
+    if (!sync.server) return;
+    els.histTable.innerHTML = '<tbody><tr><td style="color:#888;padding:12px">Loading…</td></tr></tbody>';
+    els.histModal.hidden = false;
+    fetch(apiPath('history'))
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(renderHistoryTable)
+      .catch(function () {
+        els.histTable.innerHTML = '<tbody><tr><td style="color:#888;padding:12px">Could not load history.</td></tr></tbody>';
+      });
+  }
+
+  function renderHistoryTable(list) {
+    var esc = PM.Grid.esc;
+    var html = '<thead><tr><th>Rev</th><th>When</th><th>Saved by</th><th>Tasks</th><th></th></tr></thead><tbody>';
+    if (!list.length) html += '<tr><td colspan="5" style="color:#888;padding:12px">No revisions yet — they appear as you work.</td></tr>';
+    list.forEach(function (e) {
+      var when = e.ts ? new Date(e.ts).toLocaleString() : '';
+      var current = e.rev === sync.rev;
+      html += '<tr>' +
+        '<td>' + e.rev + (current ? ' <span class="hist-current">current</span>' : '') + '</td>' +
+        '<td>' + esc(when) + '</td>' +
+        '<td>' + esc(e.editor || '') + '</td>' +
+        '<td>' + (e.taskCount != null ? e.taskCount : '') + '</td>' +
+        '<td>' + (current || isViewer() ? '' : '<button class="tb hist-restore" data-rev="' + e.rev + '">Restore</button>') + '</td>' +
+        '</tr>';
+    });
+    html += '</tbody>';
+    els.histTable.innerHTML = html;
+    els.histTable.querySelectorAll('.hist-restore').forEach(function (b) {
+      b.onclick = function () {
+        var rev = +b.getAttribute('data-rev');
+        if (!confirm('Restore revision ' + rev + '? The current version stays in history and can be restored back.')) return;
+        fetch(apiPath('restore'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rev: rev })
+        })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+          .then(function (res) {
+            if (!res.ok || !res.j.ok) throw new Error((res.j && res.j.error) || 'restore failed');
+            return fetch(apiPath()).then(function (r) { return r.json(); }).then(function (doc) {
+              els.histModal.hidden = true;
+              applyRemote(doc);
+              toast('Restored revision ' + rev + ' (as new revision ' + res.j.rev + ')');
+            });
+          })
+          .catch(function (e) { alert('Restore failed: ' + e.message); });
+      };
+    });
+  }
+
+  function wireHistoryModal() {
+    els.btnHistory.onclick = openHistoryModal;
+    els.histClose.onclick = function () { els.histModal.hidden = true; };
+    els.histModal.addEventListener('mousedown', function (e) { if (e.target === els.histModal) els.histModal.hidden = true; });
+  }
+
   // ---- Calendar dialog ----
   var DOW_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   function openCalendarDialog() {
@@ -1320,7 +1383,8 @@
       'filterSel', 'btnBaselineClear', 'btnCalendar', 'calModal', 'calClose', 'calCancel', 'calOk', 'calDays', 'calHolidays',
       'btnRisks', 'riskModal', 'riskClose', 'riskTable', 'riskHeatmap', 'riskSummaryBox', 'riskAddBtn',
       'riskForm', 'riskFormLegend', 'rkTitle', 'rkCategory', 'rkProb', 'rkImpact', 'rkOwner', 'rkStatus',
-      'rkReview', 'rkDesc', 'rkMitigation', 'rkContingency', 'rkTasks', 'rkSave', 'rkDelete', 'rkCancel'
+      'rkReview', 'rkDesc', 'rkMitigation', 'rkContingency', 'rkTasks', 'rkSave', 'rkDelete', 'rkCancel',
+      'btnHistory', 'histModal', 'histClose', 'histTable'
     ].forEach(function (id) { els[id] = $(id); });
 
     model.setStorageKey(PROJECT_NAME);
@@ -1333,6 +1397,7 @@
     wireTaskDialog();
     wireCalendarDialog();
     wireRiskModal();
+    wireHistoryModal();
     bootstrapStorage(); // loads local instantly, then upgrades to server mode
   }
 

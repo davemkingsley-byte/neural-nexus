@@ -83,6 +83,7 @@
         <button id="btnCalendar" class="tb" title="Working days & holidays">📅 Calendar</button>
         <button id="btnResources" class="tb" title="Manage resources">👥 Resources</button>
         <button id="btnRisks" class="tb" title="Risk register (probability × impact)">🛡 Risks</button>
+        <button id="btnHistory" class="tb" title="Version history — every save is restorable" hidden>🕘 History</button>
       </div>
     </div>
 
@@ -226,6 +227,21 @@
             <button id="rkCancel" class="tb">Cancel</button>
           </div>
         </fieldset>
+      </div>
+    </div>
+  </div>
+
+  <!-- Version history modal -->
+  <div class="modal-backdrop" id="histModal" hidden>
+    <div class="modal modal-hist">
+      <div class="modal-head">
+        <h2>Version History</h2>
+        <button class="modal-close" id="histClose" title="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <p class="hist-note">Every save is a revision. Restoring never deletes anything — it re-saves the
+          chosen version as a new revision, so a restore can itself be undone from here.</p>
+        <table class="risk-table" id="histTable"></table>
       </div>
     </div>
   </div>

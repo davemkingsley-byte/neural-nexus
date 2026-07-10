@@ -106,40 +106,20 @@ function loadModelLocal(requireExists) {
   return m;
 }
 
-// Disk-read-then-bump rev under an exclusive lockfile, so concurrent writers
-// (parallel CLI invocations, or CLI alongside the server's own file writes)
-// serialize instead of interleaving read-rev -> rename and losing updates.
-function sleepSync(ms) {
-  try { Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms); }
-  catch (e) { var end = Date.now() + ms; while (Date.now() < end) { /* spin */ } }
-}
+// All disk writes go through store.js: locked, rev-bumped, atomic, snapshotted
+// to history — identical behavior to the server's writes.
+var Store = require('./store.js');
 
 function withFileLock(file, fn) {
-  var lock = file + '.lock';
-  var fd = null, tries = 0;
-  while (fd === null) {
-    try { fd = fs.openSync(lock, 'wx'); }
-    catch (e) {
-      if (++tries > 100) die('project file is locked (' + lock + ' — remove it if stale)');
-      sleepSync(20);
-    }
-  }
-  try { return fn(); }
-  finally {
-    try { fs.closeSync(fd); } catch (e) { /* best effort */ }
-    try { fs.unlinkSync(lock); } catch (e) { /* best effort */ }
-  }
+  try { return Store.withFileLock(file, fn); }
+  catch (e) { die(e.message); }
 }
 
 function saveUnlocked(file, m) {
-  var diskRev = 0;
-  try { diskRev = JSON.parse(fs.readFileSync(file, 'utf8')).rev || 0; } catch (e) { /* new file */ }
   var doc = m.toJSON();
-  doc.rev = diskRev + 1;
-  var tmp = file + '.tmp-' + process.pid;
-  fs.writeFileSync(tmp, JSON.stringify(doc, null, 2));
-  fs.renameSync(tmp, file);
-  return doc.rev;
+  doc.lastEditor = 'local';
+  doc.lastEditISO = new Date().toISOString();
+  return Store.writeDocUnlocked(file, doc);
 }
 
 function saveModelLocal(m) {
@@ -378,6 +358,48 @@ function main() {
       if (flags['working-days']) cop.workingDays = String(flags['working-days']).split(',').map(Number);
       if (flags.holidays) cop.holidays = String(flags.holidays).split(',');
       return executeOps([cop]).then(function (r) { reportWrite(r, function () { return 'calendar updated'; }); });
+    }
+
+    case 'history': {
+      return serverAvailable().then(function (up) {
+        var listP = up
+          ? apiRequest('GET', '/api/projects/' + encodeURIComponent(projectArg) + '/history')
+              .then(function (r) { if (!r.json) die('server returned non-JSON'); return r.json; })
+          : Promise.resolve(Store.listHistory(projectFile()));
+        return listP.then(function (list) {
+          if (JSON_OUT) return out(list);
+          if (!list.length) return out('no history yet — every save creates a revision');
+          var lines = [pad('Rev', 5, true) + '  ' + pad('When', 26) + pad('Editor', 24) + 'Tasks'];
+          lines.push(new Array(70).join('-'));
+          list.forEach(function (e) {
+            lines.push(pad(e.rev, 5, true) + '  ' + pad(e.ts, 26) + pad(e.editor, 24) + e.taskCount);
+          });
+          lines.push(new Array(70).join('-'));
+          lines.push('restore any revision: node cli.js ' + projectArg + ' restore <rev>');
+          out(lines.join('\n'));
+        });
+      });
+    }
+
+    case 'restore': {
+      if (!rest.length || !/^\d+$/.test(rest[0])) die('usage: restore <rev>   (see "history" for revisions)');
+      var fromRev = parseInt(rest[0], 10);
+      return serverAvailable().then(function (up) {
+        if (up) {
+          return apiRequest('POST', '/api/projects/' + encodeURIComponent(projectArg) + '/restore', { rev: fromRev })
+            .then(function (r) {
+              if (!r.json || !r.json.ok) die((r.json && r.json.error) || ('restore failed (' + r.status + ')'));
+              out(JSON_OUT ? r.json : 'restored rev ' + fromRev + ' as new rev ' + r.json.rev);
+            });
+        }
+        var file = projectFile();
+        var snap = Store.readSnapshot(file, fromRev);
+        if (!snap) die('no snapshot for rev ' + fromRev);
+        var m = Model.createModel();
+        m.loadProject(snap);
+        var rev = saveModelLocal(m);
+        out(JSON_OUT ? { ok: true, rev: rev, restoredFrom: fromRev } : 'restored rev ' + fromRev + ' as new rev ' + rev);
+      });
     }
 
     case 'risks': {
