@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ProjectDesk — Project Planner</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Top bar: identity + project fields -->
+    <div class="topbar">
+      <div class="brand"><span class="brand-mark">▮▮</span> ProjectDesk</div>
+      <div class="project-fields">
+        <input id="projName" class="proj-name" type="text" placeholder="Project name" title="Project name">
+        <label class="fld">Start <input id="projStart" type="date" title="Project start date"></label>
+      </div>
+      <div class="topbar-right">
+        <button id="btnNew" class="tb" title="New project">New</button>
+        <button id="btnOpen" class="tb" title="Open a .json plan">Open</button>
+        <button id="btnSave" class="tb" title="Save plan to a .json file">Save</button>
+        <button id="btnExport" class="tb" title="Export the task list to CSV">CSV</button>
+        <button id="btnSample" class="tb" title="Load the sample project">Sample</button>
+        <input id="fileInput" type="file" accept="application/json,.json" hidden>
+      </div>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="tgroup">
+        <button id="btnUndo" class="tb" title="Undo (Ctrl+Z)">↶ Undo</button>
+        <button id="btnRedo" class="tb" title="Redo (Ctrl+Y)">↷ Redo</button>
+      </div>
+      <div class="sep"></div>
+      <div class="tgroup">
+        <button id="btnAdd" class="tb primary" title="Add task at end (Ctrl+Enter)">＋ Task</button>
+        <button id="btnInsert" class="tb" title="Insert task above selection (Insert)">Insert</button>
+        <button id="btnDelete" class="tb" title="Delete selected (Del)">🗑 Delete</button>
+      </div>
+      <div class="sep"></div>
+      <div class="tgroup">
+        <button id="btnOutdent" class="tb" title="Outdent (Shift+Tab)">⇤</button>
+        <button id="btnIndent" class="tb" title="Indent (Tab)">⇥</button>
+        <button id="btnUp" class="tb" title="Move up (Alt+↑)">↑</button>
+        <button id="btnDown" class="tb" title="Move down (Alt+↓)">↓</button>
+      </div>
+      <div class="sep"></div>
+      <div class="tgroup">
+        <button id="btnLink" class="tb" title="Link selected in sequence (Ctrl+L)">🔗 Link</button>
+        <button id="btnUnlink" class="tb" title="Unlink selected (Ctrl+Shift+L)">Unlink</button>
+      </div>
+      <div class="sep"></div>
+      <div class="tgroup">
+        <button id="btnCollapse" class="tb" title="Collapse all summaries">Collapse</button>
+        <button id="btnExpand" class="tb" title="Expand all">Expand</button>
+      </div>
+      <div class="sep"></div>
+      <div class="tgroup zoom">
+        <span class="tlabel">Zoom</span>
+        <button id="zoomDay" class="tb zoombtn" data-zoom="day" title="Day view">Day</button>
+        <button id="zoomWeek" class="tb zoombtn" data-zoom="week" title="Week view">Week</button>
+        <button id="zoomMonth" class="tb zoombtn" data-zoom="month" title="Month view">Month</button>
+        <button id="btnToday" class="tb" title="Scroll to today">Today</button>
+      </div>
+      <div class="sep"></div>
+      <div class="tgroup">
+        <button id="btnBaseline" class="tb" title="Save baseline snapshot">Set Baseline</button>
+        <button id="btnResources" class="tb" title="Manage resources">👥 Resources</button>
+      </div>
+    </div>
+
+    <!-- Workspace: grid | splitter | gantt -->
+    <div class="workspace">
+      <div class="grid-pane" id="gridPane"></div>
+      <div class="splitter" id="splitter" title="Drag to resize"></div>
+      <div class="gantt-pane" id="ganttPane">
+        <div class="gantt-header" id="ganttHeader"></div>
+        <div class="gantt-body" id="ganttBody"></div>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div class="statusbar">
+      <span id="stTasks">0 tasks</span>
+      <span class="st-sep">·</span>
+      <span id="stFinish">Finish —</span>
+      <span class="st-sep">·</span>
+      <span id="stDuration">— days</span>
+      <span class="st-sep">·</span>
+      <span id="stProgress">0% complete</span>
+      <span class="st-sep">·</span>
+      <span id="stCritical">0 critical</span>
+      <span class="st-sep">·</span>
+      <span id="stCost">$0</span>
+      <span id="stWarn" class="st-warn" hidden></span>
+      <span class="st-spacer"></span>
+      <span id="stSaved" class="st-saved"></span>
+    </div>
+  </div>
+
+  <!-- Resources modal -->
+  <div class="modal-backdrop" id="resModal" hidden>
+    <div class="modal">
+      <div class="modal-head">
+        <h2>Resources</h2>
+        <button class="modal-close" id="resClose" title="Close">✕</button>
+      </div>
+      <div class="modal-body">
+        <table class="res-table" id="resTable"></table>
+        <div class="res-add">
+          <input id="resNewName" type="text" placeholder="Add resource name…">
+          <button id="resAddBtn" class="tb primary">Add</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help hint -->
+  <div class="hint" id="hint">
+    <strong>Tips:</strong> double-click a cell to edit · <em>Predecessors</em> like <code>3</code>, <code>3FS+2</code>, <code>2SS</code> ·
+    <em>Duration</em> like <code>5d</code>, <code>2w</code>, <code>0</code> (milestone) · drag a bar to reschedule, drag its right edge to resize.
+    <button id="hintClose" title="Dismiss">✕</button>
+  </div>
+
+  <script src="js/calendar.js"></script>
+  <script src="js/scheduler.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/grid.js"></script>
+  <script src="js/gantt.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
