@@ -12,7 +12,9 @@
     <div class="topbar">
       <div class="brand"><span class="brand-mark">▮▮</span> ProjectDesk</div>
       <div class="project-fields">
-        <input id="projName" class="proj-name" type="text" placeholder="Project name" title="Project name">
+        <select id="projSelect" class="proj-select" title="Switch project" hidden></select>
+        <button id="projDelete" class="tb proj-del" title="Delete this project" hidden>🗑</button>
+        <input id="projName" class="proj-name" type="text" placeholder="Project name" title="Project display name">
         <label class="fld">Start <input id="projStart" type="date" title="Project start date"></label>
       </div>
       <div class="topbar-right">

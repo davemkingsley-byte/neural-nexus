@@ -1,0 +1,76 @@
+{
+  "id": "p2026-07-10",
+  "name": "Website Redesign",
+  "startISO": "2026-07-13",
+  "calendar": {
+    "workingDays": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "holidays": []
+  },
+  "tasks": [
+    {
+      "id": 1,
+      "name": "Discovery",
+      "duration": 5,
+      "outlineLevel": 1,
+      "predecessors": [],
+      "percentComplete": 0,
+      "resourceIds": [],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 2,
+      "name": "Design",
+      "duration": 10,
+      "outlineLevel": 1,
+      "predecessors": [
+        {
+          "id": 1,
+          "type": "FS",
+          "lag": 0
+        }
+      ],
+      "percentComplete": 0,
+      "resourceIds": [],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    },
+    {
+      "id": 3,
+      "name": "Build",
+      "duration": 15,
+      "outlineLevel": 1,
+      "predecessors": [
+        {
+          "id": 2,
+          "type": "FS",
+          "lag": 0
+        }
+      ],
+      "percentComplete": 0,
+      "resourceIds": [],
+      "collapsed": false,
+      "constraintISO": null,
+      "deadlineISO": null,
+      "notes": ""
+    }
+  ],
+  "resources": [],
+  "nextTaskId": 4,
+  "nextResourceId": 1,
+  "baseline": null,
+  "view": {
+    "zoom": "week"
+  },
+  "rev": 2
+}

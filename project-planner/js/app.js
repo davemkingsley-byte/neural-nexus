@@ -306,6 +306,63 @@
     }, 2000);
   }
 
+  // ---- Project switcher (server mode only) ----
+  function populateProjectSwitcher() {
+    if (!sync.server) return;
+    fetch('/api/projects')
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (list) {
+        var sel = els.projSelect;
+        sel.innerHTML = '';
+        var names = list.map(function (p) { return p.name; });
+        if (names.indexOf(PROJECT_NAME) < 0) names.unshift(PROJECT_NAME);
+        names.forEach(function (n) {
+          var opt = document.createElement('option');
+          var meta = list.filter(function (p) { return p.name === n; })[0];
+          opt.value = n;
+          opt.textContent = n + (meta && meta.taskCount != null ? ' (' + meta.taskCount + ')' : '');
+          sel.appendChild(opt);
+        });
+        var newOpt = document.createElement('option');
+        newOpt.value = '__new__';
+        newOpt.textContent = '＋ New project…';
+        sel.appendChild(newOpt);
+        sel.value = PROJECT_NAME;
+        sel.hidden = false;
+        els.projDelete.hidden = false;
+      })
+      .catch(function () { /* switcher is optional chrome */ });
+  }
+
+  function wireProjectSwitcher() {
+    // Refresh the list every time the user opens the dropdown, so projects
+    // created elsewhere (CLI/AI) show up without a page reload.
+    els.projSelect.onmousedown = function () { populateProjectSwitcher(); };
+    els.projSelect.onchange = function () {
+      var v = els.projSelect.value;
+      if (v === '__new__') {
+        var name = prompt('New project name (letters, numbers, - and _):');
+        els.projSelect.value = PROJECT_NAME;
+        if (!name) return;
+        name = name.trim();
+        if (!/^[A-Za-z0-9][A-Za-z0-9_-]{0,63}$/.test(name)) { alert('Invalid name — use letters, numbers, dashes.'); return; }
+        window.location.search = '?project=' + encodeURIComponent(name);
+        return;
+      }
+      if (v !== PROJECT_NAME) window.location.search = '?project=' + encodeURIComponent(v);
+    };
+    els.projDelete.onclick = function () {
+      if (!sync.server) return;
+      if (!confirm('Delete project "' + PROJECT_NAME + '" from the server? The file is removed (git history is your backup).')) return;
+      fetch(apiPath(), { method: 'DELETE' })
+        .then(function () {
+          try { localStorage.removeItem('projectdesk.' + PROJECT_NAME + '.v1'); } catch (e) { /* ignore */ }
+          window.location.search = PROJECT_NAME === 'current' ? '' : '?project=current';
+        })
+        .catch(function () { alert('Delete failed — is the server running?'); });
+    };
+  }
+
   function bootstrapStorage() {
     // Instant local render first (works on file:// with no server at all).
     if (!model.loadLocal()) {
@@ -320,6 +377,7 @@
       .then(function (j) {
         if (!j || j.service !== 'projectdesk') throw new Error('not projectdesk');
         sync.server = true;
+        populateProjectSwitcher();
         return fetch(apiPath()).then(function (r) {
           if (r.status === 404) {
             // First contact for this project: push the local state up.
@@ -592,7 +650,7 @@
 
   // ---- Init ----
   function init() {
-    ['gridPane', 'ganttPane', 'ganttHeader', 'ganttBody', 'splitter', 'projName', 'projStart',
+    ['gridPane', 'ganttPane', 'ganttHeader', 'ganttBody', 'splitter', 'projName', 'projStart', 'projSelect', 'projDelete',
       'btnNew', 'btnOpen', 'btnSave', 'btnExport', 'btnSample', 'fileInput', 'btnUndo', 'btnRedo',
       'btnAdd', 'btnInsert', 'btnDelete', 'btnIndent', 'btnOutdent', 'btnUp', 'btnDown',
       'btnLink', 'btnUnlink', 'btnCollapse', 'btnExpand', 'btnToday', 'btnBaseline', 'btnResources',
@@ -602,6 +660,7 @@
     model.setStorageKey(PROJECT_NAME);
     model.subscribe(onModelChanged);
     wireToolbar();
+    wireProjectSwitcher();
     wireSplitter();
     wireKeyboard();
     bootstrapStorage(); // loads local instantly, then upgrades to server mode
