@@ -68,12 +68,20 @@ try {
 }
 
 const app = express();
+app.disable('x-powered-by');
 const PORT = process.env.PORT || 4000;
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 function renderPage(res, view, options) {
+  // Let Cloudflare edge-cache rendered HTML briefly. Browsers always revalidate
+  // (max-age=0); the edge holds it 5 min, serving stale while refreshing.
+  // Auth-gated pages bypass renderPage entirely (sendFile/inline), so this only
+  // ever applies to public pages.
+  if (!res.get('Cache-Control')) {
+    res.set('Cache-Control', 'public, max-age=0, s-maxage=300, stale-while-revalidate=600');
+  }
   res.render(view, options, (err, html) => {
     if (err) {
       console.error(`Render error for ${view}:`, err);
@@ -96,6 +104,101 @@ const charterDataPath = path.join(__dirname, 'public', 'data', 'charters.json');
 
 app.locals.articles = articles;
 app.locals.topics = topics;
+
+// Keep articles.json fresh — /archive, topic pages, and /feed.xml all render
+// from it, and it only changed when scripts/sync-articles.js was run by hand
+// (it had been frozen for 10 weeks). Mutate the array in place so every
+// closure over `articles` sees the refreshed data.
+const ARTICLE_SYNC_INTERVAL_MS = 6 * 60 * 60 * 1000; // 6 hours
+function syncArticlesAndReload() {
+  const { execFile } = require('child_process');
+  execFile(process.execPath, [path.join(__dirname, 'scripts', 'sync-articles.js')], { timeout: 60000 }, (err) => {
+    if (err) return console.error('Article sync failed:', err.message);
+    try {
+      const fresh = JSON.parse(fs.readFileSync(path.join(__dirname, 'data', 'articles.json'), 'utf8'));
+      if (Array.isArray(fresh) && fresh.length) {
+        const newestBefore = articles[0]?.id;
+        articles.length = 0;
+        articles.push(...fresh);
+        console.log(`Article sync OK — ${articles.length} articles, newest ${articles[0]?.date}`);
+        if (articles[0]?.id && articles[0].id !== newestBefore) {
+          pingIndexNow();
+          pingWebSubHub();
+        }
+      }
+    } catch (e) {
+      console.error('Article reload failed:', e.message);
+    }
+  });
+}
+setTimeout(syncArticlesAndReload, 30 * 1000).unref(); // shortly after boot
+setInterval(syncArticlesAndReload, ARTICLE_SYNC_INTERVAL_MS).unref();
+
+// Tell IndexNow-capable engines (Bing, Yandex, Seznam, Naver) about fresh
+// content. The key file is already deployed at /{key}.txt; nothing pinged it.
+const INDEXNOW_KEY = 'ec9a7a443c244ce213b953f352d8c412';
+function pingIndexNow(urls) {
+  const list = urls || [
+    'https://www.neuralnexus.press/',
+    'https://www.neuralnexus.press/archive',
+    'https://www.neuralnexus.press/feed.xml',
+  ];
+  const body = JSON.stringify({
+    host: 'www.neuralnexus.press',
+    key: INDEXNOW_KEY,
+    keyLocation: `https://www.neuralnexus.press/${INDEXNOW_KEY}.txt`,
+    urlList: list,
+  });
+  const reqOpts = {
+    hostname: 'api.indexnow.org',
+    path: '/indexnow',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Content-Length': Buffer.byteLength(body) },
+  };
+  const req = httpsModule.request(reqOpts, (res) => {
+    res.resume();
+    console.log(`IndexNow ping: ${res.statusCode} for ${list.length} URLs`);
+  });
+  req.on('error', (e) => console.error('IndexNow ping failed:', e.message));
+  req.setTimeout(10000, () => req.destroy(new Error('timeout')));
+  req.write(body);
+  req.end();
+}
+
+// Notify Google's open WebSub hub that feed.xml changed (Feedly, Flipboard,
+// Inoreader and friends subscribe through it).
+function pingWebSubHub() {
+  const body = `hub.mode=publish&hub.url=${encodeURIComponent('https://www.neuralnexus.press/feed.xml')}`;
+  const req = httpsModule.request({
+    hostname: 'pubsubhubbub.appspot.com',
+    path: '/',
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'Content-Length': Buffer.byteLength(body) },
+  }, (res) => { res.resume(); console.log(`WebSub ping: ${res.statusCode}`); });
+  req.on('error', (e) => console.error('WebSub ping failed:', e.message));
+  req.setTimeout(10000, () => req.destroy(new Error('timeout')));
+  req.write(body);
+  req.end();
+}
+
+// The daily games legitimately change every midnight ET — tell IndexNow once
+// per rollover so Bing & friends re-crawl them.
+let lastIndexNowDay = null;
+setInterval(() => {
+  const today = new Date().toLocaleString('en-CA', { timeZone: 'America/New_York' }).split(',')[0];
+  if (lastIndexNowDay === null) { lastIndexNowDay = today; return; }
+  if (today !== lastIndexNowDay) {
+    lastIndexNowDay = today;
+    pingIndexNow([
+      'https://www.neuralnexus.press/games',
+      'https://www.neuralnexus.press/play',
+      'https://www.neuralnexus.press/wordle',
+      'https://www.neuralnexus.press/crossword',
+      'https://www.neuralnexus.press/connections',
+      'https://www.neuralnexus.press/contexto',
+    ]);
+  }
+}, 10 * 60 * 1000).unref();
 
 // --- Substack RSS fetch (cached, 1h TTL) ---
 // Feeds the homepage's featured articles. Falls back to static articles.json on any failure.
@@ -226,6 +329,7 @@ const NOINDEX_PATHS = [
   '/dashboard',
   '/morpheus',
   '/seo-report',
+  '/seo-report.html',
   '/app/health',
   '/app/health/',
 ];
@@ -233,6 +337,8 @@ const NOINDEX_PREFIXES = [
   '/pm-charters/',
   '/treat-docs/',
   '/cognitive/',
+  '/rca',
+  '/reports/',
 ];
 
 function shouldNoindexPath(pathname = '') {
@@ -298,7 +404,7 @@ function getTopicOgImage(slug) {
   const absolutePath = path.join(__dirname, 'public', relativePath);
   return fs.existsSync(absolutePath)
     ? `${SITE_URL}/${relativePath}`
-    : `${SITE_URL}/img/neuron-logo.jpg`;
+    : `${SITE_URL}/og-image.png`; // 1200×630 — matches the og:image dims declared in the layout
 }
 
 function buildSitemapEntries() {
@@ -314,12 +420,16 @@ function buildSitemapEntries() {
     { loc: `${SITE_URL}/topics`, priority: '0.8', changefreq: 'weekly', lastmod: topicEntries.map((entry) => entry.lastmod).find(Boolean) || null },
     ...topicEntries,
     { loc: `${SITE_URL}/archive`, priority: '0.7', changefreq: 'weekly', lastmod: articles[0]?.date || null },
-    { loc: `${SITE_URL}/play`, priority: '0.6', changefreq: 'daily', lastmod: new Date().toISOString().split('T')[0] },
-    { loc: `${SITE_URL}/wordle`, priority: '0.6', changefreq: 'daily', lastmod: new Date().toISOString().split('T')[0] },
-    { loc: `${SITE_URL}/crossword`, priority: '0.6', changefreq: 'daily', lastmod: new Date().toISOString().split('T')[0] },
-    { loc: `${SITE_URL}/play/archive`, priority: '0.6', changefreq: 'weekly', lastmod: new Date().toISOString().split('T')[0] },
-    { loc: `${SITE_URL}/wordle/archive`, priority: '0.6', changefreq: 'weekly', lastmod: new Date().toISOString().split('T')[0] },
-    { loc: `${SITE_URL}/crossword/archive`, priority: '0.6', changefreq: 'weekly', lastmod: new Date().toISOString().split('T')[0] },
+    { loc: `${SITE_URL}/games`, priority: '0.8', changefreq: 'daily', lastmod: getTodayStr() },
+    { loc: `${SITE_URL}/play`, priority: '0.6', changefreq: 'daily', lastmod: getTodayStr() },
+    { loc: `${SITE_URL}/wordle`, priority: '0.6', changefreq: 'daily', lastmod: getTodayStr() },
+    { loc: `${SITE_URL}/crossword`, priority: '0.6', changefreq: 'daily', lastmod: getTodayStr() },
+    { loc: `${SITE_URL}/connections`, priority: '0.6', changefreq: 'daily', lastmod: getTodayStr() },
+    { loc: `${SITE_URL}/contexto`, priority: '0.6', changefreq: 'daily', lastmod: getTodayStr() },
+    { loc: `${SITE_URL}/play/archive`, priority: '0.6', changefreq: 'weekly', lastmod: getTodayStr() },
+    { loc: `${SITE_URL}/wordle/archive`, priority: '0.6', changefreq: 'weekly', lastmod: getTodayStr() },
+    { loc: `${SITE_URL}/crossword/archive`, priority: '0.6', changefreq: 'weekly', lastmod: getTodayStr() },
+    { loc: `${SITE_URL}/connections/archive`, priority: '0.6', changefreq: 'weekly', lastmod: getTodayStr() },
     { loc: `${SITE_URL}/privacy`, priority: '0.3', changefreq: 'monthly', lastmod: null },
     { loc: `${SITE_URL}/brain-check`, priority: '0.3', changefreq: 'monthly', lastmod: null },
   ];
@@ -362,6 +472,24 @@ const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Leaderboard/score submissions: a real player submits a handful per day.
+const scoreLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { error: 'Too many submissions. Please slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+// Gameplay guesses/hints: generous — a long Contexto session is hundreds of guesses.
+const gameplayLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 900,
+  message: { error: 'Too many requests. Please slow down.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 // Security headers
 app.use((req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -375,7 +503,7 @@ app.use((req, res, next) => {
 const treatDir = path.join(__dirname, 'public', 'treat');
 const treatContactFile = path.join(__dirname, 'data', 'treat-contacts.json');
 
-app.post('/api/treat/contact', (req, res) => {
+app.post('/api/treat/contact', scoreLimiter, (req, res) => {
   const host = (req.headers.host || '').toLowerCase().replace(/:\d+$/, '');
   const isLocal = host.startsWith('localhost') || host.startsWith('127.0.0.1');
   if (!isLocal && host !== 'treat.neuralnexus.press') {
@@ -434,7 +562,9 @@ app.use((req, res, next) => {
   }
 
   if (req.path.length > 1 && req.path.endsWith('/')) {
-    const normalizedPath = req.path.replace(/\/+$/, '');
+    // Collapse leading slashes too — "//evil.com/" would otherwise become a
+    // protocol-relative open redirect.
+    const normalizedPath = req.path.replace(/\/+$/, '').replace(/^\/{2,}/, '/') || '/';
     const search = req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '';
     return res.redirect(301, `${normalizedPath}${search}`);
   }
@@ -496,6 +626,21 @@ app.get('/', (req, res) => {
         '@type': 'Person',
         name: 'David Kingsley, PhD'
       }
+    }, {
+      '@context': 'https://schema.org',
+      '@type': 'Person',
+      '@id': 'https://www.neuralnexus.press/#david-kingsley',
+      name: 'David Kingsley, PhD',
+      url: 'https://www.neuralnexus.press/#about',
+      image: 'https://www.neuralnexus.press/img/david.jpg',
+      jobTitle: 'Scientist',
+      worksFor: { '@type': 'Organization', name: 'Colossal Biosciences' },
+      description: 'PhD scientist at Colossal Biosciences working on de-extinction and artificial womb technology. Writes Neural NeXus, a weekly newsletter on AI, biotech, and the science reshaping civilization.',
+      sameAs: [
+        'https://davidkingsley.substack.com',
+        'https://blog.neuralnexus.press',
+        'https://instagram.com/Davidkingsley.phd'
+      ]
     }],
     activePage: 'home',
     pageType: 'home',
@@ -551,13 +696,21 @@ app.get('/privacy', (req, res) => {
 
 app.get(['/brain-check', '/brain-check/'], (req, res) => {
   renderPage(res, 'pages/brain-check', {
-    title: 'Brain Check',
-    description: 'Take the free Brain Check on Neural NeXus to benchmark reaction time, memory, focus, and cognitive sharpness in minutes.',
+    title: 'Daily Brain Test — Free Cognitive Check',
+    description: 'Take a free 3-minute daily brain test — benchmark reaction time, memory, focus, and processing speed. No signup, instant results.',
     canonical: 'https://www.neuralnexus.press/brain-check',
     activePage: 'brain-check',
     pageType: 'brain-check',
     pageCSS: 'brain-check.css',
-    bodyClass: 'brain-check-page'
+    bodyClass: 'brain-check-page',
+    structuredData: [
+      buildBreadcrumbJsonLd([
+        { label: 'Home', href: '/' },
+        { label: 'Games', href: '/games' },
+        { label: 'Brain Check', href: '/brain-check' }
+      ]),
+      buildGameJsonLd({ name: 'Neural NeXus Brain Check', description: 'Free 3-minute cognitive test measuring reaction time, memory, and processing speed.', url: 'https://www.neuralnexus.press/brain-check' })
+    ]
   });
 });
 
@@ -698,16 +851,19 @@ app.get('/feed.xml', (req, res) => {
       <title>${xmlEscape(article.title)}</title>
       <link>${xmlEscape(article.url)}</link>
       <guid>${xmlEscape(article.url)}</guid>
-      <description>${xmlEscape(article.description || '')}</description>
+      <description>${xmlEscape(article.description || '')}</description>${article.thumbnail ? `
+      <enclosure url="${xmlEscape(article.thumbnail)}" type="image/jpeg" length="0"/>` : ''}
       <pubDate>${new Date(`${article.date || '1970-01-01'}T12:00:00Z`).toUTCString()}</pubDate>
     </item>`).join('');
 
   res.type('application/rss+xml');
   res.send(`<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0">
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Neural NeXus</title>
     <link>${siteUrl}</link>
+    <atom:link href="${siteUrl}/feed.xml" rel="self" type="application/rss+xml"/>
+    <atom:link href="https://pubsubhubbub.appspot.com/" rel="hub"/>
     <description>Weekly deep dives on AI, biotech, and the science of what comes next.</description>
     <language>en-us</language>
     <lastBuildDate>${lastBuildDate}</lastBuildDate>${itemsXml}
@@ -832,14 +988,14 @@ function loadCharterData() {
   }
 }
 
-app.get('/api/charters', (req, res) => {
+app.get('/api/charters', dashboardAuth, (req, res) => {
   const data = loadCharterData();
   const charters = data.programs ? data.programs.flatMap(p => p.charters || []) : [];
   const payload = charters.map(sanitizeCharter);
   res.json({ charters: payload });
 });
 
-app.get('/api/charters/:id', (req, res) => {
+app.get('/api/charters/:id', dashboardAuth, (req, res) => {
   const data = loadCharterData();
   const charters = data.programs ? data.programs.flatMap(p => p.charters || []) : [];
   const charter = charters.find(c => String(c.id) === String(req.params.id));
@@ -871,6 +1027,28 @@ app.get(['/rift-runner', '/rift-runner/'], (req, res) => {
 // redirect: false prevents the trailing-slash 301 redirect for directory URLs,
 // which was causing a /topics <-> /topics/ loop (public/topics/ exists as a dir
 // with no index.html, and app.get('/topics') handles that URL itself).
+// Internal tool shells and reports live under public/ so the authed routes can
+// sendFile them, but the global static handler below must never serve them to
+// anonymous visitors (e.g. /dashboard.html bypassing the /dashboard login).
+const INTERNAL_STATIC_PATTERNS = [
+  /^\/dashboard\.html$/i,
+  /^\/morpheus\.html$/i,
+  /^\/rca(\/|$)/i,
+  /^\/reports(\/|$)/i,
+  /^\/seo-report\.html$/i,
+];
+app.use((req, res, next) => {
+  // express.static percent-decodes and normalizes before resolving files, so
+  // match against the same normalized form — otherwise encoded variants like
+  // /%2e/dashboard.html or //dashboard.html slip past the patterns.
+  let p = req.path;
+  try { p = decodeURIComponent(p); } catch { return res.status(400).send('Bad request'); }
+  p = path.posix.normalize('/' + p.replace(/\\/g, '/').replace(/^\/+/, ''));
+  if (!INTERNAL_STATIC_PATTERNS.some((re) => re.test(p))) return next();
+  if (hasDashboardAuth(req)) return next();
+  return res.redirect(302, `/dashboard?return=${encodeURIComponent(p)}`);
+});
+
 app.use(express.static(path.join(__dirname, 'public'), {
   redirect: false,
   setHeaders: (res, filePath) => {
@@ -881,17 +1059,6 @@ app.use(express.static(path.join(__dirname, 'public'), {
     }
   }
 }));
-
-app.get('/test-ejs', (req, res) => {
-  res.render('layouts/base', {
-    title: 'Test',
-    description: 'Test page',
-    canonical: 'https://www.neuralnexus.press/test',
-    body: '<section class="section-wrap"><div class="section-label">Test</div><h1 class="section-title">EJS Working</h1><p style="color: var(--text-mid); font-size: 1rem; line-height: 1.7;">Shared layout, partials, and CSS are rendering correctly.</p></section>',
-    activePage: 'home',
-    pageType: 'test'
-  });
-});
 
 app.get('/api/health', dashboardAuth, async (req, res) => {
   const data = loadCharterData();
@@ -1019,18 +1186,63 @@ app.post('/api/charters', dashboardAuth, (req, res) => {
   res.json({ ok: true, message: 'New charters are created via git push in production' });
 });
 
+// Games hub — the canonical landing page for the daily-games portfolio.
+const GAMES_HUB_LIST = [
+  { name: 'Spelling Bee', url: 'https://www.neuralnexus.press/play', description: 'Seven letters, one center letter, five minutes. Find every word you can.' },
+  { name: 'Wordie', url: 'https://www.neuralnexus.press/wordle', description: 'A free daily Wordle-style game — guess the 5-letter word in six tries.' },
+  { name: 'Mini Crossword', url: 'https://www.neuralnexus.press/crossword', description: 'A free 5×5 daily mini crossword with no paywall — solve it over coffee.' },
+  { name: 'Connections', url: 'https://www.neuralnexus.press/connections', description: 'Sort 16 words into 4 hidden groups, from easy to devious.' },
+  { name: 'Contexto', url: 'https://www.neuralnexus.press/contexto', description: 'Guess the secret word by meaning — every guess shows how close you are.' },
+  { name: 'Brain Check', url: 'https://www.neuralnexus.press/brain-check', description: 'A free 3-minute cognitive test: reaction time, memory, and focus.' },
+];
+app.get('/games', (req, res) => {
+  renderPage(res, 'pages/games', {
+    title: 'Free Daily Word Games & Brain Puzzles',
+    description: 'Six free daily games, no login and no paywall: Spelling Bee, a Wordle-style daily, a 5×5 mini crossword, Connections-style grouping, Contexto, and a brain test.',
+    canonical: 'https://www.neuralnexus.press/games',
+    activePage: 'games',
+    pageType: 'games',
+    pageCSS: 'home.css',
+    bodyClass: 'games-page',
+    pageCampaign: 'games-hub',
+    games: GAMES_HUB_LIST,
+    structuredData: [
+      buildBreadcrumbJsonLd([
+        { label: 'Home', href: '/' },
+        { label: 'Games', href: '/games' }
+      ]),
+      buildCollectionPageJsonLd({
+        name: 'Free Daily Word Games & Brain Puzzles',
+        description: 'Free daily games from Neural NeXus — word games and brain training with no login, no paywall, and a new puzzle every day.',
+        url: 'https://www.neuralnexus.press/games'
+      }),
+      {
+        '@context': 'https://schema.org',
+        '@type': 'ItemList',
+        itemListElement: GAMES_HUB_LIST.map((game, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          url: game.url,
+          name: game.name,
+          description: game.description
+        }))
+      }
+    ]
+  });
+});
+
 // Serve game pages
 app.get('/play', (req, res) => {
   renderPage(res, 'games/spelling-bee', {
-    title: 'Spelling Bee',
-    description: 'Play the daily Neural NeXus Spelling Bee puzzle',
+    title: 'Free Spelling Bee Game Online',
+    description: 'Play a free Spelling Bee word game online — no login, no subscription. Seven letters, one center, five minutes. New puzzle and leaderboard every day.',
     canonical: 'https://www.neuralnexus.press/play',
     activePage: 'games',
     pageType: 'game',
     structuredData: [
       buildBreadcrumbJsonLd([
         { label: 'Home', href: '/' },
-        { label: 'Games', href: '/play' },
+        { label: 'Games', href: '/games' },
         { label: 'Spelling Bee', href: '/play' }
       ]),
       buildGameJsonLd({ name: 'Neural NeXus Spelling Bee', description: 'Daily Spelling Bee word puzzle. Seven letters, one center — find every word in 5 minutes. New puzzle every day with leaderboard.', url: 'https://www.neuralnexus.press/play' })
@@ -1040,15 +1252,15 @@ app.get('/play', (req, res) => {
 });
 app.get('/wordle', (req, res) => {
   renderPage(res, 'games/wordle', {
-    title: 'Wordle',
-    description: 'Play the daily Neural NeXus Wordle puzzle',
+    title: 'Wordie — Free Daily Wordle Alternative',
+    description: 'A free daily Wordle alternative with a playable archive — six tries, color clues, new 5-letter word at midnight. No login, no paywall, no app.',
     canonical: 'https://www.neuralnexus.press/wordle',
     activePage: 'games',
     pageType: 'game',
     structuredData: [
       buildBreadcrumbJsonLd([
         { label: 'Home', href: '/' },
-        { label: 'Games', href: '/wordle' },
+        { label: 'Games', href: '/games' },
         { label: 'Wordie', href: '/wordle' }
       ]),
       buildGameJsonLd({ name: 'Wordie — Neural NeXus', description: 'Free daily 5-letter word puzzle. Guess the word in 6 tries. New word every day at midnight.', url: 'https://www.neuralnexus.press/wordle' })
@@ -1058,15 +1270,15 @@ app.get('/wordle', (req, res) => {
 });
 app.get('/crossword', (req, res) => {
   renderPage(res, 'games/crossword', {
-    title: 'Mini Crossword',
-    description: 'Play the daily Neural NeXus Mini Crossword',
+    title: 'Free Daily Mini Crossword — No Paywall',
+    description: 'Play a free 5×5 daily mini crossword online — no paywall, no login. A free NYT Mini alternative with clever science-flavored clues and a daily timer leaderboard.',
     canonical: 'https://www.neuralnexus.press/crossword',
     activePage: 'games',
     pageType: 'game',
     structuredData: [
       buildBreadcrumbJsonLd([
         { label: 'Home', href: '/' },
-        { label: 'Games', href: '/crossword' },
+        { label: 'Games', href: '/games' },
         { label: 'Mini Crossword', href: '/crossword' }
       ]),
       buildGameJsonLd({ name: 'Neural NeXus Mini Crossword', description: 'Free daily 5×5 mini crossword puzzle. Quick, fun, and new every day from Neural NeXus.', url: 'https://www.neuralnexus.press/crossword' })
@@ -1076,15 +1288,15 @@ app.get('/crossword', (req, res) => {
 });
 app.get('/connections', (req, res) => {
   renderPage(res, 'games/connections', {
-    title: 'Connections',
-    description: 'Play the daily Neural NeXus Connections puzzle',
+    title: 'Free Daily Connections-Style Word Game',
+    description: 'Play a free Connections-style word grouping game — sort 16 words into 4 hidden groups. New daily puzzle, playable archive, no login or paywall.',
     canonical: 'https://www.neuralnexus.press/connections',
     activePage: 'games',
     pageType: 'game',
     structuredData: [
       buildBreadcrumbJsonLd([
         { label: 'Home', href: '/' },
-        { label: 'Games', href: '/connections' },
+        { label: 'Games', href: '/games' },
         { label: 'Connections', href: '/connections' }
       ]),
       buildGameJsonLd({ name: 'Connections — Neural NeXus', description: 'Free daily word grouping puzzle. Find 4 groups of 4 words. New puzzle every day.', url: 'https://www.neuralnexus.press/connections' })
@@ -1094,15 +1306,15 @@ app.get('/connections', (req, res) => {
 });
 app.get('/contexto', (req, res) => {
   renderPage(res, 'games/contexto', {
-    title: 'Contexto',
-    description: 'Play the daily Neural NeXus Contexto puzzle — guess the word by semantic similarity.',
+    title: 'Contexto Game — Guess the Word by Meaning',
+    description: 'Play a free daily Contexto-style game — guess the secret word by meaning and watch your rank drop as you get warmer. New word every day, free forever.',
     canonical: 'https://www.neuralnexus.press/contexto',
     activePage: 'games',
     pageType: 'game',
     structuredData: [
       buildBreadcrumbJsonLd([
         { label: 'Home', href: '/' },
-        { label: 'Games', href: '/contexto' },
+        { label: 'Games', href: '/games' },
         { label: 'Contexto', href: '/contexto' }
       ]),
       buildGameJsonLd({ name: 'Contexto — Neural NeXus', description: 'Free daily word puzzle. Guess the target word using semantic similarity hints. New word every day.', url: 'https://www.neuralnexus.press/contexto' })
@@ -1258,7 +1470,18 @@ app.get('/topics/:slug', (req, res) => {
         }),
         about: { '@type': 'Thing', name: topic.name },
         author: { '@type': 'Person', name: 'David Kingsley, PhD' }
-      }
+      },
+      ...(Array.isArray(topic.faq) && topic.faq.length
+        ? [{
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: topic.faq.map((f) => ({
+              '@type': 'Question',
+              name: f.q,
+              acceptedAnswer: { '@type': 'Answer', text: f.a }
+            }))
+          }]
+        : [])
     ]
   });
 });
@@ -1313,10 +1536,10 @@ app.get('/api/wordle/today', (req, res) => {
   res.json({ date, length: word.length });
 });
 
-app.post('/api/wordle/guess', (req, res) => {
+app.post('/api/wordle/guess', gameplayLimiter, (req, res) => {
   if (!wordleWords) return res.status(503).json({ error: 'Wordle not available' });
-  const { guess } = req.body;
-  if (!guess || guess.length !== 5) return res.json({ valid: false });
+  const { guess } = req.body || {};
+  if (typeof guess !== 'string' || guess.length !== 5) return res.json({ valid: false });
   
   const g = guess.toLowerCase();
   if (!wordleWords.isValidGuess(g)) return res.json({ valid: false });
@@ -1353,14 +1576,17 @@ app.post('/api/wordle/guess', (req, res) => {
 });
 
 // Wordle score submission
-app.post('/api/wordle/score', (req, res) => {
+app.post('/api/wordle/score', scoreLimiter, (req, res) => {
   if (!checkDB(res)) return;
   try {
     const { date, nickname, guesses, won, guessDetails } = req.body;
     if (!date || !nickname || guesses === undefined || won === undefined) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    spellDB.submitWordleScore(date, nickname.trim().slice(0, 20), guesses, won, guessDetails || []);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isFutureDate(date)) return res.status(400).json({ error: 'Invalid date' });
+    const guessCount = parseInt(guesses, 10);
+    if (!Number.isInteger(guessCount) || guessCount < 1 || guessCount > 6) return res.status(400).json({ error: 'Invalid guesses' });
+    spellDB.submitWordleScore(date, String(nickname).trim().slice(0, 20), guessCount, Boolean(won), guessDetails || []);
     res.json({ success: true });
   } catch (err) {
     console.error('Error saving wordle score:', err);
@@ -1414,8 +1640,9 @@ app.get('/api/wordle/archive/:date', (req, res) => {
   try {
     const { date } = req.params;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date format' });
+    if (isFutureDate(date)) return res.status(404).json({ error: 'Not available' });
     const today = getTodayStr();
-    const word = (wordleWords && date !== today) ? wordleWords.getWordForDate(date) : null;
+    const word = (wordleWords && date < today) ? wordleWords.getWordForDate(date) : null;
     const entries = spellDB.getWordleLeaderboard(date);
     res.json({ date, word, entries });
   } catch (err) {
@@ -1432,6 +1659,12 @@ function checkDB(res) {
 
 function getTodayStr() {
   return new Date().toLocaleString('en-CA', { timeZone: 'America/New_York' }).split(',')[0];
+}
+
+// YYYY-MM-DD strings compare correctly as strings. Future puzzles must never
+// be retrievable — archive/today endpoints would otherwise leak upcoming answers.
+function isFutureDate(dateStr) {
+  return typeof dateStr === 'string' && dateStr > getTodayStr();
 }
 
 function ensurePuzzle(dateStr) {
@@ -1462,7 +1695,7 @@ app.get('/api/puzzle', (req, res) => {
   }
 });
 
-app.post('/api/validate', (req, res) => {
+app.post('/api/validate', gameplayLimiter, (req, res) => {
   if (!checkDB(res)) return;
   try {
     const { word } = req.body;
@@ -1476,7 +1709,7 @@ app.post('/api/validate', (req, res) => {
   }
 });
 
-app.post('/api/score', (req, res) => {
+app.post('/api/score', scoreLimiter, (req, res) => {
   if (!checkDB(res)) return;
   try {
     const { nickname, score, words_found, time_remaining } = req.body;
@@ -1535,6 +1768,8 @@ app.get('/api/spelling-bee/archive/:date', (req, res) => {
   try {
     const { date } = req.params;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date format' });
+    // Archive responses include the full answer list — strictly past dates only.
+    if (date >= getTodayStr()) return res.status(404).json({ error: 'Not available' });
     ensurePuzzle(date);
     const data = spellDB.getSpellingBeeByDate(date);
     if (!data) return res.status(404).json({ error: 'Puzzle not found' });
@@ -1549,6 +1784,7 @@ app.get('/api/spelling-bee/archive/:date', (req, res) => {
 app.get('/api/crossword/today', (req, res) => {
   try {
     const dateStr = req.query.date || getTodayStr();
+    if (isFutureDate(dateStr)) return res.status(404).json({ error: 'Not available' });
     if (!crosswordPuzzles) return res.status(503).json({ error: 'Crossword module not loaded' });
     const puzzle = crosswordPuzzles.getPuzzleForDate(dateStr);
     res.json({ date: dateStr, puzzle: { grid: puzzle.grid, clues: puzzle.clues } });
@@ -1558,14 +1794,17 @@ app.get('/api/crossword/today', (req, res) => {
   }
 });
 
-app.post('/api/crossword/score', (req, res) => {
+app.post('/api/crossword/score', scoreLimiter, (req, res) => {
   if (!checkDB(res)) return;
   try {
     const { date, nickname, timeSeconds, completed } = req.body;
     if (!date || !nickname || timeSeconds === undefined || completed === undefined) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    spellDB.submitCrosswordScore(date, nickname.trim().slice(0, 20), timeSeconds, completed);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isFutureDate(date)) return res.status(400).json({ error: 'Invalid date' });
+    const seconds = parseInt(timeSeconds, 10);
+    if (!Number.isInteger(seconds) || seconds < 1 || seconds > 86400) return res.status(400).json({ error: 'Invalid time' });
+    spellDB.submitCrosswordScore(date, String(nickname).trim().slice(0, 20), seconds, Boolean(completed));
     res.json({ success: true });
   } catch (err) {
     console.error('Error saving crossword score:', err);
@@ -1616,6 +1855,7 @@ app.get('/api/crossword/archive/:date', (req, res) => {
   try {
     const { date } = req.params;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date format' });
+    if (isFutureDate(date)) return res.status(404).json({ error: 'Not available' });
     const puzzle = crosswordPuzzles ? crosswordPuzzles.getPuzzleForDate(date) : null;
     const entries = spellDB.getCrosswordLeaderboard(date);
     res.json({ date, puzzle, entries });
@@ -1629,6 +1869,7 @@ app.get('/api/crossword/archive/:date', (req, res) => {
 app.get('/api/connections/today', (req, res) => {
   try {
     const dateStr = req.query.date || getTodayStr();
+    if (isFutureDate(dateStr)) return res.status(404).json({ error: 'Not available' });
     if (!connectionsPuzzles) return res.status(503).json({ error: 'Connections module not loaded' });
     const puzzle = connectionsPuzzles.getPuzzleForDate(dateStr);
     // Send groups (with names for validation) and shuffled words
@@ -1643,7 +1884,7 @@ app.get('/api/connections/today', (req, res) => {
   }
 });
 
-app.post('/api/connections/guess', (req, res) => {
+app.post('/api/connections/guess', gameplayLimiter, (req, res) => {
   try {
     const { date, words } = req.body;
     if (!date || !words || words.length !== 4) return res.status(400).json({ error: 'Must guess exactly 4 words' });
@@ -1674,14 +1915,17 @@ app.post('/api/connections/guess', (req, res) => {
   }
 });
 
-app.post('/api/connections/score', (req, res) => {
+app.post('/api/connections/score', scoreLimiter, (req, res) => {
   if (!checkDB(res)) return;
   try {
     const { date, nickname, mistakes, completed, solvedOrder } = req.body;
     if (!date || !nickname || mistakes === undefined || completed === undefined) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
-    spellDB.submitConnectionsScore(date, nickname.trim().slice(0, 20), mistakes, completed, solvedOrder || []);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || isFutureDate(date)) return res.status(400).json({ error: 'Invalid date' });
+    const mistakeCount = parseInt(mistakes, 10);
+    if (!Number.isInteger(mistakeCount) || mistakeCount < 0 || mistakeCount > 4) return res.status(400).json({ error: 'Invalid mistakes' });
+    spellDB.submitConnectionsScore(date, String(nickname).trim().slice(0, 20), mistakeCount, Boolean(completed), solvedOrder || []);
     res.json({ success: true });
   } catch (err) {
     console.error('Error saving connections score:', err);
@@ -1732,6 +1976,7 @@ app.get('/api/connections/archive/:date', (req, res) => {
   try {
     const { date } = req.params;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date format' });
+    if (isFutureDate(date)) return res.status(404).json({ error: 'Not available' });
     const puzzle = connectionsPuzzles ? connectionsPuzzles.getPuzzleForDate(date) : null;
     const entries = spellDB.getConnectionsLeaderboard(date);
     res.json({ date, puzzle: puzzle ? { groups: puzzle.groups } : null, entries });
@@ -1746,6 +1991,7 @@ app.get('/api/contexto/today', (req, res) => {
   try {
     if (!contextoPuzzles) return res.status(503).json({ error: 'Contexto module not loaded' });
     const dateStr = req.query.date || getTodayStr();
+    if (isFutureDate(dateStr)) return res.status(404).json({ error: 'Not available' });
     const puzzle = contextoPuzzles.getPuzzleForDate(dateStr);
     if (!puzzle) return res.status(404).json({ error: 'No puzzle available' });
     // Never send target or rankings to client
@@ -1756,11 +2002,12 @@ app.get('/api/contexto/today', (req, res) => {
   }
 });
 
-app.post('/api/contexto/guess', (req, res) => {
+app.post('/api/contexto/guess', gameplayLimiter, (req, res) => {
   try {
     if (!contextoPuzzles) return res.status(503).json({ error: 'Contexto module not loaded' });
     const { date, guess } = req.body || {};
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date' });
+    if (isFutureDate(date)) return res.status(404).json({ error: 'Not available' });
     if (typeof guess !== 'string') return res.status(400).json({ error: 'Missing guess' });
     const g = guess.trim().toLowerCase();
     if (g.length < 2 || g.length > 40) return res.status(400).json({ error: 'Guess length out of range' });
@@ -1776,11 +2023,12 @@ app.post('/api/contexto/guess', (req, res) => {
   }
 });
 
-app.post('/api/contexto/hint', (req, res) => {
+app.post('/api/contexto/hint', gameplayLimiter, (req, res) => {
   try {
     if (!contextoPuzzles) return res.status(503).json({ error: 'Contexto module not loaded' });
     const { date, bestRank, hintsUsed } = req.body || {};
     if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return res.status(400).json({ error: 'Invalid date' });
+    if (isFutureDate(date)) return res.status(404).json({ error: 'Not available' });
 
     const used = Number(hintsUsed) || 0;
     if (used >= 3) return res.json({ error: 'hint-limit' });
@@ -1798,7 +2046,7 @@ app.post('/api/contexto/hint', (req, res) => {
   }
 });
 
-app.post('/api/contexto/score', (req, res) => {
+app.post('/api/contexto/score', scoreLimiter, (req, res) => {
   if (!checkDB(res)) return;
   try {
     const { date, nickname, guesses, hintsUsed, timeSeconds, completed } = req.body || {};
@@ -2142,7 +2390,7 @@ app.get('/api/cognitive/phases/:id/stats', dashboardAuth, (req, res) => {
 });
 
 // ── Public Brain Check Leaderboard (no auth) ──
-app.post('/api/brain-check/submit', (req, res) => {
+app.post('/api/brain-check/submit', scoreLimiter, (req, res) => {
   if (!checkCogDB(res)) return;
   try {
     const { score, pvt_ms, dsst_score } = req.body;
@@ -2163,7 +2411,7 @@ app.post('/api/brain-check/submit', (req, res) => {
   }
 });
 
-app.post('/api/brain-check/subscribe', (req, res) => {
+app.post('/api/brain-check/subscribe', scoreLimiter, (req, res) => {
   if (!checkCogDB(res)) return;
   try {
     const { email, score } = req.body;
@@ -3597,6 +3845,39 @@ app.use((req, res) => {
   });
 });
 
-app.listen(PORT, '0.0.0.0', () => {
+// Final error handler — without this, Express's default handler dumps the full
+// stack trace (and absolute file paths) into the response when NODE_ENV is unset.
+app.use((err, req, res, next) => {
+  console.error(`Unhandled error on ${req.method} ${req.originalUrl}:`, err);
+  if (res.headersSent) return next(err);
+  if (req.path.startsWith('/api/')) {
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+  return renderPage(res.status(500), 'pages/404', {
+    title: 'Something went wrong',
+    description: 'An unexpected error occurred on Neural NeXus.',
+    canonical: `https://www.neuralnexus.press${req.originalUrl}`,
+    activePage: null,
+    pageType: '404',
+    pageCSS: '404.css',
+    bodyClass: 'not-found-page'
+  });
+});
+
+// The site is self-hosted with no process supervisor — log instead of dying.
+// Node ≥15 kills the process on unhandled rejections by default, which would
+// take the whole site down for one bad promise.
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled promise rejection:', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception (continuing, state may be degraded):', err);
+});
+
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Neural NeXus running on http://localhost:${PORT}`);
+});
+server.on('error', (err) => {
+  console.error(`Failed to bind port ${PORT}:`, err.message);
+  process.exit(1);
 });

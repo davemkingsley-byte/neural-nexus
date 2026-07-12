@@ -1,0 +1,95 @@
+<%
+  const games = locals.games || [];
+  const cardStyles = {
+    '/play':        { emoji: '🐝', tag: 'Spelling Bee',   grad: 'rgba(240,192,64,0.06)',  border: 'rgba(240,192,64,0.18)',  btn: 'linear-gradient(135deg, #f0c040, #d4a040)' },
+    '/wordle':      { emoji: '🟩', tag: 'Wordie',         grad: 'rgba(34,197,94,0.05)',   border: 'rgba(34,197,94,0.15)',   btn: 'linear-gradient(135deg, #22c55e, #16a34a)' },
+    '/crossword':   { emoji: '✏️', tag: 'Mini Crossword', grad: 'rgba(124,106,255,0.05)', border: 'rgba(124,106,255,0.16)', btn: 'linear-gradient(135deg, #7c6aff, #6c5ce7)' },
+    '/connections': { emoji: '🟪', tag: 'Connections',    grad: 'rgba(168,85,247,0.05)',  border: 'rgba(168,85,247,0.15)',  btn: 'linear-gradient(135deg, #a855f7, #7c3aed)' },
+    '/contexto':    { emoji: '🎯', tag: 'Contexto',       grad: 'rgba(96,165,250,0.05)',  border: 'rgba(96,165,250,0.15)',  btn: 'linear-gradient(135deg, #60a5fa, #4f8ef7)' },
+    '/brain-check': { emoji: '🧠', tag: 'Brain Check',    grad: 'rgba(212,168,83,0.08)',  border: 'rgba(212,168,83,0.2)',   btn: 'linear-gradient(135deg, #f0c040, #d4a040)' },
+  };
+  function pathOf(url) { try { return new URL(url).pathname; } catch (_) { return url; } }
+%>
+<section class="section-wrap" id="games-hub" style="padding-top: 64px;">
+  <div class="section-label">Daily Brain Fuel</div>
+  <h1 class="section-title">Free daily word games &amp; brain puzzles</h1>
+  <p class="hero-sub" style="max-width: 640px; margin: 12px auto 0;">
+    Six free games, a new puzzle in every one every day. No login, no app, no paywall —
+    just a quick mental warm-up from the team behind the <strong>Neural NeXus</strong> science newsletter.
+    Pick one below, or play them all.
+  </p>
+
+  <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; max-width: 900px; margin: 40px auto 0;">
+    <% games.forEach((game) => { const p = pathOf(game.url); const st = cardStyles[p] || {}; %>
+      <div class="game-card" style="text-align:center; background: linear-gradient(135deg, <%= st.grad || 'rgba(255,255,255,0.04)' %> 0%, rgba(255,255,255,0.02) 100%); border-color: <%= st.border || 'rgba(255,255,255,0.08)' %>;">
+        <h2 style="font-size:1.4rem;"><%= st.emoji || '🎮' %> <%= game.name %></h2>
+        <p style="font-size:0.85rem;"><%= game.description %></p>
+        <a href="<%= p %>" class="btn-game" style="font-size:0.75rem; padding:11px 22px; <% if (st.btn) { %>background: <%= st.btn %>;<% } %>">Play <%= st.tag || game.name %> &rarr;</a>
+      </div>
+    <% }) %>
+  </div>
+</section>
+
+<section class="section-wrap" style="max-width: 720px; padding-top: 8px;">
+  <div class="section-label">Why daily games</div>
+  <h2 class="section-title">A two-minute habit for a sharper brain</h2>
+  <div class="games-prose">
+    <p>
+      A short daily puzzle is one of the easiest ways to keep your mind limber. Word games like these
+      lean on recall, pattern-matching, and lateral thinking — the same muscles you use when you read a
+      dense paper or untangle a hard problem at work. The trick is consistency, not difficulty, which is
+      exactly why every game here resets once a day: come back tomorrow and there's something new waiting.
+    </p>
+    <p>
+      We built these because we love them, and because a daily ritual is a friendly reason to drop by.
+      Everything is free and runs right in your browser — nothing to install, no account to create, and
+      no $5-a-month gate in front of the crossword. If you finish one and want more, each game keeps an
+      archive of past puzzles you can play any time.
+    </p>
+  </div>
+</section>
+
+<section class="section-wrap" style="max-width: 720px;">
+  <div class="section-label">The lineup</div>
+  <h2 class="section-title">What you can play</h2>
+  <div class="games-prose">
+    <p>
+      <a href="/play"><strong>Spelling Bee</strong></a> gives you seven letters and one center letter;
+      build as many words as you can before the clock runs out. <a href="/wordle"><strong>Wordie</strong></a>
+      is a free daily Wordle-style game — guess the hidden five-letter word in six tries, with color clues
+      after each guess. <a href="/crossword"><strong>Mini Crossword</strong></a> is a free 5×5 daily crossword
+      with no paywall, a quick solve you can finish over coffee. <a href="/connections"><strong>Connections</strong></a>
+      asks you to sort sixteen words into four hidden groups, from the obvious to the devious.
+      <a href="/contexto"><strong>Contexto</strong></a> is a word game of pure meaning: guess the secret word
+      and each attempt shows how semantically close you are. And <a href="/brain-check"><strong>Brain Check</strong></a>
+      is a free three-minute cognitive test that measures reaction time, memory, and focus.
+    </p>
+  </div>
+</section>
+
+<section class="section-wrap" style="max-width: 720px;">
+  <div class="section-label">FAQ</div>
+  <h2 class="section-title">Common questions</h2>
+  <div class="games-faq">
+    <details>
+      <summary>Are these games really free?</summary>
+      <p>Yes — every game is free forever, with no account, no app download, and no paywall. They're a small gift from the Neural NeXus newsletter.</p>
+    </details>
+    <details>
+      <summary>When do the daily puzzles reset?</summary>
+      <p>Each game gets a fresh puzzle once a day. Come back tomorrow for a new one, or dip into a game's archive to play past puzzles right now.</p>
+    </details>
+    <details>
+      <summary>Do I need to sign up or log in?</summary>
+      <p>No. You can play instantly. Your streak and progress are saved in your own browser — if you want to appear on a leaderboard, you just type a nickname when you finish.</p>
+    </details>
+    <details>
+      <summary>How are these different from the NYT games?</summary>
+      <p>They're in the same family — daily word puzzles you can play in a couple of minutes — but they're free, ad-light, science-flavored, and made by working scientists rather than a newsroom. The Mini Crossword in particular is a free alternative for anyone who hit the NYT paywall.</p>
+    </details>
+    <details>
+      <summary>Can I play on my phone?</summary>
+      <p>Absolutely. Every game is built mobile-first and works in any modern browser, no install required.</p>
+    </details>
+  </div>
+</section>

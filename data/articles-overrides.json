@@ -1,4 +1,22 @@
 {
+  "a-peptide-case-study-what-semax-reveals": {
+    "topics": ["biotech", "health", "longevity"]
+  },
+  "peptide-regulations-are-changing": {
+    "topics": ["biotech", "health"]
+  },
+  "one-blood-test-for-6-types-of-dementia": {
+    "topics": ["biotech", "health", "longevity"]
+  },
+  "anthropics-new-model-broken-internet": {
+    "topics": ["ai", "ai-agents"]
+  },
+  "a-single-injection-replaced-the-entire": {
+    "topics": ["biotech", "health"]
+  },
+  "top-5-biotech-breakthroughs-that-2fa": {
+    "topics": ["biotech", "health", "longevity"]
+  },
   "the-muscle-problem-with-ozempic-has": {
     "topics": ["biotech", "health", "longevity"],
     "type": "deep-dive"

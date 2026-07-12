@@ -1,5 +1,72 @@
 [
   {
+    "id": "a-peptide-case-study-what-semax-reveals",
+    "title": "A Peptide Case Study. What Semax Reveals About the U.S. Drug Pipeline",
+    "description": "The U.S. drug pipeline is structurally blind to certain categories of evidence.",
+    "url": "https://blog.neuralnexus.press/p/a-peptide-case-study-what-semax-reveals",
+    "date": "2026-05-09",
+    "topics": [
+      "biotech",
+      "health",
+      "longevity"
+    ],
+    "type": "deep-dive",
+    "thumbnail": "https://substackcdn.com/image/fetch/$s_!QXJO!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F5c98779f-74db-4ac9-ae2d-ab96595e2070_2048x1152.png"
+  },
+  {
+    "id": "peptide-regulations-are-changing",
+    "title": "Peptide Regulations Are Changing. Again.",
+    "description": "The peptides big pharma won't study will be back in compounding pharmacies.",
+    "url": "https://blog.neuralnexus.press/p/peptide-regulations-are-changing",
+    "date": "2026-05-02",
+    "topics": [
+      "biotech",
+      "health"
+    ],
+    "type": "deep-dive",
+    "thumbnail": "https://substackcdn.com/image/fetch/$s_!VrC6!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F60f15f05-1b9c-45ad-a57c-6f60cb874bf9_1086x1448.png"
+  },
+  {
+    "id": "one-blood-test-for-6-types-of-dementia",
+    "title": "One Blood Test for 6 Types of Dementia",
+    "description": "An AI model uses plasma proteins to diagnose and differentiate forms of dementia.",
+    "url": "https://blog.neuralnexus.press/p/one-blood-test-for-6-types-of-dementia",
+    "date": "2026-04-11",
+    "topics": [
+      "biotech",
+      "health",
+      "longevity"
+    ],
+    "type": "deep-dive",
+    "thumbnail": "https://substackcdn.com/image/fetch/$s_!l8yz!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F50595860-8283-4494-8087-a324677f0b7d_1280x720.gif"
+  },
+  {
+    "id": "anthropics-new-model-broken-internet",
+    "title": "Anthropic’s New Model Broke Internet Security",
+    "description": "Software security has always depended on one quiet constraint: the people capable of finding the worst bugs were rare. Anthropic is now claiming that constraint is gone.",
+    "url": "https://blog.neuralnexus.press/p/anthropics-new-model-broken-internet",
+    "date": "2026-04-09",
+    "topics": [
+      "ai",
+      "ai-agents"
+    ],
+    "type": "deep-dive",
+    "thumbnail": "https://substackcdn.com/image/fetch/$s_!cjPD!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fc83c3d11-872e-4b9a-ae22-75fa71332a1b_560x315.gif"
+  },
+  {
+    "id": "a-single-injection-replaced-the-entire",
+    "title": "A Single Injection Replaced the Entire CAR-T Pipeline",
+    "description": "A single intravenous dose generated cancer-killing immune cells without cell harvesting, manufacturing, or chemotherapy.",
+    "url": "https://blog.neuralnexus.press/p/a-single-injection-replaced-the-entire",
+    "date": "2026-04-04",
+    "topics": [
+      "biotech",
+      "health"
+    ],
+    "type": "deep-dive",
+    "thumbnail": "https://substackcdn.com/image/fetch/$s_!kKdH!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F1b6a1804-3228-4371-b2b6-482e2657ee06_600x600.gif"
+  },
+  {
     "id": "the-muscle-problem-with-ozempic-has",
     "title": "The Muscle Problem With Ozempic Has a Fix.",
     "description": "Bimagrumab preserves the muscle that semaglutide takes with the fat.",
@@ -29,7 +96,7 @@
   },
   {
     "id": "biowire-bytes-023-scientists-restarted",
-    "title": "BioWire Bytes 023 \u2013 Scientists Restarted Dead Brains. Things Got Weird.",
+    "title": "BioWire Bytes 023 – Scientists Restarted Dead Brains. Things Got Weird.",
     "description": "Dead Pig Brains Resumed Cellular Function Four Hours After Death",
     "url": "https://blog.neuralnexus.press/p/biowire-bytes-023-scientists-restarted",
     "date": "2026-03-25",
@@ -42,7 +109,7 @@
   },
   {
     "id": "biowire-bytes-022-weight-loss-drugs",
-    "title": "BioWire Bytes 022 \u2013 Weight Loss Drugs May Prevent Neurodegenerative Disease. But They Don't Treat Them.",
+    "title": "BioWire Bytes 022 – Weight Loss Drugs May Prevent Neurodegenerative Disease. But They Don't Treat Them.",
     "description": "Paradoxical Data Shows GLP-1s Reduce Neurodegenerative Disorders Onset While Not Treating Them.",
     "url": "https://blog.neuralnexus.press/p/biowire-bytes-022-weight-loss-drugs",
     "date": "2026-03-23",
@@ -56,7 +123,7 @@
   },
   {
     "id": "biowire-bytes-021-grip-strength-predicts",
-    "title": "BioWire Bytes 021 \u2013 Grip Strength Predicts Survival Better Than Cardio",
+    "title": "BioWire Bytes 021 – Grip Strength Predicts Survival Better Than Cardio",
     "description": "Summary of a 2026 prospective cohort study in JAMA Network Open",
     "url": "https://blog.neuralnexus.press/p/biowire-bytes-021-grip-strength-predicts",
     "date": "2026-03-18",
@@ -122,7 +189,7 @@
   },
   {
     "id": "biowire-bytes-017-morning-coffee",
-    "title": "BioWire Bytes 020 \u2013 Morning Coffee May Protect Your Brain for Decades",
+    "title": "BioWire Bytes 020 – Morning Coffee May Protect Your Brain for Decades",
     "description": "Summary of a 2026 prospective cohort study in JAMA",
     "url": "https://blog.neuralnexus.press/p/biowire-bytes-017-morning-coffee",
     "date": "2026-02-17",
@@ -165,7 +232,11 @@
     "description": "Reflecting on Biotechnology this past year",
     "url": "https://blog.neuralnexus.press/p/top-5-biotech-breakthroughs-that-2fa",
     "date": "2026-01-15",
-    "topics": [],
+    "topics": [
+      "biotech",
+      "health",
+      "longevity"
+    ],
     "type": "deep-dive",
     "thumbnail": "https://substackcdn.com/image/fetch/$s_!_fEP!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F62a83fa0-13f0-4c84-937a-367fc6f0df72_568x1032.gif"
   },
@@ -195,71 +266,5 @@
     ],
     "type": "biowire-byte",
     "thumbnail": "https://substackcdn.com/image/fetch/$s_!tb8j!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F35a00afe-01ad-4ad6-8e1a-8707c5bda0ad_320x480.gif"
-  },
-  {
-    "id": "biowire-bytes-017-a-glimpse-of-how",
-    "title": "BioWire Bytes 017 \u2013 A Glimpse of How Embryos Burrow into the Womb",
-    "description": "Byte-sized biotech",
-    "url": "https://blog.neuralnexus.press/p/biowire-bytes-017-a-glimpse-of-how",
-    "date": "2025-08-25",
-    "topics": [
-      "biotech",
-      "artificial-womb"
-    ],
-    "type": "biowire-byte",
-    "thumbnail": "https://substackcdn.com/image/fetch/$s_!7M3M!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F179f90f5-7258-49db-a0fd-7d703fd2250c_2144x1000.gif"
-  },
-  {
-    "id": "biowire-bytes-016-a-shot-at-curing",
-    "title": "BioWire Bytes 016 \u2013 A Shot at Curing Type 1 Diabetes",
-    "description": "Byte-sized biotech",
-    "url": "https://blog.neuralnexus.press/p/biowire-bytes-016-a-shot-at-curing",
-    "date": "2025-08-18",
-    "topics": [
-      "biotech",
-      "health"
-    ],
-    "type": "biowire-byte",
-    "thumbnail": "https://substackcdn.com/image/fetch/$s_!NsyN!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2Fd92f976b-2eae-44b8-b2fe-fc462eb51461_1920x1281.jpeg"
-  },
-  {
-    "id": "biowire-bytes-015-chatgpt-5",
-    "title": "BioWire Bytes 015 \u2014 ChatGPT-5",
-    "description": "Byte-sized Biotech",
-    "url": "https://blog.neuralnexus.press/p/biowire-bytes-015-chatgpt-5",
-    "date": "2025-08-11",
-    "topics": [
-      "ai",
-      "ai-agents"
-    ],
-    "type": "biowire-byte",
-    "thumbnail": "https://substackcdn.com/image/fetch/$s_!wXIf!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F89fc8603-d034-4598-bb39-b99d7816a9f9_2986x2240.jpeg"
-  },
-  {
-    "id": "biowire-bytes-014-weight-loss-drugs",
-    "title": "BioWire Bytes 014 - Weight-loss Drugs May Protect the Brain",
-    "description": "Byte-sized Biotech",
-    "url": "https://blog.neuralnexus.press/p/biowire-bytes-014-weight-loss-drugs",
-    "date": "2025-08-09",
-    "topics": [
-      "biotech",
-      "health",
-      "longevity"
-    ],
-    "type": "biowire-byte",
-    "thumbnail": "https://substackcdn.com/image/fetch/$s_!GW3V!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F58e45c7a-3ca2-4a55-932b-1b2a13154bf2_1024x1024.png"
-  },
-  {
-    "id": "biowire-bytes-013-paying-ai-researchers",
-    "title": "BioWire Bytes 013 - Paying AI Researchers Like NBA Players",
-    "description": "Byte-sized Biotech",
-    "url": "https://blog.neuralnexus.press/p/biowire-bytes-013-paying-ai-researchers",
-    "date": "2025-08-04",
-    "topics": [
-      "ai",
-      "venture-capital"
-    ],
-    "type": "biowire-byte",
-    "thumbnail": "https://substackcdn.com/image/fetch/$s_!D2Hb!,f_auto,q_auto:good,fl_progressive:steep/https%3A%2F%2Fsubstack-post-media.s3.amazonaws.com%2Fpublic%2Fimages%2F4c66c5e3-e08a-4f7c-b770-daf2d39e0a6e_1024x1024.png"
   }
 ]

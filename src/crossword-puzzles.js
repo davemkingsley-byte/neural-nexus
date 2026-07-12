@@ -31,7 +31,14 @@ const PUZZLES = [
   { grid:[["B","U","R","S","T"],["U","N","I","T","E"],["R","I","V","E","R"],["S","T","E","A","M"],["T","E","R","M","S"]], clues:{across:{"1":"What bubbles do","6":"'Together we stand' verb","7":"Nile or Amazon","8":"Locomotive power source","9":"What you accept without reading"},down:{"1":"Pipe's worst enemy","2":"Merge together","3":"Mississippi or Thames","4":"Angry person is full of this","5":"End of semester, at school"}} },
 ];
 
-function getPuzzleIndexForDate(dateStr) {
+// Dates before the cutover keep the original hash mapping so archives and
+// leaderboards still pair past dates with the puzzle that actually ran that day.
+// The hash collided badly on small pools (the same puzzle could repeat on
+// consecutive days); from the cutover on, a sequential day counter cycles the
+// whole pool with no repeats.
+const ROTATION_CUTOVER = '2026-06-12';
+
+function legacyHashIndex(dateStr) {
   const parts = dateStr.split('-');
   const month = parseInt(parts[1], 10);
   const day = parseInt(parts[2], 10);
@@ -43,6 +50,12 @@ function getPuzzleIndexForDate(dateStr) {
     hash |= 0;
   }
   return Math.abs(hash) % PUZZLES.length;
+}
+
+function getPuzzleIndexForDate(dateStr) {
+  if (dateStr < ROTATION_CUTOVER) return legacyHashIndex(dateStr);
+  const days = Math.floor(Date.parse(`${dateStr}T12:00:00Z`) / 86400000);
+  return days % PUZZLES.length;
 }
 
 function getPuzzleForDate(dateStr) {

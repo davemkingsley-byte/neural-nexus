@@ -215,7 +215,7 @@ main {
   background: var(--card-bg); border: 1px solid var(--card-border);
   border-radius: 12px; padding: 12px; backdrop-filter: blur(8px);
 }
-.clue-section h3 {
+.clue-section h2 {
   font-family: 'Instrument Serif', serif; font-size: 0.95rem;
   margin-bottom: 6px; color: var(--accent);
 }
@@ -304,6 +304,23 @@ main {
   background: rgba(255,255,255,0.04);
 }
 .overlay-link:hover { color: #fff; background: rgba(255,255,255,0.08); }
+/* Next-puzzle countdown + cross-game promo */
+.nn-countdown {
+  margin: 14px 0 4px; padding: 12px;
+  background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 12px;
+}
+.nn-countdown-lbl {
+  font-size: 0.62rem; color: rgba(255,255,255,0.45);
+  text-transform: uppercase; letter-spacing: 1px;
+}
+.nn-countdown-clock {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.4rem; font-weight: 700; line-height: 1.2; margin-top: 3px;
+}
+.nn-promo { margin-top: 8px; font-size: 0.72rem; color: rgba(255,255,255,0.45); }
+.nn-promo a { color: rgba(255,255,255,0.75); text-decoration: none; font-weight: 600; }
+.nn-promo a:hover { color: #fff; text-decoration: underline; }
 
 /* Toast */
 #toast {
@@ -993,6 +1010,7 @@ function showCompletionOverlay() {
 
   loadLeaderboard();
   document.getElementById('overlay').classList.add('show');
+  startCountdown();
 }
 
 // ═══════════════ LEADERBOARD ═══════════════
@@ -1037,6 +1055,11 @@ async function submitScore() {
 }
 
 // ═══════════════ SHARE ═══════════════
+const PUZZLE_EPOCH = Date.parse('2026-04-01T00:00:00Z');
+function getPuzzleNo(dateStr) {
+  return Math.floor((Date.parse(dateStr + 'T00:00:00Z') - PUZZLE_EPOCH) / 86400000) + 1;
+}
+const SHARE_URL = 'https://www.neuralnexus.press/crossword?utm_source=share&utm_medium=social&utm_campaign=crossword';
 function shareResult() {
   let grid = '';
   for (let r = 0; r < 5; r++) {
@@ -1045,15 +1068,42 @@ function shareResult() {
     }
     grid += '\n';
   }
-  const text = `Mini Crossword \u2014 Neural NeXus\n${todayStr}\n\u23F1\uFE0F ${formatTime(seconds)}\n\n${grid}\nhttps://www.neuralnexus.press/crossword`;
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = document.getElementById('shareBtn');
-      btn.textContent = 'Copied!';
-      btn.classList.add('copied');
-      setTimeout(() => { btn.textContent = 'Share \u{1F4CB}'; btn.classList.remove('copied'); }, 2000);
-    });
+  const text = `Neural NeXus Mini #${getPuzzleNo(todayStr)} ${formatTime(seconds)}\n\u23F1\uFE0F ${formatTime(seconds)}\n\n${grid}\n${SHARE_URL}`;
+  const onCopied = () => {
+    const btn = document.getElementById('shareBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Share \u{1F4CB}'; btn.classList.remove('copied'); }, 2000);
+  };
+  if (navigator.share) {
+    navigator.share({ title: 'Mini Crossword \u2014 Neural NeXus', text, url: SHARE_URL })
+      .catch(() => { if (navigator.clipboard) navigator.clipboard.writeText(text).then(onCopied); });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(onCopied);
   }
+}
+
+let countdownTimer = null;
+function startCountdown() {
+  const el = document.getElementById('nn-countdown');
+  if (!el) return;
+  const tick = () => {
+    // Seconds remaining until next America/New_York midnight.
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York', hour12: false,
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }).formatToParts(new Date()).reduce((a, p) => (a[p.type] = p.value, a), {});
+    let h = parseInt(parts.hour, 10) % 24, m = parseInt(parts.minute, 10), s = parseInt(parts.second, 10);
+    let rem = 86400 - (h * 3600 + m * 60 + s);
+    if (rem < 0) rem = 0;
+    const hh = String(Math.floor(rem / 3600)).padStart(2, '0');
+    const mm = String(Math.floor((rem % 3600) / 60)).padStart(2, '0');
+    const ss = String(rem % 60).padStart(2, '0');
+    el.textContent = `${hh}:${mm}:${ss}`;
+  };
+  tick();
+  clearInterval(countdownTimer);
+  countdownTimer = setInterval(tick, 1000);
 }
 
 // ═══════════════ PERSISTENCE ═══════════════
@@ -1156,6 +1206,7 @@ if (savedNick) document.getElementById('nicknameInput').value = savedNick;
 document.getElementById('overlay').addEventListener('click', (e) => {
   if (e.target === document.getElementById('overlay')) {
     document.getElementById('overlay').classList.remove('show');
+    clearInterval(countdownTimer);
   }
 });
 
@@ -1262,15 +1313,15 @@ async function fetchPuzzle() {
   <div class="game-area">
     <div class="grid-container">
       <div class="grid" id="grid"></div>
-      <input type="text" id="hiddenInput" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      <input type="text" id="hiddenInput" aria-label="Crossword letter entry" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
     </div>
     <div class="clues-container">
       <div class="clue-section">
-        <h3>Across</h3>
+        <h2>Across</h2>
         <div id="acrossClues"></div>
       </div>
       <div class="clue-section">
-        <h3>Down</h3>
+        <h2>Down</h2>
         <div id="downClues"></div>
       </div>
     </div>
@@ -1284,7 +1335,142 @@ async function fetchPuzzle() {
   </p>
 </div>
 
-<div id="toast"></div>
+<style>
+  .seo-content {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+    margin: 36px auto 64px;
+    padding: 0 20px;
+    color: rgba(255,255,255,0.65);
+    font-size: 0.95rem;
+    line-height: 1.7;
+    text-align: left;
+  }
+  .seo-content h2 {
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--text);
+    margin: 36px 0 14px;
+    letter-spacing: 0.2px;
+  }
+  .seo-content h2:first-child { margin-top: 0; }
+  .seo-content p { margin: 0 0 14px; }
+  .seo-content a { color: var(--accent); text-decoration: none; }
+  .seo-content a:hover { text-decoration: underline; }
+  .seo-content ol, .seo-content ul { margin: 0 0 14px; padding-left: 22px; }
+  .seo-content li { margin-bottom: 8px; }
+  .seo-content details {
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  .seo-content summary {
+    cursor: pointer;
+    padding: 14px 44px 14px 16px;
+    font-weight: 700;
+    color: var(--text);
+    list-style: none;
+    position: relative;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .seo-content summary::-webkit-details-marker { display: none; }
+  .seo-content summary::after {
+    content: '+';
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--accent);
+    transition: transform 0.2s;
+  }
+  .seo-content details[open] summary::after { content: '\2212'; }
+  .seo-content details p { padding: 0 16px 14px; margin: 0; color: rgba(255,255,255,0.65); }
+  .seo-content .more-games {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 8px 0 18px;
+  }
+  .seo-content .more-games a {
+    padding: 8px 14px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--card-border);
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+  .seo-content .more-games a:hover { background: rgba(255,255,255,0.08); text-decoration: none; }
+  .seo-content .seo-footer { font-size: 0.88rem; color: rgba(255,255,255,0.45); margin-top: 8px; }
+</style>
+
+<section class="seo-content">
+  <h2>How to play the Mini Crossword</h2>
+  <ol>
+    <li>The board is a quick 5&times;5 grid with a short list of Across and Down clues.</li>
+    <li>Tap any white square to select it, then type letters; tap the same square again to switch between Across and Down.</li>
+    <li>Read the highlighted clue at the top and fill in the answer one letter at a time.</li>
+    <li>Use the arrow keys to move around the grid, and the clue list to jump straight to a specific entry.</li>
+    <li>Stuck on a square? Use Check to test your letters, or Reveal a letter, word, or the whole puzzle.</li>
+    <li>Fill every square correctly to stop the timer and finish the puzzle.</li>
+  </ol>
+
+  <h2>Tips &amp; strategy</h2>
+  <p>
+    Start with the clues you are sure of and let the crossings do the rest. Every letter you place sits in
+    both an Across and a Down answer, so a confident fill instantly gives you a free letter in the
+    intersecting word. The short three- and four-letter entries are usually the easiest way in.
+  </p>
+  <p>
+    If a clue reads as a plural or a past tense, pencil in the likely S or ED ending &mdash; those almost
+    always land in the right spot and unlock neighbors. When you are truly stuck, the Check button confirms
+    which letters are right without giving the answer away. And because the grid is only twenty-five squares,
+    a single solved corner often cascades into the whole puzzle within seconds.
+  </p>
+
+  <h2>Frequently asked questions</h2>
+  <details>
+    <summary>Is the Mini Crossword free?</summary>
+    <p>Yes &mdash; it is a free daily mini crossword with no paywall, no account, and no app to install. Just open the page and solve.</p>
+  </details>
+  <details>
+    <summary>When does the daily crossword reset?</summary>
+    <p>A new 5&times;5 grid goes live once a day. Come back tomorrow for the next one, or solve earlier grids in the <a href="/crossword/archive">archive</a>.</p>
+  </details>
+  <details>
+    <summary>How is this different from the NYT Mini?</summary>
+    <p>It is the same bite-sized format &mdash; a 5&times;5 daily crossword you can finish in a minute or two &mdash; but ours is a free NYT Mini alternative with no paywall. It is built by the team behind a science newsletter, runs in any browser, and tracks your time on a daily leaderboard.</p>
+  </details>
+  <details>
+    <summary>Can I play past crosswords?</summary>
+    <p>Yes. The <a href="/crossword/archive">crossword archive</a> lets you go back and solve earlier daily grids whenever you like.</p>
+  </details>
+  <details>
+    <summary>Do I need an account?</summary>
+    <p>No sign-up needed. Your progress is saved in your browser, and you only enter a nickname if you want your solve time on the daily leaderboard.</p>
+  </details>
+  <details>
+    <summary>What happens if I reveal letters?</summary>
+    <p>You can reveal a letter, a word, or the entire puzzle if you get stuck. Revealing the puzzle keeps you from appearing on the leaderboard, but it is a handy way to learn a tricky answer.</p>
+  </details>
+
+  <h2>More free daily games</h2>
+  <div class="more-games">
+    <a href="/games">All games</a>
+    <a href="/play">Spelling Bee</a>
+    <a href="/wordle">Wordie</a>
+    <a href="/connections">Connections</a>
+    <a href="/contexto">Contexto</a>
+    <a href="/brain-check">Brain Check</a>
+  </div>
+  <p class="seo-footer">A free daily puzzle from <a href="/">Neural NeXus</a>, the science newsletter by David Kingsley, PhD. <a href="https://blog.neuralnexus.press/subscribe">Subscribe for free</a>.</p>
+</section>
+
+<div id="toast" aria-live="polite"></div>
 
 <div class="overlay" id="overlay">
   <div class="overlay-card">
@@ -1297,12 +1483,17 @@ async function fetchPuzzle() {
     </div>
     <button class="share-btn" id="shareBtn">Share &#x1F4CB;</button>
     <div class="nickname-row" id="nicknameRow">
-      <input class="nickname-in" id="nicknameInput" placeholder="Your nickname" maxlength="20" autocomplete="off">
+      <input class="nickname-in" id="nicknameInput" placeholder="Your nickname" aria-label="Nickname" maxlength="20" autocomplete="off">
       <button class="submit-lb-btn" id="submitLbBtn">Submit &rarr;</button>
     </div>
     <div class="cw-lb-section" id="cwLbSection" style="display:none">
       <div class="cw-lb-title">&#x1F3C6; Today's Fastest</div>
       <div class="cw-lb-list" id="cwLbList"></div>
+    </div>
+    <div class="nn-countdown">
+      <div class="nn-countdown-lbl">Next puzzle in</div>
+      <div class="nn-countdown-clock" id="nn-countdown">--:--:--</div>
+      <div class="nn-promo">While you wait: <a href="/connections">Connections</a> &middot; <a href="/contexto">Contexto</a> &middot; <a href="/wordle">Wordie</a></div>
     </div>
     <div class="overlay-links">
       <a href="/crossword/archive" class="overlay-link">&#x1F4C5; Archive</a>

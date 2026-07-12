@@ -67,6 +67,7 @@ function getPuzzleForDate(dateStr) {
   if (!puzzle) {
     const dates = listAvailableDates();
     if (dates.length === 0) return null;
+    console.warn(`[contexto] no puzzle file for ${dateStr} — recycling an old one. Run scripts/contexto-build-puzzle.js to extend the runway.`);
     const idx = hashDateToIndex(dateStr, dates.length);
     puzzle = loadPuzzleFile(dates[idx]);
     if (puzzle) {

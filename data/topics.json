@@ -1,12 +1,282 @@
 [
-  {"slug": "ai", "name": "Artificial Intelligence", "emoji": "🤖", "headline": "How machines learn, reason, and reshape industries", "description": "From foundation models to autonomous agents — tracking the technology that's rewriting every industry.", "relatedSlugs": ["ai-agents", "robotics"]},
-  {"slug": "ai-agents", "name": "AI Agents", "emoji": "🤖", "headline": "Autonomous systems that think, plan, and act", "description": "The next evolution beyond chatbots — AI systems that can reason, use tools, and complete complex tasks independently.", "relatedSlugs": ["ai", "robotics"]},
-  {"slug": "biotech", "name": "Biotechnology", "emoji": "🧬", "headline": "Engineering biology to solve impossible problems", "description": "Gene therapy, synthetic biology, drug discovery, and the convergence of biology with computation.", "relatedSlugs": ["de-extinction", "health", "longevity"]},
-  {"slug": "de-extinction", "name": "De-Extinction", "emoji": "🦣", "headline": "Bringing lost species back from the edge", "description": "The science and ethics of resurrecting extinct species — from woolly mammoths to thylacines.", "relatedSlugs": ["biotech", "artificial-womb"]},
-  {"slug": "artificial-womb", "name": "Artificial Womb", "emoji": "🧫", "headline": "Growing life outside the body", "description": "Ectogenesis technology, ex-utero development, and the future of neonatal care and species conservation.", "relatedSlugs": ["de-extinction", "biotech"]},
-  {"slug": "robotics", "name": "Robotics", "emoji": "🦾", "headline": "Machines that move through the physical world", "description": "Humanoid robots, surgical systems, autonomous vehicles, and the hardware side of AI.", "relatedSlugs": ["ai", "semiconductors"]},
-  {"slug": "semiconductors", "name": "Semiconductors", "emoji": "🔬", "headline": "The silicon foundations of everything", "description": "Chip design, fabrication, supply chains, and the geopolitics of semiconductor dominance.", "relatedSlugs": ["ai", "robotics"]},
-  {"slug": "venture-capital", "name": "Venture Capital", "emoji": "💰", "headline": "Where the money meets the mission", "description": "Funding rounds, market dynamics, and the investors backing breakthrough science and technology.", "relatedSlugs": ["biotech", "ai"]},
-  {"slug": "health", "name": "Health", "emoji": "❤️", "headline": "Optimizing the human machine", "description": "Evidence-based approaches to longevity, cognitive enhancement, metabolic health, and preventive medicine.", "relatedSlugs": ["biotech", "longevity"]},
-  {"slug": "longevity", "name": "Longevity", "emoji": "⏳", "headline": "The science of living longer and better", "description": "Aging research, senolytics, caloric restriction, and the quest to extend healthy human lifespan.", "relatedSlugs": ["health", "biotech"]}
+  {
+    "slug": "ai",
+    "name": "Artificial Intelligence",
+    "emoji": "🤖",
+    "headline": "How machines learn, reason, and reshape industries",
+    "description": "From foundation models to autonomous agents — tracking the technology that's rewriting every industry.",
+    "relatedSlugs": ["ai-agents", "robotics"],
+    "overview": [
+      "Artificial intelligence stopped being a research curiosity the moment a single training run could absorb most of the public internet and come out the other side able to write code, pass exams, and hold a conversation. We track AI as a systems story, not a magic one: large models are statistical engines that predict the next token, and almost everything interesting — reasoning, planning, tool use — is an emergent property of scale, data quality, and clever training objectives layered on top of that simple core.",
+      "The center of gravity is the foundation model: a general-purpose network trained once on enormous data, then adapted to thousands of downstream tasks. That architecture is why a handful of labs now sit upstream of an entire economy, and why the real contest is over compute, energy, and the diminishing supply of high-quality training data. We pay close attention to where the scaling curves bend — whether the next gain comes from more parameters, better data, longer 'thinking' at inference time, or architectural shifts beyond the transformer.",
+      "The tensions worth watching are practical, not science-fiction. Hallucination and reliability keep AI out of high-stakes loops where being confidently wrong is unacceptable. Evaluation is genuinely hard — benchmarks saturate faster than they can be trusted, and capability is easy to demo but difficult to certify. Alignment, interpretability, and the cost of running these systems at scale are no longer academic side quests; they are the gating factors on deployment.",
+      "Our lens is first-order consequences. When a model gets cheaper by an order of magnitude, what becomes possible that wasn't? When reasoning improves, which jobs shift from doing the work to checking it? We care less about the leaderboard of the week and more about the durable structural changes: who controls the compute, where the data moats are, and which industries get rebuilt around machines that can now do cognitive labor at marginal cost."
+    ],
+    "keyTerms": [
+      {"term": "Foundation model", "definition": "A large model trained on broad data that can be adapted to many downstream tasks rather than being built for one job."},
+      {"term": "Transformer", "definition": "The neural network architecture, built on attention, that underpins virtually every modern large language model."},
+      {"term": "Token", "definition": "The basic unit of text a model reads and predicts — roughly a word or word-piece — and the currency models are priced and measured in."},
+      {"term": "Fine-tuning", "definition": "Further training a pretrained model on a narrower dataset to specialize its behavior or align it to a task."},
+      {"term": "Inference", "definition": "The act of running a trained model to produce outputs, as opposed to the training that created it."},
+      {"term": "Hallucination", "definition": "When a model generates fluent, confident output that is factually wrong or unsupported."}
+    ],
+    "faq": [
+      {"q": "What is the difference between AI and machine learning?", "a": "Machine learning is the dominant technique for building modern AI — systems that learn patterns from data rather than following hand-written rules. AI is the broader goal of machines performing tasks that require intelligence, and today nearly all of it is powered by machine learning."},
+      {"q": "How do large language models actually work?", "a": "A large language model is trained to predict the next token in a sequence across enormous amounts of text. From that single objective, scaled up massively, it develops the ability to reason, summarize, translate, and write code as emergent behaviors."},
+      {"q": "Will AI replace human jobs?", "a": "AI is automating specific tasks rather than whole jobs wholesale, which shifts much human work from producing output to directing and verifying it. The disruption is real and uneven, hitting cognitive and routine knowledge work first."},
+      {"q": "What is AGI and how close are we?", "a": "Artificial general intelligence refers to a system that matches or exceeds humans across essentially all cognitive tasks. There is no consensus on timelines or even on how to measure it, and current models, while broadly capable, still fail in ways that show they are not generally intelligent yet."}
+    ]
+  },
+  {
+    "slug": "ai-agents",
+    "name": "AI Agents",
+    "emoji": "🤖",
+    "headline": "Autonomous systems that think, plan, and act",
+    "description": "The next evolution beyond chatbots — AI systems that can reason, use tools, and complete complex tasks independently.",
+    "relatedSlugs": ["ai", "robotics"],
+    "overview": [
+      "An AI agent is what you get when you wrap a language model in a loop and give it hands. Instead of answering a single prompt, the model is allowed to plan, call tools, read the results, and decide what to do next — repeating until a goal is met. That shift, from one-shot generation to a perceive-decide-act cycle, is the difference between a chatbot that drafts an email and a system that books the meeting, files the report, and follows up.",
+      "We track agents because they move AI from advice to action, and action is where both the value and the risk live. The core architecture is deceptively simple: a reasoning model, a set of tools (search, code execution, APIs, a browser), some memory, and an orchestration layer that manages the loop. The hard part is everything around it — keeping the agent on task across long horizons, recovering from its own mistakes, and not compounding a small early error into a confidently wrong final outcome.",
+      "The open problems are concrete. Reliability falls off as tasks get longer, because each step is a chance to drift. Tool use is brittle when an API behaves unexpectedly. Memory and context management determine whether an agent remembers what it's doing ten steps later. And giving a model real-world permissions — to spend money, send messages, run code — raises security questions that the chatbot era never had to answer, including prompt injection, where hostile content hijacks the agent's goals.",
+      "Our read is that agents are the deployment story for this decade of AI, and that the winners will be defined less by raw model intelligence than by orchestration, evaluation, and guardrails. We watch where agents are quietly working in production — coding, customer operations, research — versus where the demos still outrun reality, and we treat 'it worked once on stage' as the start of the engineering problem, not the end."
+    ],
+    "keyTerms": [
+      {"term": "Agent loop", "definition": "The perceive-decide-act cycle in which a model repeatedly reasons, takes an action, observes the result, and continues until a goal is reached."},
+      {"term": "Tool use", "definition": "An agent's ability to call external functions — search, code, APIs, a browser — to extend what a language model can do on its own."},
+      {"term": "Orchestration", "definition": "The layer that coordinates the agent's steps, tools, and sometimes multiple agents working together toward a task."},
+      {"term": "Memory", "definition": "Mechanisms that let an agent retain information across steps or sessions, beyond the model's fixed context window."},
+      {"term": "Prompt injection", "definition": "An attack where malicious instructions hidden in content an agent reads hijack its behavior or permissions."},
+      {"term": "Autonomy", "definition": "The degree to which an agent acts without human approval at each step, traded off against safety and control."}
+    ],
+    "faq": [
+      {"q": "What is an AI agent?", "a": "An AI agent is a system that uses a language model in a loop to pursue a goal: it plans, takes actions through tools, observes the results, and keeps going until the task is done. Unlike a chatbot, it acts in the world rather than just responding."},
+      {"q": "How are AI agents different from chatbots?", "a": "A chatbot produces a single response to a prompt. An agent runs a multi-step loop, calling tools and adjusting its plan based on feedback, so it can complete tasks like researching, coding, or operating software end to end."},
+      {"q": "Are AI agents safe to give real permissions?", "a": "Giving agents real-world permissions introduces genuine risks, including prompt injection and compounding errors over long tasks. Most production systems mitigate this with scoped permissions, human approval for sensitive actions, and monitoring rather than full autonomy."},
+      {"q": "What can AI agents actually do today?", "a": "In production today, agents are most reliable in software engineering, customer operations, and research workflows where tools are well defined and mistakes are recoverable. They struggle most with long, open-ended tasks where small errors accumulate."}
+    ]
+  },
+  {
+    "slug": "biotech",
+    "name": "Biotechnology",
+    "emoji": "🧬",
+    "headline": "Engineering biology to solve impossible problems",
+    "description": "Gene therapy, synthetic biology, drug discovery, and the convergence of biology with computation.",
+    "relatedSlugs": ["de-extinction", "health", "longevity"],
+    "overview": [
+      "Biotechnology is the engineering discipline that took biology from something we observe to something we write. The pivot was the realization that DNA is code — a four-letter instruction set that cells read to build proteins — and that we can now read it cheaply, edit it precisely, and increasingly design it from scratch. We track biotech as the place where the abstractions of software finally meet the messiness of living systems, with all the leverage and all the friction that implies.",
+      "The toolkit that makes the modern field is worth naming. Next-generation sequencing collapsed the cost of reading a genome from a national project to a routine lab procedure. CRISPR turned genome editing from a multi-year ordeal into a programmable operation, letting researchers target a specific stretch of DNA and cut, correct, or silence it. Synthetic biology layers engineering discipline on top — standardized parts, designed circuits, organisms reprogrammed to manufacture drugs, materials, and fuels. And mRNA platforms proved that we can hand a cell a temporary instruction and have it build the protein we want on demand.",
+      "The honest tensions are about delivery, specificity, and biology's refusal to behave like silicon. Editing a gene in a dish is solved; getting the edit into the right cells in a living body, at scale, without off-target effects, is where most programs live or die. Drug discovery is being reshaped by computation — protein structure prediction and generative models compress what used to take years — but a candidate that looks perfect in a model still has to survive the trials. We treat the gap between the demo and the clinic as the real story.",
+      "Our lens is leverage and consequence. When you can program cells, the addressable problems stop being just rare diseases and start including agriculture, manufacturing, climate, and conservation. That is also why governance matters here in a way it doesn't for an app: the same tools that cure a genetic disease can edit a germline or build a pathogen. We cover the breakthroughs, but we keep one eye on who gets to wield them and under what rules."
+    ],
+    "keyTerms": [
+      {"term": "CRISPR", "definition": "A programmable genome-editing system that uses a guide RNA to target a specific DNA sequence so it can be cut, corrected, or silenced."},
+      {"term": "Gene therapy", "definition": "Treating disease by adding, removing, or correcting genetic material inside a patient's cells."},
+      {"term": "Synthetic biology", "definition": "Designing and building new biological parts, circuits, or organisms using engineering principles."},
+      {"term": "mRNA platform", "definition": "Technology that delivers messenger RNA instructions so a patient's own cells temporarily produce a target protein, as used in mRNA vaccines."},
+      {"term": "Sequencing", "definition": "Reading the order of bases in DNA or RNA, now fast and cheap enough to be a routine laboratory step."},
+      {"term": "Off-target effect", "definition": "An unintended edit or biological consequence at a site other than the one a therapy was designed to act on."}
+    ],
+    "faq": [
+      {"q": "What is biotechnology?", "a": "Biotechnology is the use of living systems and biological molecules to make products and solve problems, from medicines and diagnostics to engineered crops and materials. Modern biotech is increasingly about reading, editing, and designing DNA directly."},
+      {"q": "How does CRISPR gene editing work?", "a": "CRISPR uses a guide RNA to direct a cutting enzyme to a precise location in the genome, where the DNA can be cut, corrected, or switched off. It made genome editing programmable, fast, and cheap compared with earlier methods."},
+      {"q": "Is gene therapy safe?", "a": "Approved gene therapies go through extensive clinical testing, and several are now used to treat previously untreatable genetic diseases. The main technical risks are getting the therapy to the right cells and avoiding off-target effects, which is why delivery and specificity dominate the field."},
+      {"q": "How is AI changing drug discovery?", "a": "Computational tools, including protein structure prediction and generative models, now compress parts of discovery that once took years, helping researchers design and screen candidate molecules faster. A promising computational result still has to be validated in the lab and the clinic."}
+    ]
+  },
+  {
+    "slug": "de-extinction",
+    "name": "De-Extinction",
+    "emoji": "🦣",
+    "headline": "Bringing lost species back from the edge",
+    "description": "The science and ethics of resurrecting extinct species — from woolly mammoths to thylacines.",
+    "relatedSlugs": ["biotech", "artificial-womb"],
+    "overview": [
+      "De-extinction is the most provocative application of modern genome engineering, and it is more subtle than the headlines suggest. We are not cloning a frozen mammoth — that DNA is far too degraded. What's actually on the table is functional de-extinction: sequencing the fragmented ancient genome, comparing it to a close living relative, and editing that relative's genome to express the lost species' defining traits. The goal isn't a genetic photocopy; it's a living animal that does the ecological job its ancestor did.",
+      "The pipeline is a stack of hard problems solved in sequence. Ancient DNA recovered from bone or permafrost comes in short, chemically damaged fragments that must be computationally reassembled against a reference genome. For the woolly mammoth, that reference is the Asian elephant, its closest living relative, and the work is to identify and install the cold-adaptation traits — dense hair, subcutaneous fat, hemoglobin that functions in the cold, smaller ears. Multiplex CRISPR editing makes dozens of changes at once; the edited cell then has to become an embryo, and the embryo has to develop to term.",
+      "That last step is the bottleneck nobody can hand-wave away. An elephant is a poor and ethically fraught surrogate, with a 22-month gestation and a threatened wild population. This is exactly why de-extinction and artificial-womb research are joined at the hip: an ex-utero development system would remove the dependence on a living surrogate and turn a one-off heroic effort into a repeatable process. The conservation case rests on it — you cannot rebuild a population one borrowed elephant at a time.",
+      "We cover the ethics as seriously as the science, because the interesting objections aren't squeamishness. Does a cold-adapted elephant belong in a world its ancestor left thousands of years ago? Does de-extinction divert attention and money from preventing extinctions still in progress? Or is it the opposite — that the same genetic-rescue toolkit being built for mammoths is directly transferable to endangered species alive today, adding diversity back to dwindling gene pools? We treat de-extinction as a forcing function for conservation technology, and judge it on what it makes possible across the board."
+    ],
+    "keyTerms": [
+      {"term": "Functional de-extinction", "definition": "Recreating an extinct species' key traits in a living relative's genome, rather than cloning an exact genetic copy."},
+      {"term": "Ancient DNA", "definition": "Degraded, fragmented genetic material recovered from old remains such as bone or permafrost, which must be computationally reassembled."},
+      {"term": "Surrogate species", "definition": "A close living relative whose reproductive system or genome is used to gestate or template a de-extinction candidate."},
+      {"term": "Multiplex editing", "definition": "Making many CRISPR edits to a genome simultaneously, needed to install the dozens of changes that define a lost species' traits."},
+      {"term": "Reference genome", "definition": "The complete genome of a closely related living species used as a scaffold to interpret fragmentary ancient DNA."},
+      {"term": "Genetic rescue", "definition": "Using genetic tools to restore diversity to a small or inbred population, a conservation application of the same toolkit."}
+    ],
+    "faq": [
+      {"q": "Can we really bring back the woolly mammoth?", "a": "Not as an exact clone — ancient mammoth DNA is too degraded. The realistic path is editing an Asian elephant genome to express mammoth cold-adaptation traits, producing a functional mammoth that fills the same ecological role. The hardest remaining step is gestating the embryo to term."},
+      {"q": "Is de-extinction cloning?", "a": "No. Cloning copies an intact genome from living cells, which extinct species don't provide. De-extinction reconstructs key traits by editing a close living relative's genome, an approach called functional de-extinction."},
+      {"q": "Why does de-extinction need artificial wombs?", "a": "Using a living surrogate like an endangered elephant is slow, risky, and impossible to scale to a whole population. An ex-utero development system would remove that dependence and make de-extinction a repeatable process rather than a one-off effort."},
+      {"q": "Does de-extinction help conservation?", "a": "The same toolkit built for de-extinction — genome editing, genetic rescue, and reproductive technology — is directly transferable to endangered species alive today, helping restore lost diversity to shrinking gene pools. Whether it diverts resources from preventing ongoing extinctions is a real and active debate."}
+    ]
+  },
+  {
+    "slug": "artificial-womb",
+    "name": "Artificial Womb",
+    "emoji": "🧫",
+    "headline": "Growing life outside the body",
+    "description": "Ectogenesis technology, ex-utero development, and the future of neonatal care and species conservation.",
+    "relatedSlugs": ["de-extinction", "biotech"],
+    "overview": [
+      "An artificial womb is a system that supports the development of a fetus outside a body — partial ectogenesis when it sustains a premature infant through a critical window, full ectogenesis as the longer-horizon goal of supporting development from much earlier. The distinction matters, because the near-term medicine and the far-term science fiction get collapsed in public conversation, and they are very different engineering problems with very different timelines.",
+      "The most concrete work today targets the neonatal cliff: extreme prematurity, where lungs aren't ready to breathe air and conventional ventilation damages them. The leading approach abandons the incubator's logic entirely. Instead of pushing air into immature lungs, an ex-utero system keeps the fetus in a fluid environment and oxygenates the blood externally, with the fetal heart driving flow through a low-resistance oxygenator — closer to recreating the placenta than to running a NICU. The animal data here is real and striking; the human translation is where the caution lives.",
+      "Full ectogenesis — supporting development through the earlier stages that depend most intimately on maternal physiology — is a genuinely harder problem. The placenta is not just an oxygen exchanger; it is an active endocrine and immune organ, and replicating that signaling environment is an open frontier we call ExoDev. The unsolved pieces are the interface and the chemistry: a connection that doesn't clot or trigger immune rejection, and a fluid environment that delivers the hormonal and nutritional cues development actually requires.",
+      "We track this because the implications run in two directions at once. In medicine, it could rewrite the limits of viability and survival for the most fragile infants. In conservation and de-extinction, an ex-utero system removes the surrogate-mother bottleneck that otherwise makes rebuilding a population impossible. And the ethics are unavoidable — questions about viability, gestation, and what 'born' even means — which is exactly why the technology has to be developed in the open, with the science stated plainly rather than hyped."
+    ],
+    "keyTerms": [
+      {"term": "Ectogenesis", "definition": "The development of an organism outside the body in an artificial environment, partial when it supports a preemie or full when it supports earlier development."},
+      {"term": "Ex-utero development", "definition": "Sustaining a fetus's growth outside the uterus using an external life-support system."},
+      {"term": "ExoDev", "definition": "The frontier of building systems that recreate the womb's full developmental environment, including the placenta's signaling roles."},
+      {"term": "Oxygenator", "definition": "A device that adds oxygen to and removes carbon dioxide from blood externally, standing in for the lungs or placenta."},
+      {"term": "Placental interface", "definition": "The blood connection between fetus and support system, whose tendency to clot or trigger immune rejection is a central engineering challenge."},
+      {"term": "Viability", "definition": "The point in development at which a fetus can survive outside the womb, a threshold artificial wombs could shift earlier."}
+    ],
+    "faq": [
+      {"q": "What is an artificial womb?", "a": "An artificial womb is a system that supports a fetus's development outside a body, keeping it in a fluid environment and oxygenating its blood externally rather than forcing immature lungs to breathe air. The near-term goal is helping extremely premature infants survive."},
+      {"q": "What is ectogenesis?", "a": "Ectogenesis is the development of an organism outside the body. Partial ectogenesis supports a premature fetus through a critical window, while full ectogenesis — supporting development from a much earlier stage — remains a far harder, unsolved problem."},
+      {"q": "Do artificial wombs exist yet?", "a": "Experimental ex-utero systems have sustained animal fetuses through late development in research settings, and human trials for the most extreme prematurity are the next frontier. Full ectogenesis from early development does not yet exist."},
+      {"q": "How are artificial wombs related to de-extinction?", "a": "De-extinction needs a way to gestate embryos without depending on scarce, fragile surrogate animals. An ex-utero development system removes that bottleneck, making it possible to rebuild a population rather than produce a single individual."}
+    ]
+  },
+  {
+    "slug": "robotics",
+    "name": "Robotics",
+    "emoji": "🦾",
+    "headline": "Machines that move through the physical world",
+    "description": "Humanoid robots, surgical systems, autonomous vehicles, and the hardware side of AI.",
+    "relatedSlugs": ["ai", "semiconductors"],
+    "overview": [
+      "Robotics is where intelligence meets friction. A model can be wrong in software and you retry; a robot that's wrong in the physical world drops the part, hits the wall, or hurts someone. We track robotics as the discipline of closing the loop between perception, decision, and actuation under real-world uncertainty — where gravity, latency, and unmodeled physics get a vote, and a demo that works in the lab is only the beginning.",
+      "The field is being reshaped by the same learning revolution that hit software, but more slowly and more honestly. The promise of foundation models for robotics is a general policy that maps what a robot sees to what it should do, trained across many tasks instead of hand-coded for one. The blocker is data: the internet is full of text and images but not of robots manipulating objects, so the frontier is teleoperation, simulation, and the sim-to-real gap — the stubborn fact that a policy trained in simulation degrades when it meets real sensors and real contact.",
+      "Two arenas show the spread. Humanoids are the speculative bet — a general-purpose body for a world built around humans — and the open question is whether the form factor earns its enormous control complexity or whether purpose-built machines win. Meanwhile the unglamorous robotics that already works — surgical systems, warehouse automation, autonomous vehicles in constrained domains — proves the thesis quietly: narrow the environment and the problem becomes tractable. We weight working deployment over viral demos.",
+      "Our lens is the hardware-software stack as one system. Better robots aren't only better algorithms; they're better actuators, cheaper sensors, more efficient onboard compute, and batteries that last a shift. That's why robotics, AI, and semiconductors keep showing up in the same conversation. We watch where the bottleneck actually is — often the body, not the brain — and treat the messy engineering of reliable physical autonomy as the real story behind the humanoid hype."
+    ],
+    "keyTerms": [
+      {"term": "Actuation", "definition": "The mechanism by which a robot produces motion or force to act on the physical world, via motors, joints, and end effectors."},
+      {"term": "Sim-to-real gap", "definition": "The performance drop when a control policy trained in simulation is deployed on real hardware with real sensors and physics."},
+      {"term": "Teleoperation", "definition": "A human remotely controlling a robot, often used to collect the demonstration data that learned policies are trained on."},
+      {"term": "Humanoid", "definition": "A robot built in roughly human form to operate in environments and with tools designed for people."},
+      {"term": "Robot policy", "definition": "A learned mapping from a robot's sensor inputs to its actions, increasingly trained across many tasks like a foundation model."},
+      {"term": "End effector", "definition": "The tool at the end of a robot arm — a gripper, hand, or instrument — that interacts directly with objects."}
+    ],
+    "faq": [
+      {"q": "How close are humanoid robots to being useful?", "a": "Humanoids are advancing fast in mobility and manipulation demos, but reliable, economical general-purpose work remains unproven. Purpose-built robots in constrained settings — warehouses, factories, surgery — are far more capable today than general humanoids."},
+      {"q": "Why is robotics harder than software AI?", "a": "Robots act in the physical world, where errors are costly and physics is unforgiving, and where high-quality training data is scarce compared with the text and images available for software AI. Closing the loop between perception and action under real uncertainty is the core challenge."},
+      {"q": "What is the sim-to-real gap?", "a": "The sim-to-real gap is the performance drop a robot experiences when a policy trained in simulation meets the real world, where sensors are noisy and contact physics differ from the model. Bridging it is one of robotics' central problems."},
+      {"q": "How do AI and robotics relate?", "a": "AI increasingly provides the perception and decision-making — the robot's brain — while robotics supplies the body: sensors, actuators, and control. Progress now depends on advances in both, plus the semiconductors that run the onboard compute."}
+    ]
+  },
+  {
+    "slug": "semiconductors",
+    "name": "Semiconductors",
+    "emoji": "🔬",
+    "headline": "The silicon foundations of everything",
+    "description": "Chip design, fabrication, supply chains, and the geopolitics of semiconductor dominance.",
+    "relatedSlugs": ["ai", "robotics"],
+    "overview": [
+      "Semiconductors are the substrate the entire digital economy runs on, and the AI era turned that substrate into the most strategically contested industry on Earth. We track chips because every other story we cover — AI, robotics, biotech instruments — ultimately cashes out in transistors, fabrication capacity, and who controls them. When compute is the bottleneck on intelligence, the companies and countries that make the fastest chips hold real leverage.",
+      "The physics is humbling and worth respecting. Modern logic chips pack tens of billions of transistors onto a fingernail of silicon, patterned at scales smaller than the wavelength of visible light. Reaching those nodes requires extreme ultraviolet lithography, a technology so demanding that effectively one company in the world makes the machines, and a handful of fabs can run them. This is why the supply chain is less a chain than a series of single points of failure spread across the planet.",
+      "The structure of the industry explains the geopolitics. Design, manufacturing, and equipment have specialized into different companies and countries: chips are designed in one place, fabricated in another, and the tools to fabricate them built in a third. That concentration — leading-edge manufacturing clustered in a few facilities, advanced packaging and materials elsewhere — makes the whole system efficient and dangerously fragile, and it's why export controls and fab subsidies have become instruments of statecraft.",
+      "Our lens is the interplay of physics, economics, and power. We watch where Moore's-law scaling is genuinely slowing and how the industry routes around it — advanced packaging, chiplets, specialized accelerators instead of general CPUs. We watch the AI demand surge stress fabrication and memory supply. And we watch the politics, because a technology this concentrated and this essential is where industrial policy, trade conflict, and national security now collide most directly."
+    ],
+    "keyTerms": [
+      {"term": "Fab", "definition": "A semiconductor fabrication plant where silicon wafers are processed into finished chips, costing billions to build and run."},
+      {"term": "Process node", "definition": "A generation of manufacturing technology, loosely indexed by feature size, where smaller nodes pack more, faster transistors."},
+      {"term": "EUV lithography", "definition": "Extreme ultraviolet lithography, the technology used to pattern the smallest features on leading-edge chips, available from essentially one supplier."},
+      {"term": "Foundry", "definition": "A company that manufactures chips designed by others, separating chip design from fabrication."},
+      {"term": "Advanced packaging", "definition": "Techniques for combining multiple chips or chiplets into one high-performance package, increasingly important as transistor scaling slows."},
+      {"term": "Accelerator", "definition": "A chip specialized for a workload such as AI, trading general-purpose flexibility for far higher throughput on that task."}
+    ],
+    "faq": [
+      {"q": "Why are semiconductors so geopolitically important?", "a": "Advanced chips power everything from AI to weapons, yet leading-edge manufacturing and the equipment to do it are concentrated in a few companies and countries. That concentration makes chips a chokepoint that nations now manage with export controls and subsidies."},
+      {"q": "What is a process node and does it still matter?", "a": "A process node is a generation of chip-making technology, with smaller nodes historically delivering more and faster transistors. Pure scaling is slowing, so the industry increasingly relies on advanced packaging and specialized chips alongside smaller nodes."},
+      {"q": "Why can't every country just make its own chips?", "a": "Leading-edge fabrication depends on a globally distributed supply chain and machines like EUV lithography systems that essentially one company makes. Building a competitive, self-sufficient chip industry takes many years and enormous capital."},
+      {"q": "How is AI affecting the chip industry?", "a": "AI has driven explosive demand for specialized accelerators and high-bandwidth memory, straining fabrication and packaging capacity. It has also made chips central to national strategy, since whoever controls advanced compute controls a key input to AI."}
+    ]
+  },
+  {
+    "slug": "venture-capital",
+    "name": "Venture Capital",
+    "emoji": "💰",
+    "headline": "Where the money meets the mission",
+    "description": "Funding rounds, market dynamics, and the investors backing breakthrough science and technology.",
+    "relatedSlugs": ["biotech", "ai"],
+    "overview": [
+      "Venture capital is the financial machinery that funds the improbable. It exists to back companies that are too early, too risky, and too capital-hungry for banks or public markets — and to do so under a specific bet: that a small number of enormous winners will pay for a large number of failures. We track VC because it's the upstream allocator of risk capital that decides which frontier science gets a shot at becoming a product, and which doesn't.",
+      "The mechanics shape the behavior. Funds raise capital from limited partners, deploy it across a portfolio over a few years, and aim to return many times that capital within a fund's lifetime. The math is power-law, not average: returns are dominated by the rare breakout, so the rational strategy is to chase outliers, not to minimize losses. That's why venture is structurally drawn to large, uncertain markets and why it tolerates failure rates that would be unacceptable anywhere else.",
+      "Deep tech and science complicate the classic playbook. The software model — cheap to start, fast to iterate, quick to know if it's working — doesn't map cleanly onto biotech, hardware, or de-extinction, where capital requirements are heavy, timelines run to a decade, and the binary risk is technical, not just market. We pay attention to how investors adapt: milestone-based financing, specialized funds, and the patient capital that frontier science actually requires.",
+      "Our lens is incentives and signal. Funding rounds are a noisy read on conviction — they tell you what sophisticated money believes about a thesis, and also when a sector is overheating. We watch where capital is flowing into the fields we cover, what valuations imply about expectations, and the gap between narrative and fundamentals. Money is a leading indicator of which futures get built, and a lagging one of which hype cycles are about to break."
+    ],
+    "keyTerms": [
+      {"term": "Limited partner (LP)", "definition": "An investor — such as a pension fund or endowment — that provides the capital a venture fund deploys."},
+      {"term": "Power-law returns", "definition": "The pattern where a venture portfolio's returns are dominated by a few outsized winners rather than spread evenly."},
+      {"term": "Valuation", "definition": "The price the market assigns to a company in a funding round, reflecting expectations about its future."},
+      {"term": "Deep tech", "definition": "Startups built on hard scientific or engineering breakthroughs, with heavier capital needs and longer timelines than software."},
+      {"term": "Burn rate", "definition": "How fast a company spends its cash, determining how long it can operate before needing more funding."},
+      {"term": "Milestone financing", "definition": "Releasing capital in tranches tied to technical or business milestones, common in capital-intensive science startups."}
+    ],
+    "faq": [
+      {"q": "How does venture capital work?", "a": "Venture funds raise money from limited partners and invest it in early-stage companies, expecting most to fail and a few to return many times the capital. The model is built around power-law outcomes, where rare breakout winners drive nearly all the returns."},
+      {"q": "Why do VCs accept so many failures?", "a": "Because venture returns follow a power law, a single enormous success can outweigh many losses, so the rational strategy is to chase outliers rather than minimize failure. Investors knowingly fund a portfolio in which most companies will not succeed."},
+      {"q": "Why is funding deep tech and biotech different?", "a": "Deep tech and biotech require heavy capital and long timelines, and their main risk is technical rather than just market fit, which the fast-iteration software model doesn't fit. Investors adapt with milestone-based financing, specialized funds, and more patient capital."},
+      {"q": "What does a funding round actually signal?", "a": "A round signals what sophisticated investors believe about a company and its market, and at scale it indicates where conviction and capital are flowing. It can also signal a sector overheating when valuations outrun fundamentals."}
+    ]
+  },
+  {
+    "slug": "health",
+    "name": "Health",
+    "emoji": "❤️",
+    "headline": "Optimizing the human machine",
+    "description": "Evidence-based approaches to longevity, cognitive enhancement, metabolic health, and preventive medicine.",
+    "relatedSlugs": ["biotech", "longevity"],
+    "overview": [
+      "Health is the field where the most consequential science meets the most motivated reasoning, and our job is to keep the two apart. We cover health from an evidence-first stance: the body is a system, the interventions that move it are real but specific, and the difference between a robust finding and a compelling anecdote is the entire game. The promise of personalized, preventive, measurement-driven medicine is genuine — and it's surrounded by a marketplace of confident claims that the data doesn't support.",
+      "The structural shift worth tracking is from reactive to preventive. Medicine has historically waited for disease and then fought it; the frontier is detecting and intervening earlier — metabolic dysfunction before it becomes diabetes, cardiovascular risk before the event, decline before it's irreversible. Continuous data from wearables and biomarkers, cheaper diagnostics, and a better understanding of metabolic health are making it plausible to act upstream, where small changes compound over decades.",
+      "The tensions are about evidence and individuality. The gold standard is the randomized controlled trial, but trials are slow, expensive, and run on populations, while a patient is an individual with their own genetics, environment, and history. Much of what circulates as health advice is extrapolated well past what the data can bear, and the same intervention can help one person and do nothing for another. We hold a high bar: mechanism is interesting, association is suggestive, and only causation earns a strong claim.",
+      "Our lens is what actually moves outcomes versus what merely sells. The unglamorous fundamentals — sleep, exercise, metabolic and cardiovascular health, not smoking — have the strongest evidence and the least hype. The frontier tools, from advanced diagnostics to emerging therapeutics, are promising precisely where they're rigorously tested. We try to give readers the framework to tell the durable signal from the noise, because in health the cost of believing the wrong thing is measured in years."
+    ],
+    "keyTerms": [
+      {"term": "Preventive medicine", "definition": "Detecting and addressing risk factors before disease develops, rather than treating illness after it appears."},
+      {"term": "Biomarker", "definition": "A measurable biological signal — in blood, tissue, or data — that indicates a health state or risk."},
+      {"term": "Metabolic health", "definition": "How well the body manages energy, blood sugar, and related processes, a foundation for long-term disease risk."},
+      {"term": "Randomized controlled trial", "definition": "The gold-standard study design that randomly assigns interventions to isolate cause from coincidence."},
+      {"term": "Wearable", "definition": "A device that continuously measures physiological signals such as heart rate, sleep, or glucose outside a clinic."},
+      {"term": "Healthspan", "definition": "The portion of life spent in good health, as distinct from total lifespan."}
+    ],
+    "faq": [
+      {"q": "What is the difference between healthspan and lifespan?", "a": "Lifespan is how long you live; healthspan is how long you stay healthy and functional. The goal of modern preventive health is to extend healthspan, compressing illness and decline into a smaller window at the end of life."},
+      {"q": "How do I tell good health advice from hype?", "a": "Weigh the quality of evidence: randomized controlled trials and replicated findings carry far more weight than single studies, mechanisms, or anecdotes. Be skeptical of claims that extrapolate well beyond what the data actually shows."},
+      {"q": "What actually has the strongest evidence for staying healthy?", "a": "The unglamorous fundamentals — sleep, regular exercise, good metabolic and cardiovascular health, and not smoking — have the strongest and most consistent evidence. Frontier tools are most trustworthy where they have been rigorously tested."},
+      {"q": "Why is preventive medicine considered the future?", "a": "Acting before disease develops can stop problems while they are still cheap and reversible, and cheaper diagnostics and continuous data now make earlier detection practical. Small upstream changes compound into large differences in outcomes over decades."}
+    ]
+  },
+  {
+    "slug": "longevity",
+    "name": "Longevity",
+    "emoji": "⏳",
+    "headline": "The science of living longer and better",
+    "description": "Aging research, senolytics, caloric restriction, and the quest to extend healthy human lifespan.",
+    "relatedSlugs": ["health", "biotech"],
+    "overview": [
+      "Longevity science rests on a once-radical premise that is now mainstream in biology: aging is not an inevitable wearing-out but a set of specific, mechanistic processes — and processes can be targeted. We track this field because if even a few of those mechanisms are tractable, the payoff isn't a longer end-of-life decline but a longer healthspan, the years lived in good function. The serious goal was never immortality; it's compressing morbidity into a smaller window.",
+      "The science organizes around the hallmarks of aging — a shared framework of the cellular and molecular drivers that accumulate over time. These include genomic instability, telomere attrition, epigenetic drift, loss of protein quality control, mitochondrial dysfunction, and cellular senescence, in which damaged cells stop dividing but linger and secrete inflammatory signals that age the tissue around them. The promise of this framework is that it turns 'aging' from a vague process into a list of targets, each of which suggests an intervention.",
+      "Those targets have produced real experimental programs, and an honest accounting of their status matters. Senolytics aim to clear senescent cells; caloric restriction and the nutrient-sensing pathways it acts on remain the most robust lifespan levers across species; partial reprogramming explores resetting cells' epigenetic age without erasing their identity. Much of the strongest evidence is in model organisms, and the translation to humans is where the field separates careful science from supplement marketing. Measuring biological age well enough to run human trials is itself a frontier.",
+      "Our lens is rigor under enthusiasm. Longevity attracts more capital and more hype than almost any field we cover, and the gap between a mouse result and a human therapy is wide and littered with failed extrapolations. We take the biology seriously — the mechanisms are real and the targets are legitimate — while holding the line that an intervention earns belief through controlled human evidence, not a compelling mechanism and a confident founder. The interesting question is which hallmarks are actually causal, and which we can safely move."
+    ],
+    "keyTerms": [
+      {"term": "Healthspan", "definition": "The years of life spent in good health and function, which longevity science aims to extend rather than just lifespan."},
+      {"term": "Hallmarks of aging", "definition": "A framework of the cellular and molecular processes — such as senescence and epigenetic drift — that drive aging."},
+      {"term": "Cellular senescence", "definition": "A state in which damaged cells stop dividing but persist and secrete inflammatory signals that degrade surrounding tissue."},
+      {"term": "Senolytics", "definition": "Drugs designed to selectively clear senescent cells to reduce their harmful effects on tissue."},
+      {"term": "Caloric restriction", "definition": "Reducing calorie intake without malnutrition, the most robust lifespan-extending intervention across many species."},
+      {"term": "Partial reprogramming", "definition": "Resetting a cell's epigenetic age toward a younger state without erasing its specialized identity."}
+    ],
+    "faq": [
+      {"q": "Is aging actually reversible?", "a": "Aging is increasingly understood as a set of specific biological processes that can be targeted, and experiments like partial reprogramming have reversed some markers of cellular age in the lab. Whether that translates to reversing human aging safely is unproven and an active research question."},
+      {"q": "What are the hallmarks of aging?", "a": "The hallmarks of aging are a framework of the cellular and molecular drivers that accumulate over time, including genomic instability, telomere attrition, epigenetic drift, mitochondrial dysfunction, and cellular senescence. They turn aging into a list of concrete targets."},
+      {"q": "Do longevity supplements actually work?", "a": "Most longevity supplements rest on mechanistic reasoning or animal data rather than strong human evidence, and the gap between a mouse result and a human benefit is wide. Robust claims require controlled human trials, which most products lack."},
+      {"q": "What is the difference between lifespan and healthspan in longevity research?", "a": "Lifespan is total years lived; healthspan is years lived in good health. Serious longevity research targets healthspan — compressing illness and decline into a smaller window — rather than simply extending the end of life."}
+    ]
+  }
 ]
