@@ -528,6 +528,74 @@
         project.baseline.tasks.forEach(function (b) { baselineByDay[b.id] = b; });
       }
 
+      // ---- Earned value (PV/EV/AC + indices) against the status date.
+      // Needs a baseline (the plan of record → PV, BAC) and a status date (the
+      // "as of" moment). AC uses recorded actual spans × day rates; a task with
+      // no recorded actuals is costed at its earned value (neutral CPI) so the
+      // metric reflects only what was actually measured.
+      var evm;
+      if (!baselineByDay && statusIdx == null) evm = { available: false, reason: 'Set a baseline and a status date to enable earned-value analysis.' };
+      else if (!baselineByDay) evm = { available: false, reason: 'Set a baseline (the plan of record) to enable earned-value analysis.' };
+      else if (statusIdx == null) evm = { available: false, reason: 'Set a status date (Calendar dialog) to enable earned-value analysis.' };
+      else {
+        var tot = { bac: 0, pv: 0, ev: 0, ac: 0 };
+        var perTask = [];
+        rows.forEach(function (r, i) {
+          if (r.isSummary) return;
+          var bl = baselineByDay[r.id]; // may be absent (task added after baseline)
+          var bac = bl && bl.cost != null ? bl.cost : cost[i];
+          var bStartIdx = bl ? cal.dayToIndex(anchor, bl.startDay) : r.es;
+          var bFinIdx = bl ? cal.dayToIndex(anchor, bl.finishDay) : (r.es + Math.max(r.durationDays - 1, 0));
+          var bDur = Math.max(1, bFinIdx - bStartIdx + 1);
+          var isMilestoneBl = (bl ? (bl.durationDays === 0 || bl.startDay === bl.finishDay) : r.isMilestone);
+          var plannedFrac = isMilestoneBl
+            ? (bStartIdx < statusIdx ? 1 : 0)
+            : clamp(statusIdx - bStartIdx + 1, 0, bDur) / bDur;
+          var pv = bac * plannedFrac;
+          var ev = bac * (r.percentComplete / 100);
+          var ac;
+          if (r.task.actualStartISO) {
+            var dailyRate = r.task.resourceIds.reduce(function (a, rid) { return a + (rateById[rid] || 0); }, 0);
+            var asIdx = cal.dayToIndex(anchor, cal.snapForward(Cal.parseISO(r.task.actualStartISO)));
+            var elapsed;
+            if (r.task.actualFinishISO) {
+              var afIdx = cal.dayToIndex(anchor, cal.snapForward(Cal.parseISO(r.task.actualFinishISO)));
+              elapsed = Math.max(afIdx - asIdx + 1, 1);
+            } else {
+              elapsed = clamp(statusIdx - asIdx + 1, 0, 100000);
+            }
+            ac = dailyRate * elapsed;
+          } else {
+            ac = ev; // nothing measured yet — neutral cost assumption
+          }
+          tot.bac += bac; tot.pv += pv; tot.ev += ev; tot.ac += ac;
+          if (bac > 0) {
+            perTask.push({
+              row: i + 1, id: r.id, name: r.name,
+              bac: Math.round(bac), pv: Math.round(pv), ev: Math.round(ev), ac: Math.round(ac),
+              spi: pv > 0 ? ev / pv : null,
+              cpi: ac > 0 ? ev / ac : null
+            });
+          }
+        });
+        var spi = tot.pv > 0 ? tot.ev / tot.pv : null;
+        var cpi = tot.ac > 0 ? tot.ev / tot.ac : null;
+        var eac = cpi ? tot.bac / cpi : null;
+        evm = {
+          available: true,
+          statusISO: project.statusISO,
+          baselineISO: project.baseline.savedISO || null,
+          bac: Math.round(tot.bac), pv: Math.round(tot.pv),
+          ev: Math.round(tot.ev), ac: Math.round(tot.ac),
+          sv: Math.round(tot.ev - tot.pv), cv: Math.round(tot.ev - tot.ac),
+          spi: spi, cpi: cpi,
+          eac: eac != null ? Math.round(eac) : null,
+          etc: eac != null ? Math.round(eac - tot.ac) : null,
+          vac: eac != null ? Math.round(tot.bac - eac) : null,
+          tasks: perTask
+        };
+      }
+
       computed = {
         rows: rows,
         anchor: anchor,
@@ -546,7 +614,8 @@
         overallocatedCount: Object.keys(overallocatedIds).length,
         riskSummary: riskSummary,
         statusDay: statusDay,
-        behindCount: behindCount
+        behindCount: behindCount,
+        evm: evm
       };
       return computed;
     }
@@ -1008,7 +1077,14 @@
       var c = getComputed();
       project.baseline = {
         savedISO: Cal.toISO(Cal.todayDayNum()),
-        tasks: c.rows.map(function (r) { return { id: r.id, startDay: r.startDay, finishDay: r.finishDay }; })
+        // duration + cost captured for earned-value analysis (BAC); older
+        // baselines without these fields degrade gracefully (BAC = current cost)
+        tasks: c.rows.map(function (r) {
+          return {
+            id: r.id, startDay: r.startDay, finishDay: r.finishDay,
+            durationDays: r.durationDays, cost: Math.round(r.cost || 0)
+          };
+        })
       };
       recompute(); notify(); // recompute so computed.baseline overlays immediately
     }

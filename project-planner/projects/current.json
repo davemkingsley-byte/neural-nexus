@@ -1,7 +1,7 @@
 {
   "id": "sample",
   "name": "Product Launch (sample)",
-  "startISO": "2026-07-10",
+  "startISO": "2026-07-13",
   "calendar": {
     "workingDays": [
       1,
@@ -324,7 +324,7 @@
       "collapsed": false,
       "constraintISO": null,
       "constraintType": null,
-      "deadlineISO": "2026-09-18",
+      "deadlineISO": "2026-09-21",
       "actualStartISO": null,
       "actualFinishISO": null,
       "comments": [],
@@ -371,5 +371,5 @@
   "risks": [],
   "nextRiskId": 1,
   "nextCommentId": 1,
-  "rev": 33
+  "rev": 39
 }

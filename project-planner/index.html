@@ -85,6 +85,7 @@
         <button id="btnRisks" class="tb" title="Risk register (probability × impact)">🛡 Risks</button>
         <button id="btnHistory" class="tb" title="Version history — every save is restorable" hidden>🕘 History</button>
         <button id="btnActivity" class="tb" title="Recent change activity" hidden>📋 Activity</button>
+        <button id="btnEvm" class="tb" title="Earned value — schedule/cost performance vs the baseline">📈 EVM</button>
       </div>
     </div>
 
@@ -113,6 +114,8 @@
       <span id="stCost">$0</span>
       <span class="st-sep">·</span>
       <span id="stRisks">no active risks</span>
+      <span class="st-sep">·</span>
+      <span id="stEvm" class="st-evm" hidden></span>
       <span id="stWarn" class="st-warn" hidden></span>
       <span class="st-spacer"></span>
       <span id="stWhoami" class="st-whoami"></span>
@@ -239,6 +242,17 @@
           </div>
         </fieldset>
       </div>
+    </div>
+  </div>
+
+  <!-- Earned value modal -->
+  <div class="modal-backdrop" id="evmModal" hidden>
+    <div class="modal modal-evm">
+      <div class="modal-head">
+        <h2>Earned Value</h2>
+        <button class="modal-close" id="evmClose" title="Close">✕</button>
+      </div>
+      <div class="modal-body" id="evmBody"></div>
     </div>
   </div>
 

@@ -230,6 +230,16 @@
     $('stCritical').textContent = critCount + ' critical';
     $('stCost').textContent = model.formatMoney(c.projectCost || 0);
 
+    var ev = c.evm;
+    var stEvmEl = $('stEvm');
+    if (stEvmEl) {
+      if (ev && ev.available && (ev.spi != null || ev.cpi != null)) {
+        stEvmEl.hidden = false;
+        stEvmEl.textContent = 'SPI ' + fmtIdx(ev.spi) + ' · CPI ' + fmtIdx(ev.cpi);
+        stEvmEl.className = 'st-evm ' + (idxClass(Math.min(ev.spi != null ? ev.spi : 9, ev.cpi != null ? ev.cpi : 9)));
+      } else stEvmEl.hidden = true;
+    }
+
     var rs = c.riskSummary || {};
     var stRisksEl = $('stRisks');
     if (stRisksEl) stRisksEl.textContent = (rs.open || rs.mitigating) ? ((rs.open || 0) + (rs.mitigating || 0)) + ' active risks (exp ' + (rs.exposure || 0) + ')' : 'no active risks';
@@ -273,7 +283,8 @@
       (els.calModal && !els.calModal.hidden) ||
       (els.riskModal && !els.riskModal.hidden) ||
       (els.histModal && !els.histModal.hidden) ||
-      (els.actModal && !els.actModal.hidden);
+      (els.actModal && !els.actModal.hidden) ||
+      (els.evmModal && !els.evmModal.hidden);
   }
 
   // Every real model mutation lands here (model.subscribe). Remote applies are
@@ -730,7 +741,8 @@
         (els.calModal && !els.calModal.hidden) || (els.resModal && !els.resModal.hidden) ||
         (els.riskModal && !els.riskModal.hidden) ||
       (els.histModal && !els.histModal.hidden) ||
-      (els.actModal && !els.actModal.hidden);
+      (els.actModal && !els.actModal.hidden) ||
+      (els.evmModal && !els.evmModal.hidden);
       if (modalOpen) {
         if (e.key === 'Escape') {
           e.preventDefault();
@@ -740,6 +752,7 @@
           els.riskModal.hidden = true;
           els.histModal.hidden = true;
           els.actModal.hidden = true;
+          els.evmModal.hidden = true;
         }
         return;
       }
@@ -1280,6 +1293,57 @@
     };
   }
 
+  // ---- Earned value dashboard ----
+  function fmtIdx(v) { return v == null ? 'n/a' : (Math.round(v * 100) / 100).toFixed(2); }
+  function idxClass(v) { return v == null ? '' : v >= 1 ? 'evm-good' : v >= 0.9 ? 'evm-warn' : 'evm-bad'; }
+
+  function openEvmModal() {
+    var e = model.getComputed().evm;
+    var esc = PM.Grid.esc;
+    var html;
+    if (!e || !e.available) {
+      html = '<div class="evm-guide">' + esc(e ? e.reason : 'Earned value needs a baseline and a status date.') +
+        '<br><br>1. <strong>Set Baseline</strong> captures the plan of record (dates + budget).' +
+        '<br>2. <strong>📅 Calendar → Status date</strong> sets the \u201cas of\u201d moment.' +
+        '<br>Then this dashboard shows whether the project is ahead/behind schedule (SPI) and under/over cost (CPI).</div>';
+    } else {
+      var money = model.formatMoney;
+      html =
+        '<div class="evm-meta">As of <strong>' + esc(e.statusISO || '?') + '</strong> vs baseline saved ' + esc(e.baselineISO || '?') + '</div>' +
+        '<div class="evm-tiles">' +
+        '<div class="evm-tile ' + idxClass(e.spi) + '"><div class="evm-tile-label">SPI · schedule</div><div class="evm-tile-value">' + fmtIdx(e.spi) + '</div><div class="evm-tile-sub">' + (e.spi == null ? 'no planned work yet' : e.spi >= 1 ? 'on/ahead of schedule' : 'behind schedule') + '</div></div>' +
+        '<div class="evm-tile ' + idxClass(e.cpi) + '"><div class="evm-tile-label">CPI · cost</div><div class="evm-tile-value">' + fmtIdx(e.cpi) + '</div><div class="evm-tile-sub">' + (e.cpi == null ? 'no cost measured yet' : e.cpi >= 1 ? 'on/under budget' : 'over budget') + '</div></div>' +
+        '</div>' +
+        '<table class="risk-table evm-table"><tbody>' +
+        '<tr><td>Budget at completion (BAC)</td><td>' + money(e.bac) + '</td><td>Planned value (PV)</td><td>' + money(e.pv) + '</td></tr>' +
+        '<tr><td>Earned value (EV)</td><td>' + money(e.ev) + '</td><td>Actual cost (AC)</td><td>' + money(e.ac) + '</td></tr>' +
+        '<tr><td>Schedule variance (SV)</td><td class="' + (e.sv < 0 ? 'evm-neg' : '') + '">' + money(e.sv) + '</td><td>Cost variance (CV)</td><td class="' + (e.cv < 0 ? 'evm-neg' : '') + '">' + money(e.cv) + '</td></tr>' +
+        (e.eac != null ? '<tr><td>Estimate at completion (EAC)</td><td>' + money(e.eac) + '</td><td>Variance at completion (VAC)</td><td class="' + (e.vac < 0 ? 'evm-neg' : '') + '">' + money(e.vac) + '</td></tr>' : '') +
+        '</tbody></table>';
+      var worst = (e.tasks || []).filter(function (t) { return t.spi != null && t.spi < 1; })
+        .sort(function (a, b) { return a.spi - b.spi; }).slice(0, 8);
+      if (worst.length) {
+        html += '<div class="evm-worst-title">Weakest schedule performers</div>' +
+          '<table class="risk-table"><thead><tr><th>#</th><th>Task</th><th>SPI</th><th>CPI</th><th>EV</th><th>PV</th></tr></thead><tbody>' +
+          worst.map(function (t) {
+            return '<tr><td>' + t.row + '</td><td>' + esc(t.name) + '</td>' +
+              '<td class="' + idxClass(t.spi) + '">' + fmtIdx(t.spi) + '</td>' +
+              '<td class="' + idxClass(t.cpi) + '">' + fmtIdx(t.cpi) + '</td>' +
+              '<td>' + money(t.ev) + '</td><td>' + money(t.pv) + '</td></tr>';
+          }).join('') + '</tbody></table>';
+      }
+      html += '<div class="evm-note">AC uses recorded actual spans × day rates; tasks without recorded actuals are costed at earned value (neutral CPI). Add actual start/finish dates for true cost performance.</div>';
+    }
+    els.evmBody.innerHTML = html;
+    els.evmModal.hidden = false;
+  }
+
+  function wireEvmModal() {
+    els.btnEvm.onclick = openEvmModal;
+    els.evmClose.onclick = function () { els.evmModal.hidden = true; };
+    els.evmModal.addEventListener('mousedown', function (e) { if (e.target === els.evmModal) els.evmModal.hidden = true; });
+  }
+
   // ---- Activity feed ----
   function openActivityModal() {
     if (!sync.server) return;
@@ -1352,6 +1416,7 @@
             return fetch(apiPath()).then(function (r) { return r.json(); }).then(function (doc) {
               els.histModal.hidden = true;
           els.actModal.hidden = true;
+          els.evmModal.hidden = true;
               applyRemote(doc);
               toast('Restored revision ' + rev + ' (as new revision ' + res.j.rev + ')');
             });
@@ -1465,6 +1530,7 @@
       'rkReview', 'rkDesc', 'rkMitigation', 'rkContingency', 'rkTasks', 'rkSave', 'rkDelete', 'rkCancel',
       'btnHistory', 'histModal', 'histClose', 'histTable', 'calStatus',
       'btnActivity', 'actModal', 'actClose', 'actFeed',
+      'btnEvm', 'evmModal', 'evmClose', 'evmBody',
       'tmComments', 'tmNewComment', 'tmAddComment'
     ].forEach(function (id) { els[id] = $(id); });
 
@@ -1480,6 +1546,7 @@
     wireRiskModal();
     wireHistoryModal();
     wireActivityModal();
+    wireEvmModal();
     bootstrapStorage(); // loads local instantly, then upgrades to server mode
   }
 

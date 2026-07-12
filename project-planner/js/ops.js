@@ -341,7 +341,15 @@
         baseline: p.baseline ? p.baseline.savedISO : null,
         risks: c.riskSummary || null,
         statusISO: p.statusISO || null,
-        behindSchedule: c.behindCount || 0
+        behindSchedule: c.behindCount || 0,
+        evm: c.evm && c.evm.available ? {
+          statusISO: c.evm.statusISO, baselineISO: c.evm.baselineISO,
+          bac: c.evm.bac, pv: c.evm.pv, ev: c.evm.ev, ac: c.evm.ac,
+          sv: c.evm.sv, cv: c.evm.cv,
+          spi: c.evm.spi != null ? Math.round(c.evm.spi * 100) / 100 : null,
+          cpi: c.evm.cpi != null ? Math.round(c.evm.cpi * 100) / 100 : null,
+          eac: c.evm.eac, etc: c.evm.etc, vac: c.evm.vac
+        } : null
       },
       risks: (p.risks || []).map(function (r) {
         var idToRow = {};

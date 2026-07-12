@@ -38,6 +38,7 @@
  *   calendar [--working-days 1,2,3,4,5] [--holidays 2026-12-25,...]
  *   baseline set|clear
  *   status <YYYY-MM-DD|clear>  status date for behind-schedule tracking
+ *   evm                        earned-value analysis (needs baseline + status)
  *   history / restore <rev>    version history (every save is a revision)
  *   comment REF "text"          add a comment to a task
  *   comments REF               list a task's comments
@@ -504,6 +505,37 @@ function main() {
               out((e.ts ? e.ts.slice(0, 16).replace('T', ' ') : '') + '  ' + pad(e.email || '', 22) + what);
             });
           });
+      });
+    }
+
+    case 'evm': {
+      return serverAvailable().then(function (up) {
+        var evmP = up
+          ? apiRequest('GET', '/api/projects/' + encodeURIComponent(projectArg) + '/schedule')
+              .then(function (r) { if (!r.json) die('server returned non-JSON'); return r.json.project.evm; })
+          : Promise.resolve((function () { var m = loadModelLocal(true); var c = m.getComputed(); 
+              return c.evm && c.evm.available ? c.evm : null; })());
+        return evmP.then(function (e) {
+          if (JSON_OUT) return out(e);
+          if (!e) return out('Earned value needs both a baseline (Set Baseline) and a status date (status <date>).');
+          function money(n) { return '$' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+          function idx(v) { return v == null ? 'n/a' : (Math.round(v * 100) / 100).toFixed(2); }
+          out('Earned value as of ' + (e.statusISO || '?') + ' (baseline ' + (e.baselineISO || '?') + ')');
+          out('  SPI ' + idx(e.spi) + '   CPI ' + idx(e.cpi) + (e.spi != null && e.spi < 0.9 ? '   << schedule slipping' : ''));
+          out('  BAC ' + money(e.bac) + '   PV ' + money(e.pv) + '   EV ' + money(e.ev) + '   AC ' + money(e.ac));
+          out('  SV ' + money(e.sv) + '   CV ' + money(e.cv) +
+              (e.eac != null ? '   EAC ' + money(e.eac) + '   VAC ' + money(e.vac) : ''));
+          if (e.tasks && e.tasks.length) {
+            var worst = e.tasks.filter(function (t) { return t.spi != null && t.spi < 1; })
+              .sort(function (a, b) { return a.spi - b.spi; }).slice(0, 5);
+            if (worst.length) {
+              out('  Worst schedule performers:');
+              worst.forEach(function (t) {
+                out('    ' + pad(t.row, 3, true) + ' ' + pad(t.name, 30) + ' SPI ' + idx(t.spi) + '  CPI ' + idx(t.cpi));
+              });
+            }
+          }
+        });
       });
     }
 
