@@ -1050,11 +1050,20 @@
     var p = model.getProject();
     var html = '';
     p.resources.forEach(function (r) {
-      var on = t.resourceIds.indexOf(r.id) >= 0;
-      html += '<label><input type="checkbox" value="' + r.id + '"' + (on ? ' checked' : '') + '> ' +
-        '<span class="res-swatch" style="background:' + PM.Grid.esc(r.color) + '"></span> ' + PM.Grid.esc(r.name) + '</label>';
+      var as = (t.assignments || []).filter(function (a) { return a.resourceId === r.id; })[0];
+      var pct = as ? Math.round(as.units * 100) : 100;
+      html += '<label><input type="checkbox" value="' + r.id + '"' + (as ? ' checked' : '') + '> ' +
+        '<span class="res-swatch" style="background:' + PM.Grid.esc(r.color) + '"></span> ' + PM.Grid.esc(r.name) +
+        '<span class="tm-units"><input type="number" class="tm-units-input" data-rid="' + r.id + '" min="5" max="300" step="5" value="' + pct + '"' + (as ? '' : ' disabled') + '>%</span></label>';
     });
     els.tmResources.innerHTML = html || '<span style="color:#888;font-size:12px">No resources defined yet.</span>';
+    // Units input follows its checkbox; checking re-enables at the shown value.
+    els.tmResources.querySelectorAll('input[type=checkbox]').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        var u = els.tmResources.querySelector('.tm-units-input[data-rid="' + cb.value + '"]');
+        if (u) u.disabled = !cb.checked;
+      });
+    });
   }
 
   function applyTaskDialog() {
@@ -1099,15 +1108,19 @@
       if (newPreds !== model.formatPredecessors(t.predecessors)) model.setField(id, 'predecessors', newPreds);
     }
 
-    // Resources from checkboxes -> names string.
+    // Resources from checkboxes (+ units %) -> "Name [N%]" tokens.
     var p = model.getProject();
     var names = [];
     els.tmResources.querySelectorAll('input[type=checkbox]:checked').forEach(function (cb) {
       var r = p.resources.filter(function (x) { return x.id === +cb.value; })[0];
-      if (r) names.push(r.name);
+      if (!r) return;
+      var u = els.tmResources.querySelector('.tm-units-input[data-rid="' + cb.value + '"]');
+      var pct = u ? parseInt(u.value, 10) : 100;
+      if (!isFinite(pct)) pct = 100;
+      names.push(r.name + (pct !== 100 ? ' [' + pct + '%]' : ''));
     });
     var newRes = names.join(', ');
-    if (newRes !== model.formatResources(t.resourceIds)) model.setField(id, 'resources', newRes);
+    if (newRes !== model.formatAssignments(t)) model.setField(id, 'resources', newRes);
 
     closeTaskDialog();
     render();

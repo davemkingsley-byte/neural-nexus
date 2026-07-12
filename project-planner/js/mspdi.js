@@ -79,6 +79,7 @@
     p += el('Finish', dt(r.finishDay, true));
     p += el('Duration', isoDur(r.durationDays));
     p += el('DurationFormat', 7);                // days
+    if (r.workHours != null) p += el('Work', 'PT' + Math.round(r.workHours) + 'H0M0S');
     p += el('PercentComplete', r.percentComplete);
     if (t.notes) p += el('Notes', t.notes);
     if (t.deadlineISO) p += el('Deadline', t.deadlineISO + 'T17:00:00');
@@ -147,14 +148,18 @@
     (project.resources || []).forEach(function (res, i) { xml += resourceXml(res, i); });
     xml += '</Resources>';
 
-    // Assignments: one per (task, resource) pair.
+    // Assignments: one per (task, resource) pair; Units is the MSPDI decimal
+    // (1 = 100%, 0.5 = half-time).
     xml += '<Assignments>';
     var auid = 1;
     project.tasks.forEach(function (t) {
-      (t.resourceIds || []).forEach(function (rid) {
+      var asgs = (t.assignments && t.assignments.length)
+        ? t.assignments
+        : (t.resourceIds || []).map(function (rid) { return { resourceId: rid, units: 1 }; });
+      asgs.forEach(function (a) {
         xml += '<Assignment>' +
-          el('UID', auid++) + el('TaskUID', t.id) + el('ResourceUID', rid) +
-          el('Units', 1) +
+          el('UID', auid++) + el('TaskUID', t.id) + el('ResourceUID', a.resourceId) +
+          el('Units', a.units) +
           '</Assignment>';
       });
     });
@@ -300,14 +305,18 @@
       });
     });
 
-    // Assignments: taskUID -> [resourceId]
+    // Assignments: taskUID -> [{resourceId, units}] (Units decimal, default 1)
     var assignByTask = {};
     var asgRoot = kid(proj, 'Assignments');
     (asgRoot ? kids(asgRoot, 'Assignment') : []).forEach(function (an) {
       var tuid = num(an, 'TaskUID'), ruid = num(an, 'ResourceUID');
       if (tuid == null || ruid == null || !resById[ruid]) return;
-      (assignByTask[tuid] = assignByTask[tuid] || []);
-      if (assignByTask[tuid].indexOf(resById[ruid]) < 0) assignByTask[tuid].push(resById[ruid]);
+      var units = num(an, 'Units', 1);
+      if (!isFinite(units) || units <= 0) units = 1;
+      var list = (assignByTask[tuid] = assignByTask[tuid] || []);
+      if (!list.some(function (a) { return a.resourceId === resById[ruid]; })) {
+        list.push({ resourceId: resById[ruid], units: Math.min(3, Math.max(0.05, units)) });
+      }
     });
 
     // Tasks. Skip the UID 0 / OutlineLevel 0 project-summary row MS Project emits.
@@ -351,7 +360,9 @@
           seenPred[p.id] = true; return true;
         }),
         percentComplete: Math.max(0, Math.min(100, num(t, 'PercentComplete', 0) || 0)),
-        resourceIds: (origUid != null && assignByTask[origUid]) ? assignByTask[origUid] : [],
+        assignments: (origUid != null && assignByTask[origUid]) ? assignByTask[origUid] : [],
+        resourceIds: (origUid != null && assignByTask[origUid])
+          ? assignByTask[origUid].map(function (a) { return a.resourceId; }) : [],
         collapsed: false,
         constraintISO: null,
         constraintType: null,

@@ -259,5 +259,61 @@ function setupPAB() {
   eq(m.getProject().view.columns, null, 'null resets to defaults');
 })();
 
+// ---- Assignment units: parsing, cost, work, over-allocation ----
+(function () {
+  var m = Model.createModel();
+  m.newProject();
+  m.setProjectStart('2026-07-13'); // Monday
+  m.addTaskEnd(); m.addTaskEnd();
+  var t = m.getProject().tasks;
+  m.setField(t[0].id, 'name', 'A'); m.setField(t[0].id, 'duration', '5');
+  m.setField(t[1].id, 'name', 'B'); m.setField(t[1].id, 'duration', '5');
+
+  // Parse "[50%]" -> units 0.5; format shows it back; 100% stays invisible.
+  m.setField(t[0].id, 'resources', 'Alice [50%], Bob');
+  var a0 = m.getProject().tasks[0].assignments;
+  eq(a0.length, 2, 'two assignments');
+  eq(a0[0].units, 0.5, 'Alice at 50%');
+  eq(a0[1].units, 1, 'Bob defaults to 100%');
+  eq(m.getProject().tasks[0].resourceIds, [a0[0].resourceId, a0[1].resourceId], 'resourceIds mirrors assignments');
+  eq(m.formatAssignments(m.getProject().tasks[0]), 'Alice [50%], Bob', 'format round-trips units');
+
+  // Cost = Σ(rate × units) × duration.
+  var res = m.getProject().resources;
+  m.updateResource(res[0].id, { rate: 800 }); // Alice
+  m.updateResource(res[1].id, { rate: 400 }); // Bob
+  var r0 = m.getComputed().rows[0];
+  eq(r0.cost, (800 * 0.5 + 400 * 1) * 5, 'cost weights units');
+
+  // Work = duration × 8h × Σunits; unassigned counts as one implicit unit.
+  eq(r0.workHours, 5 * 8 * 1.5, 'work = dur × 8 × Σunits');
+  eq(m.getComputed().rows[1].workHours, 5 * 8, 'unassigned task = implicit full-time');
+  eq(m.getComputed().projectWork, 5 * 8 * 1.5 + 5 * 8, 'project work totals');
+
+  // Over-allocation: 50% + 50% concurrent is fine; 50% + 60% is not.
+  m.setField(t[1].id, 'resources', 'Alice [50%]');
+  ok(m.getComputed().rows.every(function (r) { return r.overallocatedResources.length === 0; }),
+    '50%+50% concurrent not over-allocated');
+  m.setField(t[1].id, 'resources', 'Alice [60%]');
+  ok(m.getComputed().rows[0].overallocatedResources.indexOf('Alice') >= 0,
+    '50%+60% concurrent IS over-allocated');
+
+  // Legacy doc (resourceIds only) normalizes to units-1 assignments.
+  var legacy = m.toJSON();
+  legacy.tasks.forEach(function (task) { delete task.assignments; });
+  var m2 = Model.createModel();
+  m2.loadProject(legacy);
+  var la = m2.getProject().tasks[0].assignments;
+  eq(la.map(function (a) { return a.units; }), [1, 1], 'legacy resourceIds -> units 1');
+
+  // Duplicate assignment in a loaded doc de-dupes (first wins).
+  var dup = m.toJSON();
+  dup.tasks[0].assignments = [{ resourceId: res[0].id, units: 0.5 }, { resourceId: res[0].id, units: 1 }];
+  var m3 = Model.createModel();
+  m3.loadProject(dup);
+  eq(m3.getProject().tasks[0].assignments.length, 1, 'duplicate assignment de-duped');
+  eq(m3.getProject().tasks[0].assignments[0].units, 0.5, 'first assignment wins');
+})();
+
 console.log('\nFeature tests: ' + passed + ' passed, ' + failed + ' failed.');
 if (failed) { console.log('\nFAILURES:\n' + failures.join('\n')); process.exit(1); }

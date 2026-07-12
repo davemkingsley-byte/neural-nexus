@@ -348,5 +348,24 @@ function balanced(xml, tag) {
   eq(Mspdi.fromXml(mk('PT0H0M0S')).tasks[0].duration, 0, 'zero duration stays 0');
 })();
 
+// ---- assignment units: exported as MSPDI Units, survive the round-trip ----
+(function () {
+  var m = Model.createModel();
+  m.newProject();
+  m.setProjectStart('2026-07-13');
+  Ops.applyOps(m, [{ op: 'add-task', name: 'Partial', duration: 4, resources: 'Dana [25%]' }]);
+  m.updateResource(m.getProject().resources[0].id, { rate: 1200 });
+  var xml = Mspdi.toXml(m);
+  has(xml, '<Units>0.25</Units>', 'units exported as MSPDI decimal');
+  has(xml, '<Work>PT8H0M0S</Work>', 'work exported (4d × 8h × 0.25)');
+
+  var doc = Mspdi.fromXml(xml);
+  eq(doc.tasks[0].assignments, [{ resourceId: 1, units: 0.25 }], 'units imported into assignments');
+  var m2 = Model.createModel();
+  m2.loadProject(doc);
+  eq(m2.getComputed().rows[0].cost, 1200 * 0.25 * 4, 'cost identical after round-trip');
+  eq(m2.getComputed().rows[0].workHours, 8, 'work identical after round-trip');
+})();
+
 console.log('\nMSPDI tests: ' + passed + ' passed, ' + failed + ' failed.');
 if (failed) { console.log('\nFAILURES:\n' + failures.join('\n')); process.exit(1); }

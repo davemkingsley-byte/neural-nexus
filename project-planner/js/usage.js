@@ -6,11 +6,12 @@
  *
  * Conventions match the model's cost + over-allocation logic exactly:
  *   - a leaf task occupies working-day indices [es, ef) (ef EXCLUSIVE);
- *   - each assignment is full-time (1 unit/day, 8h);
- *   - a resource's capacity is 1 unit/day, so a daily load > 1 (on two or more
- *     concurrent tasks) is over-allocation;
- *   - cost accrues rate per resource per active working-day (so a double-booked
- *     day bills the resource twice, consistent with per-task Σrate×duration).
+ *   - each assignment contributes its units per day (1 = full-time = 8h,
+ *     0.5 = half-time = 4h);
+ *   - a resource's capacity is 1.0 units/day, so a daily Σunits above 1 is
+ *     over-allocation (two half-time bookings on the same day are fine);
+ *   - cost accrues rate × units per resource per active working-day,
+ *     consistent with the per-task Σ(rate×units)×duration roll-up.
  * Milestones (0-day tasks) carry no work, exactly like the cost roll-up.
  */
 (function (root, factory) {
@@ -70,31 +71,33 @@
       nameById[r.id] = r.name || ('Resource ' + r.id);
     });
 
-    // Per-resource daily load, and per-resource per-task daily presence.
-    // Keys: dailyRes[rid][dayNum] = concurrent task count that day.
+    // Per-resource daily load (Σ units), and per-resource per-task daily units.
     var dailyRes = {}, taskName = {}, taskDaysByRes = {};
     var UNASSIGNED = '__unassigned__';
 
-    function addDay(rid, dayNum, taskId, tName) {
+    function addDay(rid, dayNum, taskId, tName, units) {
       (dailyRes[rid] = dailyRes[rid] || {});
-      dailyRes[rid][dayNum] = (dailyRes[rid][dayNum] || 0) + 1;
+      dailyRes[rid][dayNum] = (dailyRes[rid][dayNum] || 0) + units;
       (taskDaysByRes[rid] = taskDaysByRes[rid] || {});
       (taskDaysByRes[rid][taskId] = taskDaysByRes[rid][taskId] || {});
-      taskDaysByRes[rid][taskId][dayNum] = 1;
+      taskDaysByRes[rid][taskId][dayNum] = units;
       taskName[taskId] = tName;
     }
 
     c.rows.forEach(function (r) {
       if (r.isSummary || r.durationDays <= 0) return;
-      // Defense in depth: the model dedupes resourceIds on every write/load,
+      // Defense in depth: the model dedupes assignments on every write/load,
       // but a duplicate here would double-count load and break the
       // task-sum == resource-total invariant, so dedupe again locally.
-      var rids = (r.task.resourceIds && r.task.resourceIds.length)
-        ? r.task.resourceIds.filter(function (v, i, a) { return a.indexOf(v) === i; })
-        : [UNASSIGNED];
+      var seen = {};
+      var asgs = (r.task.assignments && r.task.assignments.length)
+        ? r.task.assignments.filter(function (a) {
+            if (seen[a.resourceId]) return false; seen[a.resourceId] = true; return true;
+          })
+        : [{ resourceId: UNASSIGNED, units: 1 }];
       for (var i = r.es; i < r.ef; i++) {
         var dayNum = c.cal.indexToDay(c.anchor, i);
-        rids.forEach(function (rid) { addDay(rid, dayNum, r.task.id, r.task.name || ''); });
+        asgs.forEach(function (a) { addDay(a.resourceId, dayNum, r.task.id, r.task.name || '', a.units); });
       }
     });
 
@@ -119,7 +122,7 @@
         cell.hours += load * HOURS_PER_DAY;
         cell.cost += load * rate;
         if (load > cell.peak) cell.peak = load;
-        if (load > 1) cell.over = true;
+        if (load > 1.0005) cell.over = true;
         totalHours += load * HOURS_PER_DAY;
         totalCost += load * rate;
         if (load > peakDaily) peakDaily = load;
@@ -133,9 +136,10 @@
         Object.keys(tdays).forEach(function (dayNum) {
           var bi = bucketIndex[bucketKeyFor(+dayNum, size)];
           if (bi == null) return;
-          tcells[bi].hours += HOURS_PER_DAY;
-          tcells[bi].cost += rate;
-          tHours += HOURS_PER_DAY; tCost += rate;
+          var u = tdays[dayNum];
+          tcells[bi].hours += u * HOURS_PER_DAY;
+          tcells[bi].cost += rate * u;
+          tHours += u * HOURS_PER_DAY; tCost += rate * u;
         });
         return {
           id: /^\d+$/.test(taskId) ? +taskId : taskId,
@@ -152,7 +156,7 @@
         totalHours: totalHours, totalCost: totalCost,
         totalDays: totalHours / HOURS_PER_DAY,
         peakDaily: peakDaily,
-        overallocated: peakDaily > 1,
+        overallocated: peakDaily > 1.0005,
         cells: cells,
         tasks: tasks
       };

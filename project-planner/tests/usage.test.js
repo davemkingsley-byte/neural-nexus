@@ -134,5 +134,32 @@ function plan() {
   eq(u.resources[0].totalHours, 24, '3*8 hours unassigned');
 })();
 
+// ---- assignment units flow through the timephased view ----
+(function () {
+  var m = Model.createModel();
+  m.newProject();
+  m.setProjectStart('2026-07-13');
+  Ops.applyOps(m, [
+    { op: 'add-task', name: 'Half', duration: 5, resources: 'Cara [50%]' },
+    { op: 'add-task', name: 'AlsoHalf', duration: 5, resources: 'Cara [50%]' }
+  ]);
+  m.updateResource(m.getProject().resources[0].id, { rate: 1000 });
+  var u = Usage.build(m, { bucket: 'week' });
+  var cara = res(u, 'Cara');
+  // 2 tasks × 5d × 4h (50%) = 40h; cost 2×5×500 = 5000; peak 1.0 — NOT over.
+  eq(cara.totalHours, 40, 'units scale hours (50% = 4h/day)');
+  eq(cara.totalCost, 5000, 'units scale cost');
+  eq(cara.peakDaily, 1, 'two 50% bookings peak at exactly 1.0');
+  ok(!cara.overallocated, '50%+50% not over-allocated in usage');
+  // usage cost still reconciles with the schedule's project cost
+  eq(u.totals.cost, m.getComputed().projectCost, 'usage cost == project cost with units');
+
+  // push over capacity: 50% + 60%
+  var t = m.getProject().tasks;
+  m.setField(t[1].id, 'resources', 'Cara [60%]');
+  var u2 = Usage.build(m, { bucket: 'week' });
+  ok(res(u2, 'Cara').overallocated, '50%+60% over-allocated in usage');
+})();
+
 console.log('\nUsage tests: ' + passed + ' passed, ' + failed + ' failed.');
 if (failed) { console.log('\nFAILURES:\n' + failures.join('\n')); process.exit(1); }

@@ -32,6 +32,7 @@
     { key: 'actualStart', label: 'Act. Start', cls: 'c-astart', w: 100, editable: true },
     { key: 'actualFinish', label: 'Act. Finish', cls: 'c-afinish', w: 100, editable: true },
     { key: 'deadline', label: 'Deadline', cls: 'c-deadline', w: 100, editable: true },
+    { key: 'work', label: 'Work', cls: 'c-work', w: 70, editable: false, dflt: false },
     { key: 'cost', label: 'Cost', cls: 'c-cost', w: 84, editable: false },
     { key: 'slack', label: 'Slack', cls: 'c-slack', w: 56, editable: false }
   ];
@@ -53,7 +54,7 @@
       case 'duration': return r.durationDays + (r.isSummary ? '' : '');
       case 'start': return PM.Calendar.toISO(r.startDay);
       case 'predecessors': return model.formatPredecessors(r.task.predecessors);
-      case 'resources': return model.formatResources(r.task.resourceIds);
+      case 'resources': return model.formatAssignments(r.task);
       case 'percentComplete': return String(r.percentComplete);
       case 'deadline': return r.task.deadlineISO || '';
       case 'actualStart': return r.task.actualStartISO || '';
@@ -71,11 +72,12 @@
       case 'start': return PM.Calendar.fmt(r.startDay);
       case 'finish': return PM.Calendar.fmt(r.finishDay);
       case 'predecessors': return model.formatPredecessors(r.task.predecessors);
-      case 'resources': return model.formatResources(r.task.resourceIds);
+      case 'resources': return model.formatAssignments(r.task);
       case 'percentComplete': return r.percentComplete + '%';
       case 'deadline': return r.deadlineDay != null ? PM.Calendar.fmt(r.deadlineDay) : '';
       case 'actualStart': return r.task.actualStartISO ? PM.Calendar.fmt(PM.Calendar.parseISO(r.task.actualStartISO)) : '';
       case 'actualFinish': return r.task.actualFinishISO ? PM.Calendar.fmt(PM.Calendar.parseISO(r.task.actualFinishISO)) : '';
+      case 'work': return r.workHours > 0 ? Math.round(r.workHours) + 'h' : '';
       case 'cost': return r.cost > 0 ? model.formatMoney(r.cost) : '';
       case 'slack': return (r.isSummary || r.slack == null || !isFinite(r.slack)) ? '' : r.slack + 'd';
       default: return '';

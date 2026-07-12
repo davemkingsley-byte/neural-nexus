@@ -253,7 +253,7 @@
   function renderBar(r, i, scale, model) {
     var g = barGeom(r, scale);
     var yMid = i * ROW_H + ROW_H / 2;
-    var resNames = model.formatResources(r.task.resourceIds);
+    var resNames = model.formatAssignments(r.task);
     var labelParts = [];
     if (resNames) labelParts.push(resNames);
     var label = labelParts.join(' ');

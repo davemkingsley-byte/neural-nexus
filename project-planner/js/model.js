@@ -240,6 +240,22 @@
         };
       });
       p.tasks = (p.tasks || []).map(function (t) {
+        // Assignments are canonical: [{resourceId, units}] with units as a
+        // decimal (1 = full-time, 0.5 = half). resourceIds is kept as a
+        // synchronized mirror so older readers (and older builds via the
+        // unknown-field passthrough) keep working. Units clamp to [0.05, 3].
+        var seenRid = {};
+        var assignments = (Array.isArray(t.assignments) && t.assignments.length
+          ? t.assignments.map(function (a) {
+              return { resourceId: a && a.resourceId, units: a && isFinite(+a.units) ? +a.units : 1 };
+            })
+          : (t.resourceIds || []).map(function (rid) { return { resourceId: rid, units: 1 }; })
+        ).filter(function (a) {
+          if (a.resourceId == null || seenRid[a.resourceId]) return false; // de-dupe: double-counted cost/overalloc
+          seenRid[a.resourceId] = true;
+          a.units = clamp(a.units, 0.05, 3);
+          return true;
+        });
         var out = {
           id: t.id,
           name: t.name != null ? t.name : '',
@@ -249,8 +265,8 @@
             return { id: pr.id, type: (pr.type || 'FS'), lag: pr.lag || 0 };
           }),
           percentComplete: clamp(Math.round(t.percentComplete || 0), 0, 100),
-          // de-dupe: a repeated id would double-count cost and self-flag overallocation
-          resourceIds: (t.resourceIds || []).filter(function (v, i, a) { return a.indexOf(v) === i; }),
+          assignments: assignments,
+          resourceIds: assignments.map(function (a) { return a.resourceId; }),
           collapsed: !!t.collapsed,
           constraintISO: t.constraintISO || null,
           constraintType: (t.constraintType === 'MSO' || t.constraintType === 'SNET') ? t.constraintType
@@ -419,13 +435,17 @@
         if (isFinite(hi)) rows[i].finishDay = hi;
       });
 
-      // ---- Cost: leaf = Σ(assigned day-rates) × working days; summaries roll up.
+      // ---- Cost: leaf = Σ(rate × units) × working days; summaries roll up.
       var rateById = {};
       project.resources.forEach(function (r) { rateById[r.id] = isFinite(+r.rate) ? +r.rate : 0; });
+      function dailyRateOf(task) {
+        return (task.assignments || []).reduce(function (a, as) {
+          return a + (rateById[as.resourceId] || 0) * as.units;
+        }, 0);
+      }
       var cost = rows.map(function (r) {
         if (r.isSummary) return 0;
-        var daily = r.task.resourceIds.reduce(function (a, rid) { return a + (rateById[rid] || 0); }, 0);
-        return daily * r.durationDays;
+        return dailyRateOf(r.task) * r.durationDays;
       });
       order.forEach(function (i) {           // deepest-first: children before parents
         var r = sched.results[i];
@@ -436,6 +456,24 @@
       rows.forEach(function (r, i) {
         r.cost = cost[i];
         if (r.parentIndex < 0) projectCost += cost[i];
+      });
+
+      // ---- Work: leaf = duration × 8h × Σ assignment units (an unassigned
+      // task counts as one implicit full-time unit); summaries roll up.
+      var work = rows.map(function (r) {
+        if (r.isSummary) return 0;
+        var u = (r.task.assignments || []).reduce(function (a, as) { return a + as.units; }, 0);
+        return r.durationDays * 8 * (u || 1);
+      });
+      order.forEach(function (i) {
+        var r = sched.results[i];
+        if (!r.isSummary) return;
+        work[i] = r.childIndices.reduce(function (a, ci) { return a + work[ci]; }, 0);
+      });
+      var projectWork = 0;
+      rows.forEach(function (r, i) {
+        r.workHours = work[i];
+        if (r.parentIndex < 0) projectWork += work[i];
       });
 
       // ---- Deadlines (indicators only — never move the schedule).
@@ -472,31 +510,37 @@
         if (r.behindSchedule) behindCount++;
       });
 
-      // ---- Resource over-allocation: a resource on two leaf tasks whose
-      // working-day windows overlap is double-booked on those days.
-      var byResource = {};
+      // ---- Resource over-allocation: sum assignment units per resource per
+      // working day; any day above 1.0 (full capacity) is over-allocation.
+      // Two half-time bookings on the same day are fine; 60% + 60% is not.
+      var OVER_EPS = 0.0005;
+      var byResource = {}; // rid -> [{es, ef, units, index}]
       rows.forEach(function (r, i) {
         if (r.isSummary || r.durationDays <= 0) return;
-        r.task.resourceIds.forEach(function (rid) {
-          (byResource[rid] = byResource[rid] || []).push({ es: r.es, ef: r.ef, index: i });
+        (r.task.assignments || []).forEach(function (as) {
+          (byResource[as.resourceId] = byResource[as.resourceId] || []).push({ es: r.es, ef: r.ef, units: as.units, index: i });
         });
       });
       var overallocatedIds = {};
       rows.forEach(function (r) { r.overallocatedResources = []; });
       Object.keys(byResource).forEach(function (ridKey) {
-        var iv = byResource[ridKey].slice().sort(function (a, b) { return a.es - b.es; });
-        for (var k = 1; k < iv.length; k++) {
-          for (var j = 0; j < k; j++) {
-            if (iv[j].ef > iv[k].es && iv[k].ef > iv[j].es) {
-              overallocatedIds[ridKey] = true;
-              var res = project.resources.filter(function (x) { return String(x.id) === ridKey; })[0];
-              var nm = res ? res.name : '?';
-              [iv[j].index, iv[k].index].forEach(function (ti) {
-                if (rows[ti].overallocatedResources.indexOf(nm) < 0) rows[ti].overallocatedResources.push(nm);
-              });
+        var iv = byResource[ridKey];
+        var load = {}; // working-day index -> Σ units
+        iv.forEach(function (v) { for (var d = v.es; d < v.ef; d++) load[d] = (load[d] || 0) + v.units; });
+        var overDays = {}, any = false;
+        Object.keys(load).forEach(function (d) { if (load[d] > 1 + OVER_EPS) { overDays[d] = true; any = true; } });
+        if (!any) return;
+        overallocatedIds[ridKey] = true;
+        var res = project.resources.filter(function (x) { return String(x.id) === ridKey; })[0];
+        var nm = res ? res.name : '?';
+        iv.forEach(function (v) {
+          for (var d = v.es; d < v.ef; d++) {
+            if (overDays[d]) {
+              if (rows[v.index].overallocatedResources.indexOf(nm) < 0) rows[v.index].overallocatedResources.push(nm);
+              break;
             }
           }
-        }
+        });
       });
 
       // ---- Risks: attach open exposure to linked task rows + project summary.
@@ -562,7 +606,7 @@
           var ev = bac * (r.percentComplete / 100);
           var ac;
           if (r.task.actualStartISO) {
-            var dailyRate = r.task.resourceIds.reduce(function (a, rid) { return a + (rateById[rid] || 0); }, 0);
+            var dailyRate = dailyRateOf(r.task);
             var asIdx = cal.dayToIndex(anchor, cal.snapForward(Cal.parseISO(r.task.actualStartISO)));
             var elapsed;
             if (r.task.actualFinishISO) {
@@ -618,6 +662,7 @@
         cycleIds: sched.cycleIds,
         baseline: baselineByDay,
         projectCost: projectCost,
+        projectWork: projectWork,
         missedDeadlines: missedDeadlines,
         constraintConflicts: constraintConflicts,
         overallocatedCount: Object.keys(overallocatedIds).length,
@@ -684,7 +729,7 @@
       return {
         id: project.nextTaskId++,
         name: '', duration: 1, outlineLevel: level || 1,
-        predecessors: [], percentComplete: 0, resourceIds: [],
+        predecessors: [], percentComplete: 0, assignments: [], resourceIds: [],
         collapsed: false, constraintISO: null, constraintType: null, deadlineISO: null,
         actualStartISO: null, actualFinishISO: null, comments: [], notes: ''
       };
@@ -817,7 +862,11 @@
           t.percentComplete = clamp(pc, 0, 100); break;
         }
         case 'predecessors': t.predecessors = parsePredecessors(value, project.tasks, t.id); break;
-        case 'resources': t.resourceIds = parseResources(value); break;
+        case 'resources': {
+          t.assignments = parseAssignments(value);
+          t.resourceIds = t.assignments.map(function (a) { return a.resourceId; });
+          break;
+        }
         case 'start': {
           t.constraintISO = coerceDateISO(value);
           // Keep an existing MSO pin (just moving its date); default to SNET.
@@ -977,22 +1026,31 @@
       return null;
     }
 
-    function parseResources(str) {
+    // "Alice, Bob [50%]" -> [{resourceId, units}]. Unknown names create the
+    // resource (MS Project behavior); a trailing [N%] sets assignment units
+    // (default 100% = 1.0, clamped to 5–300%).
+    function parseAssignments(str) {
       if (!str || !String(str).trim()) return [];
-      var ids = [];
-      String(str).split(/[,;]/).forEach(function (name) {
-        name = name.trim();
+      var out = [], seen = {};
+      String(str).split(/[,;]/).forEach(function (part) {
+        part = part.trim();
+        if (!part) return;
+        var units = 1;
+        var m = /^(.*?)\s*\[\s*(\d+(?:\.\d+)?)\s*%\s*\]$/.exec(part);
+        var name = part;
+        if (m) { name = m[1].trim(); units = clamp(parseFloat(m[2]) / 100, 0.05, 3); }
         if (!name) return;
-        // strip trailing [xx%] units if present
-        name = name.replace(/\s*\[\d+%\]\s*$/, '').trim();
         var found = project.resources.filter(function (r) { return r.name.toLowerCase() === name.toLowerCase(); })[0];
         if (!found) {
           found = { id: project.nextResourceId++, name: name, initials: initialsOf(name), color: pickColor(project.resources.length) };
           project.resources.push(found);
         }
-        if (ids.indexOf(found.id) < 0) ids.push(found.id);
+        if (!seen[found.id]) { seen[found.id] = true; out.push({ resourceId: found.id, units: units }); }
       });
-      return ids;
+      return out;
+    }
+    function parseResources(str) { // legacy shape: ids only
+      return parseAssignments(str).map(function (a) { return a.resourceId; });
     }
 
     function initialsOf(name) {
@@ -1059,7 +1117,10 @@
     function deleteResource(id) {
       pushUndo();
       project.resources = project.resources.filter(function (r) { return r.id !== id; });
-      project.tasks.forEach(function (t) { t.resourceIds = t.resourceIds.filter(function (rid) { return rid !== id; }); });
+      project.tasks.forEach(function (t) {
+        t.assignments = (t.assignments || []).filter(function (a) { return a.resourceId !== id; });
+        t.resourceIds = t.assignments.map(function (a) { return a.resourceId; });
+      });
       recompute(); notify();
     }
 
@@ -1126,9 +1187,10 @@
           Cal.toISO(r.startDay), Cal.toISO(r.finishDay),
           r.task.actualStartISO || '', r.task.actualFinishISO || '',
           q(formatPredecessors(r.task.predecessors, project.tasks)),
-          q(r.task.resourceIds.map(function (rid) {
-            var res = project.resources.filter(function (x) { return x.id === rid; })[0];
-            return res ? res.name : null;
+          q((r.task.assignments || []).map(function (a) {
+            var res = project.resources.filter(function (x) { return x.id === a.resourceId; })[0];
+            if (!res) return null;
+            return res.name + (Math.abs(a.units - 1) > 0.0005 ? ' [' + Math.round(a.units * 100) + '%]' : '');
           }).filter(Boolean).join(', ')),
           r.percentComplete, Math.round(r.cost || 0),
           r.task.deadlineISO || '',
@@ -1184,6 +1246,14 @@
       formatPredecessors: function (preds) { return formatPredecessors(preds, project.tasks); },
       formatResources: function (ids) {
         return ids.map(function (id) { var r = project.resources.filter(function (x) { return x.id === id; })[0]; return r ? r.name : null; }).filter(Boolean).join(', ');
+      },
+      // "Alice [50%], Bob" — units shown only when not full-time.
+      formatAssignments: function (task) {
+        return (task.assignments || []).map(function (a) {
+          var r = project.resources.filter(function (x) { return x.id === a.resourceId; })[0];
+          if (!r) return null;
+          return r.name + (Math.abs(a.units - 1) > 0.0005 ? ' [' + Math.round(a.units * 100) + '%]' : '');
+        }).filter(Boolean).join(', ');
       },
       formatDuration: formatDuration,
       formatMoney: formatMoney,

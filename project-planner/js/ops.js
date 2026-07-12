@@ -383,7 +383,7 @@
           startISO: Cal.toISO(r.startDay),
           finishISO: Cal.toISO(r.finishDay),
           predecessors: model.formatPredecessors(r.task.predecessors),
-          resources: model.formatResources(r.task.resourceIds),
+          resources: model.formatAssignments(r.task),
           percentComplete: r.percentComplete,
           cost: Math.round(r.cost || 0),
           slackDays: r.isSummary ? null : r.slack,
