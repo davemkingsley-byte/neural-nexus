@@ -19,6 +19,7 @@
  *   show | schedule            task table (human) / full report (--json)
  *   summary                    one-line project status
  *   csv                        CSV to stdout
+ *   export-xml                 Microsoft Project (MSPDI) XML to stdout
  *
  * Write commands:
  *   init [--name N] [--start YYYY-MM-DD] [--sample]
@@ -505,6 +506,15 @@ function main() {
               out((e.ts ? e.ts.slice(0, 16).replace('T', ' ') : '') + '  ' + pad(e.email || '', 22) + what);
             });
           });
+      });
+    }
+
+    case 'export-xml': {
+      return serverAvailable().then(function (up) {
+        if (up) return apiRequest('GET', '/api/projects/' + encodeURIComponent(projectArg) + '/mspdi')
+          .then(function (r) { process.stdout.write(r.text + '\n'); });
+        var Mspdi = require('./js/mspdi.js');
+        process.stdout.write(Mspdi.toXml(loadModelLocal(true)) + '\n');
       });
     }
 

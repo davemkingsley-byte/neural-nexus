@@ -644,6 +644,17 @@
     document.body.removeChild(a);
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
+  function exportXml() {
+    var xml = PM.Mspdi.toXml(model);
+    var blob = new Blob([xml], { type: 'application/xml' });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    var name = (model.getProject().name || 'project').replace(/[^\w.-]+/g, '_');
+    a.href = url; a.download = name + '.xml';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
   function openFile(file) {
     var reader = new FileReader();
     reader.onload = function () {
@@ -1470,6 +1481,7 @@
     els.fileInput.onchange = function () { if (els.fileInput.files[0]) openFile(els.fileInput.files[0]); els.fileInput.value = ''; };
     els.btnSave.onclick = saveFile;
     els.btnExport.onclick = exportCSV;
+    els.btnExportXml.onclick = exportXml;
     els.btnSample.onclick = function () { model.loadSample(); selected = {}; render(); };
     els.btnUndo.onclick = function () { model.undo(); render(); };
     els.btnRedo.onclick = function () { model.redo(); render(); };
@@ -1517,7 +1529,7 @@
   // ---- Init ----
   function init() {
     ['gridPane', 'ganttPane', 'ganttHeader', 'ganttBody', 'splitter', 'projName', 'projStart', 'projSelect', 'projDelete',
-      'btnNew', 'btnOpen', 'btnSave', 'btnExport', 'btnSample', 'fileInput', 'btnUndo', 'btnRedo',
+      'btnNew', 'btnOpen', 'btnSave', 'btnExport', 'btnExportXml', 'btnSample', 'fileInput', 'btnUndo', 'btnRedo',
       'btnAdd', 'btnInsert', 'btnDelete', 'btnIndent', 'btnOutdent', 'btnUp', 'btnDown',
       'btnLink', 'btnUnlink', 'btnCollapse', 'btnExpand', 'btnToday', 'btnBaseline', 'btnResources',
       'resModal', 'resClose', 'resTable', 'resNewName', 'resAddBtn', 'stWarn', 'stSaved',

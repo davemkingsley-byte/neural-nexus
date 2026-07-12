@@ -33,6 +33,7 @@ var Model = require('./js/model.js');
 var Ops = require('./js/ops.js');
 var Auth = require('./auth.js');
 var Store = require('./store.js');
+var Mspdi = require('./js/mspdi.js');
 
 var ROOT = __dirname;
 var PROJECTS_DIR = process.env.PROJECTDESK_PROJECTS_DIR || path.join(ROOT, 'projects');
@@ -204,6 +205,11 @@ function handleApi(req, res, pathname, identity) {
       try {
         return send(res, 200, modelFor(doc).toCSV(), 'text/csv; charset=utf-8');
       } catch (e) { return send(res, 500, { error: 'csv failed: ' + e.message }); }
+    }
+    if (sub === 'mspdi') {
+      try {
+        return send(res, 200, Mspdi.toXml(modelFor(doc)), 'application/xml; charset=utf-8');
+      } catch (e) { return send(res, 500, { error: 'mspdi failed: ' + e.message }); }
     }
     // Activity feed: the audit trail, newest first (capped).
     if (sub === 'activity') {
