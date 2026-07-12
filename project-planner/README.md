@@ -163,6 +163,7 @@ node tests/server.test.js      # HTTP API: revs, 409s, atomic batches, traversal
 node tests/evm.test.js         # earned value: PV/EV/AC, SPI/CPI, EAC/VAC
 node tests/mspdi.test.js       # MS Project XML export + import (round-trip)
 node tests/usage.test.js       # timephased resource usage + over-allocation
+node tests/report.test.js      # one-page status report assembly
 ```
 
 All suites should print `0 failed`.
@@ -200,10 +201,13 @@ Largest first — what MS Project has that ProjectDesk currently does not:
 4. **More constraint types** (ALAP, FNLT, MFO...), task calendars, recurring
    tasks, split tasks, manual-vs-auto scheduling mode. Import maps MSO/SNET and
    drops the rest (the model's supported set).
-5. **Custom fields and column chooser**, printing beyond the basic table report.
+5. **Custom fields and column chooser**, richer report gallery (ProjectDesk has
+   one printable status report; MS Project ships ~20 canned reports).
 
 Delivered since the first cut: MSPDI XML export **and** import, earned value
 (PV/EV/AC, SPI/CPI, EAC/VAC), a timephased **Resource Usage** view (work + cost
 spread across day/week/month buckets, over-allocation pinpointed to real dates),
-status date + actuals/progress tracking, version history & restore, task
-comments & activity feed, multi-user roles + audit.
+a printable one-page **Project Status Report** (health flags, milestones,
+behind/upcoming, top risks, critical path, resource load, EVM — 📄 Report →
+Print), status date + actuals/progress tracking, version history & restore,
+task comments & activity feed, multi-user roles + audit.

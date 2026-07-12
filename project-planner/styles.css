@@ -318,6 +318,29 @@ td.evm-bad { color: #b3323a; font-weight: 700; }
 .usage-table tr.usage-total-row td { border-top: 2px solid var(--line-strong); font-weight: 700; background: #f7f8fa; }
 .usage-empty { font-size: 13px; line-height: 1.6; color: var(--muted); padding: 8px 2px; }
 
+/* One-page status report */
+.modal-report { width: min(760px, 94vw); }
+.report-print-btn { margin-left: auto; margin-right: 10px; }
+.rp-meta { color: var(--muted); font-size: 12.5px; margin-bottom: 10px; }
+.rp-tiles { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.rp-tile { flex: 1; min-width: 130px; border: 1px solid var(--line-strong); border-radius: 10px; padding: 10px 12px; }
+.rp-tile-v { font-size: 20px; font-weight: 800; white-space: nowrap; }
+.rp-tile-l { font-size: 11px; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); }
+.rp-bad { color: #b3323a; font-weight: 700; }
+.rp-good { color: #2a8a52; font-weight: 700; }
+.rp-flags { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px; }
+.rp-flag { font-size: 11.5px; border-radius: 20px; padding: 3px 10px; font-weight: 600; }
+.rp-flag-bad { background: #fde7e8; color: #b3323a; }
+.rp-flag-warn { background: #fdf3d7; color: #8a6d00; }
+.rp-flag-good { background: #e2f5e9; color: #2a8a52; }
+.rp-section { margin-bottom: 12px; }
+.rp-title { font-size: 11.5px; text-transform: uppercase; letter-spacing: .3px; color: var(--muted); margin-bottom: 4px; font-weight: 700; }
+.rp-table { border-collapse: collapse; width: 100%; font-size: 12px; }
+.rp-table th, .rp-table td { border: 1px solid var(--line); padding: 3px 8px; text-align: left; }
+.rp-table thead th { background: #f7f8fa; font-weight: 600; color: var(--muted); }
+.rp-table tr.rp-late td { color: #b3323a; }
+.rp-ms-state { width: 24px; text-align: center; }
+
 /* ---- Comments + activity ---- */
 .comment-chip {
   display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 8px;
@@ -398,6 +421,14 @@ td.evm-bad { color: #b3323a; font-weight: 700; }
   .workspace { display: block; overflow: visible; }
   .grid-pane { width: auto !important; overflow: visible; }
   table.grid thead th { position: static; }
+
+  /* Report printing: when the report modal is open, the report IS the page. */
+  body.report-open .workspace { display: none !important; }
+  body.report-open #reportModal { display: block !important; position: static; background: none; padding: 0; }
+  body.report-open #reportModal .modal { box-shadow: none; border: none; width: auto; max-width: none; max-height: none; overflow: visible; }
+  body.report-open #reportModal .modal-body { max-height: none; overflow: visible; }
+  body.report-open #reportModal .modal-close,
+  body.report-open #reportModal .report-print-btn { display: none !important; }
 }
 
 /* ---- Hint ---- */

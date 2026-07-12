@@ -35,6 +35,7 @@ var Auth = require('./auth.js');
 var Store = require('./store.js');
 var Mspdi = require('./js/mspdi.js');
 var Usage = require('./js/usage.js');
+var Report = require('./js/report.js');
 
 var ROOT = __dirname;
 var PROJECTS_DIR = process.env.PROJECTDESK_PROJECTS_DIR || path.join(ROOT, 'projects');
@@ -211,6 +212,12 @@ function handleApi(req, res, pathname, identity) {
       try {
         return send(res, 200, Mspdi.toXml(modelFor(doc)), 'application/xml; charset=utf-8');
       } catch (e) { return send(res, 500, { error: 'mspdi failed: ' + e.message }); }
+    }
+    // One-page status report (health, milestones, critical path, EVM, risks).
+    if (sub === 'report') {
+      try {
+        return send(res, 200, Report.build(modelFor(doc)));
+      } catch (e) { return send(res, 500, { error: 'report failed: ' + e.message }); }
     }
     // Timephased resource usage (?bucket=day|week|month, default week).
     if (sub === 'usage') {

@@ -42,6 +42,7 @@
  *   status <YYYY-MM-DD|clear>  status date for behind-schedule tracking
  *   evm                        earned-value analysis (needs baseline + status)
  *   usage [--bucket day|week|month]  timephased resource work + over-allocation
+ *   report                     one-page status report (health, milestones, risks)
  *   history / restore <rev>    version history (every save is a revision)
  *   comment REF "text"          add a comment to a task
  *   comments REF               list a task's comments
@@ -603,6 +604,62 @@ function main() {
           });
           out('  ' + pad('TOTAL', 18) + cols.map(function (b, i) { return pad(hrs(u.totals.perBucket[i].hours), 10, true); }).join('') + pad(hrs(u.totals.hours), 8, true));
           out('  Labor cost ' + money(u.totals.cost) + (u.overallocatedCount ? ('   ·   ' + u.overallocatedCount + ' resource(s) over-allocated') : ''));
+        });
+      });
+    }
+
+    case 'report': {
+      return serverAvailable().then(function (up) {
+        var rP = up
+          ? apiRequest('GET', '/api/projects/' + encodeURIComponent(projectArg) + '/report')
+              .then(function (r) { if (!r.json || r.json.error) die((r.json && r.json.error) || 'server returned non-JSON'); return r.json; })
+          : Promise.resolve(require('./js/report.js').build(loadModelLocal(true)));
+        return rP.then(function (rp) {
+          if (JSON_OUT) return out(rp);
+          function money(n) { return '$' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+          var p = rp.project, h = rp.health;
+          out('PROJECT STATUS — ' + p.name + '  (as of ' + rp.asOfISO + (rp.usingStatusDate ? ', status date' : '') + ')');
+          out('  ' + p.pctComplete + '% complete · finish ' + p.finishISO +
+            (p.finishVarianceDays != null && p.finishVarianceDays !== 0
+              ? ' (' + (p.finishVarianceDays > 0 ? '+' : '') + p.finishVarianceDays + 'd vs baseline ' + p.baselineFinishISO + ')' : '') +
+            ' · cost ' + money(p.cost) + ' · ' + p.taskCount + ' tasks, ' + p.milestoneCount + ' milestone(s)');
+          var flags = [];
+          if (h.hasCycle) flags.push('DEPENDENCY CYCLE');
+          if (h.behindCount) flags.push(h.behindCount + ' behind schedule');
+          if (h.missedDeadlines) flags.push(h.missedDeadlines + ' missed deadline(s)');
+          if (h.lateMilestones) flags.push(h.lateMilestones + ' late milestone(s)');
+          if (h.constraintConflicts) flags.push(h.constraintConflicts + ' constraint conflict(s)');
+          if (h.overallocatedCount) flags.push(h.overallocatedCount + ' over-allocated resource(s)');
+          if (h.criticalRisks) flags.push(h.criticalRisks + ' critical risk(s)');
+          out('  Health: ' + (flags.length ? '⚠ ' + flags.join(' · ') : '✓ no flags') +
+            (h.spi != null ? '   SPI ' + h.spi.toFixed(2) + ' CPI ' + (h.cpi != null ? h.cpi.toFixed(2) : 'n/a') : ''));
+          if (rp.milestones.length) {
+            out('  Milestones:');
+            rp.milestones.forEach(function (ms) {
+              out('    ' + (ms.done ? '✓' : ms.late ? '✗' : '·') + ' ' + ms.dateISO + '  ' + ms.name + (ms.late ? '  LATE' : ''));
+            });
+          }
+          if (rp.behind.count) {
+            out('  Behind schedule (' + rp.behind.count + '):');
+            rp.behind.tasks.forEach(function (t) {
+              out('    ' + pad(t.row, 3, true) + ' ' + pad(t.name, 30) + ' ' + t.percentComplete + '% vs ' + t.expectedPct + '% expected');
+            });
+          }
+          if (rp.upcoming.count) {
+            out('  Starting soon (' + rp.upcoming.count + '):');
+            rp.upcoming.tasks.forEach(function (t) {
+              out('    ' + pad(t.row, 3, true) + ' ' + pad(t.name, 30) + ' starts ' + t.startISO +
+                (t.resources.length ? '  (' + t.resources.join(', ') + ')' : ''));
+            });
+          }
+          if (rp.risks.activeCount) {
+            out('  Top risks (' + rp.risks.activeCount + ' active):');
+            rp.risks.top.forEach(function (k) {
+              out('    [' + k.severity.toUpperCase() + ' ' + k.score + '] ' + k.title + (k.owner ? ' — ' + k.owner : ''));
+            });
+          }
+          out('  Critical path: ' + rp.critical.count + ' task(s); resources: ' +
+            (rp.resources.length ? rp.resources.map(function (x) { return x.name + ' ' + Math.round(x.totalDays) + 'd' + (x.overallocated ? '(!)' : ''); }).join(', ') : 'none'));
         });
       });
     }

@@ -285,7 +285,8 @@
       (els.histModal && !els.histModal.hidden) ||
       (els.actModal && !els.actModal.hidden) ||
       (els.evmModal && !els.evmModal.hidden) ||
-      (els.usageModal && !els.usageModal.hidden);
+      (els.usageModal && !els.usageModal.hidden) ||
+      (els.reportModal && !els.reportModal.hidden);
   }
 
   // Every real model mutation lands here (model.subscribe). Remote applies are
@@ -760,7 +761,8 @@
       (els.histModal && !els.histModal.hidden) ||
       (els.actModal && !els.actModal.hidden) ||
       (els.evmModal && !els.evmModal.hidden) ||
-      (els.usageModal && !els.usageModal.hidden);
+      (els.usageModal && !els.usageModal.hidden) ||
+      (els.reportModal && !els.reportModal.hidden);
       if (modalOpen) {
         if (e.key === 'Escape') {
           e.preventDefault();
@@ -772,6 +774,7 @@
           els.actModal.hidden = true;
           els.evmModal.hidden = true;
           els.usageModal.hidden = true;
+          closeReportModal();
         }
         return;
       }
@@ -1410,6 +1413,124 @@
     if (els.usageBucket) els.usageBucket.onchange = renderUsage;
   }
 
+  // ---- One-page status report ----
+  function closeReportModal() {
+    els.reportModal.hidden = true;
+    document.body.classList.remove('report-open'); // print CSS keys off this
+  }
+
+  function openReportModal() {
+    var esc = PM.Grid.esc, money = model.formatMoney;
+    var rp = PM.Report.build(model);
+    var p = rp.project, h = rp.health;
+
+    function taskRows(tasks, extraCol) {
+      return tasks.map(function (t) {
+        return '<tr><td>' + t.row + '</td><td>' + esc(t.name) + '</td>' +
+          '<td>' + t.startISO + '</td><td>' + t.finishISO + '</td>' +
+          '<td>' + (extraCol ? extraCol(t) : t.percentComplete + '%') + '</td></tr>';
+      }).join('');
+    }
+    function section(title, inner) {
+      return '<div class="rp-section"><div class="rp-title">' + title + '</div>' + inner + '</div>';
+    }
+    var TASK_HEAD = '<thead><tr><th>#</th><th>Task</th><th>Start</th><th>Finish</th><th>%</th></tr></thead>';
+
+    var flags = [];
+    if (h.hasCycle) flags.push(['bad', 'dependency cycle']);
+    if (h.behindCount) flags.push(['bad', h.behindCount + ' behind schedule']);
+    if (h.missedDeadlines) flags.push(['bad', h.missedDeadlines + ' missed deadline' + (h.missedDeadlines > 1 ? 's' : '')]);
+    if (h.lateMilestones) flags.push(['bad', h.lateMilestones + ' late milestone' + (h.lateMilestones > 1 ? 's' : '')]);
+    if (h.constraintConflicts) flags.push(['warn', h.constraintConflicts + ' constraint conflict' + (h.constraintConflicts > 1 ? 's' : '')]);
+    if (h.overallocatedCount) flags.push(['warn', h.overallocatedCount + ' over-allocated resource' + (h.overallocatedCount > 1 ? 's' : '')]);
+    if (h.criticalRisks) flags.push(['warn', h.criticalRisks + ' critical risk' + (h.criticalRisks > 1 ? 's' : '')]);
+
+    var html = '<div class="rp-meta">' + esc(p.name) + ' — as of <strong>' + rp.asOfISO + '</strong>' +
+      (rp.usingStatusDate ? ' (project status date)' : '') + '</div>';
+
+    html += '<div class="rp-tiles">' +
+      '<div class="rp-tile"><div class="rp-tile-v">' + p.pctComplete + '%</div><div class="rp-tile-l">complete</div></div>' +
+      '<div class="rp-tile"><div class="rp-tile-v">' + p.finishISO + '</div><div class="rp-tile-l">finish' +
+        (p.finishVarianceDays != null && p.finishVarianceDays !== 0
+          ? ' <span class="' + (p.finishVarianceDays > 0 ? 'rp-bad' : 'rp-good') + '">(' + (p.finishVarianceDays > 0 ? '+' : '') + p.finishVarianceDays + 'd vs baseline)</span>' : '') +
+        '</div></div>' +
+      '<div class="rp-tile"><div class="rp-tile-v">' + money(p.cost) + '</div><div class="rp-tile-l">planned cost</div></div>' +
+      (h.spi != null
+        ? '<div class="rp-tile"><div class="rp-tile-v">' + h.spi.toFixed(2) + ' / ' + (h.cpi != null ? h.cpi.toFixed(2) : '–') + '</div><div class="rp-tile-l">SPI / CPI</div></div>'
+        : '<div class="rp-tile"><div class="rp-tile-v">' + p.taskCount + '</div><div class="rp-tile-l">tasks · ' + p.milestoneCount + ' milestones</div></div>') +
+      '</div>';
+
+    html += '<div class="rp-flags">' + (flags.length
+      ? flags.map(function (f) { return '<span class="rp-flag rp-flag-' + f[0] + '">' + esc(f[1]) + '</span>'; }).join('')
+      : '<span class="rp-flag rp-flag-good">✓ no health flags</span>') + '</div>';
+
+    if (rp.milestones.length) {
+      html += section('Milestones', '<table class="rp-table"><tbody>' +
+        rp.milestones.map(function (ms) {
+          return '<tr class="' + (ms.late ? 'rp-late' : '') + '"><td class="rp-ms-state">' +
+            (ms.done ? '✓' : ms.late ? '✗' : '◇') + '</td><td>' + ms.dateISO + '</td><td>' + esc(ms.name) +
+            (ms.late ? ' <strong>LATE</strong>' : '') + '</td></tr>';
+        }).join('') + '</tbody></table>');
+    }
+    if (rp.behind.count) {
+      html += section('Behind schedule (' + rp.behind.count + ')',
+        '<table class="rp-table">' + TASK_HEAD + '<tbody>' +
+        taskRows(rp.behind.tasks, function (t) { return t.percentComplete + '% vs ' + t.expectedPct + '%'; }) +
+        '</tbody></table>');
+    }
+    if (rp.upcoming.count) {
+      html += section('Starting soon (' + rp.upcoming.count + ')',
+        '<table class="rp-table">' + TASK_HEAD + '<tbody>' +
+        taskRows(rp.upcoming.tasks, function (t) { return esc(t.resources.join(', ')) || '—'; }) +
+        '</tbody></table>');
+    }
+    if (rp.risks.activeCount) {
+      html += section('Top risks (' + rp.risks.activeCount + ' active)',
+        '<table class="rp-table"><tbody>' + rp.risks.top.map(function (k) {
+          return '<tr><td><span class="rp-flag rp-flag-' + (k.severity === 'critical' || k.severity === 'high' ? 'bad' : 'warn') + '">' +
+            k.severity + ' ' + k.score + '</span></td><td>' + esc(k.title) + '</td><td>' + esc(k.owner || '') + '</td></tr>';
+        }).join('') + '</tbody></table>');
+    }
+    if (rp.critical.count) {
+      html += section('Critical path (' + rp.critical.count + ' task' + (rp.critical.count > 1 ? 's' : '') +
+        (rp.critical.count > rp.critical.tasks.length ? ', top ' + rp.critical.tasks.length + ' shown' : '') + ')',
+        '<table class="rp-table">' + TASK_HEAD + '<tbody>' + taskRows(rp.critical.tasks) + '</tbody></table>');
+    }
+    if (rp.resources.length) {
+      html += section('Resource load', '<table class="rp-table"><tbody>' +
+        rp.resources.map(function (x) {
+          return '<tr class="' + (x.overallocated ? 'rp-late' : '') + '"><td>' + esc(x.name) + '</td>' +
+            '<td>' + Math.round(x.totalDays) + ' days</td><td>' + money(x.totalCost) + '</td>' +
+            '<td>' + (x.overallocated ? '⚠ over-allocated (peak ' + x.peakDaily + '×)' : '') + '</td></tr>';
+        }).join('') + '</tbody></table>');
+    }
+    if (rp.evm.available) {
+      html += section('Earned value (baseline ' + esc(rp.evm.baselineISO || '?') + ')',
+        '<table class="rp-table"><tbody>' +
+        '<tr><td>BAC ' + money(rp.evm.bac) + '</td><td>PV ' + money(rp.evm.pv) + '</td><td>EV ' + money(rp.evm.ev) + '</td><td>AC ' + money(rp.evm.ac) + '</td></tr>' +
+        '<tr><td>SV ' + money(rp.evm.sv) + '</td><td>CV ' + money(rp.evm.cv) + '</td>' +
+        '<td>' + (rp.evm.eac != null ? 'EAC ' + money(rp.evm.eac) : '') + '</td>' +
+        '<td>' + (rp.evm.vac != null ? 'VAC ' + money(rp.evm.vac) : '') + '</td></tr>' +
+        '</tbody></table>');
+    }
+
+    els.reportBody.innerHTML = html;
+    document.body.classList.add('report-open');
+    els.reportModal.hidden = false;
+  }
+
+  function wireReportModal() {
+    els.btnReport.onclick = openReportModal;
+    els.reportClose.onclick = closeReportModal;
+    els.reportModal.addEventListener('mousedown', function (e) { if (e.target === els.reportModal) closeReportModal(); });
+    els.reportPrint.onclick = function () {
+      // The desktop app's WKWebView ignores window.print(); it exposes a
+      // native print bridge instead. Browsers take the normal path.
+      var wk = window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.print;
+      if (wk) wk.postMessage('report'); else window.print();
+    };
+  }
+
   // ---- Activity feed ----
   function openActivityModal() {
     if (!sync.server) return;
@@ -1484,6 +1605,7 @@
           els.actModal.hidden = true;
           els.evmModal.hidden = true;
           els.usageModal.hidden = true;
+          closeReportModal();
               applyRemote(doc);
               toast('Restored revision ' + rev + ' (as new revision ' + res.j.rev + ')');
             });
@@ -1600,6 +1722,7 @@
       'btnActivity', 'actModal', 'actClose', 'actFeed',
       'btnEvm', 'evmModal', 'evmClose', 'evmBody',
       'btnUsage', 'usageModal', 'usageClose', 'usageBody', 'usageBucket',
+      'btnReport', 'reportModal', 'reportClose', 'reportBody', 'reportPrint',
       'tmComments', 'tmNewComment', 'tmAddComment'
     ].forEach(function (id) { els[id] = $(id); });
 
@@ -1617,6 +1740,7 @@
     wireActivityModal();
     wireEvmModal();
     wireUsageModal();
+    wireReportModal();
     bootstrapStorage(); // loads local instantly, then upgrades to server mode
   }
 

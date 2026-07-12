@@ -125,6 +125,7 @@ schedule health without re-deriving it.
 | `GET /api/projects/:name/csv` | CSV export |
 | `GET /api/projects/:name/mspdi` | Microsoft Project XML export |
 | `GET /api/projects/:name/usage` | timephased resource usage (`?bucket=day\|week\|month`, default week) — per-resource work/cost per bucket + peak daily load + over-allocation flags |
+| `GET /api/projects/:name/report` | one-page status report: health flags, milestones, behind/upcoming tasks, top risks, critical path, resource load, EVM — everything a status email needs in one call |
 | `POST /api/projects/:name/import` | body = MS Project XML → creates/replaces the project `{ok, rev, tasks}`; `400` on malformed XML |
 | `PUT /api/projects/:name` | replace document; optional `If-Match: <rev>` header → `409 {rev}` on mismatch |
 | `POST /api/projects/:name/ops` | `{ops:[...], createIfMissing?}` — atomic batch |

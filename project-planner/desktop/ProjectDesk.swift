@@ -9,7 +9,7 @@
 import Cocoa
 import WebKit
 
-final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate {
+final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, WKUIDelegate, WKScriptMessageHandler {
     var window: NSWindow!
     var webView: WKWebView!
     var serverProcess: Process?
@@ -41,6 +41,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
 
         let config = WKWebViewConfiguration()
         config.websiteDataStore = .default()
+        // window.print() is a no-op inside WKWebView; the page posts to this
+        // bridge instead (js/app.js prefers it when present) and we run a real
+        // native print — @media print styles apply, so the status report
+        // prints/saves-to-PDF exactly like it does in a browser.
+        config.userContentController.add(self, name: "print")
         webView = WKWebView(frame: frame, configuration: config)
         webView.autoresizingMask = [.width, .height]
         webView.navigationDelegate = self
@@ -149,6 +154,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
         appMenu.addItem(withTitle: "Quit ProjectDesk", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         appItem.submenu = appMenu
 
+        let fileItem = NSMenuItem()
+        mainMenu.addItem(fileItem)
+        let fileMenu = NSMenu(title: "File")
+        fileMenu.addItem(withTitle: "Print…", action: #selector(printWebView), keyEquivalent: "p")
+        fileItem.submenu = fileMenu
+
         let editItem = NSMenuItem()
         mainMenu.addItem(editItem)
         let editMenu = NSMenu(title: "Edit")
@@ -178,6 +189,27 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKNavigationDelegate, 
     }
 
     @objc func reloadPage() { webView.reload() }
+
+    // --- Printing ------------------------------------------------------------
+    func userContentController(_ userContentController: WKUserContentController,
+                               didReceive message: WKScriptMessage) {
+        if message.name == "print" { printWebView() }
+    }
+
+    @objc func printWebView() {
+        let info = NSPrintInfo.shared.copy() as! NSPrintInfo
+        info.horizontalPagination = .fit
+        info.verticalPagination = .automatic
+        info.topMargin = 24; info.bottomMargin = 24
+        info.leftMargin = 24; info.rightMargin = 24
+        let op = webView.printOperation(with: info)
+        op.showsPrintPanel = true
+        op.showsProgressPanel = true
+        // The operation's view starts with a zero frame; without this the
+        // printed pages come out blank.
+        op.view?.frame = webView.bounds
+        op.runModal(for: window, delegate: nil, didRun: nil, contextInfo: nil)
+    }
     @objc func showAbout() {
         let a = NSAlert()
         a.messageText = "ProjectDesk"
