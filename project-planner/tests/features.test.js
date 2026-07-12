@@ -219,5 +219,45 @@ function setupPAB() {
   eq(Model.formatMoney(999), '$999', 'money no group under 1000');
 })();
 
+// ---- Column chooser: visibleColumns resolution + setColumns view state ----
+(function () {
+  // grid.js is a browser UMD keyed off `self`; give it one for the test.
+  global.self = global;
+  require('../js/grid.js');
+  var Grid = global.PM.Grid;
+  delete global.self;
+
+  function keys(cols) { return cols.map(function (c) { return c.key; }); }
+
+  // Defaults: everything except opt-in columns (wbs starts hidden).
+  var dflt = keys(Grid.visibleColumns(null));
+  ok(dflt.indexOf('row') === 0 && dflt.indexOf('name') === 1, 'locked columns lead');
+  ok(dflt.indexOf('wbs') < 0, 'wbs hidden by default');
+  ok(dflt.indexOf('cost') >= 0 && dflt.indexOf('slack') >= 0, 'cost+slack in defaults');
+
+  // Explicit selection: locked + listed, canonical order regardless of key order.
+  eq(keys(Grid.visibleColumns(['duration', 'wbs'])), ['row', 'name', 'wbs', 'duration'],
+    'selection resolves in canonical order with locked columns');
+
+  // Empty selection: locked columns only — cursor space never empty (name is editable).
+  eq(keys(Grid.visibleColumns([])), ['row', 'name'], 'empty selection -> locked only');
+
+  // Junk keys are ignored, non-arrays mean defaults.
+  eq(keys(Grid.visibleColumns(['bogus'])), ['row', 'name'], 'unknown keys ignored');
+  eq(keys(Grid.visibleColumns('cost')), dflt, 'non-array -> defaults');
+
+  // setColumns stores view state without an undo entry and survives toJSON.
+  var m = Model.createModel();
+  m.newProject();
+  m.addTaskEnd();
+  var undoBefore = m.canUndo();
+  m.setColumns(['wbs', 'duration']);
+  eq(m.getProject().view.columns, ['wbs', 'duration'], 'setColumns stored');
+  eq(m.canUndo(), undoBefore, 'view change adds no undo entry');
+  eq(m.toJSON().view.columns, ['wbs', 'duration'], 'columns survive toJSON');
+  m.setColumns(null);
+  eq(m.getProject().view.columns, null, 'null resets to defaults');
+})();
+
 console.log('\nFeature tests: ' + passed + ' passed, ' + failed + ' failed.');
 if (failed) { console.log('\nFAILURES:\n' + failures.join('\n')); process.exit(1); }

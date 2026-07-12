@@ -201,8 +201,10 @@ Largest first — what MS Project has that ProjectDesk currently does not:
 4. **More constraint types** (ALAP, FNLT, MFO...), task calendars, recurring
    tasks, split tasks, manual-vs-auto scheduling mode. Import maps MSO/SNET and
    drops the rest (the model's supported set).
-5. **Custom fields and column chooser**, richer report gallery (ProjectDesk has
-   one printable status report; MS Project ships ~20 canned reports).
+5. **Custom fields** (user-defined columns with formulas), richer report
+   gallery (ProjectDesk has one printable status report; MS Project ships ~20
+   canned reports). The grid does have a column chooser (⚙ Columns) over its
+   built-in fields, incl. an opt-in WBS column.
 
 Delivered since the first cut: MSPDI XML export **and** import, earned value
 (PV/EV/AC, SPI/CPI, EAC/VAC), a timephased **Resource Usage** view (work + cost

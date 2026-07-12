@@ -17,9 +17,12 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
+  // locked columns are always shown; the rest are user-toggleable via the
+  // Columns menu. dflt:false columns exist but start hidden (opt-in).
   var COLUMNS = [
-    { key: 'row', label: '', cls: 'c-row', w: 40, editable: false },
-    { key: 'name', label: 'Task Name', cls: 'c-name', w: 260, editable: true },
+    { key: 'row', label: '', cls: 'c-row', w: 40, editable: false, locked: true },
+    { key: 'name', label: 'Task Name', cls: 'c-name', w: 260, editable: true, locked: true },
+    { key: 'wbs', label: 'WBS', cls: 'c-wbs', w: 64, editable: false, dflt: false },
     { key: 'duration', label: 'Duration', cls: 'c-dur', w: 84, editable: true },
     { key: 'start', label: 'Start', cls: 'c-start', w: 104, editable: true },
     { key: 'finish', label: 'Finish', cls: 'c-finish', w: 104, editable: false },
@@ -32,6 +35,16 @@
     { key: 'cost', label: 'Cost', cls: 'c-cost', w: 84, editable: false },
     { key: 'slack', label: 'Slack', cls: 'c-slack', w: 56, editable: false }
   ];
+
+  // Resolve the visible column set. keys == null → defaults; an array (even
+  // an empty one) → locked columns + exactly the listed optional keys, in
+  // canonical COLUMNS order.
+  function visibleColumns(keys) {
+    if (Array.isArray(keys)) {
+      return COLUMNS.filter(function (c) { return c.locked || keys.indexOf(c.key) >= 0; });
+    }
+    return COLUMNS.filter(function (c) { return c.locked || c.dflt !== false; });
+  }
 
   // Raw (editable) value for a cell — the string the user edits.
   function rawValue(model, r, key) {
@@ -53,6 +66,7 @@
   function displayValue(model, r, key) {
     switch (key) {
       case 'row': return r.row;
+      case 'wbs': return r.wbs;
       case 'duration': return model.formatDuration(r.durationDays);
       case 'start': return PM.Calendar.fmt(r.startDay);
       case 'finish': return PM.Calendar.fmt(r.finishDay);
@@ -72,15 +86,16 @@
     var computed = model.getComputed();
     var rows = model.getVisibleRows();
     var selected = opts.selected || {};
+    var cols = visibleColumns(opts.columns);
 
     var html = '<table class="grid"><colgroup>';
-    COLUMNS.forEach(function (c) { html += '<col style="width:' + c.w + 'px">'; });
+    cols.forEach(function (c) { html += '<col style="width:' + c.w + 'px">'; });
     html += '</colgroup><thead><tr>';
-    COLUMNS.forEach(function (c) { html += '<th class="' + c.cls + '">' + esc(c.label) + '</th>'; });
+    cols.forEach(function (c) { html += '<th class="' + c.cls + '">' + esc(c.label) + '</th>'; });
     html += '</tr></thead><tbody>';
 
     if (!rows.length) {
-      html += '<tr class="empty-row"><td colspan="' + COLUMNS.length + '">' +
+      html += '<tr class="empty-row"><td colspan="' + cols.length + '">' +
         'No tasks yet — click <code>＋ Task</code> (or press <code>Ctrl+Enter</code>), then just type. ' +
         'Scripts and AIs can drive this plan too: see HARNESS.md.</td></tr>';
     }
@@ -92,7 +107,7 @@
       if (r.isMilestone) cls.push('milestone');
       if (r.critical && !r.isSummary) cls.push('critical');
       html += '<tr class="' + cls.join(' ') + '" data-id="' + r.id + '" style="height:' + ROW_H + 'px">';
-      COLUMNS.forEach(function (c) {
+      cols.forEach(function (c) {
         // Summary duration/start/% are rolled up from children — editing them
         // would be silently discarded, so those cells are read-only on summaries.
         var editable = c.editable && !(r.isSummary && (c.key === 'duration' || c.key === 'start' || c.key === 'percentComplete' || c.key === 'actualStart' || c.key === 'actualFinish'));
@@ -250,5 +265,5 @@
     container._isEditing = function () { return !!editing; };
   }
 
-  return { render: render, ROW_H: ROW_H, COLUMNS: COLUMNS, esc: esc };
+  return { render: render, ROW_H: ROW_H, COLUMNS: COLUMNS, visibleColumns: visibleColumns, esc: esc };
 }));

@@ -1078,6 +1078,9 @@
     }
     function setProjectName(name) { project.name = String(name); notify(); }
     function setZoom(z) { project.view.zoom = z; notify(); }
+    // Visible grid columns: an array of optional column keys, or null for the
+    // defaults. Lives in view state — per-user, never synced to the server.
+    function setColumns(keys) { project.view.columns = Array.isArray(keys) ? keys.slice() : null; notify(); }
     function setHolidays(list) { pushUndo(); project.calendar.holidays = list.slice(); recompute(); notify(); }
     function setWorkingDays(days) { pushUndo(); project.calendar.workingDays = days.slice(); recompute(); notify(); }
 
@@ -1215,6 +1218,7 @@
       setProjectName: setProjectName,
       setStatusDate: setStatusDate,
       setZoom: setZoom,
+      setColumns: setColumns,
       setFilter: setFilter,
       getFilter: getFilter,
       setHolidays: setHolidays,

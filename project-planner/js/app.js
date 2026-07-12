@@ -18,7 +18,13 @@
   var selected = {};      // id -> true
   var anchorId = null;
   var cursorKey = 'name'; // spreadsheet cell-cursor column
-  var NAV_COLS = ['name', 'duration', 'start', 'predecessors', 'resources', 'percentComplete', 'actualStart', 'actualFinish', 'deadline'];
+  // Editable columns currently visible — the spreadsheet cursor's key space.
+  // Derived per call: the Columns menu can change the set at any time.
+  function navCols() {
+    return PM.Grid.visibleColumns(model.getProject().view.columns)
+      .filter(function (c) { return c.editable; })
+      .map(function (c) { return c.key; });
+  }
   var scrollWired = false;
   var saveTimer = null;
 
@@ -73,7 +79,7 @@
   // ---- Selection ----
   function selectOnly(id) { selected = {}; if (id != null) selected[id] = true; anchorId = id; }
   function onSelect(id, mods, colKey) {
-    if (colKey && NAV_COLS.indexOf(colKey) >= 0) cursorKey = colKey;
+    if (colKey && navCols().indexOf(colKey) >= 0) cursorKey = colKey;
     if (mods && mods.shift && anchorId != null) {
       var rows = model.getVisibleRows();
       var ai = rows.findIndex(function (r) { return r.id === anchorId; });
@@ -96,6 +102,7 @@
     return {
       selected: selected,
       readOnly: isViewer(),
+      columns: model.getProject().view.columns,
       cursor: anchorId != null ? { id: anchorId, key: cursorKey } : null,
       onSelect: onSelect, onEdit: onEdit, onToggleCollapse: onToggleCollapse,
       onOpenDetails: openTaskDialog
@@ -148,11 +155,12 @@
         els.gridPane._startEditCell(newId, 'name');
       }
     } else if (moveTo === 'right' || moveTo === 'left') {
-      var ci = NAV_COLS.indexOf(field);
+      var cols = navCols();
+      var ci = cols.indexOf(field);
       var nci = ci + (moveTo === 'right' ? 1 : -1);
-      if (nci >= 0 && nci < NAV_COLS.length) {
-        cursorKey = NAV_COLS[nci];
-        els.gridPane._startEditCell(id, NAV_COLS[nci]);
+      if (nci >= 0 && nci < cols.length) {
+        cursorKey = cols[nci];
+        els.gridPane._startEditCell(id, cols[nci]);
       }
     }
   }
@@ -668,6 +676,8 @@
           : JSON.parse(text);        // native ProjectDesk JSON
         model.loadProject(doc);
         selected = {}; anchorId = null;
+        // The loaded doc's view.columns may hide the column the cursor was on.
+        if (navCols().indexOf(cursorKey) < 0) cursorKey = 'name';
         render();
         if (isXml) toast('Imported from Microsoft Project XML — review dates; ProjectDesk recomputed the schedule.');
       } catch (e) { alert('Could not read that file: ' + e.message); }
@@ -832,10 +842,11 @@
   }
 
   function moveCursorCol(dir) {
-    var ci = NAV_COLS.indexOf(cursorKey);
+    var cols = navCols();
+    var ci = cols.indexOf(cursorKey);
     if (ci < 0) ci = 0;
-    var ni = Math.max(0, Math.min(NAV_COLS.length - 1, ci + dir));
-    cursorKey = NAV_COLS[ni];
+    var ni = Math.max(0, Math.min(cols.length - 1, ci + dir));
+    cursorKey = cols[ni];
     if (anchorId == null) {
       var rows = model.getVisibleRows();
       if (rows.length) selectOnly(rows[0].id);
@@ -1519,6 +1530,60 @@
     els.reportModal.hidden = false;
   }
 
+  // ---- Columns chooser ----
+  function renderColumnsMenu() {
+    var esc = PM.Grid.esc;
+    var active = PM.Grid.visibleColumns(model.getProject().view.columns)
+      .map(function (c) { return c.key; });
+    var html = '<div class="col-menu-title">Grid columns</div>';
+    PM.Grid.COLUMNS.forEach(function (c) {
+      if (c.locked) return;
+      html += '<label class="col-menu-item"><input type="checkbox" data-col="' + c.key + '"' +
+        (active.indexOf(c.key) >= 0 ? ' checked' : '') + '> ' + esc(c.label || c.key) + '</label>';
+    });
+    html += '<button class="tb col-menu-reset" id="colMenuReset">Reset to defaults</button>';
+    els.colMenu.innerHTML = html;
+
+    els.colMenu.querySelectorAll('input[data-col]').forEach(function (cb) {
+      cb.addEventListener('change', function () {
+        var keys = Array.prototype.slice.call(els.colMenu.querySelectorAll('input[data-col]:checked'))
+          .map(function (x) { return x.getAttribute('data-col'); });
+        model.setColumns(keys);
+        if (navCols().indexOf(cursorKey) < 0) cursorKey = 'name'; // cursor never on a hidden column
+        render();
+      });
+    });
+    var reset = els.colMenu.querySelector('#colMenuReset');
+    if (reset) reset.onclick = function () {
+      model.setColumns(null);
+      if (navCols().indexOf(cursorKey) < 0) cursorKey = 'name';
+      render();
+      renderColumnsMenu(); // re-check the boxes to the defaults
+    };
+  }
+
+  function wireColumnsMenu() {
+    els.btnColumns.onclick = function () {
+      if (!els.colMenu.hidden) { els.colMenu.hidden = true; return; }
+      renderColumnsMenu();
+      els.colMenu.hidden = false;
+      var r = els.btnColumns.getBoundingClientRect();
+      // Clamp on both axes: a transient zero/narrow viewport (or a window
+      // smaller than the menu) must never push the menu fully off-screen.
+      var vw = window.innerWidth || document.documentElement.clientWidth || 0;
+      els.colMenu.style.left = Math.max(8, Math.min(r.left, vw - els.colMenu.offsetWidth - 8)) + 'px';
+      els.colMenu.style.top = Math.max(8, r.bottom + 4) + 'px';
+    };
+    document.addEventListener('mousedown', function (e) {
+      if (!els.colMenu.hidden && !e.target.closest('.col-menu') && e.target !== els.btnColumns) {
+        els.colMenu.hidden = true;
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !els.colMenu.hidden) els.colMenu.hidden = true;
+    });
+  }
+
   function wireReportModal() {
     els.btnReport.onclick = openReportModal;
     els.reportClose.onclick = closeReportModal;
@@ -1723,6 +1788,7 @@
       'btnEvm', 'evmModal', 'evmClose', 'evmBody',
       'btnUsage', 'usageModal', 'usageClose', 'usageBody', 'usageBucket',
       'btnReport', 'reportModal', 'reportClose', 'reportBody', 'reportPrint',
+      'btnColumns', 'colMenu',
       'tmComments', 'tmNewComment', 'tmAddComment'
     ].forEach(function (id) { els[id] = $(id); });
 
@@ -1741,6 +1807,7 @@
     wireEvmModal();
     wireUsageModal();
     wireReportModal();
+    wireColumnsMenu();
     bootstrapStorage(); // loads local instantly, then upgrades to server mode
   }
 
