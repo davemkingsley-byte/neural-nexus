@@ -20,6 +20,7 @@
  *   summary                    one-line project status
  *   csv                        CSV to stdout
  *   export-xml                 Microsoft Project (MSPDI) XML to stdout
+ *   import-xml <file.xml>      import a Microsoft Project XML file
  *
  * Write commands:
  *   init [--name N] [--start YYYY-MM-DD] [--sample]
@@ -506,6 +507,28 @@ function main() {
               out((e.ts ? e.ts.slice(0, 16).replace('T', ' ') : '') + '  ' + pad(e.email || '', 22) + what);
             });
           });
+      });
+    }
+
+    case 'import-xml': {
+      if (!rest.length) die('usage: import-xml <file.xml>   (creates/overwrites the named project)');
+      var Mspdi = require('./js/mspdi.js');
+      var xmlText;
+      try { xmlText = fs.readFileSync(path.resolve(rest[0]), 'utf8'); }
+      catch (e) { die('cannot read ' + rest[0] + ': ' + e.message); }
+      var doc;
+      try { doc = Mspdi.fromXml(xmlText); } catch (e) { die('import failed: ' + e.message); }
+      // Normalize through the model, then persist as the target project.
+      var mi = Model.createModel(); mi.loadProject(doc);
+      var normalized = mi.toJSON();
+      return serverAvailable().then(function (up) {
+        if (up) return apiRequest('PUT', '/api/projects/' + encodeURIComponent(projectArg), normalized)
+          .then(function (r) {
+            if (!r.json || !r.json.ok) die((r.json && r.json.error) || ('import failed (' + r.status + ')'));
+            out(JSON_OUT ? r.json : 'imported ' + normalized.tasks.length + ' tasks into "' + projectArg + '" (rev ' + r.json.rev + ')');
+          });
+        var rev = saveModelLocal(mi);
+        out(JSON_OUT ? { ok: true, rev: rev, tasks: normalized.tasks.length } : 'imported ' + normalized.tasks.length + ' tasks (rev ' + rev + ')');
       });
     }
 

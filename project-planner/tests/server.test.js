@@ -163,6 +163,25 @@ async function main() {
   r = await req('GET', '/api/projects/alpha');
   eq(r.json.name, 'beacon-flushed', 'beacon content persisted');
 
+  // MSPDI import endpoint: valid XML -> new project; bad XML -> 400.
+  var Mspdi = require('../js/mspdi.js');
+  var impModel = Model.createModel();
+  impModel.loadSample();
+  var impXml = Mspdi.toXml(impModel);
+  r = await req('POST', '/api/projects/imported/import', impXml);
+  eq(r.status, 200, 'import valid MSPDI 200');
+  eq(r.json.ok, true, 'import ok');
+  eq(r.json.tasks, 14, 'import reports 14 tasks');
+  r = await req('GET', '/api/projects/imported');
+  eq(r.status, 200, 'imported project retrievable');
+  eq(r.json.tasks.length, 14, 'imported project has tasks');
+  ok(r.json.lastEditor, 'import stamps lastEditor');
+  // bad XML -> 400, no project created
+  r = await req('POST', '/api/projects/badimport/import', '<html>not project</html>');
+  eq(r.status, 400, 'import bad XML 400');
+  r = await req('GET', '/api/projects/badimport');
+  eq(r.status, 404, 'failed import created no project');
+
   // REVIEW FIX: concurrent same-file writes serialize on the lockfile —
   // N parallel CLI-style writers must produce N distinct revs (no lost update).
   var cp = require('child_process');

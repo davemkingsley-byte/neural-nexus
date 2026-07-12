@@ -160,28 +160,47 @@ node tests/regressions.test.js # fixes from the adversarial reviews, locked in
 node tests/features.test.js    # cost, over-allocation, deadlines, MSO, CSV
 node tests/ops.test.js         # the semantic ops layer (AI interface contracts)
 node tests/server.test.js      # HTTP API: revs, 409s, atomic batches, traversal
+node tests/evm.test.js         # earned value: PV/EV/AC, SPI/CPI, EAC/VAC
+node tests/mspdi.test.js       # MS Project XML export + import (round-trip)
 ```
 
 All suites should print `0 failed`.
+
+## Microsoft Project interchange (MSPDI)
+
+ProjectDesk reads and writes Microsoft Project's XML interchange format, so
+plans move both directions (and to any tool that speaks MSPDI: LibreProject,
+GanttProject, Smartsheet…).
+
+- **Export:** `node cli.js <project> export-xml > plan.xml`, the browser's
+  *Export → Microsoft Project XML* button, or `GET /api/projects/:name/mspdi`.
+  Tasks are emitted auto-scheduled with a matching Standard calendar so MS
+  Project's own CPM reproduces the same dates; dependencies, constraints,
+  actuals, deadlines, %complete, resources, rates, and assignments carry across.
+- **Import:** `node cli.js <project> import-xml plan.xml` (creates/overwrites
+  the named project), open a `.xml` file from the browser, or
+  `POST /api/projects/:name/import` with the XML as the body. Imported UIDs are
+  renumbered onto a clean id space, the project-summary row is skipped, dangling
+  and self predecessors are dropped, and malformed XML is rejected with a clear
+  error rather than silently truncated. ProjectDesk recomputes the schedule from
+  the imported dependencies + calendar.
 
 ## Honest gaps vs. real Microsoft Project (roadmap)
 
 Largest first — what MS Project has that ProjectDesk currently does not:
 
-1. **MSPDI XML import/export** — open ProjectDesk plans in MS Project and vice
-   versa. *Next milestone.*
-2. **Work/effort-driven scheduling** — resource units (%), work vs. duration as
+1. **Work/effort-driven scheduling** — resource units (%), work vs. duration as
    separate quantities, effort-driven task types. ProjectDesk treats duration
    as primary and costs by day rate.
-3. **Earned value** (BCWS/BCWP/ACWP, SPI/CPI) — baselines, costs, and actuals
-   now all exist, so this is the natural next analytical layer.
-4. **Resource leveling** — over-allocation is detected and flagged, never
+2. **Resource leveling** — over-allocation is detected and flagged, never
    auto-resolved (deliberate: silent replans surprise users).
-5. **More views** — Task/Resource Usage timephased tables, Network Diagram,
+3. **More views** — Task/Resource Usage timephased tables, Network Diagram,
    Calendar view, Team Planner. ProjectDesk has grid + Gantt.
-6. **More constraint types** (ALAP, FNLT, MFO...), task calendars, recurring
-   tasks, split tasks, manual-vs-auto scheduling mode.
-7. **Custom fields and column chooser**, printing beyond the basic table report.
+4. **More constraint types** (ALAP, FNLT, MFO...), task calendars, recurring
+   tasks, split tasks, manual-vs-auto scheduling mode. Import maps MSO/SNET and
+   drops the rest (the model's supported set).
+5. **Custom fields and column chooser**, printing beyond the basic table report.
 
-Delivered since the first cut: status date + actuals/progress tracking, version
+Delivered since the first cut: MSPDI XML export **and** import, earned value
+(PV/EV/AC, SPI/CPI, EAC/VAC), status date + actuals/progress tracking, version
 history & restore, task comments & activity feed, multi-user roles + audit.

@@ -656,13 +656,18 @@
     setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
   }
   function openFile(file) {
+    var isXml = /\.xml$/i.test(file.name || '');
     var reader = new FileReader();
     reader.onload = function () {
       try {
-        var obj = JSON.parse(reader.result);
-        model.loadProject(obj);
+        var text = reader.result;
+        var doc = (isXml || /^\s*<\?xml|<Project\b/.test(text))
+          ? PM.Mspdi.fromXml(text)   // Microsoft Project (MSPDI) XML
+          : JSON.parse(text);        // native ProjectDesk JSON
+        model.loadProject(doc);
         selected = {}; anchorId = null;
         render();
+        if (isXml) toast('Imported from Microsoft Project XML — review dates; ProjectDesk recomputed the schedule.');
       } catch (e) { alert('Could not read that file: ' + e.message); }
     };
     reader.readAsText(file);

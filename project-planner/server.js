@@ -260,6 +260,21 @@ function handleApi(req, res, pathname, identity) {
     });
   }
 
+  if (req.method === 'POST' && sub === 'import') {
+    return readBody(req, function (body) {
+      var doc;
+      try { doc = Mspdi.fromXml(body); } catch (e) { return send(res, 400, { error: 'import failed: ' + e.message }); }
+      var m;
+      try { m = modelFor(doc); } catch (e) { return send(res, 400, { error: 'imported document rejected: ' + e.message }); }
+      var outDoc = m.toJSON();
+      outDoc.lastEditor = identity.email;
+      outDoc.lastEditISO = new Date().toISOString();
+      var rev = writeProject(name, outDoc);
+      audit(name, identity, 'import-mspdi', { rev: rev, tasks: outDoc.tasks.length });
+      return send(res, 200, { ok: true, rev: rev, tasks: outDoc.tasks.length });
+    });
+  }
+
   // navigator.sendBeacon can only POST with no custom headers — treat a POST
   // to the document path (no /ops) as an unconditional save (navigation flush).
   if ((req.method === 'PUT' || req.method === 'POST') && !sub) {

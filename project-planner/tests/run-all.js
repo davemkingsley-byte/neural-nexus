@@ -1,7 +1,7 @@
 /* Runs every test suite; exits non-zero if any fails. Usage: node tests/run-all.js */
 'use strict';
 var cp = require('child_process');
-var suites = ['scheduler.test.js', 'calendar.test.js', 'model.test.js', 'regressions.test.js', 'features.test.js', 'ops.test.js', 'server.test.js', 'auth.test.js', 'risks.test.js', 'history.test.js', 'actuals.test.js', 'comments.test.js'];
+var suites = ['scheduler.test.js', 'calendar.test.js', 'model.test.js', 'regressions.test.js', 'features.test.js', 'ops.test.js', 'server.test.js', 'auth.test.js', 'risks.test.js', 'history.test.js', 'actuals.test.js', 'comments.test.js', 'evm.test.js', 'mspdi.test.js'];
 var failed = 0;
 suites.forEach(function (s) {
   var r = cp.spawnSync(process.execPath, [__dirname + '/' + s], { encoding: 'utf8' });
