@@ -69,7 +69,7 @@
     p += el('Name', t.name || '');
     p += el('Active', 1);
     p += el('Manual', 0);                       // auto-scheduled
-    p += el('Type', 1);                          // fixed duration
+    p += el('Type', t.taskType === 'work' ? 2 : 1); // 2=Fixed Work, 1=Fixed Duration
     p += el('OutlineLevel', r.outlineLevel);
     p += el('OutlineNumber', r.wbs);
     p += el('WBS', r.wbs);
@@ -256,6 +256,14 @@
     if (days > 0 && days < 1) return 1;
     return Math.round(days);
   }
+  // ISO 8601 duration -> hours (for the Work element; a day component counts
+  // as HOURS_PER_DAY). Returns null when nothing parses.
+  function isoDurToHours(s) {
+    var m = /^P(?:(\d+(?:\.\d+)?)D)?(?:T(?:(\d+(?:\.\d+)?)H)?(?:(\d+(?:\.\d+)?)M)?(?:(\d+(?:\.\d+)?)S)?)?$/.exec(String(s || '').trim());
+    if (!m || (m[1] == null && m[2] == null && m[3] == null && m[4] == null)) return null;
+    return (parseFloat(m[1]) || 0) * HOURS_PER_DAY +
+      (parseFloat(m[2]) || 0) + (parseFloat(m[3]) || 0) / 60 + (parseFloat(m[4]) || 0) / 3600;
+  }
   function dateOnly(s) { var d = String(s || '').slice(0, 10); return /^\d{4}-\d{2}-\d{2}$/.test(d) ? d : null; }
 
   var TYPE_TO_STR = { 0: 'FF', 1: 'FS', 2: 'SF', 3: 'SS' };
@@ -369,8 +377,15 @@
         deadlineISO: dateOnly(txt(t, 'Deadline')),
         actualStartISO: dateOnly(txt(t, 'ActualStart')),
         actualFinishISO: dateOnly(txt(t, 'ActualFinish')),
-        notes: txt(t, 'Notes') || ''
+        notes: txt(t, 'Notes') || '',
+        taskType: 'fixed',
+        workHours: null
       };
+      // Type 2 = Fixed Work: preserve the Work quantity so duration re-derives.
+      if (num(t, 'Type') === 2) {
+        var wh = isoDurToHours(txt(t, 'Work'));
+        if (wh != null && wh > 0) { task.taskType = 'work'; task.workHours = wh; }
+      }
       var ct = num(t, 'ConstraintType');
       var cd = dateOnly(txt(t, 'ConstraintDate'));
       if (ct === 2 && cd) { task.constraintType = 'MSO'; task.constraintISO = cd; }

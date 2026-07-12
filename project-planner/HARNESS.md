@@ -72,8 +72,8 @@ have already applied).
 
 | Op | Fields | Notes |
 |---|---|---|
-| `add-task` | `name`, `duration?`, `after?`, `childOf?`, `predecessors?`, `resources?`, `percentComplete?`, `deadline?`, `start?`, `notes?` | `after` inserts directly after that row; `childOf` inserts as first child, one level deeper. Duration `"5d"`, `"2w"`, `"1mo"`, `0` = milestone. |
-| `set` | `row`/`id`/`ref`, `field`, `value` | fields: `name`, `duration`, `start`, `predecessors`, `resources`, `percentComplete`(/`pct`), `deadline`, `notes`. **`start` sets a Start-No-Earlier-Than constraint**, not a literal start date — the scheduler still owns dates. |
+| `add-task` | `name`, `duration?`, `after?`, `childOf?`, `predecessors?`, `resources?`, `type?`, `work?`, `percentComplete?`, `deadline?`, `start?`, `notes?` | `after` inserts directly after that row; `childOf` inserts as first child, one level deeper. Duration `"5d"`, `"2w"`, `"1mo"`, `0` = milestone. |
+| `set` | `row`/`id`/`ref`, `field`, `value` | fields: `name`, `duration`, `start`, `predecessors`, `resources`, `percentComplete`(/`pct`), `deadline`, `notes`, `type`, `work`. **`start` sets a Start-No-Earlier-Than constraint**, not a literal start date — the scheduler still owns dates. |
 | `link` | `rows` (≥2), `type?`, `lag?` | chains each pair; type FS/SS/FF/SF, lag in working days (negative = lead) |
 | `unlink` | `rows` | removes links among the given tasks |
 | `indent` / `outdent` | `rows` | builds/dissolves summary hierarchy |
@@ -92,6 +92,15 @@ have already applied).
 
 `set` fields also include `actualstart` / `actualfinish` (record what really
 happened — pins the schedule to reality and forces 100% on finish).
+
+**Resource units & work.** The `resources` value accepts per-assignment units:
+`"Alice [50%], Bob"` books Alice half-time and Bob full-time. Cost, work, and
+over-allocation are all units-aware (over-allocation triggers when a
+resource's daily Σunits exceeds 1.0). `type` = `fixed` (default, duration is
+authoritative) or `work` (fixed-work: duration derives from `work` ÷ 8h ÷ Σ
+units, so adding effort shortens the task). `work` is in hours. The schedule
+report carries `workHours` + `scheduleMode` per task and `workHours` on the
+project summary.
 
 ### Predecessor string syntax
 

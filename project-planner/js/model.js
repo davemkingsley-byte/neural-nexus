@@ -267,6 +267,14 @@
           percentComplete: clamp(Math.round(t.percentComplete || 0), 0, 100),
           assignments: assignments,
           resourceIds: assignments.map(function (a) { return a.resourceId; }),
+          // Task type: 'fixed' (duration is authoritative, work derives) or
+          // 'work' (workHours is authoritative, duration derives from
+          // work / (8h × Σ units) at schedule time).
+          taskType: t.taskType === 'work' ? 'work' : 'fixed',
+          // null must stay null (+null coerces to 0, which would collapse the
+          // task to a 0-day milestone on the NEXT load of its own saved file).
+          workHours: t.taskType === 'work' && t.workHours != null && isFinite(+t.workHours)
+            ? Math.max(0, +t.workHours) : null,
           collapsed: !!t.collapsed,
           constraintISO: t.constraintISO || null,
           constraintType: (t.constraintType === 'MSO' || t.constraintType === 'SNET') ? t.constraintType
@@ -338,7 +346,7 @@
       var schedInput = tasks.map(function (t) {
         var constraintIndex = null;
         var constraintType = t.constraintType || (t.constraintISO ? 'SNET' : null);
-        var duration = t.duration;
+        var duration = effectiveDuration(t); // fixed-work: work / (8 × Σunits)
         if (t.constraintISO) {
           var cd = Cal.parseISO(t.constraintISO);
           if (cd != null) constraintIndex = cal.dayToIndex(anchor, cal.snapForward(cd));
@@ -458,10 +466,13 @@
         if (r.parentIndex < 0) projectCost += cost[i];
       });
 
-      // ---- Work: leaf = duration × 8h × Σ assignment units (an unassigned
-      // task counts as one implicit full-time unit); summaries roll up.
+      // ---- Work: fixed-work leaves report their stored quantity (the truth —
+      // the ceil'd duration may slightly overshoot); fixed-duration leaves
+      // derive duration × 8h × Σ units (an unassigned task counts as one
+      // implicit full-time unit); summaries roll up.
       var work = rows.map(function (r) {
         if (r.isSummary) return 0;
+        if (r.task.taskType === 'work' && r.task.workHours != null) return r.task.workHours;
         var u = (r.task.assignments || []).reduce(function (a, as) { return a + as.units; }, 0);
         return r.durationDays * 8 * (u || 1);
       });
@@ -854,7 +865,43 @@
         case 'duration': {
           var d = parseDuration(value);
           if (d == null) return;         // invalid input: no change, no history
-          t.duration = d; break;
+          if (t.taskType === 'work' && t.workHours != null && d > 0) {
+            // Fixed-work: the work stays fixed — spreading it over the new
+            // duration rescales assignment units (MS Project semantics).
+            t.duration = d;
+            rescaleUnits(t, t.workHours / (8 * d));
+          } else {
+            t.duration = d;
+          }
+          break;
+        }
+        case 'work': {
+          var wh = parseFloat(String(value).replace(/\s*h(ours?)?\s*$/i, ''));
+          if (!isFinite(wh) || wh < 0) return;
+          wh = Math.min(wh, MAX_DURATION * 8 * 3);
+          if (t.taskType === 'work') {
+            t.workHours = wh;            // duration re-derives at recompute
+          } else {
+            // Fixed-duration: same duration, work change rescales units.
+            rescaleUnits(t, wh / (8 * Math.max(t.duration, 1)));
+          }
+          break;
+        }
+        case 'type': case 'taskType': {
+          var tv = String(value).toLowerCase().trim();
+          var newType = (tv === 'work' || tv === 'fixed-work' || tv === 'fixedwork') ? 'work' : 'fixed';
+          if (newType === t.taskType) return;
+          if (newType === 'work') {
+            // Capture the current derived work as the fixed quantity.
+            t.workHours = t.duration * 8 * (totalUnits(t) || 1);
+            t.taskType = 'work';
+          } else {
+            // Freeze the current effective span as the fixed duration.
+            t.duration = effectiveDuration(t);
+            t.taskType = 'fixed';
+            t.workHours = null;
+          }
+          break;
         }
         case 'percentComplete': {
           var pc = parseInt(String(value).replace('%', ''), 10);
@@ -1051,6 +1098,26 @@
     }
     function parseResources(str) { // legacy shape: ids only
       return parseAssignments(str).map(function (a) { return a.resourceId; });
+    }
+
+    function totalUnits(t) {
+      return (t.assignments || []).reduce(function (a, as) { return a + as.units; }, 0);
+    }
+    // Scale assignment units proportionally so they sum to targetTotal
+    // (per-assignment clamp 0.05–3 still applies, so extreme targets may not
+    // be reached exactly — the derived duration then reflects the clamp).
+    function rescaleUnits(t, targetTotal) {
+      var cur = totalUnits(t);
+      if (!(t.assignments || []).length || !(cur > 0) || !(targetTotal > 0)) return;
+      var f = targetTotal / cur;
+      t.assignments.forEach(function (a) { a.units = clamp(Math.round(a.units * f * 100) / 100, 0.05, 3); });
+    }
+    // The duration the scheduler sees. Fixed-work: work / (8 × Σ units),
+    // rounded up to whole days (no assignments = one implicit full-time unit).
+    function effectiveDuration(t) {
+      if (t.taskType !== 'work' || t.workHours == null) return t.duration;
+      var u = totalUnits(t) || 1;
+      return clamp(Math.ceil(t.workHours / (8 * u) - 1e-9), 0, MAX_DURATION);
     }
 
     function initialsOf(name) {

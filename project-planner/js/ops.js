@@ -90,7 +90,8 @@
     percentcomplete: 'percentComplete', pct: 'percentComplete', progress: 'percentComplete',
     deadline: 'deadline', notes: 'notes',
     actualstart: 'actualStart', astart: 'actualStart',
-    actualfinish: 'actualFinish', afinish: 'actualFinish'
+    actualfinish: 'actualFinish', afinish: 'actualFinish',
+    work: 'work', type: 'taskType', tasktype: 'taskType'
   };
 
   // Apply one op. Returns a small JSON-able result object. ctx carries the
@@ -114,10 +115,13 @@
           at = model.findIndexById(id) + 1;
         }
         var newId = model.insertTask(at, level);
-        var fields = ['name', 'duration', 'start', 'predecessors', 'resources', 'percentComplete', 'actualStart', 'actualFinish', 'deadline', 'notes'];
+        // Order matters: set duration + resources first so a following
+        // 'type':'work' captures the right work baseline, then an explicit
+        // 'work' (if given) overrides it.
+        var fields = ['name', 'duration', 'start', 'predecessors', 'resources', 'type', 'work', 'percentComplete', 'actualStart', 'actualFinish', 'deadline', 'notes'];
         fields.forEach(function (f) {
           var v = op[f] != null ? op[f] : (f === 'percentComplete' && op.pct != null ? op.pct : null);
-          if (v != null) model.setField(newId, f === 'percentComplete' ? 'percentComplete' : f, v);
+          if (v != null) model.setField(newId, f === 'type' ? 'taskType' : (f === 'percentComplete' ? 'percentComplete' : f), v);
         });
         return { op: 'add-task', id: newId, row: model.findIndexById(newId) + 1 };
       }
@@ -333,6 +337,7 @@
         finishISO: Cal.toISO(c.projectEndDay),
         workingDays: c.projectFinish,
         cost: Math.round(c.projectCost || 0),
+        workHours: Math.round(c.projectWork || 0),
         hasCycle: c.hasCycle,
         cycleIds: c.cycleIds || null,
         overallocatedResources: c.overallocatedCount || 0,
@@ -386,6 +391,8 @@
           resources: model.formatAssignments(r.task),
           percentComplete: r.percentComplete,
           cost: Math.round(r.cost || 0),
+          workHours: Math.round(r.workHours || 0),
+          scheduleMode: r.task.taskType === 'work' ? 'fixed-work' : 'fixed-duration',
           slackDays: r.isSummary ? null : r.slack,
           critical: !!r.critical,
           constraintISO: r.task.constraintISO || null,

@@ -367,5 +367,26 @@ function balanced(xml, tag) {
   eq(m2.getComputed().rows[0].workHours, 8, 'work identical after round-trip');
 })();
 
+// ---- Fixed-work task type survives the MSPDI round-trip (Type 2 + Work) ----
+(function () {
+  var m = Model.createModel();
+  m.newProject();
+  m.setProjectStart('2026-07-13');
+  Ops.applyOps(m, [{ op: 'add-task', name: 'FW', duration: 5, resources: 'Uma, Ravi' }]);
+  var t = m.getProject().tasks[0];
+  m.setField(t.id, 'type', 'work');   // work = 5×8×2 = 80h; derived dur stays 5
+  var xml = Mspdi.toXml(m);
+  has(xml, '<Type>2</Type>', 'fixed-work exported as Type 2');
+  has(xml, '<Work>PT80H0M0S</Work>', 'work quantity exported');
+
+  var doc = Mspdi.fromXml(xml);
+  eq(doc.tasks[0].taskType, 'work', 'fixed-work imported');
+  eq(doc.tasks[0].workHours, 80, 'work hours imported');
+  var m2 = Model.createModel();
+  m2.loadProject(doc);
+  eq(m2.getComputed().rows[0].durationDays, 5, 'derived duration reproduces after round-trip');
+  eq(m2.getComputed().rows[0].workHours, 80, 'work reproduces after round-trip');
+})();
+
 console.log('\nMSPDI tests: ' + passed + ' passed, ' + failed + ' failed.');
 if (failed) { console.log('\nFAILURES:\n' + failures.join('\n')); process.exit(1); }

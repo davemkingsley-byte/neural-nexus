@@ -52,12 +52,16 @@ feature phase passed an independent adversarial review (multi-agent finders +
 skeptic verification) before merge; all confirmed findings fixed and
 regression-locked. **Met.**
 
+**Work-driven scheduling.** Assignment units (`Alice [50%]`), work as a
+first-class quantity, and a fixed-work task type where duration derives from
+work ÷ assigned effort; cost and over-allocation are units-aware. **Met.**
+
 ## Honest gaps (documented, not blocking)
 
-Work/effort-driven scheduling (resource units, work vs duration), automatic
-resource leveling (deliberately excluded — silent replans surprise users),
-Task Usage timephased view, network diagram, ALAP/FNLT/MFO constraints,
-custom fields with formulas, a wider report gallery. See README roadmap.
+Automatic resource leveling (deliberately excluded — silent replans surprise
+users), Task Usage timephased view, network diagram, ALAP/FNLT/MFO
+constraints, custom fields with formulas, a wider report gallery. See README
+roadmap.
 
 ## Verdict
 

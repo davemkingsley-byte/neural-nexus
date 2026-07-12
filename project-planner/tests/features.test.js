@@ -315,5 +315,66 @@ function setupPAB() {
   eq(m3.getProject().tasks[0].assignments[0].units, 0.5, 'first assignment wins');
 })();
 
+// ---- Fixed-work task type: duration derives from work ÷ effort ----
+(function () {
+  var m = Model.createModel();
+  m.newProject();
+  m.setProjectStart('2026-07-13');
+  m.addTaskEnd();
+  var t = m.getProject().tasks[0];
+  m.setField(t.id, 'name', 'W');
+  m.setField(t.id, 'duration', '5');
+  m.setField(t.id, 'resources', 'Zoe'); // 1 full-time unit
+
+  // Convert to fixed-work: captures current work (5d × 8h × 1 = 40h).
+  m.setField(t.id, 'type', 'work');
+  eq(m.getProject().tasks[0].taskType, 'work', 'type switched to work');
+  eq(m.getProject().tasks[0].workHours, 40, 'work captured on conversion');
+  eq(m.getComputed().rows[0].durationDays, 5, 'duration unchanged at conversion');
+
+  // Add a second full-time resource: 40h / (8h × 2) = 2.5 -> ceil 3 days.
+  m.setField(t.id, 'resources', 'Zoe, Amir');
+  eq(m.getComputed().rows[0].durationDays, 3, 'more effort -> shorter derived duration');
+  eq(m.getComputed().rows[0].workHours, 40, 'work stays fixed');
+
+  // Raise work to 64h at 2 units: 64 / 16 = 4 days.
+  m.setField(t.id, 'work', '64');
+  eq(m.getProject().tasks[0].workHours, 64, 'work set');
+  eq(m.getComputed().rows[0].durationDays, 4, 'duration re-derives from new work');
+
+  // Editing duration on a fixed-work task rescales units, keeping work fixed.
+  m.setField(t.id, 'duration', '8'); // 64h over 8 days at 2 assignments -> 0.5 each
+  var as = m.getProject().tasks[0].assignments;
+  eq(m.getComputed().rows[0].workHours, 64, 'work preserved when duration forced');
+  ok(Math.abs(as[0].units - 0.5) < 0.01 && Math.abs(as[1].units - 0.5) < 0.01, 'units rescaled to hit work over new duration');
+
+  // Convert back to fixed-duration: freezes current span, clears workHours store.
+  m.setField(t.id, 'type', 'fixed');
+  eq(m.getProject().tasks[0].taskType, 'fixed', 'back to fixed duration');
+  eq(m.getProject().tasks[0].workHours, null, 'workHours store cleared');
+})();
+
+// REVIEW FIX: a fixed-work task with NO work quantity must not collapse to a
+// 0-day milestone when its own saved file is reloaded (+null coerces to 0).
+(function () {
+  var m = Model.createModel();
+  m.loadProject({
+    startISO: '2026-07-13', nextTaskId: 10, nextResourceId: 5,
+    resources: [{ id: 1, name: 'A' }],
+    tasks: [{ id: 1, name: 'Design', duration: 4, outlineLevel: 1, predecessors: [],
+              percentComplete: 0, resourceIds: [1], taskType: 'work' }] // no workHours
+  });
+  eq(m.getProject().tasks[0].workHours, null, 'absent workHours stays null on load');
+  eq(m.getComputed().rows[0].durationDays, 4, 'duration falls back to stored value');
+
+  // The save/reload cycle (normalize idempotency): null must stay null.
+  var saved = m.toJSON();
+  eq(saved.tasks[0].workHours, null, 'null persisted');
+  var m2 = Model.createModel();
+  m2.loadProject(saved);
+  eq(m2.getProject().tasks[0].workHours, null, 'null survives the second load');
+  eq(m2.getComputed().rows[0].durationDays, 4, 'duration stable across save/reload (no milestone collapse)');
+})();
+
 console.log('\nFeature tests: ' + passed + ' passed, ' + failed + ' failed.');
 if (failed) { console.log('\nFAILURES:\n' + failures.join('\n')); process.exit(1); }

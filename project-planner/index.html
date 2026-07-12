@@ -155,6 +155,13 @@
         <div class="tm-grid">
           <label class="tm-wide">Name <input id="tmName" type="text"></label>
           <label>Duration <input id="tmDuration" type="text" placeholder="5d, 2w, 0 = milestone"></label>
+          <label>Task type
+            <select id="tmTaskType" title="Fixed work derives duration from work ÷ assigned effort">
+              <option value="fixed">Fixed duration</option>
+              <option value="work">Fixed work</option>
+            </select>
+          </label>
+          <label>Work (hours) <input id="tmWork" type="text" placeholder="derived"></label>
           <label>% Complete <input id="tmPct" type="number" min="0" max="100" step="5"></label>
           <label>Constraint
             <select id="tmConstraintType">

@@ -191,25 +191,25 @@ GanttProject, Smartsheet…).
 
 Largest first — what MS Project has that ProjectDesk currently does not:
 
-1. **Work/effort-driven scheduling** — resource units (%), work vs. duration as
-   separate quantities, effort-driven task types. ProjectDesk treats duration
-   as primary and costs by day rate.
-2. **Resource leveling** — over-allocation is detected and flagged, never
+1. **Resource leveling** — over-allocation is detected and flagged, never
    auto-resolved (deliberate: silent replans surprise users).
-3. **More views** — Task Usage timephased table, Network Diagram, Calendar
+2. **More views** — Task Usage timephased table, Network Diagram, Calendar
    view, Team Planner. ProjectDesk has grid + Gantt + a Resource Usage view.
-4. **More constraint types** (ALAP, FNLT, MFO...), task calendars, recurring
+3. **More constraint types** (ALAP, FNLT, MFO...), task calendars, recurring
    tasks, split tasks, manual-vs-auto scheduling mode. Import maps MSO/SNET and
    drops the rest (the model's supported set).
-5. **Custom fields** (user-defined columns with formulas), richer report
+4. **Custom fields** (user-defined columns with formulas), richer report
    gallery (ProjectDesk has one printable status report; MS Project ships ~20
    canned reports). The grid does have a column chooser (⚙ Columns) over its
-   built-in fields, incl. an opt-in WBS column.
+   built-in fields, incl. opt-in WBS + Work columns.
 
-Delivered since the first cut: MSPDI XML export **and** import, earned value
-(PV/EV/AC, SPI/CPI, EAC/VAC), a timephased **Resource Usage** view (work + cost
-spread across day/week/month buckets, over-allocation pinpointed to real dates),
-a printable one-page **Project Status Report** (health flags, milestones,
+Delivered since the first cut: **work-driven scheduling** — resource assignment
+units (`Alice [50%]`), work as a first-class quantity, and a fixed-work task
+type where duration derives from work ÷ assigned effort — plus units-aware
+cost/over-allocation; MSPDI XML export **and** import; earned value (PV/EV/AC,
+SPI/CPI, EAC/VAC); a timephased **Resource Usage** view (work + cost spread
+across day/week/month buckets, over-allocation pinpointed to real dates); a
+printable one-page **Project Status Report** (health flags, milestones,
 behind/upcoming, top risks, critical path, resource load, EVM — 📄 Report →
-Print), status date + actuals/progress tracking, version history & restore,
-task comments & activity feed, multi-user roles + audit.
+Print); status date + actuals/progress tracking; version history & restore;
+task comments & activity feed; multi-user roles + audit.

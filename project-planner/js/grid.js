@@ -32,7 +32,7 @@
     { key: 'actualStart', label: 'Act. Start', cls: 'c-astart', w: 100, editable: true },
     { key: 'actualFinish', label: 'Act. Finish', cls: 'c-afinish', w: 100, editable: true },
     { key: 'deadline', label: 'Deadline', cls: 'c-deadline', w: 100, editable: true },
-    { key: 'work', label: 'Work', cls: 'c-work', w: 70, editable: false, dflt: false },
+    { key: 'work', label: 'Work', cls: 'c-work', w: 70, editable: true, dflt: false },
     { key: 'cost', label: 'Cost', cls: 'c-cost', w: 84, editable: false },
     { key: 'slack', label: 'Slack', cls: 'c-slack', w: 56, editable: false }
   ];
@@ -57,6 +57,7 @@
       case 'resources': return model.formatAssignments(r.task);
       case 'percentComplete': return String(r.percentComplete);
       case 'deadline': return r.task.deadlineISO || '';
+      case 'work': return String(Math.round(r.workHours || 0));
       case 'actualStart': return r.task.actualStartISO || '';
       case 'actualFinish': return r.task.actualFinishISO || '';
       default: return '';
@@ -112,7 +113,7 @@
       cols.forEach(function (c) {
         // Summary duration/start/% are rolled up from children — editing them
         // would be silently discarded, so those cells are read-only on summaries.
-        var editable = c.editable && !(r.isSummary && (c.key === 'duration' || c.key === 'start' || c.key === 'percentComplete' || c.key === 'actualStart' || c.key === 'actualFinish'));
+        var editable = c.editable && !(r.isSummary && (c.key === 'duration' || c.key === 'start' || c.key === 'percentComplete' || c.key === 'actualStart' || c.key === 'actualFinish' || c.key === 'work'));
         var cellCls = c.cls + (editable ? ' editable' : '');
         if (opts.cursor && opts.cursor.id === r.id && opts.cursor.key === c.key) cellCls += ' cell-cursor';
         if (c.key === 'name') {

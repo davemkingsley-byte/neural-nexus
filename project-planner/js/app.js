@@ -961,6 +961,10 @@
     els.tmName.value = t.name;
     els.tmDuration.value = row.isSummary ? row.durationDays + ' days (from children)' : t.duration;
     els.tmDuration.disabled = row.isSummary;
+    els.tmTaskType.value = t.taskType === 'work' ? 'work' : 'fixed';
+    els.tmTaskType.disabled = row.isSummary;
+    els.tmWork.value = Math.round(row.workHours || 0);
+    els.tmWork.disabled = row.isSummary;
     els.tmPct.value = row.isSummary ? row.percentComplete : t.percentComplete;
     els.tmPct.disabled = row.isSummary;
     els.tmConstraintType.value = t.constraintType || '';
@@ -1075,7 +1079,14 @@
     var row = model.getComputed().rows[i];
 
     if (els.tmName.value !== t.name) model.setField(id, 'name', els.tmName.value);
+    // Type first: it decides how the duration/work edits below are interpreted.
+    if (!row.isSummary && els.tmTaskType.value !== (t.taskType === 'work' ? 'work' : 'fixed')) {
+      model.setField(id, 'taskType', els.tmTaskType.value);
+    }
     if (!row.isSummary && String(els.tmDuration.value) !== String(t.duration)) model.setField(id, 'duration', els.tmDuration.value);
+    if (!row.isSummary && String(parseInt(els.tmWork.value, 10)) !== String(Math.round(row.workHours || 0))) {
+      model.setField(id, 'work', els.tmWork.value);
+    }
     if (!row.isSummary && parseInt(els.tmPct.value, 10) !== t.percentComplete) model.setField(id, 'percentComplete', els.tmPct.value);
 
     if (!row.isSummary) {
@@ -1791,6 +1802,7 @@
       'resModal', 'resClose', 'resTable', 'resNewName', 'resAddBtn', 'stWarn', 'stSaved',
       'ctxMenu', 'taskModal', 'tmTitle', 'tmClose', 'tmName', 'tmDuration', 'tmPct',
       'tmConstraintType', 'tmConstraintDate', 'tmDeadline', 'tmActualStart', 'tmActualFinish', 'tmPreds', 'tmAddPred',
+      'tmTaskType', 'tmWork',
       'tmResources', 'tmNewRes', 'tmAddRes', 'tmNotes', 'tmOk', 'tmCancel',
       'filterSel', 'btnBaselineClear', 'btnCalendar', 'calModal', 'calClose', 'calCancel', 'calOk', 'calDays', 'calHolidays',
       'btnRisks', 'riskModal', 'riskClose', 'riskTable', 'riskHeatmap', 'riskSummaryBox', 'riskAddBtn',
