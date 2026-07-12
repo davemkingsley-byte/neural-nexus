@@ -523,8 +523,9 @@ function main() {
         var evmP = up
           ? apiRequest('GET', '/api/projects/' + encodeURIComponent(projectArg) + '/schedule')
               .then(function (r) { if (!r.json) die('server returned non-JSON'); return r.json.project.evm; })
-          : Promise.resolve((function () { var m = loadModelLocal(true); var c = m.getComputed(); 
-              return c.evm && c.evm.available ? c.evm : null; })());
+          // Local mode builds the SAME report evm shape (rounded indices +
+          // per-task array) so output is identical whether the server is up.
+          : Promise.resolve(Ops.buildScheduleReport(loadModelLocal(true)).project.evm);
         return evmP.then(function (e) {
           if (JSON_OUT) return out(e);
           if (!e) return out('Earned value needs both a baseline (Set Baseline) and a status date (status <date>).');

@@ -543,11 +543,18 @@
         rows.forEach(function (r, i) {
           if (r.isSummary) return;
           var bl = baselineByDay[r.id]; // may be absent (task added after baseline)
-          var bac = bl && bl.cost != null ? bl.cost : cost[i];
+          // Coerce baseline cost — an externally-authored/corrupted string cost
+          // would otherwise string-concatenate into a garbage BAC.
+          var bacRaw = bl && bl.cost != null ? Number(bl.cost) : cost[i];
+          var bac = isFinite(bacRaw) ? bacRaw : 0;
           var bStartIdx = bl ? cal.dayToIndex(anchor, bl.startDay) : r.es;
           var bFinIdx = bl ? cal.dayToIndex(anchor, bl.finishDay) : (r.es + Math.max(r.durationDays - 1, 0));
           var bDur = Math.max(1, bFinIdx - bStartIdx + 1);
-          var isMilestoneBl = (bl ? (bl.durationDays === 0 || bl.startDay === bl.finishDay) : r.isMilestone);
+          // Milestone only when duration is genuinely 0 — a 1-day task also has
+          // startDay===finishDay, so that heuristic is a legacy fallback only.
+          var isMilestoneBl = bl
+            ? (bl.durationDays != null ? bl.durationDays === 0 : bl.startDay === bl.finishDay)
+            : r.isMilestone;
           var plannedFrac = isMilestoneBl
             ? (bStartIdx < statusIdx ? 1 : 0)
             : clamp(statusIdx - bStartIdx + 1, 0, bDur) / bDur;
@@ -559,8 +566,10 @@
             var asIdx = cal.dayToIndex(anchor, cal.snapForward(Cal.parseISO(r.task.actualStartISO)));
             var elapsed;
             if (r.task.actualFinishISO) {
+              // Cap the actual finish at the status date — AC must only reflect
+              // work performed as of "now", never cost from future days.
               var afIdx = cal.dayToIndex(anchor, cal.snapForward(Cal.parseISO(r.task.actualFinishISO)));
-              elapsed = Math.max(afIdx - asIdx + 1, 1);
+              elapsed = Math.max(Math.min(afIdx, statusIdx) - asIdx + 1, 1);
             } else {
               elapsed = clamp(statusIdx - asIdx + 1, 0, 100000);
             }

@@ -133,5 +133,57 @@ function build() {
   eq(m2.getComputed().evm.bac, 1000, 'EVM survives round-trip');
 })();
 
+// ---- REVIEW FIX: actualFinish after the status date doesn't overstate AC ----
+(function () {
+  var m = build();
+  m.saveBaseline();
+  m.setStatusDate('2026-07-15'); // idx 2 -> 3 working days elapsed
+  var a = m.getProject().tasks[0].id;
+  m.setField(a, 'actualStart', '2026-07-13');
+  m.setField(a, 'actualFinish', '2026-07-20'); // idx 5, AFTER the status date
+  var e = m.getComputed().evm;
+  // AC must count only work up to the status date: 3 working days * $100 = 300
+  eq(e.ac, 300, 'AC capped at the status date (not the full future span)');
+})();
+
+// ---- REVIEW FIX: string baseline cost coerced, not string-concatenated ----
+(function () {
+  var m = build();
+  m.saveBaseline();
+  m.getProject().baseline.tasks.forEach(function (b) { b.cost = String(b.cost); }); // corrupt to strings
+  m.recompute();
+  m.setStatusDate('2026-07-15');
+  var e = m.getComputed().evm;
+  eq(e.bac, 1000, 'string baseline costs coerced to numbers (BAC = 1000, not garbage)');
+  ok(typeof e.bac === 'number' && isFinite(e.bac), 'BAC is a finite number');
+})();
+
+// ---- REVIEW FIX: a 1-day task is NOT treated as a milestone in PV ----
+(function () {
+  var m = Model.createModel();
+  m.newProject();
+  m.setProjectStart('2026-07-13');
+  Ops.applyOps(m, [{ op: 'add-resource', name: 'Dev', rate: 100 },
+    { op: 'add-task', name: 'OneDay', duration: 1, resources: 'Dev' }]);
+  m.saveBaseline();
+  m.setStatusDate('2026-07-13'); // the task's only scheduled day, 0% done
+  var e = m.getComputed().evm;
+  eq(e.bac, 100, '1-day task BAC = 100');
+  eq(e.pv, 100, '1-day task planned complete by end of its day -> PV = full BAC');
+  eq(e.ev, 0, 'EV = 0 (not started)');
+  eq(e.sv, -100, 'SV = -100 (behind), not falsely 0');
+})();
+
+// ---- REVIEW FIX: report evm includes per-task array (server/local parity) ----
+(function () {
+  var m = build();
+  m.saveBaseline();
+  m.setStatusDate('2026-07-15');
+  m.setField(m.getProject().tasks[0].id, 'percentComplete', 40);
+  var repEvm = Ops.buildScheduleReport(m).project.evm;
+  ok(Array.isArray(repEvm.tasks), 'report evm carries the per-task array');
+  ok(repEvm.tasks.length >= 1, 'per-task rows present for the CLI worst-performers view');
+})();
+
 console.log('\nEVM tests: ' + passed + ' passed, ' + failed + ' failed.');
 if (failed) { console.log('\nFAILURES:\n' + failures.join('\n')); process.exit(1); }

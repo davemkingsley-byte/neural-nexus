@@ -348,7 +348,10 @@
           sv: c.evm.sv, cv: c.evm.cv,
           spi: c.evm.spi != null ? Math.round(c.evm.spi * 100) / 100 : null,
           cpi: c.evm.cpi != null ? Math.round(c.evm.cpi * 100) / 100 : null,
-          eac: c.evm.eac, etc: c.evm.etc, vac: c.evm.vac
+          eac: c.evm.eac, etc: c.evm.etc, vac: c.evm.vac,
+          // per-task breakdown so the CLI worst-performers view is identical
+          // whether it reads the model directly or this server report
+          tasks: c.evm.tasks
         } : null
       },
       risks: (p.risks || []).map(function (r) {
