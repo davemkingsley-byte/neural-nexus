@@ -41,6 +41,7 @@
  *   baseline set|clear
  *   status <YYYY-MM-DD|clear>  status date for behind-schedule tracking
  *   evm                        earned-value analysis (needs baseline + status)
+ *   usage [--bucket day|week|month]  timephased resource work + over-allocation
  *   history / restore <rev>    version history (every save is a revision)
  *   comment REF "text"          add a comment to a task
  *   comments REF               list a task's comments
@@ -569,6 +570,39 @@ function main() {
               });
             }
           }
+        });
+      });
+    }
+
+    case 'usage': {
+      var bucket = String(flags.bucket || 'week');
+      if (['day', 'week', 'month'].indexOf(bucket) < 0) die('usage: usage [--bucket day|week|month]');
+      return serverAvailable().then(function (up) {
+        var uP = up
+          ? apiRequest('GET', '/api/projects/' + encodeURIComponent(projectArg) + '/usage?bucket=' + bucket)
+              .then(function (r) { if (!r.json || r.json.error) die((r.json && r.json.error) || 'server returned non-JSON'); return r.json; })
+          : Promise.resolve(require('./js/usage.js').build(loadModelLocal(true), { bucket: bucket }));
+        return uP.then(function (u) {
+          if (JSON_OUT) return out(u);
+          function money(n) { return '$' + String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+          function hrs(n) { return n ? String(Math.round(n)) : '·'; }
+          if (!u.resources.length) return out('No resources assigned yet — nothing to spread across the calendar.');
+          // Show at most ~12 buckets so the terminal table stays readable.
+          var cols = u.buckets, note = '';
+          if (cols.length > 12) { cols = u.buckets.slice(0, 12); note = ' (+' + (u.buckets.length - 12) + ' more — use --bucket month or --json)'; }
+          out('Resource usage by ' + u.bucket + ' — hours (! = over-allocated)' + note);
+          out('  ' + pad('Resource', 18) + cols.map(function (b) { return pad(b.label, 10, true); }).join('') + pad('Total', 8, true) + '  Peak');
+          u.resources.forEach(function (r) {
+            var line = '  ' + pad((r.overallocated ? '⚠ ' : '') + r.name, 18);
+            line += cols.map(function (b, i) {
+              var c = r.cells[i];
+              return pad(hrs(c.hours) + (c.over ? '!' : ''), 10, true);
+            }).join('');
+            line += pad(hrs(r.totalHours), 8, true) + '  ' + (r.peakDaily > 1 ? (r.peakDaily + '×') : '1×');
+            out(line);
+          });
+          out('  ' + pad('TOTAL', 18) + cols.map(function (b, i) { return pad(hrs(u.totals.perBucket[i].hours), 10, true); }).join('') + pad(hrs(u.totals.hours), 8, true));
+          out('  Labor cost ' + money(u.totals.cost) + (u.overallocatedCount ? ('   ·   ' + u.overallocatedCount + ' resource(s) over-allocated') : ''));
         });
       });
     }

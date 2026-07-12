@@ -87,6 +87,7 @@
         <button id="btnHistory" class="tb" title="Version history — every save is restorable" hidden>🕘 History</button>
         <button id="btnActivity" class="tb" title="Recent change activity" hidden>📋 Activity</button>
         <button id="btnEvm" class="tb" title="Earned value — schedule/cost performance vs the baseline">📈 EVM</button>
+        <button id="btnUsage" class="tb" title="Resource Usage — work &amp; cost spread across the calendar">📊 Usage</button>
       </div>
     </div>
 
@@ -257,6 +258,26 @@
     </div>
   </div>
 
+  <!-- Resource Usage (timephased) modal -->
+  <div class="modal-backdrop" id="usageModal" hidden>
+    <div class="modal modal-usage">
+      <div class="modal-head">
+        <h2>Resource Usage</h2>
+        <div class="usage-controls">
+          <label>Bucket
+            <select id="usageBucket">
+              <option value="day">Day</option>
+              <option value="week" selected>Week</option>
+              <option value="month">Month</option>
+            </select>
+          </label>
+        </div>
+        <button class="modal-close" id="usageClose" title="Close">✕</button>
+      </div>
+      <div class="modal-body" id="usageBody"></div>
+    </div>
+  </div>
+
   <!-- Activity feed modal -->
   <div class="modal-backdrop" id="actModal" hidden>
     <div class="modal modal-hist">
@@ -330,6 +351,7 @@
   <script src="js/grid.js"></script>
   <script src="js/gantt.js"></script>
   <script src="js/mspdi.js"></script>
+  <script src="js/usage.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

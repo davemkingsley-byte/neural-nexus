@@ -298,6 +298,26 @@ td.evm-bad { color: #b3323a; font-weight: 700; }
 .st-evm.evm-warn { color: #b48605; }
 .st-evm.evm-bad { color: #b3323a; }
 
+/* Resource Usage (timephased) */
+.modal-usage { width: min(880px, 94vw); }
+.usage-controls { margin-left: auto; margin-right: 10px; font-size: 12px; color: var(--muted); }
+.usage-controls select { margin-left: 4px; font: inherit; padding: 2px 4px; }
+.usage-summary { font-size: 12.5px; color: var(--text); margin-bottom: 10px; line-height: 1.5; }
+.usage-summary .usage-warn { color: var(--crit-dark); font-weight: 700; }
+.usage-scroll { overflow-x: auto; }
+.usage-table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+.usage-table th, .usage-table td { border: 1px solid var(--line); padding: 4px 8px; text-align: right; font-size: 12px; }
+.usage-table th.usage-res, .usage-table td.usage-res { text-align: left; white-space: nowrap; position: sticky; left: 0; background: var(--panel); }
+.usage-table thead th { background: #f7f8fa; font-weight: 600; color: var(--muted); }
+.usage-table th.usage-col { text-align: right; white-space: nowrap; }
+.usage-rate { color: var(--muted); font-weight: 400; font-size: 10.5px; margin-left: 6px; }
+.usage-table td.usage-has { color: var(--text); }
+.usage-table td.usage-over { background: #fde7e8; color: var(--crit-dark); font-weight: 700; }
+.usage-over-row td.usage-res { color: var(--crit-dark); font-weight: 700; }
+.usage-table td.usage-tot, .usage-table th.usage-tot { font-weight: 700; border-left: 2px solid var(--line-strong); }
+.usage-table tr.usage-total-row td { border-top: 2px solid var(--line-strong); font-weight: 700; background: #f7f8fa; }
+.usage-empty { font-size: 13px; line-height: 1.6; color: var(--muted); padding: 8px 2px; }
+
 /* ---- Comments + activity ---- */
 .comment-chip {
   display: inline-block; margin-left: 6px; padding: 0 5px; border-radius: 8px;

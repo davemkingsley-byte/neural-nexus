@@ -284,7 +284,8 @@
       (els.riskModal && !els.riskModal.hidden) ||
       (els.histModal && !els.histModal.hidden) ||
       (els.actModal && !els.actModal.hidden) ||
-      (els.evmModal && !els.evmModal.hidden);
+      (els.evmModal && !els.evmModal.hidden) ||
+      (els.usageModal && !els.usageModal.hidden);
   }
 
   // Every real model mutation lands here (model.subscribe). Remote applies are
@@ -758,7 +759,8 @@
         (els.riskModal && !els.riskModal.hidden) ||
       (els.histModal && !els.histModal.hidden) ||
       (els.actModal && !els.actModal.hidden) ||
-      (els.evmModal && !els.evmModal.hidden);
+      (els.evmModal && !els.evmModal.hidden) ||
+      (els.usageModal && !els.usageModal.hidden);
       if (modalOpen) {
         if (e.key === 'Escape') {
           e.preventDefault();
@@ -769,6 +771,7 @@
           els.histModal.hidden = true;
           els.actModal.hidden = true;
           els.evmModal.hidden = true;
+          els.usageModal.hidden = true;
         }
         return;
       }
@@ -1360,6 +1363,53 @@
     els.evmModal.addEventListener('mousedown', function (e) { if (e.target === els.evmModal) els.evmModal.hidden = true; });
   }
 
+  // ---- Resource Usage (timephased) ----
+  function openUsageModal() {
+    renderUsage();
+    els.usageModal.hidden = false;
+  }
+
+  function renderUsage() {
+    var esc = PM.Grid.esc, money = model.formatMoney;
+    var bucket = (els.usageBucket && els.usageBucket.value) || 'week';
+    var u = PM.Usage.build(model, { bucket: bucket });
+    if (!u.resources.length) {
+      els.usageBody.innerHTML = '<div class="usage-empty">No resources are assigned yet. Assign people to tasks (Task Info → Resources) and their work will spread across the calendar here — highlighting exactly which weeks anyone is over-allocated.</div>';
+      return;
+    }
+    function hrs(n) { return n ? Math.round(n) : ''; }
+    var head = '<tr><th class="usage-res">Resource</th>' +
+      u.buckets.map(function (b) { return '<th class="usage-col">' + esc(b.label) + '</th>'; }).join('') +
+      '<th class="usage-tot">Total</th></tr>';
+    var body = u.resources.map(function (r) {
+      var cls = r.overallocated ? ' class="usage-over-row"' : '';
+      var label = (r.overallocated ? '⚠ ' : '') + (r.unassigned ? '(Unassigned)' : r.name);
+      var cells = r.cells.map(function (c) {
+        var cc = c.over ? ' class="usage-over"' : (c.hours ? ' class="usage-has"' : '');
+        var title = c.hours ? (' title="' + (c.peak > 1 ? (c.peak + '× booked · ') : '') + money(c.cost) + '"') : '';
+        return '<td' + cc + title + '>' + hrs(c.hours) + '</td>';
+      }).join('');
+      return '<tr' + cls + '><td class="usage-res">' + esc(label) +
+        (r.rate ? '<span class="usage-rate">' + money(r.rate) + '/day</span>' : '') + '</td>' +
+        cells + '<td class="usage-tot">' + hrs(r.totalHours) + '</td></tr>';
+    }).join('');
+    var totalRow = '<tr class="usage-total-row"><td class="usage-res">TOTAL</td>' +
+      u.totals.perBucket.map(function (b) { return '<td>' + hrs(b.hours) + '</td>'; }).join('') +
+      '<td class="usage-tot">' + hrs(u.totals.hours) + '</td></tr>';
+    var summary = '<div class="usage-summary">Labor cost <strong>' + money(u.totals.cost) + '</strong>' +
+      (u.overallocatedCount ? ' · <span class="usage-warn">' + u.overallocatedCount + ' resource' + (u.overallocatedCount > 1 ? 's' : '') + ' over-allocated</span>' : ' · no over-allocation') +
+      '. Hours are 8/working-day; a highlighted cell means the resource is booked on two or more concurrent tasks that ' + esc(bucket) + '.</div>';
+    els.usageBody.innerHTML = summary +
+      '<div class="usage-scroll"><table class="usage-table"><thead>' + head + '</thead><tbody>' + body + totalRow + '</tbody></table></div>';
+  }
+
+  function wireUsageModal() {
+    els.btnUsage.onclick = openUsageModal;
+    els.usageClose.onclick = function () { els.usageModal.hidden = true; };
+    els.usageModal.addEventListener('mousedown', function (e) { if (e.target === els.usageModal) els.usageModal.hidden = true; });
+    if (els.usageBucket) els.usageBucket.onchange = renderUsage;
+  }
+
   // ---- Activity feed ----
   function openActivityModal() {
     if (!sync.server) return;
@@ -1433,6 +1483,7 @@
               els.histModal.hidden = true;
           els.actModal.hidden = true;
           els.evmModal.hidden = true;
+          els.usageModal.hidden = true;
               applyRemote(doc);
               toast('Restored revision ' + rev + ' (as new revision ' + res.j.rev + ')');
             });
@@ -1548,6 +1599,7 @@
       'btnHistory', 'histModal', 'histClose', 'histTable', 'calStatus',
       'btnActivity', 'actModal', 'actClose', 'actFeed',
       'btnEvm', 'evmModal', 'evmClose', 'evmBody',
+      'btnUsage', 'usageModal', 'usageClose', 'usageBody', 'usageBucket',
       'tmComments', 'tmNewComment', 'tmAddComment'
     ].forEach(function (id) { els[id] = $(id); });
 
@@ -1564,6 +1616,7 @@
     wireHistoryModal();
     wireActivityModal();
     wireEvmModal();
+    wireUsageModal();
     bootstrapStorage(); // loads local instantly, then upgrades to server mode
   }
 

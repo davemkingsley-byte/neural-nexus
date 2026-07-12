@@ -34,6 +34,7 @@ var Ops = require('./js/ops.js');
 var Auth = require('./auth.js');
 var Store = require('./store.js');
 var Mspdi = require('./js/mspdi.js');
+var Usage = require('./js/usage.js');
 
 var ROOT = __dirname;
 var PROJECTS_DIR = process.env.PROJECTDESK_PROJECTS_DIR || path.join(ROOT, 'projects');
@@ -210,6 +211,14 @@ function handleApi(req, res, pathname, identity) {
       try {
         return send(res, 200, Mspdi.toXml(modelFor(doc)), 'application/xml; charset=utf-8');
       } catch (e) { return send(res, 500, { error: 'mspdi failed: ' + e.message }); }
+    }
+    // Timephased resource usage (?bucket=day|week|month, default week).
+    if (sub === 'usage') {
+      try {
+        var uq = ((req.url || '').split('?')[1] || '').match(/(?:^|&)bucket=([^&]+)/);
+        var bucket = uq ? decodeURIComponent(uq[1]) : 'week';
+        return send(res, 200, Usage.build(modelFor(doc), { bucket: bucket }));
+      } catch (e) { return send(res, 500, { error: 'usage failed: ' + e.message }); }
     }
     // Activity feed: the audit trail, newest first (capped).
     if (sub === 'activity') {
